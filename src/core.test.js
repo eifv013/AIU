@@ -213,3 +213,49 @@ test('저장: 예전 버전이면 개편 보상 한 번, 릴레이 값 복구', 
   assert.equal(C.sanitize({ v: 2, gems: 50 }, 0).gems, 50);
   assert.equal(C.sanitize({ v: 2, pulls: { total: -5, relay: 99999 } }, 0).pulls.relay, C.CONST.RELAY - 1);
 });
+
+/* ---------- 출동, 일일 임무, 출석 ---------- */
+test('일일 초기화: 날짜가 바뀌면 입장 3회와 임무가 새로', () => {
+  const s = C.newState(0), d1 = new Date(2026, 10, 27, 23, 59), d2 = new Date(2026, 10, 28, 0, 1);
+  assert.equal(C.dailyReset(s, d1), true); assert.equal(C.dailyReset(s, d1), false);
+  s.keys.bounty = 0; C.missionAdd(s, 'kill', 50);
+  assert.equal(C.dailyReset(s, d2), true); assert.equal(s.keys.bounty, 3); assert.deepEqual(s.daily.p, {});
+});
+test('일일 출동: 다음 단계까지만, 깨면 입장 1회 쓰고 보상, 소탕은 최고 단계', () => {
+  const s = C.newState(0); C.dailyReset(s, new Date(2026, 10, 27));
+  assert.throws(() => C.clearDungeon(s, 'bounty', 2), RangeError);
+  const r = C.clearDungeon(s, 'bounty', 1); assert.ok(r.gold > 0); assert.equal(s.gold, r.gold); assert.equal(s.keys.bounty, 2); assert.equal(s.dbest.bounty, 1);
+  assert.throws(() => C.sweepDungeon(s, 'evidence'), RangeError);
+  const t0 = s.tix; C.clearDungeon(s, 'evidence', 1); assert.equal(s.tix, t0 + 20);
+  C.sweepDungeon(s, 'bounty'); C.sweepDungeon(s, 'bounty'); assert.equal(s.keys.bounty, 0);
+  assert.throws(() => C.sweepDungeon(s, 'bounty'), RangeError);
+  assert.equal(s.daily.p.dungeon, 3);
+  assert.ok(C.dungeonStage('bounty', 2) > C.dungeonStage('bounty', 1));
+  assert.throws(() => C.dungeonById('x'), Error);
+});
+test('격리 구역: 층마다 보상, 5층 정예 호출권, 10층 보석 200', () => {
+  const s = C.newState(0); C.dailyReset(s, new Date(2026, 10, 27));
+  for (let i = 0; i < 10; i++) C.clearTower(s);
+  assert.equal(s.tower, 10); assert.equal(s.ptix, 2); assert.equal(s.gems, C.CONST.START_GEMS + 8 * 30 + 30 + 200);
+  assert.equal(C.towerReward(10).gems, 200); assert.ok(C.towerStage(5) > C.towerStage(4));
+});
+test('일일 임무: 다 차야 받고, 두 번 못 받고, 모두 받으면 정예 호출권', () => {
+  const s = C.newState(0); C.dailyReset(s, new Date(2026, 10, 27));
+  assert.equal(C.missionClaim(s, 0), 0);
+  C.progress(s, 'kill', 500); assert.equal(s.daily.p.kill, 200);
+  assert.equal(C.missionClaim(s, 0), 30); assert.equal(C.missionClaim(s, 0), 0);
+  assert.equal(C.missionBonus(s), 0);
+  C.MISSIONS.forEach((m, i) => { C.missionAdd(s, m.kind, m.need); C.missionClaim(s, i); });
+  assert.equal(C.missionBonus(s), 1); assert.equal(C.missionBonus(s), 0); assert.equal(s.ptix, 1);
+  assert.equal(C.missionAdd(s, 'nope', 1), false);
+});
+test('출석: 하루 한 번, 7일째 정예 호출권 3장, 8일째 다시 1일', () => {
+  const s = C.newState(0);
+  for (let d = 0; d < 7; d++) { const r = C.attend(s, new Date(2026, 10, 27 + d)); assert.equal(r.day, d + 1); assert.equal(C.attend(s, new Date(2026, 10, 27 + d)), null); }
+  assert.equal(s.ptix, 4); assert.equal(C.attend(s, new Date(2026, 11, 10)).day, 1);
+});
+test('저장: 출동 값이 이상하면 바로잡음', () => {
+  const s = C.sanitize({ v: 2, keys: { bounty: 99, evidence: -3 }, dbest: { bounty: 'x' }, tower: 5.7, daily: { p: { kill: 9999 }, got: [0, 0, 99, 'a'], bonus: true }, att: { n: -1, last: 5 } }, 0);
+  assert.equal(s.keys.bounty, 3); assert.equal(s.keys.evidence, 0); assert.equal(s.dbest.bounty, 0); assert.equal(s.tower, 5);
+  assert.equal(s.daily.p.kill, 200); assert.deepEqual(s.daily.got, [0]); assert.equal(s.daily.bonus, false); assert.deepEqual(s.att, { n: 0, last: '' });
+});

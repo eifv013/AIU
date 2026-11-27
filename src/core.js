@@ -67,7 +67,30 @@
     START_GEMS: 1000,        // 시작 보석: 100회 호출
     SAVE_VERSION: 2,         // 2: 세나 방식 뽑기로 바뀜 (예전 저장에는 보상 보석을 한 번 줌)
     MIGRATE_GEMS: 1000,
+    /* 출동 (세나 키우기의 일일 던전, 무한의 탑과 같은 자리) */
+    DAILY_KEYS: 3,           // 일일 출동 하루 입장 횟수 (깨야 줄어듦, 소탕도 1회)
+    CHAL_TIME: 30,           // 출동 제한 시간(초)
+    MISSION_BONUS_PTIX: 1,   // 일일 임무를 모두 끝내면 정예 호출권
   };
+
+  /* 일일 출동 두 가지. stageEq: 단계마다 몇 스테이지 근원체만큼 센지 */
+  const DUNGEONS = [
+    { id: 'bounty',   name: '현상금 사냥', reward: 'gold', text: '골드를 크게 벌어요',  step: 6, base: 0 },
+    { id: 'evidence', name: '증거 수집',   reward: 'tix',  text: '호출권을 모아요',     step: 6, base: 3 },
+  ];
+  /* 일일 임무: 매일 0시에 초기화. 다 끝내면 정예 호출권 1장 더 */
+  const MISSIONS = [
+    { kind: 'kill',    text: '이상체 처리',     need: 200, gems: 30 },
+    { kind: 'boss',    text: '근원체 봉쇄',     need: 2,   gems: 30 },
+    { kind: 'lvup',    text: '요원 강화',       need: 10,  gems: 30 },
+    { kind: 'summon',  text: '요원 호출',       need: 10,  gems: 30 },
+    { kind: 'dungeon', text: '일일 출동 완료',  need: 3,   gems: 50 },
+    { kind: 'tower',   text: '격리 구역 돌파',  need: 1,   gems: 30 },
+  ];
+  /* 출석: 7일 한 바퀴, 하루 한 번 (연속이 아니어도 다음 칸) */
+  const ATTEND = [
+    { gems: 100 }, { tix: 30 }, { gems: 150 }, { ptix: 1 }, { tix: 50 }, { gems: 200 }, { ptix: 3 },
+  ];
 
   /* ---------- 2. 유틸 ---------- */
 
@@ -349,6 +372,108 @@
     return `${Math.max(1, m)}분`;
   }
 
+  /* ---------- 6-2. 출동, 일일 임무, 출석 ---------- */
+
+  /** 기기 시간 기준 날짜 문자열 (매일 0시에 바뀜) */
+  function dayKey(now) {
+    const d = now instanceof Date && isNum(now.getTime()) ? now : new Date(0);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+  /** 날짜가 바뀌었으면 입장 횟수와 일일 임무를 새로 (상태를 직접 바꿈). 바뀌었으면 true */
+  function dailyReset(state, now) {
+    const k = dayKey(now);
+    if (state.day === k) return false;
+    state.day = k;
+    for (const d of DUNGEONS) state.keys[d.id] = CONST.DAILY_KEYS;
+    state.daily = { p: {}, got: [], bonus: false };
+    return true;
+  }
+  function dungeonById(id) {
+    const d = DUNGEONS.find(x => x.id === id);
+    if (!d) throw new Error(`알 수 없는 출동: ${id}`);
+    return d;
+  }
+  /** 출동 lv 단계가 스테이지 몇만큼 센지 */
+  function dungeonStage(id, lv) { const d = dungeonById(id); return d.base + d.step * clampInt(lv, 1, 1e5, 1); }
+  /** 출동 보상: 현상금 사냥은 그 스테이지 근원체 골드 15번 분, 증거 수집은 호출권 15 + 단계당 5 */
+  function dungeonReward(id, lv, goldLv) {
+    const d = dungeonById(id), L = clampInt(lv, 1, 1e5, 1);
+    if (d.reward === 'gold') return { gold: Math.floor(bossGold(dungeonStage(id, L), goldLv) * 15) };
+    return { tix: 15 + 5 * L };
+  }
+  /** 격리 구역 f 층이 스테이지 몇만큼 센지, 처음 돌파 보상 (5층마다 정예 호출권, 10층마다 보석 200) */
+  function towerStage(f) { return 4 + 2 * clampInt(f, 1, 1e5, 1); }
+  function towerReward(f) {
+    const F = clampInt(f, 1, 1e5, 1);
+    return { gems: F % 10 === 0 ? 200 : 30, ptix: F % 5 === 0 ? 1 : 0 };
+  }
+  /** 출동 근원체 체력, 공격력 (일반 근원체와 같은 공식) */
+  function chalHp(stageEq) { return bossHp(stageEq); }
+  function chalAtk(stageEq) { return bossAtk(stageEq); }
+  function giveReward(state, r) {
+    if (r.gold) state.gold += r.gold;
+    if (r.gems) state.gems += r.gems;
+    if (r.tix) state.tix += r.tix;
+    if (r.ptix) state.ptix += r.ptix;
+    return r;
+  }
+  /** 일일 출동 성공 (입장 1회 씀, 처음 깬 단계면 최고 단계 올림). 상태를 직접 바꾸고 보상 반환 */
+  function clearDungeon(state, id, lv) {
+    dungeonById(id);
+    const L = clampInt(lv, 1, 1e5, 1);
+    if (L > (state.dbest[id] || 0) + 1) throw new RangeError('아직 열리지 않은 단계예요');
+    if (state.keys[id] <= 0) throw new RangeError('오늘 입장 횟수를 다 썼어요');
+    state.keys[id]--;
+    state.dbest[id] = Math.max(state.dbest[id] || 0, L);
+    missionAdd(state, 'dungeon', 1);
+    return giveReward(state, dungeonReward(id, L, state.up.gold));
+  }
+  /** 소탕: 깬 최고 단계 보상을 싸우지 않고 바로 받음 (입장 1회) */
+  function sweepDungeon(state, id) {
+    const best = state.dbest[id] || 0;
+    if (best < 1) throw new RangeError('한 번 깬 단계부터 소탕할 수 있어요');
+    return clearDungeon(state, id, best);
+  }
+  /** 격리 구역 다음 층 돌파 */
+  function clearTower(state) {
+    state.tower = (state.tower || 0) + 1;
+    missionAdd(state, 'tower', 1);
+    return giveReward(state, towerReward(state.tower));
+  }
+
+  /** 일일 임무 진행 (상태를 직접 바꿈) */
+  function missionAdd(state, kind, amount = 1) {
+    if (!state || !state.daily || !isNum(amount) || amount <= 0) return false;
+    const m = MISSIONS.find(x => x.kind === kind); if (!m) return false;
+    state.daily.p[kind] = Math.min(m.need, (state.daily.p[kind] || 0) + amount);
+    return true;
+  }
+  /** i 번째 임무 보상 받기. 못 받으면 0 */
+  function missionClaim(state, i) {
+    const m = MISSIONS[i];
+    if (!m || state.daily.got.includes(i) || (state.daily.p[m.kind] || 0) < m.need) return 0;
+    state.daily.got.push(i); state.gems += m.gems;
+    return m.gems;
+  }
+  /** 모두 받았으면 보너스 (정예 호출권) */
+  function missionBonus(state) {
+    if (state.daily.bonus || state.daily.got.length < MISSIONS.length) return 0;
+    state.daily.bonus = true; state.ptix += CONST.MISSION_BONUS_PTIX;
+    return CONST.MISSION_BONUS_PTIX;
+  }
+  /** 가이드 퀘스트와 일일 임무를 함께 올림 */
+  function progress(state, kind, amount = 1) { questAdd(state, kind, amount); missionAdd(state, kind, amount); }
+
+  /** 출석 보상 받을 수 있는지 / 받기 (오늘 이미 받았으면 null) */
+  function canAttend(state, now) { return state.att.last !== dayKey(now); }
+  function attend(state, now) {
+    if (!canAttend(state, now)) return null;
+    const i = state.att.n % ATTEND.length, r = { ...ATTEND[i] };
+    state.att = { n: state.att.n + 1, last: dayKey(now) };
+    giveReward(state, r);
+    return { day: i + 1, reward: r };
+  }
+
   /* ---------- 7. 상태 생성 / 저장 검증 ---------- */
 
   /* ---------- 가이드 퀘스트 (세나 키우기의 왼쪽 퀘스트 줄처럼 하나씩 차례로) ----------
@@ -407,6 +532,12 @@
       autoSkill: true,          // 기술 자동 사용
       speed: 1,                 // 전투 배속 1 또는 2
       lastSeen: isNum(now) ? now : 0,
+      day: '',                  // 마지막 일일 초기화 날짜
+      keys: Object.fromEntries(DUNGEONS.map(d => [d.id, CONST.DAILY_KEYS])),   // 일일 출동 남은 입장
+      dbest: Object.fromEntries(DUNGEONS.map(d => [d.id, 0])),                 // 일일 출동 깬 최고 단계
+      tower: 0,                 // 격리 구역 돌파한 층
+      daily: { p: {}, got: [], bonus: false },   // 일일 임무 진행, 받은 번호, 보너스
+      att: { n: 0, last: '' },  // 출석 받은 횟수, 마지막 날짜
     };
   }
 
@@ -440,6 +571,18 @@
     // 예전 저장(버전 1)이면 뽑기 개편 보상 보석을 한 번 줌
     if (!(isNum(raw.v) && raw.v >= CONST.SAVE_VERSION)) { s.gems += CONST.MIGRATE_GEMS; s.migrated = true; }
     s.speed = raw.speed === 2 ? 2 : 1;
+    s.day = typeof raw.day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw.day) ? raw.day : '';
+    for (const d of DUNGEONS) {
+      if (raw.keys && typeof raw.keys === 'object') s.keys[d.id] = clampInt(raw.keys[d.id], 0, CONST.DAILY_KEYS, CONST.DAILY_KEYS);
+      if (raw.dbest && typeof raw.dbest === 'object') s.dbest[d.id] = clampInt(raw.dbest[d.id], 0, 1e5, 0);
+    }
+    s.tower = clampInt(raw.tower, 0, 1e5, 0);
+    if (raw.daily && typeof raw.daily === 'object') {
+      for (const m of MISSIONS) if (raw.daily.p && isNum(raw.daily.p[m.kind])) s.daily.p[m.kind] = clampInt(raw.daily.p[m.kind], 0, m.need, 0);
+      s.daily.got = Array.isArray(raw.daily.got) ? [...new Set(raw.daily.got.filter(i => Number.isInteger(i) && i >= 0 && i < MISSIONS.length))] : [];
+      s.daily.bonus = raw.daily.bonus === true && s.daily.got.length === MISSIONS.length;
+    }
+    if (raw.att && typeof raw.att === 'object') s.att = { n: clampInt(raw.att.n, 0, 1e6, 0), last: typeof raw.att.last === 'string' ? raw.att.last.slice(0, 10) : '' };
     s.lastSeen = isNum(raw.lastSeen) && raw.lastSeen > 0 ? raw.lastSeen : base.lastSeen;
     if (raw.up && typeof raw.up === 'object') {
       for (const u of UPGRADES) s.up[u.id] = clampInt(raw.up[u.id], 0, u.max, 0);
@@ -475,6 +618,8 @@
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,
     newState, cloneState, sanitize, loadFromString, QUESTS, questAt, questAdd, questClaim,
+    DUNGEONS, MISSIONS, ATTEND, dayKey, dailyReset, dungeonById, dungeonStage, dungeonReward, towerStage, towerReward,
+    chalHp, chalAtk, clearDungeon, sweepDungeon, clearTower, missionAdd, missionClaim, missionBonus, progress, canAttend, attend,
   };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = Core;

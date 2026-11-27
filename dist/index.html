@@ -81,7 +81,7 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 
 /* 패널 */
 #panel{flex:1;overflow-y:auto;padding:10px 10px 18px;background:var(--bg)}
-#tabs{display:grid;grid-template-columns:repeat(3,1fr);padding-bottom:env(safe-area-inset-bottom);background:var(--bg);border-top:1px solid var(--line)}
+#tabs{display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom);background:var(--bg);border-top:1px solid var(--line)}
 #tabs button{height:54px;border:0;background:none;color:var(--dim);font:700 15px 'IBM Plex Sans KR';position:relative}
 #tabs button.on{color:var(--gold);background:linear-gradient(rgba(242,201,76,.08),rgba(242,201,76,0))}
 #tabs button.on::after{content:"";position:absolute;left:30%;right:30%;top:-1px;height:2px;background:var(--gold)}
@@ -91,6 +91,47 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 .seg{display:grid;grid-template-columns:repeat(3,1fr);margin-bottom:10px;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .seg button{height:34px;border:0;border-left:1px solid var(--line);background:var(--panel);color:var(--dim);font:700 13px 'IBM Plex Sans KR'}
 .seg button:first-child{border-left:0}
+.dcard{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px;margin-bottom:8px;border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(90deg,rgba(120,80,200,.10),rgba(0,0,0,0) 60%),var(--panel)}
+.dcard.tower{background:linear-gradient(90deg,rgba(220,70,70,.12),rgba(0,0,0,0) 60%),var(--panel)}
+.dimg{width:64px;height:76px;border-radius:var(--r);background:radial-gradient(circle at 50% 70%,#2a2140,#0b0d12 75%);overflow:hidden;display:grid;place-items:end center}
+.dimg img{max-width:100%;max-height:100%;object-fit:contain}
+.dinfo{min-width:0;text-align:left}
+.dt{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.dt b{font:400 16px "Black Han Sans"}
+.dleft{font-size:12px;color:var(--dim);white-space:nowrap}
+.dleft i{font-style:normal;color:var(--gold);font-weight:700}
+.dd{font-size:12px;color:var(--dim);margin:2px 0 6px}
+.dstep{display:flex;align-items:center;gap:6px}
+.dstep b{font-size:14px;min-width:46px;text-align:center}
+.dstep .btn.sm{min-width:30px;height:26px;padding:0 6px}
+.df{font-style:normal;font-size:11px;font-weight:700;padding:2px 6px;border-radius:4px;margin-left:4px}
+.df.ez{color:#8fe3a8;background:rgba(143,227,168,.12)}.df.md{color:#ffd98a;background:rgba(255,217,138,.12)}.df.hd{color:#ff7b6b;background:rgba(255,123,107,.12)}
+.drw{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;color:var(--dim)}
+.rw{display:inline-flex;align-items:center;gap:3px;color:var(--ink);font-weight:700;font-size:13px;white-space:nowrap}
+.rw .ic{width:16px;height:16px}
+.dbtns{display:grid;gap:6px}
+.dbtns .btn{min-width:58px}
+.mrow{display:grid;grid-template-columns:minmax(0,1fr) auto auto 58px;gap:10px;align-items:center;padding:10px 12px;margin-bottom:6px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);text-align:left}
+.mrow .mt b{font-size:14px}
+.mrow .bar{height:5px;margin-top:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+.mrow .bar i{display:block;height:100%;background:var(--gold)}
+.mrow .mp{font-size:12px;color:var(--dim);white-space:nowrap}
+.mrow.done{opacity:.55}
+.mrow.bonus{border-color:rgba(185,140,255,.5);background:linear-gradient(90deg,rgba(185,140,255,.12),rgba(0,0,0,0)),var(--panel)}
+.attg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.attg{grid-auto-rows:1fr}
+.att{position:relative;display:grid;grid-template-columns:1fr;align-content:center;justify-items:center;gap:6px;padding:10px 4px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+.att small{font-size:12px;color:var(--dim)}
+.att .rw{font-size:14px}.att .rw .ic{width:20px;height:20px}
+.att.wk{grid-column:span 2;border-color:rgba(185,140,255,.6);background:linear-gradient(135deg,rgba(185,140,255,.16),rgba(0,0,0,0)),var(--panel)}
+.att.today{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.att.got>:not(.ck){opacity:.2}
+.att .ck{position:absolute;inset:0;display:grid;place-items:center;font:400 18px "Black Han Sans";font-style:normal;color:var(--gold);border-radius:var(--r);background:rgba(10,13,22,.45)}
+.att-btn{width:100%;margin-top:10px;height:44px}
+.chal-n{font:400 16px "Black Han Sans";color:var(--gold);margin:-4px 0 10px}
+.rwd{display:flex;justify-content:center;gap:12px;margin:6px 0 14px}
+.rwd span{display:grid;justify-items:center;gap:2px;min-width:72px;padding:10px 8px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel2)}
+.rwd .ic{width:28px;height:28px}.rwd b{font-size:16px}.rwd small{font-size:11px;color:var(--dim)}
 .seg.two{grid-template-columns:repeat(2,52px);margin:0}
 .seg button.on{background:var(--panel2);color:var(--gold);box-shadow:inset 0 -2px 0 var(--gold)}
 
@@ -275,6 +316,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   <nav id="tabs">
     <button data-tab="hero" class="on">요원<i class="dot" id="dotHero"></i></button>
     <button data-tab="train">훈련소<i class="dot" id="dotTrain"></i></button>
+    <button data-tab="run">출동<i class="dot" id="dotRun"></i></button>
     <button data-tab="summon">호출</button>
   </nav>
   <div id="modal"></div>
@@ -400,7 +442,30 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     START_GEMS: 1000,        // 시작 보석: 100회 호출
     SAVE_VERSION: 2,         // 2: 세나 방식 뽑기로 바뀜 (예전 저장에는 보상 보석을 한 번 줌)
     MIGRATE_GEMS: 1000,
+    /* 출동 (세나 키우기의 일일 던전, 무한의 탑과 같은 자리) */
+    DAILY_KEYS: 3,           // 일일 출동 하루 입장 횟수 (깨야 줄어듦, 소탕도 1회)
+    CHAL_TIME: 30,           // 출동 제한 시간(초)
+    MISSION_BONUS_PTIX: 1,   // 일일 임무를 모두 끝내면 정예 호출권
   };
+
+  /* 일일 출동 두 가지. stageEq: 단계마다 몇 스테이지 근원체만큼 센지 */
+  const DUNGEONS = [
+    { id: 'bounty',   name: '현상금 사냥', reward: 'gold', text: '골드를 크게 벌어요',  step: 6, base: 0 },
+    { id: 'evidence', name: '증거 수집',   reward: 'tix',  text: '호출권을 모아요',     step: 6, base: 3 },
+  ];
+  /* 일일 임무: 매일 0시에 초기화. 다 끝내면 정예 호출권 1장 더 */
+  const MISSIONS = [
+    { kind: 'kill',    text: '이상체 처리',     need: 200, gems: 30 },
+    { kind: 'boss',    text: '근원체 봉쇄',     need: 2,   gems: 30 },
+    { kind: 'lvup',    text: '요원 강화',       need: 10,  gems: 30 },
+    { kind: 'summon',  text: '요원 호출',       need: 10,  gems: 30 },
+    { kind: 'dungeon', text: '일일 출동 완료',  need: 3,   gems: 50 },
+    { kind: 'tower',   text: '격리 구역 돌파',  need: 1,   gems: 30 },
+  ];
+  /* 출석: 7일 한 바퀴, 하루 한 번 (연속이 아니어도 다음 칸) */
+  const ATTEND = [
+    { gems: 100 }, { tix: 30 }, { gems: 150 }, { ptix: 1 }, { tix: 50 }, { gems: 200 }, { ptix: 3 },
+  ];
 
   /* ---------- 2. 유틸 ---------- */
 
@@ -682,6 +747,108 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     return `${Math.max(1, m)}분`;
   }
 
+  /* ---------- 6-2. 출동, 일일 임무, 출석 ---------- */
+
+  /** 기기 시간 기준 날짜 문자열 (매일 0시에 바뀜) */
+  function dayKey(now) {
+    const d = now instanceof Date && isNum(now.getTime()) ? now : new Date(0);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+  /** 날짜가 바뀌었으면 입장 횟수와 일일 임무를 새로 (상태를 직접 바꿈). 바뀌었으면 true */
+  function dailyReset(state, now) {
+    const k = dayKey(now);
+    if (state.day === k) return false;
+    state.day = k;
+    for (const d of DUNGEONS) state.keys[d.id] = CONST.DAILY_KEYS;
+    state.daily = { p: {}, got: [], bonus: false };
+    return true;
+  }
+  function dungeonById(id) {
+    const d = DUNGEONS.find(x => x.id === id);
+    if (!d) throw new Error(`알 수 없는 출동: ${id}`);
+    return d;
+  }
+  /** 출동 lv 단계가 스테이지 몇만큼 센지 */
+  function dungeonStage(id, lv) { const d = dungeonById(id); return d.base + d.step * clampInt(lv, 1, 1e5, 1); }
+  /** 출동 보상: 현상금 사냥은 그 스테이지 근원체 골드 15번 분, 증거 수집은 호출권 15 + 단계당 5 */
+  function dungeonReward(id, lv, goldLv) {
+    const d = dungeonById(id), L = clampInt(lv, 1, 1e5, 1);
+    if (d.reward === 'gold') return { gold: Math.floor(bossGold(dungeonStage(id, L), goldLv) * 15) };
+    return { tix: 15 + 5 * L };
+  }
+  /** 격리 구역 f 층이 스테이지 몇만큼 센지, 처음 돌파 보상 (5층마다 정예 호출권, 10층마다 보석 200) */
+  function towerStage(f) { return 4 + 2 * clampInt(f, 1, 1e5, 1); }
+  function towerReward(f) {
+    const F = clampInt(f, 1, 1e5, 1);
+    return { gems: F % 10 === 0 ? 200 : 30, ptix: F % 5 === 0 ? 1 : 0 };
+  }
+  /** 출동 근원체 체력, 공격력 (일반 근원체와 같은 공식) */
+  function chalHp(stageEq) { return bossHp(stageEq); }
+  function chalAtk(stageEq) { return bossAtk(stageEq); }
+  function giveReward(state, r) {
+    if (r.gold) state.gold += r.gold;
+    if (r.gems) state.gems += r.gems;
+    if (r.tix) state.tix += r.tix;
+    if (r.ptix) state.ptix += r.ptix;
+    return r;
+  }
+  /** 일일 출동 성공 (입장 1회 씀, 처음 깬 단계면 최고 단계 올림). 상태를 직접 바꾸고 보상 반환 */
+  function clearDungeon(state, id, lv) {
+    dungeonById(id);
+    const L = clampInt(lv, 1, 1e5, 1);
+    if (L > (state.dbest[id] || 0) + 1) throw new RangeError('아직 열리지 않은 단계예요');
+    if (state.keys[id] <= 0) throw new RangeError('오늘 입장 횟수를 다 썼어요');
+    state.keys[id]--;
+    state.dbest[id] = Math.max(state.dbest[id] || 0, L);
+    missionAdd(state, 'dungeon', 1);
+    return giveReward(state, dungeonReward(id, L, state.up.gold));
+  }
+  /** 소탕: 깬 최고 단계 보상을 싸우지 않고 바로 받음 (입장 1회) */
+  function sweepDungeon(state, id) {
+    const best = state.dbest[id] || 0;
+    if (best < 1) throw new RangeError('한 번 깬 단계부터 소탕할 수 있어요');
+    return clearDungeon(state, id, best);
+  }
+  /** 격리 구역 다음 층 돌파 */
+  function clearTower(state) {
+    state.tower = (state.tower || 0) + 1;
+    missionAdd(state, 'tower', 1);
+    return giveReward(state, towerReward(state.tower));
+  }
+
+  /** 일일 임무 진행 (상태를 직접 바꿈) */
+  function missionAdd(state, kind, amount = 1) {
+    if (!state || !state.daily || !isNum(amount) || amount <= 0) return false;
+    const m = MISSIONS.find(x => x.kind === kind); if (!m) return false;
+    state.daily.p[kind] = Math.min(m.need, (state.daily.p[kind] || 0) + amount);
+    return true;
+  }
+  /** i 번째 임무 보상 받기. 못 받으면 0 */
+  function missionClaim(state, i) {
+    const m = MISSIONS[i];
+    if (!m || state.daily.got.includes(i) || (state.daily.p[m.kind] || 0) < m.need) return 0;
+    state.daily.got.push(i); state.gems += m.gems;
+    return m.gems;
+  }
+  /** 모두 받았으면 보너스 (정예 호출권) */
+  function missionBonus(state) {
+    if (state.daily.bonus || state.daily.got.length < MISSIONS.length) return 0;
+    state.daily.bonus = true; state.ptix += CONST.MISSION_BONUS_PTIX;
+    return CONST.MISSION_BONUS_PTIX;
+  }
+  /** 가이드 퀘스트와 일일 임무를 함께 올림 */
+  function progress(state, kind, amount = 1) { questAdd(state, kind, amount); missionAdd(state, kind, amount); }
+
+  /** 출석 보상 받을 수 있는지 / 받기 (오늘 이미 받았으면 null) */
+  function canAttend(state, now) { return state.att.last !== dayKey(now); }
+  function attend(state, now) {
+    if (!canAttend(state, now)) return null;
+    const i = state.att.n % ATTEND.length, r = { ...ATTEND[i] };
+    state.att = { n: state.att.n + 1, last: dayKey(now) };
+    giveReward(state, r);
+    return { day: i + 1, reward: r };
+  }
+
   /* ---------- 7. 상태 생성 / 저장 검증 ---------- */
 
   /* ---------- 가이드 퀘스트 (세나 키우기의 왼쪽 퀘스트 줄처럼 하나씩 차례로) ----------
@@ -740,6 +907,12 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
       autoSkill: true,          // 기술 자동 사용
       speed: 1,                 // 전투 배속 1 또는 2
       lastSeen: isNum(now) ? now : 0,
+      day: '',                  // 마지막 일일 초기화 날짜
+      keys: Object.fromEntries(DUNGEONS.map(d => [d.id, CONST.DAILY_KEYS])),   // 일일 출동 남은 입장
+      dbest: Object.fromEntries(DUNGEONS.map(d => [d.id, 0])),                 // 일일 출동 깬 최고 단계
+      tower: 0,                 // 격리 구역 돌파한 층
+      daily: { p: {}, got: [], bonus: false },   // 일일 임무 진행, 받은 번호, 보너스
+      att: { n: 0, last: '' },  // 출석 받은 횟수, 마지막 날짜
     };
   }
 
@@ -773,6 +946,18 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     // 예전 저장(버전 1)이면 뽑기 개편 보상 보석을 한 번 줌
     if (!(isNum(raw.v) && raw.v >= CONST.SAVE_VERSION)) { s.gems += CONST.MIGRATE_GEMS; s.migrated = true; }
     s.speed = raw.speed === 2 ? 2 : 1;
+    s.day = typeof raw.day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw.day) ? raw.day : '';
+    for (const d of DUNGEONS) {
+      if (raw.keys && typeof raw.keys === 'object') s.keys[d.id] = clampInt(raw.keys[d.id], 0, CONST.DAILY_KEYS, CONST.DAILY_KEYS);
+      if (raw.dbest && typeof raw.dbest === 'object') s.dbest[d.id] = clampInt(raw.dbest[d.id], 0, 1e5, 0);
+    }
+    s.tower = clampInt(raw.tower, 0, 1e5, 0);
+    if (raw.daily && typeof raw.daily === 'object') {
+      for (const m of MISSIONS) if (raw.daily.p && isNum(raw.daily.p[m.kind])) s.daily.p[m.kind] = clampInt(raw.daily.p[m.kind], 0, m.need, 0);
+      s.daily.got = Array.isArray(raw.daily.got) ? [...new Set(raw.daily.got.filter(i => Number.isInteger(i) && i >= 0 && i < MISSIONS.length))] : [];
+      s.daily.bonus = raw.daily.bonus === true && s.daily.got.length === MISSIONS.length;
+    }
+    if (raw.att && typeof raw.att === 'object') s.att = { n: clampInt(raw.att.n, 0, 1e6, 0), last: typeof raw.att.last === 'string' ? raw.att.last.slice(0, 10) : '' };
     s.lastSeen = isNum(raw.lastSeen) && raw.lastSeen > 0 ? raw.lastSeen : base.lastSeen;
     if (raw.up && typeof raw.up === 'object') {
       for (const u of UPGRADES) s.up[u.id] = clampInt(raw.up[u.id], 0, u.max, 0);
@@ -808,6 +993,8 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,
     newState, cloneState, sanitize, loadFromString, QUESTS, questAt, questAdd, questClaim,
+    DUNGEONS, MISSIONS, ATTEND, dayKey, dailyReset, dungeonById, dungeonStage, dungeonReward, towerStage, towerReward,
+    chalHp, chalAtk, clearDungeon, sweepDungeon, clearTower, missionAdd, missionClaim, missionBonus, progress, canAttend, attend,
   };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = Core;
@@ -838,6 +1025,7 @@ function writeSave() {
   catch (e) { storageOk = false; toast('이 브라우저에서는 저장이 되지 않아요'); }
 }
 let S = C.loadFromString(readSave(), Date.now()).state;
+C.dailyReset(S, new Date());   // 처음 켤 때 날짜가 바뀌었으면 일일 출동, 임무 새로
 const firstRun = !readSave();
 
 /* ---------- 알림 ---------- */
@@ -1051,7 +1239,7 @@ function drawHero(g, id, x, y, s, t, swing, hurt, face = 1) {
  * crawler: 관절이 너무 많은 네발 검은 타르 덩어리
  * 근원체: 지역마다 다른 큰 이상체 (우산 쓴 남자, 안개 등대지기, 네온 마네킹) */
 function drawEnemy(g, e, t) {
-  const s = e.size, chap = Math.floor((S.stage - 1) / 10) % 3;
+  const s = e.size, chap = e.chap != null ? e.chap : Math.floor((S.stage - 1) / 10) % 3;
   g.save(); g.translate(e.x, e.y);
   if (e.face > 0) g.scale(-1, 1);
   if (e.hit > 0) { const k = 1 + e.hit * (e.boss ? 0.3 : 0.7); g.scale(k, 2 - k); }   // 맞으면 순간 부풀었다 돌아옴 (필터 대신)
@@ -1258,6 +1446,46 @@ function spawnBoss() {
   banner(theme().boss + ' 출현');
 }
 
+/* ---------- 출동 (일일 출동, 격리 구역) ----------
+ * 지금 지도의 이상체를 치우고 출동 근원체 하나와 30초 동안 싸움. 이기면 보상, 지면 그대로 (입장 횟수는 안 줄어듦).
+ * 끝나면 1초 뒤 결과 창, 닫으면 원래 스테이지 지도로 돌아옴 */
+function startChal(kind, id, lv) {
+  if (R.chal) return toast('이미 출동 중이에요');
+  if (R.boss) return toast('근원체 봉쇄가 끝난 뒤 출동할 수 있어요');
+  if (!alive().length) return toast('요원이 회복한 뒤 출동할 수 있어요');
+  const eq = kind === 'tower' ? C.towerStage(lv) : C.dungeonStage(id, lv);
+  const name = kind === 'tower' ? `격리 구역 ${lv}층` : `${C.dungeonById(id).name} ${lv}단계`;
+  R.chal = { kind, id, lv, eq, name };
+  R.enemies = []; R.proj = []; R.wipe = 0; syncHeroes(true);
+  for (const h of owned()) Object.assign(R.heroes[h.id], formSlot(h.id), { cd: Math.min(R.heroes[h.id].cd, h.skill.cd * 0.3) });
+  const a = R.heading, p = { x: R.A.x + Math.cos(a) * 200, y: R.A.y + Math.sin(a) * 200 }; keepIn(p, 120);
+  const b = mkEnemy('boss', p.x, p.y, true);
+  b.hp = b.max = C.chalHp(eq); b.atk = C.chalAtk(eq); b.home = { ...p }; b.wt = 0; b.aggro = true;
+  b.chap = kind === 'tower' ? 2 : id === 'bounty' ? 0 : 1; b.label = name;
+  R.boss = b; R.enemies.push(b); R.bossT = C.CONST.CHAL_TIME;
+  banner(name); updateUI();
+}
+function chalEnd(win, reason) {
+  const ch = R.chal; if (!ch || ch.done) return;
+  ch.done = true;
+  R.enemies = R.enemies.filter(en => en !== R.boss); R.boss = null;
+  let rw = null;
+  try {
+    if (win) rw = ch.kind === 'tower' ? C.clearTower(S) : C.clearDungeon(S, ch.id, ch.lv);
+    if (win && ch.kind !== 'tower') dsel[ch.id] = S.dbest[ch.id] + 1;   // 깨면 다음 단계를 골라 둠
+  } catch (e) { toast(e.message); }
+  banner(win ? '출동 성공' : reason || '출동 실패'); writeSave();
+  const list = rw ? [['gold', '골드', rw.gold], ['gem', '보석', rw.gems], ['tix', '호출권', rw.tix], ['ptix', '정예 호출권', rw.ptix]].filter(x => x[2]) : [];
+  setTimeout(() => {
+    openModal(`<h2>${win ? '출동 성공' : '출동 실패'}</h2><p class="chal-n">${ch.name}</p>
+      ${win ? `<div class="rwd">${list.map(([ic, l, v]) => `<span>${icon(ic)}<b>${C.formatNum(v)}</b><small>${l}</small></span>`).join('')}</div>`
+        : `<p>${reason || '제한 시간 안에 봉쇄하지 못했어요'}${ch.kind === 'tower' ? '' : '. 입장 횟수는 그대로예요'}.<br>요원을 강화한 뒤 다시 도전해 보세요.</p>`}
+      <div class="mbtns"><button class="btn" data-close>확인</button></div>`, () => {
+      R.chal = null; R.wipe = 0; newMap(); syncHeroes(true); renderPanel(); updateUI();
+    });
+  }, 1100);
+}
+
 function addText(x, y, txt, col, big) { if (R.texts.length < 60) R.texts.push({ x, y, txt, col, big, life: 0.9 }); }
 function addFx(o) { if (R.fx.length < 180) R.fx.push(o); }
 /** 화면 흔들림 (세기 누적, 최대 10) */
@@ -1295,15 +1523,16 @@ function damage(e, base) {
   if (e.hp <= 0) kill(e);
 }
 function kill(e) {
-  if (e.boss) {
+  if (e.boss && R.chal) chalEnd(true);
+  else if (e.boss) {
     const gold = C.bossGold(S.stage, S.up.gold);
     S.gold += gold; S.gems += C.CONST.BOSS_GEMS;
     banner('봉쇄 완료');
-    S.stage++; S.kills = 0; R.boss = null; S.farming = false; C.questAdd(S, 'boss', 1); C.addTickets(S, 0, 1);
+    S.stage++; S.kills = 0; R.boss = null; S.farming = false; C.progress(S, 'boss', 1); C.addTickets(S, 0, 1);
     addText(e.x, e.y - e.size, '+' + C.formatNum(gold), '#ffd23a', true);
     writeSave(); renderPanel();
   } else {
-    S.gold += C.killGold(S.stage, S.up.gold); C.questAdd(S, 'kill', 1); C.addTickets(S, 1);
+    S.gold += C.killGold(S.stage, S.up.gold); C.progress(S, 'kill', 1); C.addTickets(S, 1);
     if (!S.farming && S.kills < C.CONST.WAVE_KILLS) S.kills++;
   }
   for (let i = 0; i < (e.boss ? 26 : 9); i++) { const a = Math.random() * 6.28, v = 20 + Math.random() * (e.boss ? 90 : 50);
@@ -1315,6 +1544,7 @@ function kill(e) {
 }
 function bossFail(reason) {
   if (!R.boss) return;
+  if (R.chal) return chalEnd(false, reason);
   R.enemies = R.enemies.filter(en => en !== R.boss); R.boss = null;
   S.farming = true; S.kills = 0;
   banner(reason); writeSave();
@@ -1424,8 +1654,8 @@ function update(dt) {
   const live = R.enemies.length > 0;
   // 이상체 보충: 지도 위 일반 이상체가 줄면 다른 곳에 새 무리. 처치 수가 차면 보스 등장
   R.spawnT -= dt;
-  if (R.spawnT <= 0 && R.enemies.filter(e => !e.boss).length < MAX_FIELD - 4) { spawnCluster(); R.spawnT = 1.5; }
-  if (!R.boss && !S.farming && S.kills >= C.CONST.WAVE_KILLS) spawnBoss();
+  if (!R.chal && R.spawnT <= 0 && R.enemies.filter(e => !e.boss).length < MAX_FIELD - 4) { spawnCluster(); R.spawnT = 1.5; }
+  if (!R.chal && !R.boss && !S.farming && S.kills >= C.CONST.WAVE_KILLS) spawnBoss();
   // 파티 기준점: 싸우는 중이면 요원들 가운데, 아니면 지도에서 가장 가까운 무리(보스가 있으면 보스)를 향해 이동
   const hs = alive();
   const fighting = live && hs.length && (R.enemies.some(e => e.aggro) || hs.some(h => nearestEnemy(R.heroes[h.id], ENGAGE)));
@@ -1806,7 +2036,7 @@ function drawBossBar() {
   g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(x - 2, y - 2, w + 4, h + 22);
   g.fillStyle = '#3a0c0c'; g.fillRect(x, y + 18, w, h);
   g.fillStyle = '#e84a3a'; g.fillRect(x, y + 18, w * Math.max(0, b.hp / b.max), h);
-  g.textAlign = 'left'; g.font = '14px "Black Han Sans"'; g.fillStyle = '#fff'; g.fillText(theme().boss, x + 2, y + 13);
+  g.textAlign = 'left'; g.font = '14px "Black Han Sans"'; g.fillStyle = '#fff'; g.fillText(b.label || theme().boss, x + 2, y + 13);
   g.textAlign = 'right'; g.fillStyle = R.bossT < 10 ? '#ff6b5b' : '#ffd98a'; g.fillText(`${Math.ceil(R.bossT)}초`, x + w - 2, y + 13);
 }
 
@@ -1839,11 +2069,13 @@ function updateUI() {
   $('gold').textContent = C.formatNum(S.gold);
   $('gems').textContent = C.formatNum(S.gems);
   const bar = $('prog').firstElementChild, lab = $('prog').lastElementChild;
-  if (R.boss) { bar.className = 'boss'; bar.style.width = (100 * Math.max(0, R.boss.hp / R.boss.max)) + '%'; lab.textContent = '봉쇄 작전'; }
+  if (C.dailyReset(S, new Date()) && tab === 'run') renderPanel();   // 0시가 지나면 입장 횟수와 임무 새로
+  if (R.boss) { bar.className = 'boss'; bar.style.width = (100 * Math.max(0, R.boss.hp / R.boss.max)) + '%'; lab.textContent = R.chal ? '출동' : '봉쇄 작전'; }
+  else if (R.chal) { bar.className = ''; bar.style.width = '100%'; lab.textContent = '출동'; }
   else if (S.farming) { bar.className = ''; bar.style.width = '100%'; lab.textContent = '구역 순찰'; }
   else { bar.className = ''; bar.style.width = (100 * S.kills / C.CONST.WAVE_KILLS) + '%'; lab.textContent = `${S.kills} / ${C.CONST.WAVE_KILLS}`; }
-  $('bossBtn').style.display = S.farming && !R.boss ? 'block' : 'none';
-  $('bossAuto').style.display = R.boss ? 'none' : 'block';
+  $('bossBtn').style.display = S.farming && !R.boss && !R.chal ? 'block' : 'none';
+  $('bossAuto').style.display = R.boss || R.chal ? 'none' : 'block';
   $('bossAuto').setAttribute('aria-pressed', S.farming ? 'false' : 'true');
   // 가이드 퀘스트
   const q = C.questAt(S.q.i), done = S.q.p >= q.need;
@@ -1868,7 +2100,7 @@ function updateUI() {
 
 /* ---------- UI: 패널 ---------- */
 let tab = 'hero', bulk = 1;
-const APP_VERSION = '0.6.1';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.7.0';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 const starStr = n => '★'.repeat(n) + `<s>${'★'.repeat(C.CONST.MAX_STARS - n)}</s>`;
 
@@ -1892,6 +2124,8 @@ function renderPanel() {
     P.innerHTML = C.UPGRADES.map(u => `<div class="urow" data-u="${u.id}"><div class="uic"><svg><use href="#i-${ic[u.id]}"/></svg></div>
       <div><div class="ut">${u.name}</div><div class="uv"></div></div>
       <button class="btn" data-act="up" data-u="${u.id}"><span>강화</span><span class="cost">${icon('gold')}<i></i></span></button></div>`).join('');
+  } else if (tab === 'run') {
+    renderRun(P);
   } else {
     const pk = C.heroById('dark'), lv = C.summonLevel(S.pulls.total), rt = C.summonRates(lv), K = C.CONST;
     const open = lv >= K.PICKUP_OPEN_LV;
@@ -1973,6 +2207,8 @@ function updatePanel() {
       btn.querySelector('.cost i').textContent = cost === Infinity ? '최대' : C.formatNum(cost);
       btn.disabled = cost === Infinity || cost > S.gold;
     }
+  } else if (tab === 'run') {
+    updateRun(P);
   } else {
     const pl = $('pkLeft'); if (pl) pl.textContent = '남은 기간 ' + C.formatRemain(C.pickupRemainSec(new Date()));
     const pe = $('pity-pickup'); if (pe) pe.textContent = `확정까지 ${(C.CONST.RELAY - S.pulls.relay).toLocaleString()}회`;
@@ -1987,7 +2223,88 @@ function updatePanel() {
   }
   // 탭 알림 점: 할 수 있는 강화가 있을 때
   $('dotHero').style.display = owned().some(h => C.heroLvCost(S.heroes[h.id].lv) <= S.gold || S.heroes[h.id].shards >= C.starNeed(S.heroes[h.id].stars, h.grade)) && tab !== 'hero' ? 'block' : 'none';
+  $('dotRun').style.display = runAlert() && tab !== 'run' ? 'block' : 'none';
   $('dotTrain').style.display = C.UPGRADES.some(u => C.upgradeCost(u.id, S.up[u.id]) <= S.gold) && tab !== 'train' ? 'block' : 'none';
+}
+/* ---------- 출동 탭: 출동 / 임무 / 출석 (세나 키우기의 던전, 일일 미션, 출석 자리) ---------- */
+let runSub = 'run';
+const dsel = {};   // 일일 출동마다 고른 단계
+const BOSS_ART = { bounty: 'spr_boss1', evidence: 'spr_boss2', tower: 'spr_boss3' };
+/** 보상 묶음을 아이콘과 숫자로 */
+function rwHtml(r) {
+  return [['gold', r.gold], ['gem', r.gems], ['tix', r.tix], ['ptix', r.ptix]].filter(x => x[1]).map(([ic, v]) => `<span class="rw">${icon(ic)}${C.formatNum(v)}</span>`).join('');
+}
+/** 난이도 표시: 기술을 빼고 30초 동안 낼 수 있는 피해가 근원체 체력의 몇 배인지 */
+function diffTag(eq) {
+  const r = C.partyDps(S) * C.CONST.CHAL_TIME / C.chalHp(eq);
+  return r >= 1.6 ? '<em class="df ez">쉬움</em>' : r >= 0.8 ? '<em class="df md">보통</em>' : '<em class="df hd">어려움</em>';
+}
+/** 탭 알림 점: 소탕할 수 있는 입장이 남았거나, 받을 임무나 출석 보상이 있을 때 */
+function runAlert() {
+  const now = new Date();
+  if (C.canAttend(S, now)) return true;
+  if (C.DUNGEONS.some(d => S.keys[d.id] > 0 && S.dbest[d.id] > 0)) return true;
+  return C.MISSIONS.some((m, i) => !S.daily.got.includes(i) && (S.daily.p[m.kind] || 0) >= m.need) || (!S.daily.bonus && S.daily.got.length === C.MISSIONS.length);
+}
+function renderRun(P) {
+  const seg = `<div class="seg">${[['run', '출동'], ['mis', '일일 임무'], ['att', '출석']].map(([v, l]) => `<button data-act="rsub" data-v="${v}" class="${runSub === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+  if (runSub === 'run') {
+    const dcard = d => {
+      const best = S.dbest[d.id], sel = dsel[d.id] = Math.min(best + 1, Math.max(1, dsel[d.id] || best + 1));
+      return `<div class="dcard" data-d="${d.id}">
+        <div class="dimg"><img src="${ART[BOSS_ART[d.id]] || ''}" alt=""></div>
+        <div class="dinfo"><div class="dt"><b>${d.name}</b><span class="dleft">입장 <i></i> / ${C.CONST.DAILY_KEYS}</span></div>
+          <div class="dd">${d.text}</div>
+          <div class="dstep"><button class="btn sm ghost" data-act="dlv" data-d="${d.id}" data-v="-1" ${sel <= 1 ? 'disabled' : ''}>◀</button>
+            <b>${sel}단계</b><button class="btn sm ghost" data-act="dlv" data-d="${d.id}" data-v="1" ${sel >= best + 1 ? 'disabled' : ''}>▶</button>${diffTag(C.dungeonStage(d.id, sel))}</div>
+          <div class="drw">보상 ${rwHtml(C.dungeonReward(d.id, sel, S.up.gold))}</div></div>
+        <div class="dbtns"><button class="btn sm ghost" data-act="dsweep" data-d="${d.id}">소탕</button><button class="btn sm" data-act="dgo" data-d="${d.id}">도전</button></div></div>`;
+    };
+    const f = S.tower + 1;
+    P.innerHTML = seg + C.DUNGEONS.map(dcard).join('') +
+      `<div class="dcard tower"><div class="dimg"><img src="${ART[BOSS_ART.tower] || ''}" alt=""></div>
+        <div class="dinfo"><div class="dt"><b>격리 구역</b><span class="dleft">돌파 ${S.tower}층</span></div>
+          <div class="dd">한 층씩 올라가며 근원체를 봉쇄해요. 입장 제한이 없어요</div>
+          <div class="dstep"><b>${f}층</b>${diffTag(C.towerStage(f))}</div>
+          <div class="drw">처음 돌파 ${rwHtml(C.towerReward(f))}</div></div>
+        <div class="dbtns"><button class="btn sm" data-act="tgo">도전</button></div></div>
+      <p class="hint" style="margin:10px 2px">일일 출동은 하루 ${C.CONST.DAILY_KEYS}번, 매일 0시에 다시 채워져요. 실패하면 횟수가 줄지 않아요. 한 번 깬 단계는 소탕으로 싸우지 않고 바로 보상을 받아요. 제한 시간은 ${C.CONST.CHAL_TIME}초예요.</p>`;
+  } else if (runSub === 'mis') {
+    P.innerHTML = seg + C.MISSIONS.map((m, i) => `<div class="mrow" data-m="${i}"><div class="mt"><b>${m.text}</b><div class="bar"><i></i></div></div>
+        <span class="mp"></span><span class="rw">${icon('gem')}${m.gems}</span><button class="btn sm" data-act="mget" data-m="${i}">받기</button></div>`).join('') +
+      `<div class="mrow bonus"><div class="mt"><b>일일 임무 모두 완료</b><div class="bar"><i></i></div></div><span class="mp"></span><span class="rw">${icon('ptix')}${C.CONST.MISSION_BONUS_PTIX}</span><button class="btn sm rift" data-act="mbonus">받기</button></div>
+      <p class="hint" style="margin:10px 2px">일일 임무는 매일 0시에 새로 시작해요.</p>`;
+  } else {
+    const n = S.att.n % C.ATTEND.length, can = C.canAttend(S, new Date());
+    P.innerHTML = seg + `<div class="attg">${C.ATTEND.map((r, i) => {
+      const got = i < n, today = i === n && can;
+      return `<div class="att ${got ? 'got' : ''} ${today ? 'today' : ''} ${i === 6 ? 'wk' : ''}"><small>${i + 1}일</small>${rwHtml(r)}${got ? '<i class="ck">받음</i>' : ''}</div>`;
+    }).join('')}</div>
+      <button class="btn att-btn" data-act="attend" ${can ? '' : 'disabled'}>${can ? `${n + 1}일째 보상 받기` : '내일 다시 받을 수 있어요'}</button>
+      <p class="hint" style="margin:10px 2px">하루 한 번 받을 수 있어요. 7일째를 받으면 다시 1일부터예요.</p>`;
+  }
+}
+function updateRun(P) {
+  for (const c of P.querySelectorAll('.dcard[data-d]')) {
+    const id = c.dataset.d, k = S.keys[id];
+    c.querySelector('.dleft i').textContent = k;
+    c.querySelector('[data-act=dsweep]').disabled = k <= 0 || S.dbest[id] < 1;
+    c.querySelector('[data-act=dgo]').disabled = k <= 0 || !!R.chal;
+  }
+  const tg = P.querySelector('[data-act=tgo]'); if (tg) tg.disabled = !!R.chal;
+  for (const r of P.querySelectorAll('.mrow[data-m]')) {
+    const i = +r.dataset.m, m = C.MISSIONS[i], p = S.daily.p[m.kind] || 0, got = S.daily.got.includes(i);
+    r.querySelector('.bar i').style.width = (100 * p / m.need) + '%';
+    r.querySelector('.mp').textContent = `${C.formatNum(p)} / ${C.formatNum(m.need)}`;
+    const b = r.querySelector('button'); b.disabled = got || p < m.need; b.textContent = got ? '완료' : '받기';
+    r.classList.toggle('done', got);
+  }
+  const bn = P.querySelector('.mrow.bonus');
+  if (bn) {
+    const n = S.daily.got.length, N = C.MISSIONS.length;
+    bn.querySelector('.bar i').style.width = (100 * n / N) + '%'; bn.querySelector('.mp').textContent = `${n} / ${N}`;
+    const b = bn.querySelector('button'); b.disabled = S.daily.bonus || n < N; b.textContent = S.daily.bonus ? '완료' : '받기';
+  }
 }
 /** 일괄 강화 계획: 1회/10회는 정해진 단계, 최대는 살 수 있는 만큼 */
 function lvPlan(lv) {
@@ -2001,10 +2318,25 @@ $('panel').addEventListener('click', e => {
   const act = b.dataset.act;
   try {
     if (act === 'bulk') { bulk = +b.dataset.v; renderPanel(); }
+    else if (act === 'rsub') { runSub = b.dataset.v; renderPanel(); }
+    else if (act === 'dlv') { dsel[b.dataset.d] = (dsel[b.dataset.d] || 1) + +b.dataset.v; renderPanel(); }
+    else if (act === 'dgo') startChal('dungeon', b.dataset.d, dsel[b.dataset.d] || 1);
+    else if (act === 'tgo') startChal('tower', null, S.tower + 1);
+    else if (act === 'dsweep') {
+      const d = C.dungeonById(b.dataset.d), r = C.sweepDungeon(S, d.id);
+      toast(`${d.name} ${S.dbest[d.id]}단계 소탕 완료`); banner('소탕 완료');
+      for (const [ic, v] of [['gold', r.gold], ['tix', r.tix]]) if (v) addText(R.A.x, R.A.y - 70, (ic === 'gold' ? '+' : '호출권 +') + C.formatNum(v), '#ffd23a', true);
+      writeSave(); renderPanel();
+    } else if (act === 'mget') { const g = C.missionClaim(S, +b.dataset.m); if (g) { toast(`보석 ${g}개를 받았어요`); writeSave(); } }
+    else if (act === 'mbonus') { const n = C.missionBonus(S); if (n) { toast(`정예 호출권 ${n}장을 받았어요`); writeSave(); } }
+    else if (act === 'attend') {
+      const r = C.attend(S, new Date());
+      if (r) { toast(`출석 ${r.day}일째 보상을 받았어요`); writeSave(); renderPanel(); }
+    }
     else if (act === 'lv') {
       const d = S.heroes[b.dataset.h], { n, cost } = lvPlan(d.lv);
       if (cost > S.gold) return toast('골드가 부족해요');
-      S.gold -= cost; d.lv += n; syncHeroes(false); C.questAdd(S, 'lvup', n);
+      S.gold -= cost; d.lv += n; syncHeroes(false); C.progress(S, 'lvup', n);
     } else if (act === 'star') {
       const d = S.heroes[b.dataset.h], need = C.starNeed(d.stars, C.heroById(b.dataset.h).grade);
       if (d.shards < need) return;
@@ -2012,7 +2344,7 @@ $('panel').addEventListener('click', e => {
     } else if (act === 'up') {
       const id = b.dataset.u, cost = C.upgradeCost(id, S.up[id]);
       if (cost > S.gold) return toast('골드가 부족해요');
-      S.gold -= cost; S.up[id]++; C.questAdd(S, 'train', 1);
+      S.gold -= cost; S.up[id]++; C.progress(S, 'train', 1);
     } else if (act === 'sum') doSummon(+b.dataset.n, b.dataset.kind);
     else if (act === 'testOff') showOffline(C.offlineReward(S, 3600));
     else if (act === 'reset') confirmReset();
@@ -2078,7 +2410,7 @@ function doSummon(n, kind) {
   try { res = C.doSummon(S, n, kind, Math.random); }
   catch (e) { return toast(e.message.replace('습니다', '요').replace('열립니다', '열려요')); }
   const ids = res.ids, pickup = kind === 'pickup';
-  S = res.state; C.questAdd(S, 'summon', n);
+  S = res.state; C.progress(S, 'summon', n);
   const lvMsg = res.lvUps.length ? `소환 레벨 ${res.lvUps[res.lvUps.length - 1]} 달성! 보석 ${res.lvUps.reduce((a, L) => a + C.levelReward(L).gems, 0)}개, 정예 호출권 ${res.lvUps.reduce((a, L) => a + C.levelReward(L).ptix, 0)}장` : '';
   syncHeroes(false); writeSave();
   openModal(`<h2>${pickup ? '채용 결과' : kind === 'elite' ? '정예 호출 결과' : '호출 결과'}</h2><div class="res ${n === 1 ? 'one' : ''}">${ids.map((id, i) => {

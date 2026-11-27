@@ -407,7 +407,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 @keyframes seasonIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 @keyframes seasonShine{60%,100%{left:120%}}
 @media (prefers-reduced-motion:reduce){.sp-tag span{animation:none;opacity:1}.sp-season{animation:none;opacity:1}.sp-season::after{display:none}}
-.aiu-img{width:min(100vw,440px);height:auto;display:block;filter:drop-shadow(0 6px 18px rgba(0,0,0,.6));animation:logoIn .9s cubic-bezier(.2,1.2,.4,1) both}
+.aiu-img{width:min(86vw,350px);height:auto;display:block;filter:drop-shadow(0 6px 18px rgba(0,0,0,.6));animation:logoIn .9s cubic-bezier(.2,1.2,.4,1) both}
 @keyframes logoIn{from{opacity:0;transform:scale(1.25)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.aiu-img{animation:none}}
 .aiu .rift{animation:rift 3.2s infinite}
@@ -1670,7 +1670,7 @@ function updateUI() {
 
 /* ---------- UI: 패널 ---------- */
 let tab = 'hero', bulk = 1;
-const APP_VERSION = '0.9.8';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.9.9';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 const starStr = n => '★'.repeat(n) + `<s>${'★'.repeat(C.CONST.MAX_STARS - n)}</s>`;
 

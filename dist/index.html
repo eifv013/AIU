@@ -161,7 +161,7 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
 .sp-msg{font-size:12px;color:var(--dim);min-height:16px}
 .sp-skip{font-size:11px;color:var(--dim);opacity:.6;margin-top:6px}
 /* 불러오기가 끝나면: 접속 안내가 또렷하게 깜빡임 */
-.sp-skip.ready{font-size:14px;font-weight:600;color:var(--ink);opacity:1;animation:tapBlink 1.4s ease-in-out infinite}
+.sp-skip.ready{font-size:14px;font-weight:600;letter-spacing:.2em;margin-right:-.2em;color:var(--ink);opacity:1;animation:tapBlink 1.4s ease-in-out infinite}
 @keyframes tapBlink{50%{opacity:.35}}
 @media (prefers-reduced-motion:reduce){.sp-skip.ready{animation:none}}
 /* 제작사 표기: 수사 3팀 .sp-brand 와 같은 값 (bottom 12px, gap 4px, 8px 글씨, 로고 108px, margin-top -7px) */
@@ -1782,7 +1782,7 @@ if (!startSplash3D($('spbg'), () => started)) {
     if (x < 1) { requestAnimationFrame(loadTick); return; }
     // 다 차면 자동으로 넘어가지 않고, 화면을 눌러야 접속
     splashReady = true; msg.textContent = '준비 완료';
-    const tap = $('sp-tap'); tap.textContent = '터치하여 출동'; tap.classList.add('ready');
+    const tap = $('sp-tap'); tap.textContent = 'TOUCH TO START'; tap.classList.add('ready');
   }
   requestAnimationFrame(loadTick);
 }

@@ -2,7 +2,7 @@
 from PIL import Image, ImageDraw, ImageFilter
 S=1024; A='/home/claude/aiu/assets/'
 src=Image.open(A+'brand/icon-source.png').convert('RGB').crop((95,95,1159,1159))
-logo=Image.open('/home/claude/iconwork/aiu_logo.png').convert('RGBA'); logo=logo.crop(logo.getbbox())
+logo=Image.open(A+'brand/aiu_letters_gpt.png').convert('RGBA').crop((470,120,1655,620))   # GPT 금색 AIU 글자 (빛 번짐 조금 포함)
 def with_outline(lg, w):
     a=lg.split()[3]; o=a.filter(ImageFilter.MaxFilter(w*2+1))
     out=Image.new('RGBA',lg.size,(10,8,20,0)); out.putalpha(o)
@@ -33,4 +33,4 @@ row.alpha_composite(mask(ad,'c').resize((256,256),Image.LANCZOS),(276,0))
 row.alpha_composite(mask(ad,'r').resize((256,256),Image.LANCZOS),(552,0))
 row.alpha_composite(mask(ad,'r').resize((96,96),Image.LANCZOS),(828,80))
 row.alpha_composite(mask(ad,'r').resize((48,48),Image.LANCZOS),(944,104))
-row.save('/home/claude/iconwork/preview5.png')
+row.save('/home/claude/iconwork/preview6.png')

@@ -1,0 +1,10 @@
+{
+  "appId": "com.loopandlamp.aiu",
+  "appName": "AIU",
+  "webDir": "www",
+  "backgroundColor": "#090d1b",
+  "android": { "backgroundColor": "#090d1b", "allowMixedContent": false },
+  "plugins": {
+    "SplashScreen": { "launchShowDuration": 1200, "launchAutoHide": true, "backgroundColor": "#090d1b", "showSpinner": false, "androidScaleType": "CENTER_CROP" }
+  }
+}

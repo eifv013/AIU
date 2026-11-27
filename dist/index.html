@@ -396,6 +396,17 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 /* AIU 로고 */
 .aiu{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px}
 .aiu-mark{width:min(64vw,236px);height:auto;display:block;overflow:visible}
+/* 표어: 로고가 뜬 뒤 한 글자씩 써짐 */
+.sp-tag{margin-top:-4px;min-height:22px;text-align:center;font:500 14px/1.6 'IBM Plex Sans KR',sans-serif;color:#d6cff0;letter-spacing:.06em;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+.sp-tag span{opacity:0;animation:tagCh .06s forwards}
+@keyframes tagCh{to{opacity:1}}
+/* 시즌 이름: 표어가 다 써진 뒤 떠오르고, 빛줄기가 주기적으로 지나감 */
+.sp-season{position:relative;overflow:hidden;display:flex;align-items:center;gap:10px;margin-top:-8px;padding:5px 14px;border-radius:999px;border:1px solid rgba(180,140,255,.6);background:rgba(40,20,80,.55);font:700 12px 'IBM Plex Sans KR',sans-serif;color:#e6dcff;opacity:0;animation:seasonIn .6s ease-out 2.9s forwards}
+.sp-season b{color:#ffd23f}
+.sp-season::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-50%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transform:skewX(-20deg);animation:seasonShine 2.8s ease-in-out 3.6s infinite}
+@keyframes seasonIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes seasonShine{60%,100%{left:120%}}
+@media (prefers-reduced-motion:reduce){.sp-tag span{animation:none;opacity:1}.sp-season{animation:none;opacity:1}.sp-season::after{display:none}}
 .aiu-img{width:min(100vw,440px);height:auto;display:block;filter:drop-shadow(0 6px 18px rgba(0,0,0,.6));animation:logoIn .9s cubic-bezier(.2,1.2,.4,1) both}
 @keyframes logoIn{from{opacity:0;transform:scale(1.25)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.aiu-img{animation:none}}
@@ -524,6 +535,9 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
         <div class="aiu-en">ANOMALOUS INCIDENT UNIT</div>
         <div class="aiu-ko"><i></i><span>이상현상 전담수사팀</span><i></i></div>
       </div>
+      <!-- 로고 아래: 한 글자씩 써지는 표어 + 시즌 이름 (시안 E) -->
+      <div class="sp-tag" id="spTag" data-text="추적하고, 격리하고, 봉쇄한다."></div>
+      <div class="sp-season"><b>시즌 1</b><span>비 내리는 도시</span></div>
     </div>
     <!-- 불러오기 줄과 접속 안내: 그림 속 요원들 발치 쪽(아래)에 둠 -->
     <div class="sp-foot" aria-hidden="true">
@@ -2283,7 +2297,7 @@ function updateUI() {
 
 /* ---------- UI: 패널 ---------- */
 let tab = 'hero', bulk = 1;
-const APP_VERSION = '0.9.7';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.9.8';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 const starStr = n => '★'.repeat(n) + `<s>${'★'.repeat(C.CONST.MAX_STARS - n)}</s>`;
 
@@ -2875,6 +2889,8 @@ $('splash').addEventListener('click', startGame);
 {
   // GPT로 만든 타이틀 로고(logo_title)가 있으면 SVG 로고, 도장, 영문, 한글 줄 대신 그 그림 한 장을 씀 (그림 안에 다 들어 있음)
   if (ART.logo_title) { const box = document.querySelector('.aiu'); if (box) box.innerHTML = `<img class="aiu-img" src="${ART.logo_title}" alt="AIU 이상현상 전담수사팀">`; }
+  // 표어를 한 글자씩 나눠 차례로 나타나게 (0.6초 뒤 시작, 한 글자 0.07초)
+  { const tg = $('spTag'); if (tg) tg.innerHTML = [...tg.dataset.text].map((c, i) => `<span style="animation-delay:${(0.6 + i * 0.07).toFixed(2)}s">${c === ' ' ? '&nbsp;' : c}</span>`).join(''); }
   const cvs = $('spbg'), q = cvs.getContext('2d'), key = IMG.key;
   const rnd = seeded(20261127);
   const drops = Array.from({ length: 120 }, () => ({ x: rnd(), y: rnd(), l: 10 + rnd() * 18, v: 0.8 + rnd() * 0.7, a: 0.07 + rnd() * 0.16 }));

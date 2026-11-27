@@ -34,9 +34,9 @@
   ];
 
   const CONST = {
-    WAVE_KILLS: 10,          // 보스 등장까지 처치 수
-    BOSS_TIME: 30,           // 보스 제한 시간(초)
-    BOSS_GEMS: 10,           // 보스 처치 보석
+    WAVE_KILLS: 10,          // 근원체 등장까지 처치 수
+    BOSS_TIME: 30,           // 근원체 제한 시간(초)
+    BOSS_GEMS: 10,           // 근원체 처치 보석
     SUMMON_COST_1: 30,
     SUMMON_COST_10: 270,
     LEGEND_RATE: 0.03,       // 요원 호출: 전설(해결사) 확률
@@ -279,7 +279,7 @@
       gems: CONST.START_GEMS,
       stage: 1,
       kills: 0,
-      farming: false,     // 보스에게 진 뒤 반복 사냥 모드
+      farming: false,     // 근원체에게 진 뒤 반복 사냥 모드
       heroes,
       up: { atk: 0, gold: 0, crit: 0 },
       lastSeen: isNum(now) ? now : 0,

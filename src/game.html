@@ -9,7 +9,7 @@
 <style>
 /* VOICE: 수사 3팀과 같은 누아르, 비 오는 밤의 범죄 액션, 모바일 방치형
    IDEA: 이상현상 전담수사팀 요원들이 비 내리는 도시 구역을 돌아다니며 이상체를 처리
-   PICTURE: 상단 전투 캔버스(구역 지도, 요원, 이상체, 보스)
+   PICTURE: 상단 전투 캔버스(구역 지도, 요원, 이상체, 근원체)
    COLOUR and TYPE: 깊은 남색 패널 + 금색 테두리 + 진홍 강조 / Black Han Sans 제목, Noto Sans KR 본문
    LAYOUT: 세로 고정. HUD → 전투 → 파티 슬롯 → 탭 패널 → 하단 탭 */
 /* 색은 수사 3팀과 같은 값 (--ink 는 여기서 글자색) */
@@ -35,7 +35,7 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#0b0d12;color:var(
 /* 전투 */
 #battle{position:relative;flex:0 0 auto;height:45vh;height:45dvh;min-height:260px;max-height:430px;overflow:hidden}
 #cv{position:absolute;inset:0;width:100%;height:100%;display:block}
-#bossBtn{position:absolute;right:10px;top:10px;display:none;padding:8px 14px;border-radius:10px;border:0;background:var(--red);color:#fff;font-family:"Black Han Sans";font-size:15px;animation:pulse 1.2s infinite}
+#bossBtn{position:absolute;left:10px;top:10px;display:none;padding:8px 14px;border-radius:10px;border:0;background:var(--red);color:#fff;font-family:"Black Han Sans";font-size:15px;animation:pulse 1.2s infinite}
 @keyframes pulse{50%{transform:scale(1.06)}}
 #banner{position:absolute;left:0;right:0;top:36%;padding:8px 0;background:linear-gradient(90deg,transparent,rgba(18,21,28,.82) 20%,rgba(18,21,28,.82) 80%,transparent);text-align:center;font-family:"Black Han Sans";font-size:30px;color:#fff;color:var(--gold);text-shadow:0 2px 0 #000;opacity:0;pointer-events:none;transition:opacity .3s}
 
@@ -197,7 +197,7 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
   </div>
   <div id="battle">
     <canvas id="cv"></canvas>
-    <button id="bossBtn">보스 추적</button>
+    <button id="bossBtn">근원체 추적</button>
     <div id="banner"></div>
   </div>
   <div id="party"></div>
@@ -406,7 +406,7 @@ function drawHero(g, id, x, y, s, t, swing, hurt, face = 1) {
 /* ---------- 이상체 그리기 (기본 그림은 왼쪽을 봄) ----------
  * shade: 검은 연기로 된 얼굴 없는 사람 형체, 몸에 보랏빛 금
  * crawler: 관절이 너무 많은 네발 검은 타르 덩어리
- * 보스: 지역마다 다른 큰 이상체 (우산 쓴 남자, 안개 등대지기, 네온 마네킹) */
+ * 근원체: 지역마다 다른 큰 이상체 (우산 쓴 남자, 안개 등대지기, 네온 마네킹) */
 function drawEnemy(g, e, t) {
   const s = e.size, chap = Math.floor((S.stage - 1) / 10) % 3;
   g.save(); g.translate(e.x, e.y);
@@ -568,13 +568,13 @@ function spawnCluster() {
     e.home = { x: e.x, y: e.y }; e.wt = Math.random() * 2; keepIn(e, 40); R.enemies.push(e);
   }
 }
-/** 보스: 요원 팀에서 조금 떨어진 지도 안 어딘가에 등장 */
+/** 근원체: 요원 팀에서 조금 떨어진 지도 안 어딘가에 등장 */
 function spawnBoss() {
   const a = Math.random() * Math.PI * 2, p = { x: R.A.x + Math.cos(a) * 280, y: R.A.y + Math.sin(a) * 280 };
   keepIn(p, 120);
   R.boss = mkEnemy('boss', p.x, p.y, true); R.boss.home = { ...p }; R.boss.wt = 0;
   R.enemies.push(R.boss); R.bossT = C.CONST.BOSS_TIME;
-  banner(theme().boss + ' 등장');
+  banner(theme().boss + ' 출현');
 }
 
 function addText(x, y, txt, col, big) { if (R.texts.length < 60) R.texts.push({ x, y, txt, col, big, life: 0.9 }); }
@@ -593,7 +593,7 @@ function kill(e) {
   if (e.boss) {
     const gold = C.bossGold(S.stage, S.up.gold);
     S.gold += gold; S.gems += C.CONST.BOSS_GEMS;
-    banner('스테이지 클리어');
+    banner('봉쇄 완료');
     S.stage++; S.kills = 0; R.boss = null; S.farming = false;
     addText(e.x, e.y - e.size, '+' + C.formatNum(gold), '#ffd23a', true);
     writeSave(); renderPanel();
@@ -715,7 +715,7 @@ function update(dt) {
     moveTo(R.A, tp.x, tp.y, 95, dt);
   }
   keepIn(R.A, 60);
-  if (R.boss) { R.bossT -= dt; if (R.bossT <= 0) bossFail('보스 소멸'); }
+  if (R.boss) { R.bossT -= dt; if (R.bossT <= 0) bossFail('근원체 도주'); }
   for (const h of hs) heroAct(h, R.heroes[h.id], dt);
   // 투사체
   for (const p of R.proj) {
@@ -881,7 +881,7 @@ function drawWalls(F) {
   for (let y = y0; y <= -y0; y += 34) { g.moveTo(x0 - 26, y); g.lineTo(x0, y); g.moveTo(-x0, y); g.lineTo(-x0 + 26, y); }
   g.stroke();
 }
-/** 미니맵: 지도 전체, 이상체(빨강), 보스(크게), 요원 팀(노랑), 현재 보이는 범위 */
+/** 미니맵: 지도 전체, 이상체(빨강), 근원체(크게), 요원 팀(노랑), 현재 보이는 범위 */
 function drawMinimap() {
   const mw = 58, mh = mw * MAPH / MAPW, mx = W - mw - 10, my = R.boss ? 56 : 10, k = mw / MAPW;
   g.fillStyle = 'rgba(18,21,28,.78)'; g.fillRect(mx - 3, my - 3, mw + 6, mh + 6);
@@ -1003,8 +1003,8 @@ function updateUI() {
   $('gold').textContent = C.formatNum(S.gold);
   $('gems').textContent = C.formatNum(S.gems);
   const bar = $('prog').firstElementChild, lab = $('prog').lastElementChild;
-  if (R.boss) { bar.className = 'boss'; bar.style.width = (100 * Math.max(0, R.boss.hp / R.boss.max)) + '%'; lab.textContent = '보스전'; }
-  else if (S.farming) { bar.className = ''; bar.style.width = '100%'; lab.textContent = '반복 사냥'; }
+  if (R.boss) { bar.className = 'boss'; bar.style.width = (100 * Math.max(0, R.boss.hp / R.boss.max)) + '%'; lab.textContent = '봉쇄 작전'; }
+  else if (S.farming) { bar.className = ''; bar.style.width = '100%'; lab.textContent = '구역 순찰'; }
   else { bar.className = ''; bar.style.width = (100 * S.kills / C.CONST.WAVE_KILLS) + '%'; lab.textContent = `${S.kills} / ${C.CONST.WAVE_KILLS}`; }
   $('bossBtn').style.display = S.farming && !R.boss ? 'block' : 'none';
   const key = owned().map(h => h.id).join();
@@ -1062,7 +1062,7 @@ function renderPanel() {
         ${row(`전설 ${pk.name}`, (lr * 100).toFixed(1) + '%', (pr * 100).toFixed(1) + '%')}
         ${C.STARTER_IDS.map(id => row(`${C.heroById(id).grade} ${C.heroById(id).name}`, ((1 - lr) / 4 * 100).toFixed(2) + '%', ((1 - pr) / 4 * 100).toFixed(2) + '%')).join('')}
       </tbody></table>
-      <p class="hint" style="margin:10px 2px">이미 있는 요원이 나오면 조각이 되고, 조각을 모아 승급하면 능력치가 크게 올라요. 보석은 보스를 처리하면 ${C.CONST.BOSS_GEMS}개씩 얻어요. 특별 채용은 매주 월요일 0시에 새로 열려요.</p>`;
+      <p class="hint" style="margin:10px 2px">이미 있는 요원이 나오면 조각이 되고, 조각을 모아 승급하면 능력치가 크게 올라요. 보석은 근원체를 봉쇄하면 ${C.CONST.BOSS_GEMS}개씩 얻어요. 특별 채용은 매주 월요일 0시에 새로 열려요.</p>`;
     drawSummonBanner();
   }
   updatePanel();

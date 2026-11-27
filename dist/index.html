@@ -107,7 +107,7 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 .hph .gr{transform:none;left:3px;top:3px;font-size:9px;padding:0 3px}
 .hph .lvb{padding:10px 0 2px;font-size:10px}.hph .lvb b{font-size:13px}
 .hph .no{position:absolute;inset:auto 0 6px;text-align:center;font:700 10px 'IBM Plex Sans KR';color:var(--dim)}
-.hph .up{display:none;position:absolute;right:3px;top:3px;padding:1px 4px;border-radius:3px;background:var(--rift);color:#fff;font:700 9px 'IBM Plex Sans KR'}
+.hph .up{display:none;position:absolute;right:3px;top:3px;z-index:3;padding:1px 4px;border-radius:3px;background:var(--rift);color:#fff;font:700 9px 'IBM Plex Sans KR'}
 .hc.canstar .hph .up{display:block}
 .hc.canstar .hcard{border-color:var(--rift);box-shadow:0 0 8px rgba(157,123,255,.5)}
 .hn{font:700 12px/1.2 'IBM Plex Sans KR';text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -115,6 +115,36 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 .hst s{color:#36405A;text-decoration:none}
 .sbar.mini{height:4px;margin:1px 2px 0;border-radius:2px}
 .hc .hb{min-width:0;min-height:30px;height:30px;padding:0 4px}
+/* 분류 4가지: 색 + 그림. 명단과 파티에는 이것만, 세부 역할(돌격, 저격...)은 상세 창에만 */
+.t-공격{--tc:#ff6b5b}.t-광역{--tc:#ffa53a}.t-방어{--tc:#5ea8ff}.t-지원{--tc:#4fd88a}
+.tic{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;background:rgba(10,13,20,.85);color:var(--tc);flex:none}
+.tic svg{width:10px;height:10px}
+.hn{display:flex;align-items:center;justify-content:center;gap:3px}
+.hn span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.hn.long span{font-size:10.5px;letter-spacing:-.04em}   /* 아이언사이드처럼 긴 이름도 한 줄에 다 보이게 */
+.hph .pin{position:absolute;right:3px;top:3px;z-index:2;padding:1px 4px;border-radius:3px;background:var(--gold);color:#1a1405;font:700 9px 'IBM Plex Sans KR'}
+.hc.inparty .hcard{border-color:rgba(255,210,63,.55)}
+/* 분류 거르기 탭 + 일괄 강화 칸 (한 줄) */
+.htop{display:flex;gap:6px;align-items:center;margin-bottom:10px}
+.tfil{display:flex;gap:4px;flex:1;min-width:0}
+.tfil button{flex:1;min-width:0;height:32px;padding:0;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);color:var(--dim);display:grid;place-items:center}
+.tfil button svg{width:15px;height:15px}
+.tfil button b{font:700 12px 'IBM Plex Sans KR';color:inherit}
+.tfil button.on{border-color:var(--tc,var(--gold));color:var(--tc,var(--gold));background:var(--panel2)}
+.htop .seg{margin:0;flex:none;grid-template-columns:repeat(3,38px)}
+.htop .seg button{height:32px;font-size:12px}
+.hcount{margin:-4px 2px 8px;font-size:11px;color:var(--dim)}
+.hcount b{color:var(--gold)}
+/* 상세 창: 분류 배지와 세부 역할, 파티 넣기 */
+.tbadge{display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding:1px 7px 1px 3px;border-radius:10px;background:var(--panel2);color:var(--tc);font:700 12px 'IBM Plex Sans KR';vertical-align:2px}
+.tbadge .tic{width:16px;height:16px}
+.hd-sk p{margin:4px 0 0;flex-basis:100%;font-size:12px;color:var(--dim);line-height:1.45}
+.hd-sk{flex-wrap:wrap}
+.pswap{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0 2px}
+.pswap button{position:relative;padding:0;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);overflow:hidden;aspect-ratio:1}
+.pswap img{width:100%;height:100%;object-fit:cover;display:block}
+.pswap span{position:absolute;inset:auto 0 0;padding:6px 0 1px;font:700 9px 'IBM Plex Sans KR';color:#fff;background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.85))}
+.pswap-t{font-size:12px;color:var(--dim);margin-top:6px}
 .hc .hb .cost{font-size:12px}.hc .hb .ic{width:13px;height:13px}
 /* 요원 상세 창 */
 .hdet{text-align:left}
@@ -275,10 +305,12 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 .sbanner .left{position:absolute;right:12px;top:12px;padding:2px 8px;border-radius:var(--r);background:rgba(10,13,20,.75);color:var(--ink);font-size:12px;white-space:nowrap}
 .sgap{height:18px}
 .rtable{width:100%;margin-top:14px;border-collapse:separate;border-spacing:0;font-size:13px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-.rtable th,.rtable td{padding:7px 12px;text-align:right;white-space:nowrap}
+.rtable th,.rtable td{padding:7px 8px;text-align:right;white-space:nowrap}
+.rtable td em{font:700 10px 'IBM Plex Sans KR';font-style:normal;color:#ff6b5b;margin-left:2px}
+.rtable th{font-size:12px}
 .rtable th:first-child,.rtable td:first-child{text-align:left}
 .rtable th{color:var(--dim);font-weight:600;border-bottom:1px solid var(--line);background:var(--panel2)}
-.rtable td{font-family:"Black Han Sans";font-size:14px}
+.rtable td{font-family:"Black Han Sans";font-size:13px}
 .rtable td:first-child{font-family:'IBM Plex Sans KR',sans-serif;font-size:13px;font-weight:600}
 .rtable tr + tr td{border-top:1px solid rgba(47,58,82,.5)}
 .wallet{display:flex;gap:14px;justify-content:flex-end;margin:0 2px 8px;font-size:12px;color:var(--dim)}
@@ -456,6 +488,11 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   <symbol id="i-fast" viewBox="0 0 24 24"><path d="M3 5l9 7-9 7zM12 5l9 7-9 7z" fill="currentColor"/></symbol>
   <symbol id="i-gear" viewBox="0 0 24 24"><path d="M10.3 2.5h3.4l.5 2.6 2 .9 2.2-1.5 2.4 2.4-1.5 2.2.9 2 2.6.5v3.4l-2.6.5-.9 2 1.5 2.2-2.4 2.4-2.2-1.5-2 .9-.5 2.6h-3.4l-.5-2.6-2-.9-2.2 1.5-2.4-2.4 1.5-2.2-.9-2-2.6-.5v-3.4l2.6-.5.9-2-1.5-2.2 2.4-2.4 2.2 1.5 2-.9z" fill="#8F9AB0"/><circle cx="12" cy="12" r="3.4" fill="#0F1422"/></symbol>
   <symbol id="i-sword" viewBox="0 0 24 24"><path d="M19 3l2 2-10 10-2-2z" fill="#dfe6ff" stroke="#6b78b5"/><path d="M6 14l4 4-2 1-1.5-1.5L4 20l-1-1 2.5-2.5L4 15z" fill="#f5c451" stroke="#8a5609"/></symbol>
+  <!-- 요원 분류 4가지: 공격(화살), 광역(퍼짐), 방어(방패), 지원(십자) -->
+  <symbol id="i-t-공격" viewBox="0 0 24 24"><path d="M5 19L18 6M11 6h7v7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-t-광역" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l2.5 2.5M16.5 16.5L19 19M19 5l-2.5 2.5M7.5 16.5L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-t-방어" viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.5 9-8 11c-4.5-2-8-6-8-11V5z" fill="currentColor"/></symbol>
+  <symbol id="i-t-지원" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/></symbol>
   <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#e04848"/><circle cx="12" cy="12" r="6" fill="#fff"/><circle cx="12" cy="12" r="3" fill="#e04848"/></symbol>
 </svg>
 
@@ -567,18 +604,37 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   /* ---------- 1. 정적 데이터 ---------- */
 
   // 요원 도감. name 은 수사 3팀처럼 코드네임, kind 는 종족(현재 모두 사람). baseAtk/baseHp 는 Lv.1 ★1 기준값.
+  // type: 명단과 파티에 보이는 큰 분류 4가지 (공격, 광역, 방어, 지원). role 은 요원 상세에서만 보이는 세부 역할.
+  // limited: 특별 채용(한정)에서만 나옴. 요원 호출, 정예 호출에는 나오지 않음
+  // 기술 kind: single 단일 / multi 연사 / aoe 범위 / buff 팀 강화와 회복 /
+  //            mark 표식(받는 피해 증가) / exorcise 근원체 특효 + 즉시 처리 / shield 보호막과 도발 / cage 가둠 / execute 처형
   const HEROES = [
-    { id: 'knight', name: '램파트', kind: '사람',  role: '돌격',   grade: '희귀', baseAtk: 12, baseHp: 160, atkSpd: 1.0, range: 'melee',
+    { id: 'knight', name: '램파트', kind: '사람',  role: '돌격',   type: '방어', grade: '희귀', baseAtk: 12, baseHp: 160, atkSpd: 1.0, range: 'melee',
       skill: { name: '방패 돌진', cd: 6,  kind: 'single', mult: 5 } },
-    { id: 'archer', name: '롱샷',   kind: '사람',  role: '저격',   grade: '희귀', baseAtk: 9,  baseHp: 90,  atkSpd: 1.5, range: 'ranged',
+    { id: 'archer', name: '롱샷',   kind: '사람',  role: '저격',   type: '공격', grade: '희귀', baseAtk: 9,  baseHp: 90,  atkSpd: 1.5, range: 'ranged',
       skill: { name: '연속 저격', cd: 7,  kind: 'multi',  mult: 1.4, hits: 5 } },
-    { id: 'mage',   name: '블레이즈', kind: '사람',  role: '폭파',   grade: '영웅', baseAtk: 15, baseHp: 80,  atkSpd: 0.7, range: 'aoe',
+    { id: 'scanner', name: '스캐너', kind: '사람', role: '탐지',   type: '지원', grade: '희귀', baseAtk: 8,  baseHp: 100, atkSpd: 1.2, range: 'ranged',
+      skill: { name: '표식 드론', cd: 8,  kind: 'mark',   mult: 1.5, amp: 0.3, dur: 6 } },
+    { id: 'breaker', name: '브레이커', kind: '사람', role: '돌파', type: '방어', grade: '희귀', baseAtk: 11, baseHp: 185, atkSpd: 0.8, range: 'melee',
+      skill: { name: '문 부수기', cd: 7,  kind: 'aoe',    mult: 3, rad: 90, stun: 1.5 } },
+    { id: 'mage',   name: '블레이즈', kind: '사람',  role: '폭파',   type: '광역', grade: '영웅', baseAtk: 15, baseHp: 80,  atkSpd: 0.7, range: 'aoe',
       skill: { name: '화염병 투척', cd: 9,  kind: 'aoe',    mult: 4 } },
-    { id: 'priest', name: '헤일로', kind: '사람',  role: '의무',   grade: '영웅', baseAtk: 6,  baseHp: 100, atkSpd: 0.9, range: 'ranged',
+    { id: 'priest', name: '헤일로', kind: '사람',  role: '의무',   type: '지원', grade: '영웅', baseAtk: 6,  baseHp: 100, atkSpd: 0.9, range: 'ranged',
       skill: { name: '응급 처치', cd: 10, kind: 'buff',   mult: 0.5, dur: 4, heal: 0.3 } },
-    { id: 'dark',   name: '나이트폴', kind: '사람',  role: '해결사', grade: '전설', baseAtk: 32, baseHp: 260, atkSpd: 0.9, range: 'melee',
+    { id: 'echo',   name: '에코',   kind: '사람',  role: '교란',   type: '광역', grade: '영웅', baseAtk: 13, baseHp: 95,  atkSpd: 0.8, range: 'ranged',
+      skill: { name: '음파 교란', cd: 10, kind: 'aoe',    mult: 2, rad: 240, slow: 4 } },
+    { id: 'dark',   name: '나이트폴', kind: '사람',  role: '해결사', type: '공격', grade: '전설', limited: true, baseAtk: 32, baseHp: 260, atkSpd: 0.9, range: 'melee',
       skill: { name: '그림자 베기', cd: 8,  kind: 'aoe',    mult: 7 } },
+    { id: 'requiem', name: '레퀴엠', kind: '사람', role: '퇴마',   type: '공격', grade: '전설', baseAtk: 30, baseHp: 210, atkSpd: 0.9, range: 'ranged',
+      skill: { name: '마지막 기도', cd: 9,  kind: 'exorcise', mult: 9, low: 4, kill: 0.15 } },
+    { id: 'ironside', name: '아이언사이드', kind: '사람', role: '방호', type: '방어', grade: '전설', baseAtk: 18, baseHp: 420, atkSpd: 0.8, range: 'melee',
+      skill: { name: '강철 방벽', cd: 12, kind: 'shield', mult: 0.4, dur: 5 } },
+    { id: 'blackbox', name: '블랙박스', kind: '사람', role: '격리', type: '지원', grade: '전설', baseAtk: 26, baseHp: 240, atkSpd: 0.8, range: 'ranged',
+      skill: { name: '격리 상자', cd: 11, kind: 'cage',   mult: 6, dur: 3 } },
+    { id: 'ghost',  name: '고스트', kind: '사람',  role: '은신',   type: '공격', grade: '전설', baseAtk: 36, baseHp: 170, atkSpd: 1.3, range: 'melee',
+      skill: { name: '투명 처형', cd: 8,  kind: 'execute', mult: 4, hits: 3, under: 0.3 } },
   ];
+  const TYPES = ['공격', '광역', '방어', '지원'];
   const STARTER_IDS = ['knight', 'archer', 'mage', 'priest'];
 
   // 공용 강화(훈련소) 목록
@@ -615,6 +671,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     RELAY: 200,              // 특별 채용 누적 확정 (보석 뽑기 기준)
     PICKUP_DAYS: 14,         // 특별 채용 한 번의 기간 (2주, 목요일 점검 기준)
     MAX_STARS: 5,
+    PARTY_MAX: 5,            // 전투에 나가는 요원 수 (세나 키우기 5명 편성)
     OFFLINE_CAP_SEC: 8 * 3600,
     OFFLINE_MIN_SEC: 60,
     OFFLINE_RATE: 0.5,       // 오프라인 효율 50%
@@ -781,10 +838,35 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 
   /* ---------- 5. 파티 / 오프라인 ---------- */
 
-  /** 보유 요원 전체 DPS 합 */
+  /** 전투에 나가는 요원 id 목록 (보유, 중복 없음, 최대 5명). 비어 있으면 보유 요원 앞에서부터 */
+  function partyIds(state) {
+    const ok = id => state.heroes[id] && state.heroes[id].owned;
+    let ids = Array.isArray(state.party) ? [...new Set(state.party)].filter(id => HEROES.some(h => h.id === id) && ok(id)) : [];
+    if (!ids.length) ids = HEROES.filter(h => ok(h.id)).map(h => h.id);
+    return ids.slice(0, CONST.PARTY_MAX);
+  }
+  /**
+   * 파티에 넣거나 빼기 (상태를 직접 바꿈).
+   * @returns {'in'|'out'|'full'|'last'|'none'} 넣음 / 뺌 / 가득 참 / 마지막 한 명이라 못 뺌 / 미보유
+   */
+  function toggleParty(state, id) {
+    if (!state.heroes[id] || !state.heroes[id].owned) return 'none';
+    const p = partyIds(state);
+    if (p.includes(id)) { if (p.length <= 1) return 'last'; state.party = p.filter(x => x !== id); return 'out'; }
+    if (p.length >= CONST.PARTY_MAX) return 'full';
+    state.party = [...p, id]; return 'in';
+  }
+  /** 파티 안 두 자리 바꾸기 (빠진 요원 id 를 넣고 원래 요원은 뺌) */
+  function swapParty(state, outId, inId) {
+    const p = partyIds(state), i = p.indexOf(outId);
+    if (i < 0 || p.includes(inId) || !state.heroes[inId] || !state.heroes[inId].owned) return false;
+    p[i] = inId; state.party = p; return true;
+  }
+
+  /** 파티 요원 DPS 합 */
   function partyDps(state) {
     let sum = 0;
-    for (const id of Object.keys(state.heroes)) {
+    for (const id of partyIds(state)) {
       const h = state.heroes[id];
       if (!h || !h.owned) continue;
       sum += heroDps(id, h.lv, h.stars, state.up.atk, state.up.crit);
@@ -823,7 +905,8 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     const legend = CONST.LEGEND_BY_LV[i], hero = CONST.HERO_BY_LV[i];
     return { legend, hero, rare: 1 - legend - hero };
   }
-  const GRADE_IDS = g => HEROES.filter(h => h.grade === g).map(h => h.id);
+  // 등급별 요원 목록. 한정 요원(나이트폴)은 빼고 (특별 채용에서만 나옴)
+  const GRADE_IDS = g => HEROES.filter(h => h.grade === g && !h.limited).map(h => h.id);
   /**
    * n회 뽑기. 등급을 먼저 정하고 그 등급 안에서 균등하게 한 명.
    * @param {number} level 소환 레벨 1~10
@@ -867,8 +950,11 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
       else {
         const r = rng();
         if (!isNum(r) || r < 0 || r >= 1) throw new RangeError('rng 값은 0 이상 1 미만이어야 합니다');
-        const heroes = GRADE_IDS('영웅');
-        id = r < CONST.PREMIUM_LEGEND ? 'dark' : heroes[Math.min(heroes.length - 1, Math.floor((r - CONST.PREMIUM_LEGEND) / (1 - CONST.PREMIUM_LEGEND) * heroes.length))];
+        const heroes = GRADE_IDS('영웅'), legends = GRADE_IDS('전설');
+        const pick = (ids, t) => ids[Math.min(ids.length - 1, Math.floor(t * ids.length))];
+        // 전설 2%: 특별 채용은 한정 전설(나이트폴), 정예 호출은 상시 전설 중 하나
+        if (r < CONST.PREMIUM_LEGEND) id = kind === 'pickup' ? 'dark' : pick(legends, r / CONST.PREMIUM_LEGEND);
+        else id = pick(heroes, (r - CONST.PREMIUM_LEGEND) / (1 - CONST.PREMIUM_LEGEND));
         if (kind === 'pickup') { relay++; if (id === 'dark') relay = 0; if (relay >= CONST.RELAY) { id = 'dark'; relay = 0; relayHit = true; } }
       }
       ids.push(id);
@@ -899,7 +985,11 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     for (const id of ids) {
       heroById(id); // 잘못된 id 방어
       const h = next.heroes[id];
-      if (!h.owned) { h.owned = true; isNew.push(true); }
+      if (!h.owned) {
+        h.owned = true; isNew.push(true);
+        // 파티에 빈자리가 있으면 새 요원이 바로 합류
+        const p = partyIds(next); if (!p.includes(id) && p.length < CONST.PARTY_MAX) next.party = [...p, id];
+      }
       else { h.shards += 1; isNew.push(false); }
     }
     return { state: next, isNew };
@@ -1079,6 +1169,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
       kills: 0,
       farming: false,     // 근원체에게 진 뒤 반복 사냥 모드
       heroes,
+      party: STARTER_IDS.slice(),   // 전투에 나가는 요원 (최대 5명)
       up: { atk: 0, gold: 0, crit: 0 },
       q: { i: 0, p: 0 },        // 가이드 퀘스트 번호와 진행
       pulls: { total: 0, relay: 0 },    // 요원 호출 누적(소환 레벨), 특별 채용 릴레이
@@ -1155,6 +1246,9 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
         };
       }
     }
+    // 파티: 보유한 요원만, 중복 없이 최대 5명. 예전 저장(파티 없음)은 보유 요원 앞에서부터
+    s.party = Array.isArray(raw.party) ? raw.party.filter(id => typeof id === 'string') : null;
+    s.party = partyIds(s);
     return s;
   }
 
@@ -1166,7 +1260,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   }
 
   const Core = {
-    HEROES, STARTER_IDS, UPGRADES, CONST, CRIT_DMG,
+    HEROES, TYPES, STARTER_IDS, partyIds, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
     stageLabel, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
@@ -1240,7 +1334,7 @@ function makeRim(k) {
   const q = c.getContext('2d'); if (!q) return;
   for (let a = 0; a < 16; a++) q.drawImage(im, pad + Math.cos(a * Math.PI / 8) * pad * 0.7, pad + Math.sin(a * Math.PI / 8) * pad * 0.7);
   q.globalCompositeOperation = 'source-in';
-  const hero = /^spr_(knight|archer|mage|priest|dark)(_[cd])?$/.test(k);
+  const hero = new RegExp('^spr_(' + C.HEROES.map(h => h.id).join('|') + ')(_[cd])?$').test(k);   // 요원 전신 그림 (새 요원 그림이 오면 자동으로)
   q.fillStyle = hero ? 'rgba(215,224,255,.55)' : 'rgba(176,120,255,.8)'; q.fillRect(0, 0, c.width, c.height);
   q.globalCompositeOperation = 'source-over'; q.drawImage(im, pad, pad);
   // 맞았을 때 덮어 그리는 흰 실루엣 (같은 크기, 같은 여백)
@@ -1271,6 +1365,14 @@ const LOOK = {
   mage:   { coat: '#4a2c2a', trim: '#8a5a3a', hair: '#c4472f', hairStyle: 'messy', skin: '#e3c2a4' },   // 블레이즈: 붉은 머리, 가죽 재킷
   priest: { coat: '#d4d5da', trim: '#9a3a42', hair: '#1c1a22', hairStyle: 'tail',  skin: '#efd6c2' },   // 헤일로: 검은 묶음 머리, 흰 비옷
   dark:   { coat: '#18171d', trim: '#6b4fa0', hair: '#121116', hairStyle: 'fringe', skin: '#d8bea6' },  // 나이트폴: 한쪽 눈 가린 앞머리, 검은 정장
+  // 새 요원 (전신 그림이 오기 전까지 이 모양으로 그림)
+  scanner:  { coat: '#26404a', trim: '#5fe8d0', hair: '#3a2c22', hairStyle: 'bob',    skin: '#ecd3bd', gear: 'goggle' },   // 스캐너: 고글, 정찰 드론
+  breaker:  { coat: '#3a3d44', trim: '#8a8f9c', hair: '#1f1c18', hairStyle: 'buzz',   skin: '#c9a27e', gear: 'helmet' },   // 브레이커: 방탄 헬멧, 해머
+  echo:     { coat: '#3a2a44', trim: '#ff8ad8', hair: '#e9e2f0', hairStyle: 'tail',   skin: '#efd6c2', gear: 'headset' },  // 에코: 헤드셋, 음파 장치
+  requiem:  { coat: '#141418', trim: '#f2f0e6', hair: '#8c8c94', hairStyle: 'buzz',   skin: '#d9b896' },                   // 레퀴엠: 신부복 흰 깃, 산탄총
+  ironside: { coat: '#4b5872', trim: '#ffb02e', hair: '#2a2018', hairStyle: 'tail',   skin: '#e3c2a4', gear: 'helmet' },   // 아이언사이드: 외골격, 큰 방패
+  blackbox: { coat: '#2c2a26', trim: '#ffc85a', hair: '#d8d8dc', hairStyle: 'fringe', skin: '#efe3d6', gear: 'glasses' },  // 블랙박스: 안경, 격리 상자
+  ghost:    { coat: '#121826', trim: '#7ff2ff', hair: '#0f0f14', hairStyle: 'bob',    skin: '#e8d2c0', gear: 'visor' },    // 고스트: 광학 위장, 소음기 권총
 };
 function rr(g, x, y, w, h, r) { g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
 function shade(hex, p) {
@@ -1302,6 +1404,11 @@ function drawHumanHead(g, id, hy, s) {
   // 눈 (나이트폴은 빛나는 호박색)
   g.fillStyle = id === 'dark' ? '#ffb31a' : '#1b1b22';
   g.fillRect(s * 0.08, hy - s * 0.015, s * 0.035, s * 0.03);
+  // 머리 장비
+  if (L.gear === 'goggle' || L.gear === 'visor') { g.fillStyle = L.trim; g.globalAlpha = 0.9; g.fillRect(-s * 0.02, hy - s * 0.04, s * 0.17, s * 0.045); g.globalAlpha = 1; }
+  else if (L.gear === 'glasses') { g.strokeStyle = '#e8e8ee'; g.lineWidth = s * 0.012; g.strokeRect(s * 0.06, hy - s * 0.035, s * 0.07, s * 0.05); }
+  else if (L.gear === 'helmet') { g.fillStyle = shade(L.coat, -10); g.beginPath(); g.arc(0, hy - s * 0.02, r * 1.12, Math.PI * 0.98, Math.PI * 2.02); g.fill(); g.fillStyle = L.trim; g.fillRect(-r, hy - s * 0.04, r * 2.1, s * 0.025); }
+  else if (L.gear === 'headset') { g.strokeStyle = L.trim; g.lineWidth = s * 0.025; g.beginPath(); g.arc(0, hy - s * 0.02, r * 1.12, Math.PI * 1.05, Math.PI * 1.95); g.stroke(); g.fillStyle = L.trim; g.fillRect(-s * 0.05, hy - s * 0.03, s * 0.06, s * 0.08); }
   if (id === 'knight') { g.strokeStyle = 'rgba(120,60,60,.8)'; g.lineWidth = s * 0.012; g.beginPath(); g.moveTo(s * 0.07, hy + s * 0.08); g.lineTo(s * 0.12, hy + s * 0.12); g.stroke(); }   // 턱 흉터
   // 차가운 테두리 빛 (누아르 림 라이트): 필터 없이 선 하나
   g.strokeStyle = 'rgba(170,195,255,.45)'; g.lineWidth = s * 0.018; g.lineCap = 'round';
@@ -1378,6 +1485,8 @@ function drawHero(g, id, x, y, s, t, swing, hurt, face = 1) {
   if (id === 'priest') { g.fillStyle = '#9a3a42'; g.fillRect(-s * 0.15, -s * 0.52, s * 0.07, s * 0.05); }   // 팔에 붉은 완장
   if (id === 'dark') { g.fillStyle = '#6b4fa0'; g.fillRect(-s * 0.02, -s * 0.6, s * 0.04, s * 0.2); }      // 보라 넥타이
   if (id === 'knight') { g.fillStyle = '#232a38'; g.fillRect(-s * 0.16, -s * 0.56, s * 0.32, s * 0.18); }  // 진압 조끼
+  if (id === 'requiem') { g.fillStyle = '#f2f0e6'; g.fillRect(-s * 0.03, -s * 0.61, s * 0.06, s * 0.035); }   // 신부복 흰 깃
+  if (id === 'ironside') { g.fillStyle = shade(L.coat, 20); g.fillRect(-s * 0.18, -s * 0.6, s * 0.36, s * 0.12); g.fillRect(-s * 0.17, -s * 0.4, s * 0.34, s * 0.08); }   // 외골격 판
   // 어깨 AIU 패치 자리 (노란 점)
   g.fillStyle = 'rgba(255,210,63,.85)'; g.fillRect(-s * 0.14, -s * 0.55, s * 0.05, s * 0.04);
   drawHumanHead(g, id, -s * 0.76, s);
@@ -1404,6 +1513,40 @@ function drawHero(g, id, x, y, s, t, swing, hurt, face = 1) {
     const lg = g.createRadialGradient(0, s * 0.08, 0, 0, s * 0.08, s * 0.16); lg.addColorStop(0, 'rgba(255,230,160,.8)'); lg.addColorStop(1, 'rgba(255,200,100,0)');
     g.fillStyle = lg; g.beginPath(); g.arc(0, s * 0.08, s * 0.16, 0, 7); g.fill();
     g.fillStyle = '#ffe08a'; g.fillRect(-s * 0.035, s * 0.03, s * 0.07, s * 0.09);
+  } else if (id === 'scanner') { // 휴대 탐지기 + 어깨 위 정찰 드론
+    g.rotate(-0.15 + swing * 0.4);
+    g.fillStyle = '#1d2a30'; g.fillRect(-s * 0.02, -s * 0.06, s * 0.14, s * 0.09); g.fillStyle = L.trim; g.fillRect(s * 0.01, -s * 0.045, s * 0.08, s * 0.05);
+    g.restore(); g.save();
+    const dy = -s * 1.05 + Math.sin(t * 4) * s * 0.03;
+    g.fillStyle = '#2b3a40'; g.fillRect(-s * 0.2, dy, s * 0.14, s * 0.04); g.fillStyle = L.trim; g.fillRect(-s * 0.15, dy + s * 0.04, s * 0.04, s * 0.02);
+  } else if (id === 'breaker') { // 문 부수는 해머
+    g.rotate(-1.2 + swing * 2.2);
+    g.fillStyle = '#6a6e78'; g.fillRect(-s * 0.02, -s * 0.5, s * 0.04, s * 0.55);
+    g.fillStyle = '#b9bfcc'; g.fillRect(-s * 0.1, -s * 0.62, s * 0.2, s * 0.14);
+  } else if (id === 'echo') { // 손 음파 장치 (분홍 파동)
+    g.fillStyle = '#2a2230'; g.fillRect(-s * 0.02, -s * 0.05, s * 0.1, s * 0.1);
+    g.strokeStyle = L.trim; g.lineWidth = s * 0.015; g.globalAlpha = 0.5 + swing * 0.5;
+    for (const r0 of [0.08, 0.14]) { g.beginPath(); g.arc(s * 0.08, 0, s * r0, -0.8, 0.8); g.stroke(); }
+    g.globalAlpha = 1;
+  } else if (id === 'requiem') { // 은 탄환 산탄총
+    g.rotate(-0.08 - swing * 0.25);
+    g.fillStyle = '#121216'; g.fillRect(-s * 0.08, -s * 0.03, s * 0.42, s * 0.06); g.fillStyle = '#6b4a2a'; g.fillRect(-s * 0.12, -s * 0.02, s * 0.1, s * 0.1);
+    g.fillStyle = '#d8d8d0'; g.fillRect(s * 0.28, -s * 0.035, s * 0.05, s * 0.07);
+    if (swing > 0.7) { g.fillStyle = 'rgba(255,250,220,.9)'; g.beginPath(); g.arc(s * 0.38, 0, s * 0.05, 0, 7); g.fill(); }
+  } else if (id === 'ironside') { // 팔에 거대한 방패
+    g.translate(s * 0.06 + swing * s * 0.1, 0);
+    g.fillStyle = '#39445a'; g.beginPath(); rr(g, -s * 0.03, -s * 0.28, s * 0.15, s * 0.56, s * 0.04); g.fill();
+    g.fillStyle = L.trim; g.fillRect(-s * 0.03, -s * 0.02, s * 0.15, s * 0.03);
+  } else if (id === 'blackbox') { // 쇠사슬 감긴 격리 상자
+    g.translate(-s * 0.38, s * 0.22);
+    g.fillStyle = '#3a3936'; g.fillRect(-s * 0.13, -s * 0.13, s * 0.26, s * 0.24);
+    g.strokeStyle = L.trim; g.lineWidth = s * 0.02; g.strokeRect(-s * 0.13, -s * 0.13, s * 0.26, s * 0.24);
+    g.beginPath(); g.moveTo(-s * 0.13, -s * 0.01); g.lineTo(s * 0.13, -s * 0.01); g.stroke();
+    g.strokeStyle = '#9a9aa0'; g.setLineDash([s * 0.03, s * 0.02]); g.beginPath(); g.moveTo(s * 0.13, -s * 0.05); g.lineTo(s * 0.45, -s * 0.2); g.stroke(); g.setLineDash([]);
+  } else if (id === 'ghost') { // 소음기 권총
+    g.rotate(-0.1 - swing * 0.2);
+    g.fillStyle = '#16181e'; g.fillRect(-s * 0.02, -s * 0.03, s * 0.2, s * 0.05); g.fillRect(-s * 0.02, -s * 0.03, s * 0.05, s * 0.1);
+    g.fillStyle = '#3a3f4a'; g.fillRect(s * 0.18, -s * 0.025, s * 0.12, s * 0.04);
   } else { // 해결사의 칼 (보라빛 날)
     g.rotate(-0.7 + swing * 2.0);
     g.fillStyle = '#c9b6f0'; g.fillRect(-s * 0.015, -s * 0.58, s * 0.035, s * 0.56);
@@ -1473,10 +1616,29 @@ function drawEnemy(g, e, t) {
     g.beginPath(); g.moveTo(-s * 0.12, -s * 0.52); g.lineTo(-s * 0.2 - e.swing * s * 0.25, -s * 0.36 - e.swing * s * 0.1); g.stroke();
   }
   g.restore();
+  drawStatus(e, s);
   if (!e.boss && e.hp < e.max) {
     const w = s * 0.6, by = e.y - s * (e.type === 'crawler' ? 1.05 : 1.15);
     g.fillStyle = '#300'; g.fillRect(e.x - w / 2, by, w, 4);
     g.fillStyle = '#ff5a4a'; g.fillRect(e.x - w / 2, by, w * Math.max(0, e.hp / e.max), 4);
+  }
+}
+
+/** 이상체 상태 표시: 표식(조준선), 기절(머리 위 별), 느려짐(발밑 고리), 격리 상자(사슬 감긴 상자) */
+function drawStatus(e, s) {
+  const top = e.y - s * (e.boss ? 1.6 : 1.0);
+  if (e.mark > 0) {
+    g.strokeStyle = CI_COL.scanner; g.lineWidth = 1.5; g.globalAlpha = 0.9;
+    const rr0 = s * 0.22 + Math.sin(R.t * 8) * 2; g.beginPath(); g.arc(e.x, top - 10, rr0, 0, 7); g.stroke();
+    g.beginPath(); g.moveTo(e.x - rr0 - 4, top - 10); g.lineTo(e.x + rr0 + 4, top - 10); g.moveTo(e.x, top - 10 - rr0 - 4); g.lineTo(e.x, top - 10 + rr0 + 4); g.stroke(); g.globalAlpha = 1;
+  }
+  if (e.stun > 0) { g.fillStyle = '#ffe27a'; for (let i = 0; i < 3; i++) { const a = R.t * 6 + i * 2.09; g.beginPath(); g.arc(e.x + Math.cos(a) * s * 0.25, top + Math.sin(a) * 4, 2.5, 0, 7); g.fill(); } }
+  if (e.slow > 0) { g.strokeStyle = 'rgba(255,138,216,.7)'; g.lineWidth = 1.5; g.beginPath(); g.ellipse(e.x, e.y, s * 0.4, s * 0.12, 0, 0, 7); g.stroke(); }
+  if (e.cage > 0) {
+    const w = s * (e.boss ? 1.3 : 0.9), h = s * (e.boss ? 1.9 : 1.2);
+    g.fillStyle = 'rgba(30,26,20,.55)'; g.fillRect(e.x - w / 2, e.y - h, w, h);
+    g.strokeStyle = CI_COL.blackbox; g.lineWidth = 2; g.strokeRect(e.x - w / 2, e.y - h, w, h);
+    g.setLineDash([4, 3]); g.beginPath(); g.moveTo(e.x - w / 2, e.y - h); g.lineTo(e.x + w / 2, e.y); g.moveTo(e.x + w / 2, e.y - h); g.lineTo(e.x - w / 2, e.y); g.stroke(); g.setLineDash([]);
   }
 }
 
@@ -1579,27 +1741,44 @@ function randPoint(pad) { return { x: (Math.random() - 0.5) * (MAPW - pad * 2), 
 function newMap() {
   R.mapStage = S.stage; R.enemies = []; R.proj = []; R.boss = null; R.roam = null; R.spawnT = 0;
   R.A = { x: 0, y: MAPH / 2 - 220 }; R.cam = { x: 0, y: MAPH / 2 - 260 }; R.heading = -Math.PI / 2;
-  for (const h of owned()) if (R.heroes[h.id]) Object.assign(R.heroes[h.id], formSlot(h.id));
+  for (const h of team()) if (R.heroes[h.id]) Object.assign(R.heroes[h.id], formSlot(h.id));
   for (let i = 0; i < 4; i++) spawnCluster();
 }
 const owned = () => C.HEROES.filter(h => S.heroes[h.id].owned);
+// 전투에 나가는 요원 (파티 최대 5명). 보유 요원 전체가 아니라 편성한 요원만 싸움
+const team = () => C.partyIds(S).map(id => C.heroById(id));
 const HERO_SIZE = 50;
-// 진형: [앞(이동 방향), 옆] 오프셋. 근접은 앞, 원거리는 뒤
-const FORM = { knight: [30, -16], dark: [32, 18], archer: [-20, -30], mage: [-40, 4], priest: [-18, 32] };
+// 진형: [앞(이동 방향), 옆] 오프셋. 근접은 앞줄, 원거리는 뒷줄 (파티가 바뀌면 다시 나눔)
+const FRONT = [[30, -16], [32, 18], [38, 1]], BACK = [[-20, -30], [-40, 4], [-18, 32], [-36, -12]];
+let formMap = {}, formKey = '';
 function formSlot(id) {
-  const [f, s] = FORM[id], c = Math.cos(R.heading), n = Math.sin(R.heading);
+  const t = team(), key = t.map(h => h.id).join();
+  if (key !== formKey) {
+    formKey = key; formMap = {};
+    const fr = FRONT.slice(), bk = BACK.slice();
+    for (const h of t.filter(h => h.range === 'melee')) formMap[h.id] = fr.shift() || bk.shift();
+    for (const h of t.filter(h => h.range !== 'melee')) formMap[h.id] = bk.shift() || fr.shift();
+  }
+  const [f, s] = formMap[id] || [0, 0], c = Math.cos(R.heading), n = Math.sin(R.heading);
   return { x: R.A.x + c * f - n * s, y: R.A.y + n * f + c * s };
 }
 /** 요원 전투 상태를 보유 요원과 맞춤 (새로 얻은 요원 추가, 능력치 갱신) */
+/** 파티가 바뀌면: 새로 들어온 요원을 진형 자리에 세우고 파티 칸을 다시 그림 */
+function partyChanged() {
+  for (const h of team()) { const r = R.heroes[h.id]; if (!r) continue; if (!r.inTeam) Object.assign(r, formSlot(h.id), { swing: 0, hurt: 0 }); }
+  syncHeroes(false);
+  for (const h of C.HEROES) if (R.heroes[h.id]) R.heroes[h.id].inTeam = team().some(t => t.id === h.id);
+  partyKey = '';
+}
 function syncHeroes(full) {
-  for (const h of owned()) {
+  for (const h of team()) {
     const d = S.heroes[h.id], max = C.heroHp(h.id, d.lv, d.stars);
     const r = R.heroes[h.id];
     if (!r) { const p = formSlot(h.id); R.heroes[h.id] = { hp: max, max, cd: h.skill.cd * 0.5, at: Math.random(), swing: 0, hurt: 0, x: p.x, y: p.y, face: 1 }; }
     else { const ratio = r.max > 0 ? r.hp / r.max : 1; r.max = max; r.hp = full ? max : Math.min(max, max * ratio); }
   }
 }
-const alive = () => owned().filter(h => R.heroes[h.id] && R.heroes[h.id].hp > 0);
+const alive = () => team().filter(h => R.heroes[h.id] && R.heroes[h.id].hp > 0);
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
 function mkEnemy(type, x, y, boss) {
@@ -1638,9 +1817,9 @@ function startChal(kind, id, lv) {
   R.chal = { kind, id, lv, eq, name };
   // 지금 사냥하던 지도를 그대로 맡겨 둠 (출동이 끝나면 이 장면으로 돌아옴)
   R.saved = { enemies: R.enemies.filter(e => !e.boss && e.hp > 0), A: { ...R.A }, cam: { ...R.cam }, heading: R.heading, roam: R.roam, spawnT: R.spawnT,
-    heroes: Object.fromEntries(owned().filter(h => R.heroes[h.id]).map(h => { const r = R.heroes[h.id]; return [h.id, { x: r.x, y: r.y, hp: r.hp, max: r.max, cd: r.cd, face: r.face }]; })) };
+    heroes: Object.fromEntries(team().filter(h => R.heroes[h.id]).map(h => { const r = R.heroes[h.id]; return [h.id, { x: r.x, y: r.y, hp: r.hp, max: r.max, cd: r.cd, face: r.face }]; })) };
   R.enemies = []; R.proj = []; R.wipe = 0; syncHeroes(true);
-  for (const h of owned()) Object.assign(R.heroes[h.id], formSlot(h.id), { cd: Math.min(R.heroes[h.id].cd, h.skill.cd * 0.3) });
+  for (const h of team()) Object.assign(R.heroes[h.id], formSlot(h.id), { cd: Math.min(R.heroes[h.id].cd, h.skill.cd * 0.3) });
   const a = R.heading, p = { x: R.A.x + Math.cos(a) * 200, y: R.A.y + Math.sin(a) * 200 }; keepIn(p, 120);
   const b = mkEnemy('boss', p.x, p.y, true);
   b.hp = b.max = C.chalHp(eq); b.atk = C.chalAtk(eq); b.home = { ...p }; b.wt = 0; b.aggro = true;
@@ -1655,9 +1834,9 @@ function restoreField() {
   if (!sv || R.mapStage !== S.stage) { newMap(); syncHeroes(true); return; }
   R.enemies = sv.enemies; R.A = sv.A; R.cam = sv.cam; R.heading = sv.heading; R.roam = sv.roam; R.spawnT = sv.spawnT; R.boss = null;
   for (const e of R.enemies) e.aggro = false;
-  for (const h of owned()) { const r = R.heroes[h.id], o = sv.heroes[h.id]; if (r && o) Object.assign(r, o, { swing: 0, hurt: 0 }); }
+  for (const h of team()) { const r = R.heroes[h.id], o = sv.heroes[h.id]; if (r && o) Object.assign(r, o, { swing: 0, hurt: 0 }); }
   syncHeroes(false);
-  for (const h of owned()) { const r = R.heroes[h.id]; if (r && r.hp <= 0) r.hp = r.max * 0.3; }   // 쓰러진 채 맡겼으면 조금 회복
+  for (const h of team()) { const r = R.heroes[h.id]; if (r && r.hp <= 0) r.hp = r.max * 0.3; }   // 쓰러진 채 맡겼으면 조금 회복
   addFx({ k: 'flash', life: 0.25 });
 }
 function chalEnd(win, reason) {
@@ -1691,7 +1870,8 @@ function hitStop(sec) { R.stop = Math.max(R.stop || 0, sec); }
 function zoomPunch(v) { R.zoom = Math.max(R.zoom || 0, v); }
 /* 기술 알림: 전투 화면 가운데는 가리지 않음 (세나 키우기처럼 소소하게)
  * 1) 쓴 요원 머리 위에 기술 이름 말풍선  2) 아래 파티 칸이 번쩍  3) 화면 가장자리가 요원 색으로 잠깐 물듦 */
-const CI_COL = { knight: '#7fb2ff', archer: '#8fe3a8', mage: '#ff8a3e', priest: '#ffe28a', dark: '#b98cff' };
+const CI_COL = { knight: '#7fb2ff', archer: '#8fe3a8', mage: '#ff8a3e', priest: '#ffe28a', dark: '#b98cff',
+  scanner: '#5fe8d0', breaker: '#c9d2e6', echo: '#ff8ad8', requiem: '#f2f0e6', ironside: '#ffb02e', blackbox: '#ffc85a', ghost: '#7ff2ff' };
 function cutIn(h, r) {
   const col = CI_COL[h.id] || '#fff';
   addFx({ k: 'call', hid: h.id, txt: h.skill.name, col, life: 1.0 });
@@ -1706,7 +1886,8 @@ function spark(x, y, col, n, len) { const a0 = Math.random() * 6.28; addFx({ k: 
 function damage(e, base) {
   if (!e || e.hp <= 0) return;
   const crit = Math.random() < C.critChance(S.up.crit);
-  const dmg = base * (R.buff > 0 ? 1.5 : 1) * (crit ? C.CRIT_DMG : 1);
+  // 스캐너 표식이 붙은 적은 받는 피해 증가
+  const dmg = base * (R.buff > 0 ? 1.5 : 1) * (crit ? C.CRIT_DMG : 1) * (e.mark > 0 ? 1 + (e.markAmp || 0) : 1);
   e.hp -= dmg; e.hit = 0.14; e.aggro = true;
   if (crit || base > 0 && R.skillHit) e.flash = 0.09;   // 흰 번쩍은 센 타격에만
   // 밀려남: 요원 팀 쪽에서 바깥으로. 근원체는 거의 안 밀림
@@ -1793,6 +1974,12 @@ function heroAct(h, r, dt) {
     R.proj.push({ k: h.id, x: r.x + r.face * s * 0.2, y: r.y - s * 0.5, tgt, dmg: atk, sp: h.id === 'archer' ? 520 : 340, aoe: h.range === 'aoe' });
   }
 }
+/** 요원 근처에서 체력이 가장 많은 일반 이상체 (근원체는 제외) */
+function strongest(r) {
+  let best = null;
+  for (const e of R.enemies) if (e.hp > 0 && !e.boss && dist(e, r) < ENGAGE * 1.8 && (!best || e.hp > best.hp)) best = e;
+  return best;
+}
 function castSkill(h, atk, r, s, tgt) {
   const sk = h.skill;
   R.skillHit = true; setTimeout(() => { R.skillHit = false; }, 0);
@@ -1808,9 +1995,48 @@ function castSkill(h, atk, r, s, tgt) {
       R.proj.push({ k: 'archer', x: r.x, y: r.y - s * 0.5, tgt: live[Math.floor(Math.random() * live.length)], dmg: atk * sk.mult, sp: 640, gold: true });
     }, i * 90);
   } else if (sk.kind === 'aoe') {
-    // 시전자 주변 넓은 범위
-    for (const e of R.enemies.slice()) if (e.hp > 0 && dist(e, tgt) < 130) { damage(e, atk * sk.mult); addFx({ k: 'burst', x: e.x, y: e.y - e.size * 0.4, r: e.size * 0.8, life: 0.45, col: h.id === 'dark' ? '#b066ff' : '#ff8a2e' }); }
-    addFx({ k: 'ring', x: tgt.x, y: tgt.y, r: 130, life: 0.45, col: h.id === 'dark' ? '#b066ff' : '#ff8a2e' });
+    // 범위 피해. 에코(느려짐)는 자기 주변 넓게, 나머지는 노린 적 주변. 브레이커는 맞은 적 기절
+    const col = h.id === 'dark' ? '#b066ff' : h.id === 'mage' ? '#ff8a2e' : CI_COL[h.id], cx = sk.slow ? r : tgt, rad = sk.rad || 130;
+    for (const e of R.enemies.slice()) if (e.hp > 0 && dist(e, cx) < rad) {
+      if (sk.stun) e.stun = Math.max(e.stun || 0, sk.stun);
+      if (sk.slow) e.slow = Math.max(e.slow || 0, sk.slow);
+      damage(e, atk * sk.mult); addFx({ k: 'burst', x: e.x, y: e.y - e.size * 0.4, r: e.size * 0.8, life: 0.45, col });
+    }
+    addFx({ k: 'ring', x: cx.x, y: cx.y, r: rad, life: sk.slow ? 0.7 : 0.45, col });
+    if (sk.slow) addFx({ k: 'ring', x: cx.x, y: cx.y, r: rad * 0.6, life: 0.55, col });
+  } else if (sk.kind === 'mark') {
+    // 체력이 가장 많은 적에게 표식: 정해진 시간 동안 받는 피해 증가
+    const e = strongest(r) || tgt;
+    e.mark = sk.dur; e.markAmp = sk.amp;
+    damage(e, atk * sk.mult);
+    addFx({ k: 'ring', x: e.x, y: e.y, r: e.size * 1.1, life: 0.5, col: CI_COL[h.id] });
+  } else if (sk.kind === 'exorcise') {
+    // 근원체에게 큰 피해. 일반 이상체는 작은 피해 + 일정 확률로 즉시 처리
+    const b = R.boss && R.boss.hp > 0 && dist(R.boss, r) < ENGAGE * 1.8 ? R.boss : null, e = b || tgt;
+    addFx({ k: 'pillar', x: e.x, y: e.y, life: 0.8 });
+    if (e.boss) damage(e, atk * sk.mult);
+    else if (Math.random() < sk.kill) { addText(e.x, e.y - e.size * 1.2, '정화', CI_COL[h.id], true); damage(e, e.hp + 1); }
+    else damage(e, atk * sk.low);
+  } else if (sk.kind === 'shield') {
+    // 팀 전체 보호막 (최대 체력 비율), 자신은 도발해서 적을 끌어옴
+    for (const a of alive()) { const hr = R.heroes[a.id]; hr.shield = hr.max * sk.mult; hr.shT = sk.dur; }
+    R.taunt = { id: h.id, t: sk.dur };
+    addFx({ k: 'ring', x: r.x, y: r.y, r: 140, life: 0.6, col: CI_COL[h.id] });
+    for (const e of R.enemies) if (e.hp > 0 && dist(e, r) < 260) e.aggro = true;
+  } else if (sk.kind === 'cage') {
+    // 가장 강한 적을 상자에 가둠 (행동 불가), 풀릴 때 큰 피해
+    const e = (R.boss && R.boss.hp > 0 && dist(R.boss, r) < ENGAGE * 1.8) ? R.boss : (strongest(r) || tgt);
+    e.cage = sk.dur; e.cageDmg = atk * sk.mult;
+    addFx({ k: 'ring', x: e.x, y: e.y, r: e.size * 1.2, life: 0.5, col: CI_COL[h.id] });
+  } else if (sk.kind === 'execute') {
+    // 체력이 가장 낮은 적 셋을 차례로 처형. 체력이 일정 비율 아래면 즉시 처리
+    const list = R.enemies.filter(e => e.hp > 0 && dist(e, r) < ENGAGE * 1.8).sort((a, b) => a.hp / a.max - b.hp / b.max).slice(0, sk.hits);
+    r.cloak = 0.6;
+    list.forEach((e, i) => setTimeout(() => {
+      if (e.hp <= 0) return;
+      addFx({ k: 'xslash', x: e.x, y: e.y - e.size * 0.5, r: e.size * 0.7 + 10, life: 0.22 });
+      if (!e.boss && e.hp / e.max < sk.under) damage(e, e.hp + 1); else damage(e, atk * sk.mult);
+    }, i * 120));
   } else if (sk.kind === 'buff') {
     R.buff = sk.dur;
     for (const a of alive()) { const hr = R.heroes[a.id], heal = hr.max * sk.heal; hr.hp = Math.min(hr.max, hr.hp + heal); addText(hr.x + s * 0.3, hr.y - s * 0.6, '+' + C.formatNum(heal), '#6dff9a', false); }
@@ -1842,7 +2068,7 @@ function update(dt) {
   // 전멸: 3초 뒤 그 자리에서 부활, 근처 이상체는 물러남(다시 배치)
   if (R.wipe > 0) {
     R.wipe -= dt;
-    if (R.wipe <= 0) { syncHeroes(true); R.enemies = R.enemies.filter(e => dist(e, R.A) > 300 && !e.boss); for (const e of R.enemies) e.aggro = false; for (const h of owned()) Object.assign(R.heroes[h.id], formSlot(h.id)); }
+    if (R.wipe <= 0) { syncHeroes(true); R.enemies = R.enemies.filter(e => dist(e, R.A) > 300 && !e.boss); for (const e of R.enemies) e.aggro = false; for (const h of team()) Object.assign(R.heroes[h.id], formSlot(h.id)); }
     return;
   }
   R.enemies = R.enemies.filter(e => e.hp > 0);
@@ -1868,6 +2094,8 @@ function update(dt) {
   keepIn(R.A, 60);
   if (R.boss) { R.bossT -= dt; if (R.bossT <= 0) bossFail('근원체 도주'); }
   for (const h of hs) heroAct(h, R.heroes[h.id], dt);
+  for (const h of hs) { const r = R.heroes[h.id]; if (r.shT > 0) { r.shT -= dt; if (r.shT <= 0) r.shield = 0; } if (r.cloak > 0) r.cloak -= dt; }
+  if (R.taunt && R.taunt.t > 0) R.taunt.t -= dt;
   // 투사체
   for (const p of R.proj) {
     const tx = p.tgt.x, ty = p.tgt.y - p.tgt.size * 0.45, dx = tx - p.x, dy = ty - p.y, d = Math.hypot(dx, dy);
@@ -1883,8 +2111,18 @@ function update(dt) {
   for (const e of R.enemies) {
     e.hit = Math.max(0, e.hit - dt); e.flash = Math.max(0, (e.flash || 0) - dt); e.swing = Math.max(0, e.swing - dt * 3); e.walk = false;
     if (e.vx || e.vy) { e.x += e.vx * dt; e.y += e.vy * dt; const fr = Math.pow(0.0015, dt); e.vx *= fr; e.vy *= fr; if (Math.abs(e.vx) + Math.abs(e.vy) < 2) e.vx = e.vy = 0; keepIn(e, 30); }
+    // 상태: 표식, 느려짐은 시간만 줄고, 기절과 격리 상자는 아무것도 못 함
+    if (e.mark > 0) e.mark -= dt;
+    if (e.slow > 0) e.slow -= dt;
+    if (e.cage > 0) { e.cage -= dt; if (e.cage <= 0) { addFx({ k: 'burst', x: e.x, y: e.y - e.size * 0.4, r: e.size * 1.2, life: 0.4, col: CI_COL.blackbox }); shake(3); damage(e, e.cageDmg || 0); } continue; }
+    if (e.stun > 0) { e.stun -= dt; continue; }
+    const sl = e.slow > 0 ? 0.5 : 1;
     let tg = null, bd = Infinity;
     for (const h of hs) { const d = dist(e, R.heroes[h.id]); if (d < bd) { bd = d; tg = h; } }
+    // 도발: 아이언사이드가 버티는 동안 가까운 적은 그쪽으로
+    if (R.taunt && R.taunt.t > 0 && R.heroes[R.taunt.id] && R.heroes[R.taunt.id].hp > 0 && hs.some(h => h.id === R.taunt.id)) {
+      const tr = R.heroes[R.taunt.id], td = dist(e, tr); if (td < 300) { tg = C.heroById(R.taunt.id); bd = td; }
+    }
     if (!tg) continue;
     if (bd < (e.boss ? 240 : 150)) e.aggro = true;
     if (!e.aggro) { // 들키기 전: 제자리 근처를 어슬렁거림
@@ -1894,13 +2132,16 @@ function update(dt) {
       continue;
     }
     const hr = R.heroes[tg.id], reach = e.boss ? 58 : 30;
-    if (bd > reach) { moveTo(e, hr.x, hr.y, e.boss ? 45 : 60, dt); e.walk = true; continue; }
+    if (bd > reach) { moveTo(e, hr.x, hr.y, (e.boss ? 45 : 60) * sl, dt); e.walk = true; continue; }
     e.face = hr.x >= e.x ? 1 : -1;
-    e.at += dt * (e.boss ? 0.7 : 0.8);
+    e.at += dt * (e.boss ? 0.7 : 0.8) * (sl < 1 ? 0.6 : 1);
     if (e.at >= 1) {
       e.at = 0; e.swing = 1;
-      hr.hp -= e.atk; hr.hurt = 1;
-      addText(hr.x, hr.y - HERO_SIZE, C.formatNum(e.atk), '#ff7a7a', false);
+      // 보호막이 먼저 막음
+      let dmg = e.atk;
+      if (hr.shield > 0) { const a = Math.min(hr.shield, dmg); hr.shield -= a; dmg -= a; }
+      hr.hp -= dmg; hr.hurt = 1;
+      addText(hr.x, hr.y - HERO_SIZE, dmg > 0 ? C.formatNum(dmg) : '막음', dmg > 0 ? '#ff7a7a' : '#ffd98a', false);
     }
   }
   separate();
@@ -1982,7 +2223,7 @@ function draw() {
   // 3) 서 있는 것들(장식, 요원, 이상체)을 아래쪽일수록 앞에 오게 정렬
   const list = [];
   for (const c of chunks) for (const d of c.tall) if (Math.abs(d.x) < MAPW / 2 - 30 && Math.abs(d.y) < MAPH / 2 - 30) list.push({ y: d.y, f: () => drawProp(d, F) });
-  for (const h of owned()) { const r = R.heroes[h.id]; if (r) list.push({ y: r.y, f: () => drawHeroRt(h, r) }); }
+  for (const h of team()) { const r = R.heroes[h.id]; if (r) list.push({ y: r.y, f: () => drawHeroRt(h, r) }); }
   for (const e of R.enemies) list.push({ y: e.y, f: () => drawEnemy(g, e, R.t) });
   list.sort((a, b) => a.y - b.y).forEach(o => o.f());
   for (const p of R.proj) drawProj(p);
@@ -2143,8 +2384,12 @@ function drawHeroRt(h, r) {
   const bob = r.walk ? Math.abs(Math.sin(R.t * 12 + r.x)) * 3 : 0;
   if (r.hp <= 0) { g.globalAlpha = 0.35; drawHero(g, h.id, r.x, r.y, HERO_SIZE, 0, 0, 0, r.face); g.globalAlpha = 1; return; }
   walkFlap = r.walk ? 0.03 : 0.008;
+  if (r.cloak > 0) g.globalAlpha = 0.35;   // 고스트 투명 처형: 잠깐 모습을 감춤
   drawHero(g, h.id, r.x, r.y - bob, HERO_SIZE, R.t, r.swing, r.hurt, r.face);
+  g.globalAlpha = 1;
   walkFlap = 0;
+  // 아이언사이드 보호막: 몸을 감싸는 주황 빛 막
+  if (r.shield > 0) { g.strokeStyle = `rgba(255,176,46,${(0.45 + Math.sin(R.t * 6) * 0.15).toFixed(2)})`; g.lineWidth = 2; g.beginPath(); g.ellipse(r.x, r.y - HERO_SIZE * 0.5, HERO_SIZE * 0.42, HERO_SIZE * 0.62, 0, 0, 7); g.stroke(); }
   // 체력 바 (닳았을 때만)
   if (r.hp < r.max) { g.fillStyle = '#300'; g.fillRect(r.x - 16, r.y + 6, 32, 4); g.fillStyle = '#5be37f'; g.fillRect(r.x - 16, r.y + 6, 32 * Math.max(0, r.hp / r.max), 4); }
 }
@@ -2158,6 +2403,15 @@ function drawProj(p) {
     g.fillStyle = '#3d5a3a'; g.fillRect(-3, -5, 6, 10);
     const fl = g.createRadialGradient(0, -7, 0, 0, -7, 9); fl.addColorStop(0, '#fff2c0'); fl.addColorStop(0.5, '#ff8a2e'); fl.addColorStop(1, 'rgba(255,120,40,0)');
     g.fillStyle = fl; g.beginPath(); g.arc(0, -7, 9, 0, 7); g.fill();
+  } else if (p.k === 'requiem') { // 은 탄환: 흰 예광 줄
+    const tg = g.createLinearGradient(-22, 0, 4, 0); tg.addColorStop(0, 'rgba(240,240,230,0)'); tg.addColorStop(1, '#fffbe8');
+    g.strokeStyle = tg; g.lineWidth = 2.5; g.beginPath(); g.moveTo(-22, 0); g.lineTo(4, 0); g.stroke();
+  } else if (p.k === 'echo') { // 음파: 겹친 호
+    g.strokeStyle = CI_COL.echo; g.lineWidth = 1.6;
+    for (const r0 of [5, 9]) { g.beginPath(); g.arc(-r0, 0, r0, -0.9, 0.9); g.stroke(); }
+  } else if (p.k === 'scanner' || p.k === 'blackbox') { // 탐지 침, 봉인 쐐기: 요원 색 빛 점
+    g.fillStyle = CI_COL[p.k]; g.beginPath(); g.arc(0, 0, 3, 0, 7); g.fill();
+    g.strokeStyle = CI_COL[p.k]; g.globalAlpha = 0.5; g.lineWidth = 1.5; g.beginPath(); g.moveTo(-14, 0); g.lineTo(0, 0); g.stroke(); g.globalAlpha = 1;
   } else { // 진정제 침
     g.strokeStyle = '#dfe6f2'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(-10, 0); g.lineTo(4, 0); g.stroke();
     g.fillStyle = '#c8323c'; g.fillRect(-12, -1.5, 4, 3);
@@ -2238,9 +2492,26 @@ function drawBossBar() {
 
 /* ---------- 초상화 (캔버스로 한 번 그려서 재사용) ---------- */
 const portraitCache = {};
+/* 새 요원 임시 얼굴: 그림이 오기 전까지 실루엣 + 직업 소품 (등급 색 바탕) */
+const SIL = {
+  base: c => `<path d="M48 26a15 15 0 1 1 0 30a15 15 0 1 1 0-30z" fill="${c}"/><path d="M16 120c2-30 14-48 32-48s30 18 32 48z" fill="${c}"/>`,
+  scanner: () => `<rect x="34" y="34" width="28" height="9" rx="4" fill="#9ff"/><circle cx="80" cy="30" r="7" fill="none" stroke="#9ff" stroke-width="2"/><path d="M73 30h-8M87 30h-4" stroke="#9ff" stroke-width="2"/>`,
+  breaker: () => `<rect x="70" y="40" width="6" height="70" fill="#aaa"/><rect x="60" y="30" width="26" height="16" rx="2" fill="#ccc"/>`,
+  echo: () => `<path d="M32 40a16 16 0 0 1 32 0" fill="none" stroke="#f9f" stroke-width="4"/><rect x="28" y="38" width="7" height="12" rx="2" fill="#f9f"/><path d="M74 50q8 6 0 12M80 46q12 10 0 20" fill="none" stroke="#f9f" stroke-width="2"/>`,
+  requiem: () => `<rect x="45" y="78" width="6" height="24" fill="#fff"/><rect x="39" y="84" width="18" height="6" fill="#fff"/><path d="M38 60q10 8 20 0" fill="none" stroke="#fff" stroke-width="2"/>`,
+  ironside: () => `<path d="M20 120c2-26 10-40 28-44h0c18 4 26 18 28 44z" fill="#6b7a99"/><rect x="34" y="30" width="28" height="26" rx="8" fill="#6b7a99"/><rect x="38" y="38" width="20" height="5" fill="#ffb02e"/>`,
+  blackbox: () => `<rect x="60" y="62" width="28" height="26" rx="2" fill="#555" stroke="#ffb02e" stroke-width="2"/><path d="M60 75h28M74 62v26" stroke="#ffb02e" stroke-width="2"/><path d="M30 70q-10 20 4 40" fill="none" stroke="#999" stroke-width="3" stroke-dasharray="4 3"/>`,
+  ghost: () => `<path d="M16 120c2-30 14-48 32-48s30 18 32 48z" fill="#0d1019" opacity=".55"/><path d="M40 44h16" stroke="#7ff" stroke-width="3"/><rect x="62" y="58" width="30" height="5" fill="#bbb"/>`,
+};
+const SIL_BG = { 희귀: '#2d5a8a', 영웅: '#5b3f8f', 전설: '#8a5a12' };
 function portrait(id) {
   if (ART['card_' + id]) return ART['card_' + id];   // 그림 카드 (얼굴)
   if (portraitCache[id]) return portraitCache[id];
+  if (SIL[id]) {
+    const bg = SIL_BG[C.heroById(id).grade];
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 120"><defs><radialGradient id="b" cx=".5" cy=".35" r=".7"><stop offset="0" stop-color="${bg}"/><stop offset="1" stop-color="#0d1019"/></radialGradient></defs><rect width="96" height="120" fill="url(#b)"/>${SIL.base('#d7dbe8')}${SIL[id]()}</svg>`;
+    return (portraitCache[id] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
+  }
   const c = document.createElement('canvas'); c.width = c.height = 128;
   const p = c.getContext('2d'); if (!p) return '';
   const bg = p.createLinearGradient(0, 0, 0, 128); bg.addColorStop(0, shade(LOOK[id].coat, 45)); bg.addColorStop(1, '#1C212B');
@@ -2252,7 +2523,7 @@ function portrait(id) {
 /* ---------- UI: HUD와 파티 ---------- */
 let partyKey = '';
 function renderParty() {
-  const list = owned(), slots = [];
+  const list = team(), slots = [];
   for (let i = 0; i < 5; i++) {
     const h = list[i];
     slots.push(h ? `<div class="slot" id="sl-${h.id}"><div class="face"><img src="${portrait(h.id)}" alt="${h.name}"></div><div class="hp"><i></i></div></div>` : `<div class="slot empty" title="호출로 합류">+</div>`);
@@ -2283,9 +2554,9 @@ function updateUI() {
   $('quest').classList.toggle('done', done);
   $('bAuto').setAttribute('aria-pressed', S.autoSkill ? 'true' : 'false');
   $('bSpd').setAttribute('aria-pressed', S.speed === 2 ? 'true' : 'false'); $('bSpdT').textContent = '×' + S.speed;
-  const key = owned().map(h => h.id).join();
+  const key = team().map(h => h.id).join();
   if (key !== partyKey) { partyKey = key; renderParty(); }
-  for (const h of owned()) {
+  for (const h of team()) {
     const el = $('sl-' + h.id), r = R.heroes[h.id]; if (!el || !r) continue;
     el.style.setProperty('--cd', Math.max(0, r.cd / h.skill.cd).toFixed(3));
     el.style.setProperty('--hp', (100 * Math.max(0, r.hp / r.max)).toFixed(1) + '%');
@@ -2296,20 +2567,41 @@ function updateUI() {
 }
 
 /* ---------- UI: 패널 ---------- */
-let tab = 'hero', bulk = 1;
-const APP_VERSION = '0.9.10';   // 버전은 로딩 화면이 아니라 설정에만 표시
+let tab = 'hero', bulk = 1, hfil = '전체';   // hfil: 요원 탭 분류 거르기
+const APP_VERSION = '0.10.0';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
+/** 기술 설명 (상세 창) */
+function skillText(h) {
+  const k = h.skill, x = v => '×' + v;
+  return {
+    single: `노린 적에게 공격력 ${x(k.mult)} 피해`,
+    multi: `근처 적에게 ${k.hits}발 연속 사격, 한 발 ${x(k.mult)}`,
+    aoe: `${k.slow ? '주변 모든 적' : '노린 적 주변'}에게 ${x(k.mult)} 피해${k.stun ? `, ${k.stun}초 기절` : ''}${k.slow ? `, ${k.slow}초 동안 느려짐` : ''}`,
+    buff: `팀 공격력 1.5배 ${k.dur}초, 최대 체력 ${k.heal * 100}% 회복`,
+    mark: `체력이 가장 많은 적에게 표식, ${k.dur}초 동안 받는 피해 +${k.amp * 100}%`,
+    exorcise: `근원체에게 ${x(k.mult)} 피해. 이상체는 ${x(k.low)} 피해, ${k.kill * 100}% 확률로 즉시 처리`,
+    shield: `팀 전체에 최대 체력 ${k.mult * 100}% 보호막 ${k.dur}초, 자신은 적을 끌어옴`,
+    cage: `가장 강한 적을 ${k.dur}초 동안 가둠, 풀릴 때 ${x(k.mult)} 피해`,
+    execute: `체력이 가장 낮은 적 ${k.hits}명을 차례로 ${x(k.mult)}, 체력 ${k.under * 100}% 아래면 즉시 처리`,
+  }[k.kind] || '';
+}
 const starStr = n => '★'.repeat(n) + `<s>${'★'.repeat(C.CONST.MAX_STARS - n)}</s>`;
 
 function renderPanel() {
   const P = $('panel');
   if (tab === 'hero') {
-    P.innerHTML = `<div class="seg">${[[1, '1회'], [10, '10회'], [0, '최대']].map(([v, l]) => `<button data-act="bulk" data-v="${v}" class="${bulk === v ? 'on' : ''}">${l}</button>`).join('')}</div><div class="hgrid">` +
-      C.HEROES.map(h => {
-        const d = S.heroes[h.id];
-        const ph = `<div class="hph"><img src="${ART['card_' + h.id] || portrait(h.id)}" alt=""><span class="gr g-${h.grade}">${h.grade}</span>${d.owned ? '<span class="lvb">Lv<b class="lv"></b></span><span class="up">승급</span>' : '<span class="no">미보유</span>'}</div>`;
-        if (!d.owned) return `<div class="hc locked c-${h.grade}" data-act="hdet" data-h="${h.id}">${ph}<div class="hn">${h.name}</div></div>`;
-        return `<div class="hc c-${h.grade}" data-h="${h.id}"><div class="hcard" data-act="hdet" data-h="${h.id}">${ph}<div class="hn">${h.name}</div>
+    // 위: 분류 거르기(전체, 공격, 광역, 방어, 지원) + 일괄 강화. 세나 키우기 영웅 목록처럼 분류 그림으로
+    const pids = C.partyIds(S), list = C.HEROES.filter(h => hfil === '전체' || h.type === hfil);
+    P.innerHTML = `<div class="htop"><div class="tfil">${['전체', ...C.TYPES].map(t => `<button data-act="hfil" data-v="${t}" class="${t === '전체' ? '' : 't-' + t}${hfil === t ? ' on' : ''}" aria-label="${t}">${t === '전체' ? '<b>전체</b>' : `<svg><use href="#i-t-${t}"/></svg>`}</button>`).join('')}</div>
+      <div class="seg">${[[1, '1회'], [10, '10회'], [0, '최대']].map(([v, l]) => `<button data-act="bulk" data-v="${v}" class="${bulk === v ? 'on' : ''}">${l}</button>`).join('')}</div></div>
+      <div class="hcount">${hfil === '전체' ? '' : hfil + ' '}요원 ${list.filter(h => S.heroes[h.id].owned).length} / ${list.length}<span style="float:right">출전 <b>${pids.length}</b> / ${C.CONST.PARTY_MAX}</span></div><div class="hgrid">` +
+      list.map(h => {
+        const d = S.heroes[h.id], inP = pids.includes(h.id);
+        const tic = `<i class="tic t-${h.type}"><svg><use href="#i-t-${h.type}"/></svg></i>`;
+        const ph = `<div class="hph"><img src="${ART['card_' + h.id] || portrait(h.id)}" alt=""><span class="gr g-${h.grade}">${h.grade}</span>${d.owned ? `<span class="lvb">Lv<b class="lv"></b></span><span class="up">승급</span>${inP ? '<span class="pin">출전</span>' : ''}` : '<span class="no">미보유</span>'}</div>`;
+        const nm = `<div class="hn${h.name.length >= 5 ? ' long' : ''}">${tic}<span>${h.name}</span></div>`;
+        if (!d.owned) return `<div class="hc locked c-${h.grade}" data-act="hdet" data-h="${h.id}">${ph}${nm}</div>`;
+        return `<div class="hc c-${h.grade}${inP ? ' inparty' : ''}" data-h="${h.id}"><div class="hcard" data-act="hdet" data-h="${h.id}">${ph}${nm}
           <div class="hst">${starStr(d.stars)}</div><div class="sbar mini"><i></i></div></div>
           <button class="btn hb" data-act="lv" data-h="${h.id}"><span class="cost">${icon('gold')}<i></i></span></button></div>`;
       }).join('') + '</div>';
@@ -2326,11 +2618,14 @@ function renderPanel() {
     // 버튼: 요원 호출은 호출권, 정예와 특별은 정예 호출권이 있으면 그것, 없으면 보석
     const btns = (kind, verb) => [1, 10].map(n => `<button class="btn ${n === 1 ? 'blue' : ''}" data-act="sum" data-kind="${kind}" data-n="${n}"><span>${n}회 ${verb}</span><span class="cost" data-cost="${kind}-${n}"></span></button>`).join('');
     const pct = v => v === 0 ? '없음' : (v * 100 < 1 ? (v * 100).toFixed(2) : (v * 100).toFixed(1)) + '%';
-    const each = g => C.HEROES.filter(h => h.grade === g);
-    const prem = { 전설: K.PREMIUM_LEGEND, 영웅: 1 - K.PREMIUM_LEGEND, 희귀: 0 };
-    const rows = ['전설', '영웅', '희귀'].flatMap(g => each(g).map(h => {
-      const call = { 전설: rt.legend, 영웅: rt.hero, 희귀: rt.rare }[g] / each(g).length;
-      return `<tr><td>${g} ${h.name}</td><td>${call ? pct(call) : '없음'}</td><td>${prem[g] ? pct(prem[g] / each(g).length) : '없음'}</td></tr>`;
+    // 확률표: 요원 호출 / 정예 호출 / 특별 채용. 한정 전설(나이트폴)은 특별 채용에서만, 정예 호출 전설은 상시 전설만
+    const pool = g => C.HEROES.filter(h => h.grade === g && !h.limited);
+    const rows = ['전설', '영웅', '희귀'].flatMap(g => C.HEROES.filter(h => h.grade === g).sort((a, b) => !!b.limited - !!a.limited).map(h => {
+      const n = pool(g).length, lim = !!h.limited;
+      const call = lim ? 0 : { 전설: rt.legend, 영웅: rt.hero, 희귀: rt.rare }[g] / n;
+      const elite = lim || g === '희귀' ? 0 : (g === '전설' ? K.PREMIUM_LEGEND : 1 - K.PREMIUM_LEGEND) / n;
+      const pick = g === '전설' ? (lim ? K.PREMIUM_LEGEND : 0) : g === '영웅' ? (1 - K.PREMIUM_LEGEND) / n : 0;
+      return `<tr${lim ? ' class="lim"' : ''}><td>${g} ${h.name}${lim ? ' <em>한정</em>' : ''}</td><td>${call ? pct(call) : '없음'}</td><td>${elite ? pct(elite) : '없음'}</td><td>${pick ? pct(pick) : '없음'}</td></tr>`;
     })).join('');
     const nextNeed = K.SUMMON_LV_PULLS[lv];
     P.innerHTML = `<div class="wallet"><span>${icon('tix')}호출권 <b id="wTix"></b></span><span>${icon('ptix')}정예 호출권 <b id="wPtix"></b></span></div>
@@ -2339,7 +2634,7 @@ function renderPanel() {
         ${open ? '' : `<div class="lock">소환 레벨 ${K.PICKUP_OPEN_LV}부터 열려요</div>`}</div>
       <div class="srow">${btns('pickup', '채용')}</div>
       <div class="sgap"></div>
-      <div class="sbanner small"><canvas id="sbc3"></canvas><div class="tt"><b>정예 호출</b><span>영웅 이상만, 전설 ${pct(K.PREMIUM_LEGEND)}</span></div></div>
+      <div class="sbanner small"><canvas id="sbc3"></canvas><div class="tt"><b>정예 호출</b><span>영웅 이상만, 상시 전설 ${pct(K.PREMIUM_LEGEND)}</span></div></div>
       <div class="srow">${btns('elite', '호출')}</div>
       <div class="sgap"></div>
       <div class="sbanner small"><canvas id="sbc2"></canvas><div class="tt"><b>요원 호출</b><span>호출권으로 뽑아요</span><em class="pity">소환 레벨이 여기서 올라요</em></div></div>
@@ -2347,8 +2642,8 @@ function renderPanel() {
       <div class="slv"><div class="slv-h"><b>소환 레벨 ${lv}</b><span>${nextNeed ? `다음 레벨까지 ${(nextNeed - S.pulls.total).toLocaleString()}회` : '최고 레벨'}</span></div>
         <div class="bar"><i style="width:${nextNeed ? (100 * (S.pulls.total - K.SUMMON_LV_PULLS[lv - 1]) / (nextNeed - K.SUMMON_LV_PULLS[lv - 1])).toFixed(1) : 100}%"></i></div>
         ${nextNeed ? `<div class="slv-r">레벨 ${lv + 1} 보상 ${icon('gem')}${C.levelReward(lv + 1).gems} ${icon('ptix')}${C.levelReward(lv + 1).ptix}</div>` : ''}</div>
-      <table class="rtable"><thead><tr><th>요원</th><th>요원 호출</th><th>정예, 특별</th></tr></thead><tbody>${rows}</tbody></table>
-      <p class="hint" style="margin:10px 2px">요원 호출은 전투에서 쌓이는 호출권으로 뽑아요. 이상체 10마리마다 1장, 근원체를 봉쇄하면 ${K.BOSS_TICKETS}장이에요. 요원 호출을 할수록 소환 레벨이 오르고, 오를 때마다 보석과 정예 호출권을 받아요. 전설은 요원 호출에서 소환 레벨 5부터 나와요. 정예 호출과 특별 채용은 보석 ${K.PREMIUM_COST}개(또는 정예 호출권 1장)로 뽑고 희귀 요원은 나오지 않아요. 특별 채용은 2주마다 목요일 오전 9시에 바뀌고, 누적 ${K.RELAY}회째에 ${pk.name}이 확정으로 나와요.</p>`;
+      <table class="rtable"><thead><tr><th>요원</th><th>요원 호출</th><th>정예 호출</th><th>특별 채용</th></tr></thead><tbody>${rows}</tbody></table>
+      <p class="hint" style="margin:10px 2px">요원 호출은 전투에서 쌓이는 호출권으로 뽑아요. 이상체 10마리마다 1장, 근원체를 봉쇄하면 ${K.BOSS_TICKETS}장이에요. 요원 호출을 할수록 소환 레벨이 오르고, 오를 때마다 보석과 정예 호출권을 받아요. 전설은 요원 호출에서 소환 레벨 5부터 나와요. 정예 호출과 특별 채용은 보석 ${K.PREMIUM_COST}개(또는 정예 호출권 1장)로 뽑고 희귀 요원은 나오지 않아요. 한정 전설 ${pk.name}은 특별 채용에서만 나오고, 요원 호출과 정예 호출의 전설은 상시 전설 ${pool('전설').length}명 중에서 나와요. 특별 채용은 2주마다 목요일 오전 9시에 바뀌고, 누적 ${K.RELAY}회째에 ${pk.name}이 확정으로 나와요.</p>`;
     drawSummonBanner();
   }
   updatePanel();
@@ -2560,7 +2855,7 @@ function riftMap(target) {
   }
   // 요원 표시 (팀 대장 얼굴)
   // 지도 표시 얼굴: 현재 공격력이 가장 높은 요원 (팀의 에이스)
-  const lead = owned().slice().sort((a, b) => C.heroAtk(b.id, S.heroes[b.id].lv, S.heroes[b.id].stars, S.up.atk) - C.heroAtk(a.id, S.heroes[a.id].lv, S.heroes[a.id].stars, S.up.atk))[0], tp = P[target];
+  const lead = team().slice().sort((a, b) => C.heroAtk(b.id, S.heroes[b.id].lv, S.heroes[b.id].stars, S.up.atk) - C.heroAtk(a.id, S.heroes[a.id].lv, S.heroes[a.id].stars, S.up.atk))[0], tp = P[target];
   if (lead && tp) nodes += `<div class="rme" id="rfMe" style="left:${tp.x.toFixed(0)}px;top:${tp.y.toFixed(0)}px"><img src="${ART['card_' + lead.id] || portrait(lead.id)}" alt=""></div>`;
   return `<div class="rmap" style="height:${L.H}px"><svg width="${L.W}" height="${L.H}" viewBox="0 0 ${L.W} ${L.H}">${svg}</svg>${nodes}</div>`;
 }
@@ -2678,13 +2973,15 @@ function openHeroDetail(id) {
   detId = id; const h = C.heroById(id), d = S.heroes[id];
   openModal(`<div id="hdet" class="hdet c-${h.grade}">
     <div class="hd-top"><img src="${ART['id_' + id] || portrait(id)}" alt=""><div class="hd-t"><span class="gr g-${h.grade}">${h.grade}</span>
-      <b>${h.name}</b><span class="role">${h.role}</span><div class="hst" id="hdStars"></div></div></div>
+      <b>${h.name}</b><span class="role">${h.role}</span><span class="tbadge t-${h.type}"><i class="tic"><svg><use href="#i-t-${h.type}"/></svg></i>${h.type}</span><div class="hst" id="hdStars"></div></div></div>
     ${d.owned ? `<div class="hd-stat"><span>레벨<b id="hdLv"></b></span><span>공격력<b id="hdAtk"></b></span><span>체력<b id="hdHp"></b></span></div>
-    <div class="hd-sk"><small>기술</small><b>${h.skill.name}</b><em>재사용 ${h.skill.cd}초</em></div>
+    <div class="hd-sk"><small>기술</small><b>${h.skill.name}</b><em>재사용 ${h.skill.cd}초</em><p>${skillText(h)}</p></div>
     <div class="sbar"><i id="hdBar"></i><span class="st" id="hdSh"></span></div>
+    <div id="hdParty"></div>
     <div class="hd-btns"><button class="btn sm rift" data-act="star" data-h="${id}" id="hdStar">승급</button>
       <button class="btn" data-act="lv" data-h="${id}" id="hdUp"><span class="bl"></span><span class="cost">${icon('gold')}<i></i></span></button></div>`
-    : `<p>요원 호출이나 정예 호출에서 만날 수 있어요.</p>`}
+    : `<div class="hd-sk"><small>기술</small><b>${h.skill.name}</b><em>재사용 ${h.skill.cd}초</em><p>${skillText(h)}</p></div>
+      <p>${h.limited ? '특별 채용(한정)에서만 만날 수 있어요.' : h.grade === '희귀' ? '요원 호출에서 만날 수 있어요.' : '요원 호출이나 정예 호출에서 만날 수 있어요.'}</p>`}
     <div class="mbtns"><button class="btn ghost" data-close>닫기</button></div></div>`, () => { detId = null; });
   fillHeroDetail();
 }
@@ -2693,6 +2990,12 @@ function fillHeroDetail() {
   const h = C.heroById(id), d = S.heroes[id];
   $('hdStars').innerHTML = starStr(d.stars);
   if (!d.owned) return;
+  // 파티: 넣기 / 빼기. 가득 차 있으면 바꿀 요원을 눌러서 자리 교체
+  const pids = C.partyIds(S), inP = pids.includes(id), full = pids.length >= C.CONST.PARTY_MAX;
+  $('hdParty').innerHTML = inP
+    ? `<button class="btn ghost" style="width:100%;margin-bottom:8px" data-act="party" data-h="${id}" ${pids.length <= 1 ? 'disabled' : ''}>출전에서 빼기</button>`
+    : full ? `<div class="pswap-t">출전 자리가 가득 찼어요. 바꿀 요원을 눌러요</div><div class="pswap">${pids.map(p => { const ph = C.heroById(p); return `<button data-act="pswap" data-o="${p}" data-h="${id}"><img src="${ART['card_' + p] || portrait(p)}" alt=""><span>${ph.name}</span></button>`; }).join('')}</div>`
+    : `<button class="btn" style="width:100%;margin-bottom:8px" data-act="party" data-h="${id}">출전시키기</button>`;
   $('hdLv').textContent = d.lv; $('hdAtk').textContent = C.formatNum(C.heroAtk(id, d.lv, d.stars, S.up.atk)); $('hdHp').textContent = C.formatNum(C.heroHp(id, d.lv, d.stars));
   const need = C.starNeed(d.stars, h.grade), max = need === Infinity;
   $('hdBar').style.width = max ? '100%' : Math.min(100, 100 * d.shards / need) + '%';
@@ -2715,6 +3018,13 @@ function onAct(e) {
   const act = b.dataset.act;
   try {
     if (act === 'bulk') { bulk = +b.dataset.v; renderPanel(); }
+    else if (act === 'hfil') { hfil = b.dataset.v; renderPanel(); }
+    else if (act === 'party' || act === 'pswap') {
+      const id = b.dataset.h, nm = C.heroById(id).name;
+      if (act === 'pswap') { if (!C.swapParty(S, b.dataset.o, id)) return; toast(`${C.heroById(b.dataset.o).name} 대신 ${nm} 출전`); }
+      else { const r = C.toggleParty(S, id); if (r === 'in') toast(`${nm} 출전`); else if (r === 'out') toast(`${nm} 출전에서 뺐어요`); else return; }
+      partyChanged(); fillHeroDetail(); renderPanel(); writeSave();
+    }
     else if (act === 'hdet') return openHeroDetail(b.dataset.h);
     else if (act === 'dsheet') return openDungeonSheet(b.dataset.d);
     else if (act === 'rsub') { runSub = b.dataset.v; renderPanel(); }

@@ -12,18 +12,37 @@
   /* ---------- 1. 정적 데이터 ---------- */
 
   // 요원 도감. name 은 수사 3팀처럼 코드네임, kind 는 종족(현재 모두 사람). baseAtk/baseHp 는 Lv.1 ★1 기준값.
+  // type: 명단과 파티에 보이는 큰 분류 4가지 (공격, 광역, 방어, 지원). role 은 요원 상세에서만 보이는 세부 역할.
+  // limited: 특별 채용(한정)에서만 나옴. 요원 호출, 정예 호출에는 나오지 않음
+  // 기술 kind: single 단일 / multi 연사 / aoe 범위 / buff 팀 강화와 회복 /
+  //            mark 표식(받는 피해 증가) / exorcise 근원체 특효 + 즉시 처리 / shield 보호막과 도발 / cage 가둠 / execute 처형
   const HEROES = [
-    { id: 'knight', name: '램파트', kind: '사람',  role: '돌격',   grade: '희귀', baseAtk: 12, baseHp: 160, atkSpd: 1.0, range: 'melee',
+    { id: 'knight', name: '램파트', kind: '사람',  role: '돌격',   type: '방어', grade: '희귀', baseAtk: 12, baseHp: 160, atkSpd: 1.0, range: 'melee',
       skill: { name: '방패 돌진', cd: 6,  kind: 'single', mult: 5 } },
-    { id: 'archer', name: '롱샷',   kind: '사람',  role: '저격',   grade: '희귀', baseAtk: 9,  baseHp: 90,  atkSpd: 1.5, range: 'ranged',
+    { id: 'archer', name: '롱샷',   kind: '사람',  role: '저격',   type: '공격', grade: '희귀', baseAtk: 9,  baseHp: 90,  atkSpd: 1.5, range: 'ranged',
       skill: { name: '연속 저격', cd: 7,  kind: 'multi',  mult: 1.4, hits: 5 } },
-    { id: 'mage',   name: '블레이즈', kind: '사람',  role: '폭파',   grade: '영웅', baseAtk: 15, baseHp: 80,  atkSpd: 0.7, range: 'aoe',
+    { id: 'scanner', name: '스캐너', kind: '사람', role: '탐지',   type: '지원', grade: '희귀', baseAtk: 8,  baseHp: 100, atkSpd: 1.2, range: 'ranged',
+      skill: { name: '표식 드론', cd: 8,  kind: 'mark',   mult: 1.5, amp: 0.3, dur: 6 } },
+    { id: 'breaker', name: '브레이커', kind: '사람', role: '돌파', type: '방어', grade: '희귀', baseAtk: 11, baseHp: 185, atkSpd: 0.8, range: 'melee',
+      skill: { name: '문 부수기', cd: 7,  kind: 'aoe',    mult: 3, rad: 90, stun: 1.5 } },
+    { id: 'mage',   name: '블레이즈', kind: '사람',  role: '폭파',   type: '광역', grade: '영웅', baseAtk: 15, baseHp: 80,  atkSpd: 0.7, range: 'aoe',
       skill: { name: '화염병 투척', cd: 9,  kind: 'aoe',    mult: 4 } },
-    { id: 'priest', name: '헤일로', kind: '사람',  role: '의무',   grade: '영웅', baseAtk: 6,  baseHp: 100, atkSpd: 0.9, range: 'ranged',
+    { id: 'priest', name: '헤일로', kind: '사람',  role: '의무',   type: '지원', grade: '영웅', baseAtk: 6,  baseHp: 100, atkSpd: 0.9, range: 'ranged',
       skill: { name: '응급 처치', cd: 10, kind: 'buff',   mult: 0.5, dur: 4, heal: 0.3 } },
-    { id: 'dark',   name: '나이트폴', kind: '사람',  role: '해결사', grade: '전설', baseAtk: 32, baseHp: 260, atkSpd: 0.9, range: 'melee',
+    { id: 'echo',   name: '에코',   kind: '사람',  role: '교란',   type: '광역', grade: '영웅', baseAtk: 13, baseHp: 95,  atkSpd: 0.8, range: 'ranged',
+      skill: { name: '음파 교란', cd: 10, kind: 'aoe',    mult: 2, rad: 240, slow: 4 } },
+    { id: 'dark',   name: '나이트폴', kind: '사람',  role: '해결사', type: '공격', grade: '전설', limited: true, baseAtk: 32, baseHp: 260, atkSpd: 0.9, range: 'melee',
       skill: { name: '그림자 베기', cd: 8,  kind: 'aoe',    mult: 7 } },
+    { id: 'requiem', name: '레퀴엠', kind: '사람', role: '퇴마',   type: '공격', grade: '전설', baseAtk: 30, baseHp: 210, atkSpd: 0.9, range: 'ranged',
+      skill: { name: '마지막 기도', cd: 9,  kind: 'exorcise', mult: 9, low: 4, kill: 0.15 } },
+    { id: 'ironside', name: '아이언사이드', kind: '사람', role: '방호', type: '방어', grade: '전설', baseAtk: 18, baseHp: 420, atkSpd: 0.8, range: 'melee',
+      skill: { name: '강철 방벽', cd: 12, kind: 'shield', mult: 0.4, dur: 5 } },
+    { id: 'blackbox', name: '블랙박스', kind: '사람', role: '격리', type: '지원', grade: '전설', baseAtk: 26, baseHp: 240, atkSpd: 0.8, range: 'ranged',
+      skill: { name: '격리 상자', cd: 11, kind: 'cage',   mult: 6, dur: 3 } },
+    { id: 'ghost',  name: '고스트', kind: '사람',  role: '은신',   type: '공격', grade: '전설', baseAtk: 36, baseHp: 170, atkSpd: 1.3, range: 'melee',
+      skill: { name: '투명 처형', cd: 8,  kind: 'execute', mult: 4, hits: 3, under: 0.3 } },
   ];
+  const TYPES = ['공격', '광역', '방어', '지원'];
   const STARTER_IDS = ['knight', 'archer', 'mage', 'priest'];
 
   // 공용 강화(훈련소) 목록
@@ -60,6 +79,7 @@
     RELAY: 200,              // 특별 채용 누적 확정 (보석 뽑기 기준)
     PICKUP_DAYS: 14,         // 특별 채용 한 번의 기간 (2주, 목요일 점검 기준)
     MAX_STARS: 5,
+    PARTY_MAX: 5,            // 전투에 나가는 요원 수 (세나 키우기 5명 편성)
     OFFLINE_CAP_SEC: 8 * 3600,
     OFFLINE_MIN_SEC: 60,
     OFFLINE_RATE: 0.5,       // 오프라인 효율 50%
@@ -226,10 +246,35 @@
 
   /* ---------- 5. 파티 / 오프라인 ---------- */
 
-  /** 보유 요원 전체 DPS 합 */
+  /** 전투에 나가는 요원 id 목록 (보유, 중복 없음, 최대 5명). 비어 있으면 보유 요원 앞에서부터 */
+  function partyIds(state) {
+    const ok = id => state.heroes[id] && state.heroes[id].owned;
+    let ids = Array.isArray(state.party) ? [...new Set(state.party)].filter(id => HEROES.some(h => h.id === id) && ok(id)) : [];
+    if (!ids.length) ids = HEROES.filter(h => ok(h.id)).map(h => h.id);
+    return ids.slice(0, CONST.PARTY_MAX);
+  }
+  /**
+   * 파티에 넣거나 빼기 (상태를 직접 바꿈).
+   * @returns {'in'|'out'|'full'|'last'|'none'} 넣음 / 뺌 / 가득 참 / 마지막 한 명이라 못 뺌 / 미보유
+   */
+  function toggleParty(state, id) {
+    if (!state.heroes[id] || !state.heroes[id].owned) return 'none';
+    const p = partyIds(state);
+    if (p.includes(id)) { if (p.length <= 1) return 'last'; state.party = p.filter(x => x !== id); return 'out'; }
+    if (p.length >= CONST.PARTY_MAX) return 'full';
+    state.party = [...p, id]; return 'in';
+  }
+  /** 파티 안 두 자리 바꾸기 (빠진 요원 id 를 넣고 원래 요원은 뺌) */
+  function swapParty(state, outId, inId) {
+    const p = partyIds(state), i = p.indexOf(outId);
+    if (i < 0 || p.includes(inId) || !state.heroes[inId] || !state.heroes[inId].owned) return false;
+    p[i] = inId; state.party = p; return true;
+  }
+
+  /** 파티 요원 DPS 합 */
   function partyDps(state) {
     let sum = 0;
-    for (const id of Object.keys(state.heroes)) {
+    for (const id of partyIds(state)) {
       const h = state.heroes[id];
       if (!h || !h.owned) continue;
       sum += heroDps(id, h.lv, h.stars, state.up.atk, state.up.crit);
@@ -268,7 +313,8 @@
     const legend = CONST.LEGEND_BY_LV[i], hero = CONST.HERO_BY_LV[i];
     return { legend, hero, rare: 1 - legend - hero };
   }
-  const GRADE_IDS = g => HEROES.filter(h => h.grade === g).map(h => h.id);
+  // 등급별 요원 목록. 한정 요원(나이트폴)은 빼고 (특별 채용에서만 나옴)
+  const GRADE_IDS = g => HEROES.filter(h => h.grade === g && !h.limited).map(h => h.id);
   /**
    * n회 뽑기. 등급을 먼저 정하고 그 등급 안에서 균등하게 한 명.
    * @param {number} level 소환 레벨 1~10
@@ -312,8 +358,11 @@
       else {
         const r = rng();
         if (!isNum(r) || r < 0 || r >= 1) throw new RangeError('rng 값은 0 이상 1 미만이어야 합니다');
-        const heroes = GRADE_IDS('영웅');
-        id = r < CONST.PREMIUM_LEGEND ? 'dark' : heroes[Math.min(heroes.length - 1, Math.floor((r - CONST.PREMIUM_LEGEND) / (1 - CONST.PREMIUM_LEGEND) * heroes.length))];
+        const heroes = GRADE_IDS('영웅'), legends = GRADE_IDS('전설');
+        const pick = (ids, t) => ids[Math.min(ids.length - 1, Math.floor(t * ids.length))];
+        // 전설 2%: 특별 채용은 한정 전설(나이트폴), 정예 호출은 상시 전설 중 하나
+        if (r < CONST.PREMIUM_LEGEND) id = kind === 'pickup' ? 'dark' : pick(legends, r / CONST.PREMIUM_LEGEND);
+        else id = pick(heroes, (r - CONST.PREMIUM_LEGEND) / (1 - CONST.PREMIUM_LEGEND));
         if (kind === 'pickup') { relay++; if (id === 'dark') relay = 0; if (relay >= CONST.RELAY) { id = 'dark'; relay = 0; relayHit = true; } }
       }
       ids.push(id);
@@ -344,7 +393,11 @@
     for (const id of ids) {
       heroById(id); // 잘못된 id 방어
       const h = next.heroes[id];
-      if (!h.owned) { h.owned = true; isNew.push(true); }
+      if (!h.owned) {
+        h.owned = true; isNew.push(true);
+        // 파티에 빈자리가 있으면 새 요원이 바로 합류
+        const p = partyIds(next); if (!p.includes(id) && p.length < CONST.PARTY_MAX) next.party = [...p, id];
+      }
       else { h.shards += 1; isNew.push(false); }
     }
     return { state: next, isNew };
@@ -524,6 +577,7 @@
       kills: 0,
       farming: false,     // 근원체에게 진 뒤 반복 사냥 모드
       heroes,
+      party: STARTER_IDS.slice(),   // 전투에 나가는 요원 (최대 5명)
       up: { atk: 0, gold: 0, crit: 0 },
       q: { i: 0, p: 0 },        // 가이드 퀘스트 번호와 진행
       pulls: { total: 0, relay: 0 },    // 요원 호출 누적(소환 레벨), 특별 채용 릴레이
@@ -600,6 +654,9 @@
         };
       }
     }
+    // 파티: 보유한 요원만, 중복 없이 최대 5명. 예전 저장(파티 없음)은 보유 요원 앞에서부터
+    s.party = Array.isArray(raw.party) ? raw.party.filter(id => typeof id === 'string') : null;
+    s.party = partyIds(s);
     return s;
   }
 
@@ -611,7 +668,7 @@
   }
 
   const Core = {
-    HEROES, STARTER_IDS, UPGRADES, CONST, CRIT_DMG,
+    HEROES, TYPES, STARTER_IDS, partyIds, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
     stageLabel, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,

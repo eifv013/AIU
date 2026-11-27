@@ -1,10 +1,19 @@
 {
   "appId": "com.loopandlamp.aiu",
-  "appName": "AIU",
+  "appName": "AIU 키우기",
   "webDir": "www",
   "backgroundColor": "#090d1b",
-  "android": { "backgroundColor": "#090d1b", "allowMixedContent": false },
+  "android": {
+    "backgroundColor": "#090d1b",
+    "allowMixedContent": false
+  },
   "plugins": {
-    "SplashScreen": { "launchShowDuration": 1200, "launchAutoHide": true, "backgroundColor": "#090d1b", "showSpinner": false, "androidScaleType": "CENTER_CROP" }
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "backgroundColor": "#090d1b",
+      "showSpinner": false,
+      "androidScaleType": "CENTER_CROP"
+    }
   }
 }

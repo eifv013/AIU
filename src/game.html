@@ -8,8 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 /* VOICE: 수사 3팀과 같은 누아르, 비 오는 밤의 범죄 액션, 모바일 방치형
-   IDEA: 동물 요원들이 비 내리는 도시 구역을 돌아다니며 조직원을 소탕
-   PICTURE: 상단 전투 캔버스(구역 지도, 요원, 조직원, 두목)
+   IDEA: 이상현상 전담수사팀 요원들이 비 내리는 도시 구역을 돌아다니며 이상체를 처리
+   PICTURE: 상단 전투 캔버스(구역 지도, 요원, 이상체, 보스)
    COLOUR and TYPE: 깊은 남색 패널 + 금색 테두리 + 진홍 강조 / Black Han Sans 제목, Noto Sans KR 본문
    LAYOUT: 세로 고정. HUD → 전투 → 파티 슬롯 → 탭 패널 → 하단 탭 */
 /* 색은 수사 3팀과 같은 값 (--ink 는 여기서 글자색) */
@@ -197,7 +197,7 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
   </div>
   <div id="battle">
     <canvas id="cv"></canvas>
-    <button id="bossBtn">두목 추적</button>
+    <button id="bossBtn">보스 추적</button>
     <div id="banner"></div>
   </div>
   <div id="party"></div>
@@ -296,65 +296,56 @@ window.addEventListener('error', e => toast('오류가 발생했어요: ' + (e.m
 
 /* ---------- 지역 테마 (챕터마다 순환) ---------- */
 const THEMES = [
-  { name: '빗속 뒷골목', boss: '멧돼지 두목' },
-  { name: '안개 항구',   boss: '들소 집행관' },
-  { name: '네온 유흥가', boss: '도마뱀 회장' },
+  { name: '빗속 뒷골목', boss: '우산 쓴 남자' },
+  { name: '안개 항구',   boss: '안개 등대지기' },
+  { name: '네온 유흥가', boss: '네온 마네킹' },
 ];
 const theme = () => THEMES[Math.floor((S.stage - 1) / 10) % THEMES.length];
 
-/* ---------- 요원 외형 (그림이 오기 전 임시 모습: 동물 머리 + 역할 장비) ---------- */
+/* ---------- 요원 외형 (그림이 오기 전 임시 모습: 사람 얼굴 + 역할 장비) ----------
+ * 그림 주문서의 외모와 같게: 머리 색과 모양, 피부, 옷 색 */
 const LOOK = {
-  knight: { coat: '#2f3a52', trim: '#5d6b86', fur: '#8a8f99', muzzle: '#a2a7b0' },   // 코뿔소, 진압복
-  archer: { coat: '#2f4436', trim: '#55705c', fur: '#b8925f', muzzle: '#e2cfae' },   // 스라소니, 후드 코트
-  mage:   { coat: '#3a2f4f', trim: '#6a5a8a', fur: '#26232c', muzzle: '#3a3640' },   // 검은 염소, 긴 코트
-  priest: { coat: '#cfd0d6', trim: '#9a3a42', fur: '#ecebe6', muzzle: '#c9b98a' },   // 두루미, 흰 의무복
-  dark:   { coat: '#18171d', trim: '#6b4fa0', fur: '#1b1a20', muzzle: '#2a2830' },   // 흑표범, 검은 정장
+  knight: { coat: '#2f3a52', trim: '#5d6b86', hair: '#2a2620', hairStyle: 'buzz',  skin: '#d9b896' },   // 램파트: 짧은 머리, 진압 조끼
+  archer: { coat: '#2f4436', trim: '#55705c', hair: '#b9bcc6', hairStyle: 'bob',   skin: '#ecd3bd' },   // 롱샷: 은회색 단발, 초록 후드
+  mage:   { coat: '#4a2c2a', trim: '#8a5a3a', hair: '#c4472f', hairStyle: 'messy', skin: '#e3c2a4' },   // 블레이즈: 붉은 머리, 가죽 재킷
+  priest: { coat: '#d4d5da', trim: '#9a3a42', hair: '#1c1a22', hairStyle: 'tail',  skin: '#efd6c2' },   // 헤일로: 검은 묶음 머리, 흰 비옷
+  dark:   { coat: '#18171d', trim: '#6b4fa0', hair: '#121116', hairStyle: 'fringe', skin: '#d8bea6' },  // 나이트폴: 한쪽 눈 가린 앞머리, 검은 정장
 };
 function rr(g, x, y, w, h, r) { g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
 function shade(hex, p) {
   const n = parseInt(hex.slice(1), 16), f = v => Math.max(0, Math.min(255, v + p));
   return `rgb(${f(n >> 16)},${f((n >> 8) & 255)},${f(n & 255)})`;
 }
-const tri = (g, a, b, c) => { g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.lineTo(c[0], c[1]); g.closePath(); g.fill(); };
 
-/** 동물 머리. 오른쪽을 보는 옆얼굴 기준 (hy = 머리 중심 높이) */
-function drawAnimalHead(g, kind, hy, s, fur, muzzle) {
-  const r = s * 0.19;
-  if (kind === 'rhino') {
-    g.fillStyle = fur; g.beginPath(); g.ellipse(s * 0.02, hy, r * 1.05, r, 0, 0, 7); g.fill();
-    g.fillStyle = muzzle; g.beginPath(); g.ellipse(s * 0.17, hy + s * 0.05, r * 0.75, r * 0.6, 0, 0, 7); g.fill();
-    g.fillStyle = '#e4dccb'; tri(g, [s * 0.2, hy - s * 0.02], [s * 0.32, hy - s * 0.2], [s * 0.3, hy + s * 0.01]);
-    g.fillStyle = fur; tri(g, [-s * 0.12, hy - s * 0.12], [-s * 0.06, hy - s * 0.27], [-s * 0.01, hy - s * 0.15]);
-  } else if (kind === 'lynx') {
-    g.fillStyle = fur; g.beginPath(); g.arc(0, hy, r, 0, 7); g.fill();
-    tri(g, [-s * 0.14, hy - s * 0.08], [-s * 0.1, hy - s * 0.3], [-s * 0.02, hy - s * 0.14]);
-    tri(g, [s * 0.02, hy - s * 0.16], [s * 0.08, hy - s * 0.32], [s * 0.13, hy - s * 0.1]);
-    g.strokeStyle = '#1a1612'; g.lineWidth = s * 0.02; g.beginPath(); g.moveTo(-s * 0.1, hy - s * 0.3); g.lineTo(-s * 0.1, hy - s * 0.38); g.moveTo(s * 0.08, hy - s * 0.32); g.lineTo(s * 0.08, hy - s * 0.4); g.stroke();
-    g.fillStyle = muzzle; g.beginPath(); g.ellipse(s * 0.12, hy + s * 0.06, r * 0.55, r * 0.42, 0, 0, 7); g.fill();
-  } else if (kind === 'goat') {
-    g.fillStyle = fur; g.beginPath(); g.ellipse(s * 0.02, hy, r, r * 0.95, 0, 0, 7); g.fill();
-    g.beginPath(); g.ellipse(s * 0.15, hy + s * 0.08, r * 0.55, r * 0.5, 0.4, 0, 7); g.fill();
-    g.strokeStyle = '#8c8170'; g.lineWidth = s * 0.055; g.lineCap = 'round';
-    g.beginPath(); g.arc(-s * 0.06, hy - s * 0.1, s * 0.12, -0.2, Math.PI * 1.35, true); g.stroke();
-    g.fillStyle = muzzle; tri(g, [s * 0.12, hy + s * 0.16], [s * 0.2, hy + s * 0.16], [s * 0.15, hy + s * 0.28]);
-  } else if (kind === 'crane') {
-    g.fillStyle = '#1d1d22'; g.fillRect(-s * 0.05, hy, s * 0.1, s * 0.22);   // 검은 목
-    g.fillStyle = fur; g.beginPath(); g.arc(0, hy, r * 0.9, 0, 7); g.fill();
-    g.fillStyle = '#c8323c'; g.beginPath(); g.arc(-s * 0.02, hy - s * 0.12, s * 0.07, Math.PI, Math.PI * 2); g.fill();
-    g.fillStyle = muzzle; tri(g, [s * 0.12, hy - s * 0.02], [s * 0.42, hy + s * 0.05], [s * 0.12, hy + s * 0.07]);
-  } else { // panther
-    g.fillStyle = fur; g.beginPath(); g.arc(0, hy, r, 0, 7); g.fill();
-    g.beginPath(); g.arc(-s * 0.1, hy - s * 0.15, s * 0.06, 0, 7); g.fill(); g.beginPath(); g.arc(s * 0.08, hy - s * 0.16, s * 0.06, 0, 7); g.fill();
-    g.fillStyle = muzzle; g.beginPath(); g.ellipse(s * 0.12, hy + s * 0.06, r * 0.5, r * 0.4, 0, 0, 7); g.fill();
+/** 사람 머리 (오른쪽을 보는 옆얼굴 기준, hy = 머리 중심 높이) */
+function drawHumanHead(g, id, hy, s) {
+  const L = LOOK[id], r = s * 0.17;
+  // 목과 얼굴
+  g.fillStyle = shade(L.skin, -25); g.fillRect(-s * 0.04, hy + r * 0.6, s * 0.08, s * 0.08);
+  g.fillStyle = L.skin; g.beginPath(); g.ellipse(s * 0.01, hy, r * 0.92, r, 0, 0, 7); g.fill();
+  g.beginPath(); g.moveTo(s * 0.12, hy - s * 0.02); g.lineTo(s * 0.19, hy + s * 0.04); g.lineTo(s * 0.12, hy + s * 0.07); g.fill();   // 코
+  // 머리카락
+  g.fillStyle = L.hair;
+  if (L.hairStyle === 'buzz') { g.beginPath(); g.arc(0, hy - s * 0.01, r * 1.0, Math.PI * 1.02, Math.PI * 1.98); g.fill(); }
+  else if (L.hairStyle === 'bob') { g.beginPath(); g.arc(0, hy - s * 0.02, r * 1.08, Math.PI * 0.85, Math.PI * 2.02); g.lineTo(s * 0.06, hy - s * 0.04); g.lineTo(-s * 0.16, hy + s * 0.13); g.closePath(); g.fill(); }
+  else if (L.hairStyle === 'messy') {
+    g.beginPath(); g.arc(0, hy - s * 0.02, r * 1.05, Math.PI * 0.95, Math.PI * 2.0); g.fill();
+    for (const [x, y] of [[-0.12, -0.17], [-0.02, -0.21], [0.08, -0.18], [0.15, -0.1]]) { g.beginPath(); g.moveTo(x * s, hy + y * s + s * 0.06); g.lineTo(x * s + s * 0.05, hy + y * s); g.lineTo(x * s + s * 0.07, hy + y * s + s * 0.07); g.fill(); }
+  } else if (L.hairStyle === 'tail') {
+    g.beginPath(); g.arc(0, hy - s * 0.02, r * 1.04, Math.PI * 0.95, Math.PI * 2.0); g.fill();
+    g.beginPath(); g.ellipse(-s * 0.17, hy + s * 0.04, s * 0.05, s * 0.13, 0.35, 0, 7); g.fill();   // 묶은 머리
+  } else { // fringe: 한쪽 눈을 가린 앞머리
+    g.beginPath(); g.arc(0, hy - s * 0.02, r * 1.06, Math.PI * 0.9, Math.PI * 2.0); g.fill();
+    g.beginPath(); g.moveTo(s * 0.02, hy - s * 0.16); g.quadraticCurveTo(s * 0.2, hy - s * 0.1, s * 0.15, hy + s * 0.06); g.lineTo(s * 0.06, hy - s * 0.02); g.closePath(); g.fill();
   }
-  // 차가운 테두리 빛 (누아르 림 라이트): 왼쪽 위 가장자리에 선 하나. 필터 없이 가볍게 그림
+  // 눈 (나이트폴은 빛나는 호박색)
+  g.fillStyle = id === 'dark' ? '#ffb31a' : '#1b1b22';
+  g.fillRect(s * 0.08, hy - s * 0.015, s * 0.035, s * 0.03);
+  if (id === 'knight') { g.strokeStyle = 'rgba(120,60,60,.8)'; g.lineWidth = s * 0.012; g.beginPath(); g.moveTo(s * 0.07, hy + s * 0.08); g.lineTo(s * 0.12, hy + s * 0.12); g.stroke(); }   // 턱 흉터
+  // 차가운 테두리 빛 (누아르 림 라이트): 필터 없이 선 하나
   g.strokeStyle = 'rgba(170,195,255,.45)'; g.lineWidth = s * 0.018; g.lineCap = 'round';
-  g.beginPath(); g.arc(0, hy, r * 1.02, Math.PI * 1.0, Math.PI * 1.55); g.stroke();
-  // 눈 (흑표범은 빛나는 호박색)
-  g.fillStyle = kind === 'panther' ? '#ffb31a' : kind === 'goat' ? '#d9b84a' : '#15151c';
-  g.fillRect(s * 0.07, hy - s * 0.04, s * 0.045, kind === 'goat' ? s * 0.025 : s * 0.045);
+  g.beginPath(); g.arc(0, hy, r * 1.05, Math.PI * 1.0, Math.PI * 1.55); g.stroke();
 }
-const HEAD = { knight: 'rhino', archer: 'lynx', mage: 'goat', priest: 'crane', dark: 'panther' };
 
 /** 요원 그리기. s = 키 기준 크기, swing = 공격 동작(0~1), face: 1 오른쪽 / -1 왼쪽 */
 function drawHero(g, id, x, y, s, t, swing, hurt, face = 1) {
@@ -365,36 +356,37 @@ function drawHero(g, id, x, y, s, t, swing, hurt, face = 1) {
   if (hurt > 0) g.translate(Math.sin(hurt * 40) * hurt * 3, 0);
   g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(0, 0, s * 0.3, s * 0.07, 0, 0, 7); g.fill();
   g.translate(0, bob);
-  // 다리
   g.fillStyle = '#16161c'; g.fillRect(-s * 0.12, -s * 0.2, s * 0.09, s * 0.2); g.fillRect(s * 0.03, -s * 0.2, s * 0.09, s * 0.2);
   // 몸: 긴 코트(옷자락이 살짝 펄럭임), 빛 받는 왼쪽 면
   const bg = g.createLinearGradient(-s * 0.2, 0, s * 0.2, 0); bg.addColorStop(0, shade(L.coat, 28)); bg.addColorStop(1, shade(L.coat, -18));
   const flap = Math.sin(t * 6) * s * 0.02;
   g.fillStyle = bg; g.beginPath();
-  g.moveTo(-s * 0.15, -s * 0.58); g.lineTo(s * 0.15, -s * 0.58); g.lineTo(s * 0.2, -s * 0.14); g.lineTo(-s * 0.22 - flap, -s * 0.12); g.closePath(); g.fill();
-  g.strokeStyle = 'rgba(170,195,255,.3)'; g.lineWidth = s * 0.014; g.beginPath(); g.moveTo(-s * 0.15, -s * 0.56); g.lineTo(-s * 0.21 - flap, -s * 0.14); g.stroke();
-  g.fillStyle = L.trim; g.fillRect(-s * 0.15, -s * 0.36, s * 0.3, s * 0.035);   // 허리띠
-  if (id === 'priest') { g.fillStyle = '#9a3a42'; g.fillRect(-s * 0.03, -s * 0.52, s * 0.06, s * 0.14); g.fillRect(-s * 0.07, -s * 0.48, s * 0.14, s * 0.06); }   // 의무 표시
-  if (id === 'dark') { g.fillStyle = '#6b4fa0'; g.fillRect(-s * 0.02, -s * 0.58, s * 0.04, s * 0.2); }   // 보라 넥타이
-  // 머리
-  drawAnimalHead(g, HEAD[id], -s * 0.74, s, L.fur, L.muzzle);
+  g.moveTo(-s * 0.15, -s * 0.6); g.lineTo(s * 0.15, -s * 0.6); g.lineTo(s * 0.2, -s * 0.14); g.lineTo(-s * 0.22 - flap, -s * 0.12); g.closePath(); g.fill();
+  g.strokeStyle = 'rgba(170,195,255,.3)'; g.lineWidth = s * 0.014; g.beginPath(); g.moveTo(-s * 0.15, -s * 0.58); g.lineTo(-s * 0.21 - flap, -s * 0.14); g.stroke();
+  g.fillStyle = L.trim; g.fillRect(-s * 0.15, -s * 0.36, s * 0.3, s * 0.035);
+  if (id === 'priest') { g.fillStyle = '#9a3a42'; g.fillRect(-s * 0.15, -s * 0.52, s * 0.07, s * 0.05); }   // 팔에 붉은 완장
+  if (id === 'dark') { g.fillStyle = '#6b4fa0'; g.fillRect(-s * 0.02, -s * 0.6, s * 0.04, s * 0.2); }      // 보라 넥타이
+  if (id === 'knight') { g.fillStyle = '#232a38'; g.fillRect(-s * 0.16, -s * 0.56, s * 0.32, s * 0.18); }  // 진압 조끼
+  // 어깨 AIU 패치 자리 (노란 점)
+  g.fillStyle = 'rgba(255,210,63,.85)'; g.fillRect(-s * 0.14, -s * 0.55, s * 0.05, s * 0.04);
+  drawHumanHead(g, id, -s * 0.76, s);
   // 무기
   g.save(); g.translate(s * 0.12, -s * 0.4);
-  if (id === 'knight') { // 진압 방패 (위쪽 작은 창)
+  if (id === 'knight') { // 진압 방패 (위쪽 작은 창, 보랏빛 감지 띠)
     g.translate(s * 0.06 + swing * s * 0.08, 0);
     g.fillStyle = '#20252f'; g.beginPath(); rr(g, -s * 0.02, -s * 0.2, s * 0.12, s * 0.42, s * 0.03); g.fill();
     g.fillStyle = 'rgba(150,180,230,.35)'; g.fillRect(0, -s * 0.16, s * 0.08, s * 0.08);
-    g.strokeStyle = '#5d6b86'; g.lineWidth = s * 0.012; g.strokeRect(-s * 0.02, -s * 0.2, s * 0.12, s * 0.42);
-  } else if (id === 'archer') { // 저격총
+    g.fillStyle = 'rgba(180,140,255,.8)'; g.fillRect(-s * 0.02, s * 0.12, s * 0.12, s * 0.015);
+  } else if (id === 'archer') { // 저격총 (보랏빛 조준경)
     g.rotate(-0.05 - swing * 0.15);
     g.fillStyle = '#121216'; g.fillRect(-s * 0.08, -s * 0.03, s * 0.55, s * 0.045); g.fillRect(-s * 0.1, -s * 0.03, s * 0.1, s * 0.1);
-    g.fillStyle = '#2b2b33'; g.fillRect(s * 0.06, -s * 0.07, s * 0.14, s * 0.04);
+    g.fillStyle = '#2b2b33'; g.fillRect(s * 0.06, -s * 0.07, s * 0.14, s * 0.04); g.fillStyle = 'rgba(180,140,255,.9)'; g.fillRect(s * 0.18, -s * 0.065, s * 0.02, s * 0.03);
     if (swing > 0.7) { g.fillStyle = 'rgba(255,220,140,.9)'; g.beginPath(); g.arc(s * 0.5, -s * 0.01, s * 0.04, 0, 7); g.fill(); }
-  } else if (id === 'mage') { // 화염병 (불꽃 심지)
+  } else if (id === 'mage') { // 소이탄 (주황 불꽃)
     g.rotate(-0.4 - swing * 1.6);
-    g.fillStyle = '#3d5a3a'; g.fillRect(-s * 0.03, -s * 0.16, s * 0.06, s * 0.12);
-    const fl = g.createRadialGradient(0, -s * 0.2, 0, 0, -s * 0.2, s * 0.08); fl.addColorStop(0, '#fff2c0'); fl.addColorStop(0.5, '#ff8a2e'); fl.addColorStop(1, 'rgba(255,120,40,0)');
-    g.fillStyle = fl; g.beginPath(); g.arc(0, -s * 0.2, s * 0.08, 0, 7); g.fill();
+    g.fillStyle = '#3a3c44'; g.beginPath(); g.ellipse(0, -s * 0.1, s * 0.045, s * 0.06, 0, 0, 7); g.fill();
+    const fl = g.createRadialGradient(0, -s * 0.18, 0, 0, -s * 0.18, s * 0.08); fl.addColorStop(0, '#fff2c0'); fl.addColorStop(0.5, '#ff8a2e'); fl.addColorStop(1, 'rgba(255,120,40,0)');
+    g.fillStyle = fl; g.beginPath(); g.arc(0, -s * 0.18, s * 0.08, 0, 7); g.fill();
   } else if (id === 'priest') { // 손 등불 (루프램프)
     g.rotate(-0.1 + swing * 0.3);
     g.strokeStyle = '#2a2a30'; g.lineWidth = s * 0.015; g.beginPath(); g.moveTo(0, -s * 0.06); g.lineTo(0, s * 0.02); g.stroke();
@@ -411,58 +403,55 @@ function drawHero(g, id, x, y, s, t, swing, hurt, face = 1) {
   g.restore();
 }
 
-/** 조직원 그리기: 하이에나, 들개 / 두목은 같은 체형을 크게 (기본 그림은 왼쪽을 봄) */
-const BOSS_LOOK = [
-  { kind: 'boar',   fur: '#5a4636', coat: '#3a2c24' },   // 멧돼지 두목
-  { kind: 'bison',  fur: '#4a3a2e', coat: '#2b2a30' },   // 들소 집행관
-  { kind: 'lizard', fur: '#4d5c4a', coat: '#1e1d24' },   // 도마뱀 회장
-];
+/* ---------- 이상체 그리기 (기본 그림은 왼쪽을 봄) ----------
+ * shade: 검은 연기로 된 얼굴 없는 사람 형체, 몸에 보랏빛 금
+ * crawler: 관절이 너무 많은 네발 검은 타르 덩어리
+ * 보스: 지역마다 다른 큰 이상체 (우산 쓴 남자, 안개 등대지기, 네온 마네킹) */
 function drawEnemy(g, e, t) {
-  const s = e.size, bl = BOSS_LOOK[Math.floor((S.stage - 1) / 10) % 3];
+  const s = e.size, chap = Math.floor((S.stage - 1) / 10) % 3;
   g.save(); g.translate(e.x, e.y);
   if (e.face > 0) g.scale(-1, 1);
-  // 맞으면 몸이 순간 부풀었다 돌아옴 (필터 대신)
-  if (e.hit > 0) { const k = 1 + e.hit * (e.boss ? 0.5 : 1.2); g.scale(k, 2 - k); }
-  g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(0, 0, s * 0.32, s * 0.08, 0, 0, 7); g.fill();
-  const kind = e.boss ? bl.kind : e.type, coat = e.boss ? bl.coat : kind === 'hyena' ? '#3b342c' : '#2d3038';
-  const fur = e.boss ? bl.fur : kind === 'hyena' ? '#8a7558' : '#6e7078';
-  const step = (e.walk ? Math.sin(t * 10 + e.ph) : Math.sin(t * 3 + e.ph) * 0.3) * s * 0.03;
-  g.fillStyle = '#141418'; g.fillRect(-s * 0.12, -s * 0.2 + step, s * 0.09, s * 0.2); g.fillRect(s * 0.03, -s * 0.2 - step, s * 0.09, s * 0.2);
-  g.fillStyle = coat; g.beginPath(); rr(g, -s * 0.19, -s * 0.58, s * 0.38, s * 0.42, s * 0.08); g.fill();
-  if (kind === 'hyena') { g.fillStyle = '#2a2520'; g.beginPath(); g.arc(0, -s * 0.66, s * 0.22, Math.PI * 0.9, Math.PI * 2.1); g.fill(); }   // 후드
-  // 머리 (왼쪽을 봄: 좌우를 뒤집어 그림)
-  g.save(); g.scale(-1, 1);
-  const hy = -s * 0.74, r = s * 0.19;
-  g.fillStyle = fur; g.beginPath(); g.arc(0, hy, r, 0, 7); g.fill();
-  if (kind === 'hyena') {
-    g.beginPath(); g.arc(-s * 0.08, hy - s * 0.16, s * 0.07, 0, 7); g.fill();
-    g.fillStyle = '#4a3c2c'; for (const [x, y] of [[-0.08, -0.02], [-0.02, 0.06], [0.02, -0.08]]) { g.beginPath(); g.arc(x * s, hy + y * s, s * 0.025, 0, 7); g.fill(); }
-    g.fillStyle = '#3a3028'; g.beginPath(); g.ellipse(s * 0.15, hy + s * 0.05, r * 0.6, r * 0.42, 0, 0, 7); g.fill();
-  } else if (kind === 'dog') {
-    tri(g, [-s * 0.12, hy - s * 0.1], [-s * 0.08, hy - s * 0.3], [0, hy - s * 0.14]);
-    g.fillStyle = '#8c8e96'; g.beginPath(); g.ellipse(s * 0.15, hy + s * 0.05, r * 0.62, r * 0.45, 0, 0, 7); g.fill();
-  } else if (kind === 'boar') {
-    g.fillStyle = '#6a5442'; g.beginPath(); g.ellipse(s * 0.17, hy + s * 0.05, r * 0.6, r * 0.5, 0, 0, 7); g.fill();
-    g.fillStyle = '#e8e0cc'; tri(g, [s * 0.13, hy + s * 0.1], [s * 0.2, hy - s * 0.06], [s * 0.18, hy + s * 0.12]);
-    g.fillStyle = fur; tri(g, [-s * 0.12, hy - s * 0.1], [-s * 0.06, hy - s * 0.26], [0, hy - s * 0.14]);
-  } else if (kind === 'bison') {
-    g.fillStyle = '#2a211b'; g.beginPath(); g.arc(-s * 0.04, hy - s * 0.04, r * 1.15, Math.PI * 0.6, Math.PI * 1.9); g.fill();   // 갈기
-    g.strokeStyle = '#d8cfba'; g.lineWidth = s * 0.04; g.lineCap = 'round'; g.beginPath(); g.arc(s * 0.02, hy - s * 0.14, s * 0.1, Math.PI, Math.PI * 1.8); g.stroke();
-    g.fillStyle = '#3a2e26'; g.beginPath(); g.ellipse(s * 0.15, hy + s * 0.06, r * 0.6, r * 0.5, 0, 0, 7); g.fill();
-  } else { // lizard: 긴 주둥이와 왕관
-    g.fillStyle = fur; g.beginPath(); g.ellipse(s * 0.17, hy + s * 0.04, r * 0.85, r * 0.42, 0, 0, 7); g.fill();
-    g.fillStyle = '#b89a4a'; g.beginPath(); g.moveTo(-s * 0.12, hy - s * 0.15); g.lineTo(-s * 0.1, hy - s * 0.28); g.lineTo(-s * 0.04, hy - s * 0.2); g.lineTo(0, hy - s * 0.3); g.lineTo(s * 0.04, hy - s * 0.2); g.lineTo(s * 0.1, hy - s * 0.28); g.lineTo(s * 0.1, hy - s * 0.15); g.closePath(); g.fill();
+  if (e.hit > 0) { const k = 1 + e.hit * (e.boss ? 0.5 : 1.2); g.scale(k, 2 - k); }   // 맞으면 순간 부풀었다 돌아옴 (필터 대신)
+  g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(0, 0, s * 0.32, s * 0.08, 0, 0, 7); g.fill();
+  const wob = Math.sin(t * 4 + e.ph);
+  if (!e.boss && e.type === 'crawler') {
+    // 네발 타르 덩어리: 몸 + 꺾인 다리 넷 + 보랏빛 눈 둘
+    g.strokeStyle = '#141219'; g.lineWidth = s * 0.06; g.lineCap = 'round';
+    for (let i = 0; i < 4; i++) {
+      const lx = (-0.22 + i * 0.15) * s, ph = Math.sin(t * 9 + e.ph + i) * (e.walk ? 1 : 0.3);
+      g.beginPath(); g.moveTo(lx, -s * 0.28); g.lineTo(lx - s * 0.1, -s * 0.42 + ph * s * 0.04); g.lineTo(lx - s * 0.06 + ph * s * 0.05, 0); g.stroke();
+    }
+    g.fillStyle = '#16141c'; g.beginPath(); g.ellipse(0, -s * 0.3, s * 0.3, s * 0.15 + wob * s * 0.01, 0, 0, 7); g.fill();
+    g.fillStyle = 'rgba(180,140,255,.9)'; g.fillRect(-s * 0.28, -s * 0.34, s * 0.05, s * 0.03); g.fillRect(-s * 0.2, -s * 0.35, s * 0.04, s * 0.03);
+  } else {
+    // 사람 형체 (보스는 크게 + 지역별 특징)
+    const body = e.boss ? (chap === 2 ? '#2a2a34' : '#121118') : '#18161e';
+    g.fillStyle = body;
+    g.beginPath(); g.moveTo(-s * 0.17, -s * 0.62); g.lineTo(s * 0.17, -s * 0.62); g.lineTo(s * 0.22 + wob * s * 0.02, 0); g.lineTo(-s * 0.22 - wob * s * 0.02, 0); g.closePath(); g.fill();
+    // 아랫단이 연기처럼 흩어짐
+    g.fillStyle = 'rgba(24,22,30,.6)'; for (let i = 0; i < 4; i++) { g.beginPath(); g.arc((-0.15 + i * 0.1) * s, -s * 0.02 + Math.sin(t * 5 + i + e.ph) * s * 0.02, s * 0.06, 0, 7); g.fill(); }
+    g.fillStyle = body; g.beginPath(); g.ellipse(0, -s * 0.76, s * 0.15, s * 0.17, 0, 0, 7); g.fill();
+    // 몸의 보랏빛 금
+    g.strokeStyle = `rgba(180,140,255,${0.55 + wob * 0.2})`; g.lineWidth = s * 0.02; g.beginPath(); g.moveTo(-s * 0.04, -s * 0.9); g.lineTo(s * 0.03, -s * 0.72); g.lineTo(-s * 0.03, -s * 0.55); g.lineTo(s * 0.05, -s * 0.35); g.stroke();
+    if (e.boss && chap === 0) { // 우산 쓴 남자: 검은 우산, 얼굴은 그늘
+      g.save(); g.translate(s * 0.05, -s * 0.95); g.rotate(-0.15 + e.swing * 0.4);
+      g.fillStyle = '#0c0b10'; g.beginPath(); g.arc(0, 0, s * 0.34, Math.PI, 0); g.closePath(); g.fill();
+      g.strokeStyle = '#2a2833'; g.lineWidth = s * 0.015; g.beginPath(); g.moveTo(0, 0); g.lineTo(0, s * 0.4); g.stroke();
+      g.restore();
+    } else if (e.boss && chap === 1) { // 안개 등대지기: 머리 대신 빛나는 등불
+      const lg = g.createRadialGradient(0, -s * 0.78, 0, 0, -s * 0.78, s * 0.3); lg.addColorStop(0, 'rgba(255,240,200,.95)'); lg.addColorStop(1, 'rgba(255,220,150,0)');
+      g.fillStyle = lg; g.beginPath(); g.arc(0, -s * 0.78, s * 0.3, 0, 7); g.fill();
+    } else if (e.boss && chap === 2) { // 네온 마네킹: 금 대신 분홍, 파랑 네온관
+      g.strokeStyle = 'rgba(255,70,170,.9)'; g.lineWidth = s * 0.02; g.beginPath(); g.moveTo(-s * 0.12, -s * 0.6); g.lineTo(s * 0.1, -s * 0.3); g.stroke();
+      g.strokeStyle = 'rgba(70,210,255,.9)'; g.beginPath(); g.moveTo(s * 0.12, -s * 0.58); g.lineTo(-s * 0.08, -s * 0.2); g.stroke();
+    }
+    // 눈: 얼굴 없이 빛나는 점 하나
+    if (!(e.boss && chap === 1)) { g.fillStyle = e.boss ? '#ff5d5d' : 'rgba(190,160,255,.95)'; g.fillRect(-s * 0.08, -s * 0.79, s * 0.05, s * 0.03); }
+    // 팔: 공격할 때 길게 뻗음
+    g.strokeStyle = body; g.lineWidth = s * 0.06; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(-s * 0.12, -s * 0.52); g.lineTo(-s * 0.2 - e.swing * s * 0.25, -s * 0.36 - e.swing * s * 0.1); g.stroke();
   }
-  g.fillStyle = kind === 'lizard' ? '#7dff9a' : e.boss ? '#ff5040' : '#e8d070';
-  g.fillRect(s * 0.07, hy - s * 0.04, s * 0.045, s * 0.035);
   g.restore();
-  // 무기: 일반은 쇠파이프, 두목은 큰 망치
-  g.save(); g.translate(-s * 0.2, -s * 0.42); g.rotate(-0.5 - e.swing * 1.4);
-  g.fillStyle = '#5a5d66'; g.fillRect(-s * 0.02, -s * 0.44, s * 0.04, s * 0.52);
-  if (e.boss) { g.fillStyle = '#3a3c44'; g.fillRect(-s * 0.1, -s * 0.5, s * 0.2, s * 0.12); g.fillStyle = 'rgba(160,180,230,.25)'; g.fillRect(-s * 0.1, -s * 0.5, s * 0.2, s * 0.025); }
-  g.restore();
-  g.restore();
-  // 체력 바 (두목은 위쪽 큰 바)
   if (!e.boss && e.hp < e.max) {
     const w = s * 0.6; g.fillStyle = '#300'; g.fillRect(e.x - w / 2, e.y - s * 1.0, w, 4);
     g.fillStyle = '#ff5a4a'; g.fillRect(e.x - w / 2, e.y - s * 1.0, w * Math.max(0, e.hp / e.max), 4);
@@ -475,7 +464,7 @@ function drawEnemy(g, e, t) {
  * → 같은 자리는 언제 봐도 같은 모습이고, 지도는 끝없이 이어진다.
  */
 const CH = 360;
-const MAPW = 1000, MAPH = 1300, MAX_FIELD = 14;   // 지도 크기(단위), 지도 위 일반 조직원 최대 수
+const MAPW = 1000, MAPH = 1300, MAX_FIELD = 14;   // 지도 크기(단위), 지도 위 일반 이상체 최대 수
 const FIELD = [
   // 1장 빗속 뒷골목: 젖은 돌바닥, 가로등, 상자와 드럼통, 쓰레기통, 세워 둔 차
   { ground: '#252c39', patch: '#2b3342', dark: '#1f252f', tree: '#1c242d', tree2: '#283340', rock: '#4a5365', kinds: ['lamp', 'lamp', 'crate', 'barrel', 'bin', 'car'], night: 0.08, fog: 0, cobble: 1, neon: 0, planks: 0 },
@@ -532,7 +521,7 @@ function resize() {
 const cvRO = new ResizeObserver(resize); cvRO.observe(cv);
 
 /* ---------- 스테이지 지도: 경계가 있는 넓은 들판 (화면 약 3×4개) ----------
- * 조직원 무리가 지도 곳곳에 흩어져 생기고, 요원 팀은 가장 가까운 무리를 찾아 어디로든 돌아다닌다. */
+ * 이상체 무리가 지도 곳곳에 흩어져 생기고, 요원 팀은 가장 가까운 무리를 찾아 어디로든 돌아다닌다. */
 const clampN = (v, a, b) => Math.max(a, Math.min(b, v));
 /** 지도 안에 가둠 (벽에서 pad 만큼 떨어지게) */
 function keepIn(o, pad) { o.x = clampN(o.x, -MAPW / 2 + pad, MAPW / 2 - pad); o.y = clampN(o.y, -MAPH / 2 + pad, MAPH / 2 - pad); }
@@ -567,15 +556,15 @@ const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 function mkEnemy(type, x, y, boss) {
   const hp = boss ? C.bossHp(S.stage) : C.enemyHp(S.stage);
   return { type, boss, x, y, hp, max: hp, atk: boss ? C.bossAtk(S.stage) : C.enemyAtk(S.stage), at: Math.random(),
-    size: boss ? 105 : type === 'dog' ? 42 : 46, hit: 0, swing: 0, ph: Math.random() * 6, face: -1, aggro: false };
+    size: boss ? 110 : type === 'crawler' ? 44 : 48, hit: 0, swing: 0, ph: Math.random() * 6, face: -1, aggro: false };
 }
-/** 지도 어딘가(요원 팀과 떨어진 곳)에 조직원 무리 하나를 배치 */
+/** 지도 어딘가(요원 팀과 떨어진 곳)에 이상체 무리 하나를 배치 */
 function spawnCluster() {
   let p = randPoint(90);
   for (let k = 0; k < 12 && dist(p, R.A) < 260; k++) p = randPoint(90);
   const n = 3 + Math.floor(Math.random() * 3);
   for (let i = 0; i < n; i++) {
-    const a = Math.random() * Math.PI * 2, rr = 15 + Math.random() * 55, e = mkEnemy(Math.random() < 0.5 ? 'dog' : 'hyena', p.x + Math.cos(a) * rr, p.y + Math.sin(a) * rr * 0.8, false);
+    const a = Math.random() * Math.PI * 2, rr = 15 + Math.random() * 55, e = mkEnemy(Math.random() < 0.5 ? 'shade' : 'crawler', p.x + Math.cos(a) * rr, p.y + Math.sin(a) * rr * 0.8, false);
     e.home = { x: e.x, y: e.y }; e.wt = Math.random() * 2; keepIn(e, 40); R.enemies.push(e);
   }
 }
@@ -699,7 +688,7 @@ function update(dt) {
   R.t += dt;
   R.buff = Math.max(0, R.buff - dt);
   if (R.mapStage !== S.stage) newMap();   // 스테이지가 바뀌면 새 지도
-  // 전멸: 3초 뒤 그 자리에서 부활, 근처 조직원는 물러남(다시 배치)
+  // 전멸: 3초 뒤 그 자리에서 부활, 근처 이상체는 물러남(다시 배치)
   if (R.wipe > 0) {
     R.wipe -= dt;
     if (R.wipe <= 0) { syncHeroes(true); R.enemies = R.enemies.filter(e => dist(e, R.A) > 300 && !e.boss); for (const e of R.enemies) e.aggro = false; for (const h of owned()) Object.assign(R.heroes[h.id], formSlot(h.id)); }
@@ -707,7 +696,7 @@ function update(dt) {
   }
   R.enemies = R.enemies.filter(e => e.hp > 0);
   const live = R.enemies.length > 0;
-  // 조직원 보충: 지도 위 일반 조직원가 줄면 다른 곳에 새 무리. 처치 수가 차면 보스 등장
+  // 이상체 보충: 지도 위 일반 이상체가 줄면 다른 곳에 새 무리. 처치 수가 차면 보스 등장
   R.spawnT -= dt;
   if (R.spawnT <= 0 && R.enemies.filter(e => !e.boss).length < MAX_FIELD - 4) { spawnCluster(); R.spawnT = 1.5; }
   if (!R.boss && !S.farming && S.kills >= C.CONST.WAVE_KILLS) spawnBoss();
@@ -720,13 +709,13 @@ function update(dt) {
     R.A.x += (mx / hs.length - R.A.x) * Math.min(1, dt * 2); R.A.y += (my / hs.length - R.A.y) * Math.min(1, dt * 2);
   } else {
     let tp = R.boss || nearestEnemy(R.A, Infinity);
-    if (!tp) { if (!R.roam || dist(R.A, R.roam) < 20) R.roam = randPoint(120); tp = R.roam; }   // 조직원가 없으면 지도 산책
+    if (!tp) { if (!R.roam || dist(R.A, R.roam) < 20) R.roam = randPoint(120); tp = R.roam; }   // 이상체가 없으면 지도 산책
     const dx = tp.x - R.A.x, dy = tp.y - R.A.y;
     if (Math.hypot(dx, dy) > 4) R.heading += angDiff(Math.atan2(dy, dx), R.heading) * Math.min(1, dt * 3);
     moveTo(R.A, tp.x, tp.y, 95, dt);
   }
   keepIn(R.A, 60);
-  if (R.boss) { R.bossT -= dt; if (R.bossT <= 0) bossFail('두목 도주'); }
+  if (R.boss) { R.bossT -= dt; if (R.bossT <= 0) bossFail('보스 소멸'); }
   for (const h of hs) heroAct(h, R.heroes[h.id], dt);
   // 투사체
   for (const p of R.proj) {
@@ -739,7 +728,7 @@ function update(dt) {
     } else { p.x += dx / d * p.sp * dt; p.y += dy / d * p.sp * dt; p.a = Math.atan2(dy, dx); }
   }
   R.proj = R.proj.filter(p => !p.done);
-  // 조직원: 요원이 다가오면(또는 맞으면) 쫓아와서 공격
+  // 이상체: 요원이 다가오면(또는 맞으면) 쫓아와서 공격
   for (const e of R.enemies) {
     e.hit = Math.max(0, e.hit - dt); e.swing = Math.max(0, e.swing - dt * 3); e.walk = false;
     let tg = null, bd = Infinity;
@@ -820,7 +809,7 @@ function draw() {
   }
   g.restore();
   drawWalls(F);
-  // 3) 서 있는 것들(장식, 요원, 조직원)을 아래쪽일수록 앞에 오게 정렬
+  // 3) 서 있는 것들(장식, 요원, 이상체)을 아래쪽일수록 앞에 오게 정렬
   const list = [];
   for (const c of chunks) for (const d of c.tall) if (Math.abs(d.x) < MAPW / 2 - 30 && Math.abs(d.y) < MAPH / 2 - 30) list.push({ y: d.y, f: () => drawProp(d, F) });
   for (const h of owned()) { const r = R.heroes[h.id]; if (r) list.push({ y: r.y, f: () => drawHeroRt(h, r) }); }
@@ -892,7 +881,7 @@ function drawWalls(F) {
   for (let y = y0; y <= -y0; y += 34) { g.moveTo(x0 - 26, y); g.lineTo(x0, y); g.moveTo(-x0, y); g.lineTo(-x0 + 26, y); }
   g.stroke();
 }
-/** 미니맵: 지도 전체, 조직원(빨강), 보스(크게), 요원 팀(노랑), 현재 보이는 범위 */
+/** 미니맵: 지도 전체, 이상체(빨강), 보스(크게), 요원 팀(노랑), 현재 보이는 범위 */
 function drawMinimap() {
   const mw = 58, mh = mw * MAPH / MAPW, mx = W - mw - 10, my = R.boss ? 56 : 10, k = mw / MAPW;
   g.fillStyle = 'rgba(18,21,28,.78)'; g.fillRect(mx - 3, my - 3, mw + 6, mh + 6);
@@ -1014,7 +1003,7 @@ function updateUI() {
   $('gold').textContent = C.formatNum(S.gold);
   $('gems').textContent = C.formatNum(S.gems);
   const bar = $('prog').firstElementChild, lab = $('prog').lastElementChild;
-  if (R.boss) { bar.className = 'boss'; bar.style.width = (100 * Math.max(0, R.boss.hp / R.boss.max)) + '%'; lab.textContent = '두목전'; }
+  if (R.boss) { bar.className = 'boss'; bar.style.width = (100 * Math.max(0, R.boss.hp / R.boss.max)) + '%'; lab.textContent = '보스전'; }
   else if (S.farming) { bar.className = ''; bar.style.width = '100%'; lab.textContent = '반복 사냥'; }
   else { bar.className = ''; bar.style.width = (100 * S.kills / C.CONST.WAVE_KILLS) + '%'; lab.textContent = `${S.kills} / ${C.CONST.WAVE_KILLS}`; }
   $('bossBtn').style.display = S.farming && !R.boss ? 'block' : 'none';
@@ -1073,7 +1062,7 @@ function renderPanel() {
         ${row(`전설 ${pk.name}`, (lr * 100).toFixed(1) + '%', (pr * 100).toFixed(1) + '%')}
         ${C.STARTER_IDS.map(id => row(`${C.heroById(id).grade} ${C.heroById(id).name}`, ((1 - lr) / 4 * 100).toFixed(2) + '%', ((1 - pr) / 4 * 100).toFixed(2) + '%')).join('')}
       </tbody></table>
-      <p class="hint" style="margin:10px 2px">이미 있는 요원이 나오면 조각이 되고, 조각을 모아 승급하면 능력치가 크게 올라요. 보석은 두목을 잡으면 ${C.CONST.BOSS_GEMS}개씩 얻어요. 특별 채용은 매주 월요일 0시에 새로 열려요.</p>`;
+      <p class="hint" style="margin:10px 2px">이미 있는 요원이 나오면 조각이 되고, 조각을 모아 승급하면 능력치가 크게 올라요. 보석은 보스를 처리하면 ${C.CONST.BOSS_GEMS}개씩 얻어요. 특별 채용은 매주 월요일 0시에 새로 열려요.</p>`;
     drawSummonBanner();
   }
   updatePanel();
@@ -1190,7 +1179,7 @@ function openModal(html, onClose) {
 }
 function showOffline(r) {
   if (!r || r.gold <= 0) { if (r) toast('받을 보상이 없어요'); return; }
-  openModal(`<h2>자리를 비운 동안</h2><p>요원들이 ${C.formatDuration(r.sec)} 동안 조직원 ${C.formatNum(r.kills)}명을 검거했어요</p>
+  openModal(`<h2>자리를 비운 동안</h2><p>요원들이 ${C.formatDuration(r.sec)} 동안 이상체 ${C.formatNum(r.kills)}개체를 처리했어요</p>
     <div class="big">${icon('gold')}<span>${C.formatNum(r.gold)}</span></div><p class="hint">최대 8시간까지 쌓여요</p>
     <div class="mbtns"><button class="btn" data-close="ok">받기</button></div>`, () => { S.gold += r.gold; writeSave(); updateUI(); banner('보상 획득'); });
 }

@@ -11,17 +11,17 @@
 
   /* ---------- 1. 정적 데이터 ---------- */
 
-  // 요원 도감. name 은 수사 3팀처럼 코드네임, kind 는 동물. baseAtk/baseHp 는 Lv.1 ★1 기준값.
+  // 요원 도감. name 은 수사 3팀처럼 코드네임, kind 는 종족(현재 모두 사람). baseAtk/baseHp 는 Lv.1 ★1 기준값.
   const HEROES = [
-    { id: 'knight', name: '램파트', kind: '코뿔소',  role: '돌격',   grade: '희귀', baseAtk: 12, baseHp: 160, atkSpd: 1.0, range: 'melee',
+    { id: 'knight', name: '램파트', kind: '사람',  role: '돌격',   grade: '희귀', baseAtk: 12, baseHp: 160, atkSpd: 1.0, range: 'melee',
       skill: { name: '방패 돌진', cd: 6,  kind: 'single', mult: 5 } },
-    { id: 'archer', name: '롱샷',   kind: '스라소니',  role: '저격',   grade: '희귀', baseAtk: 9,  baseHp: 90,  atkSpd: 1.5, range: 'ranged',
+    { id: 'archer', name: '롱샷',   kind: '사람',  role: '저격',   grade: '희귀', baseAtk: 9,  baseHp: 90,  atkSpd: 1.5, range: 'ranged',
       skill: { name: '연속 저격', cd: 7,  kind: 'multi',  mult: 1.4, hits: 5 } },
-    { id: 'mage',   name: '블레이즈', kind: '검은 염소',  role: '폭파',   grade: '영웅', baseAtk: 15, baseHp: 80,  atkSpd: 0.7, range: 'aoe',
+    { id: 'mage',   name: '블레이즈', kind: '사람',  role: '폭파',   grade: '영웅', baseAtk: 15, baseHp: 80,  atkSpd: 0.7, range: 'aoe',
       skill: { name: '화염병 투척', cd: 9,  kind: 'aoe',    mult: 4 } },
-    { id: 'priest', name: '헤일로', kind: '두루미',  role: '의무',   grade: '영웅', baseAtk: 6,  baseHp: 100, atkSpd: 0.9, range: 'ranged',
+    { id: 'priest', name: '헤일로', kind: '사람',  role: '의무',   grade: '영웅', baseAtk: 6,  baseHp: 100, atkSpd: 0.9, range: 'ranged',
       skill: { name: '응급 처치', cd: 10, kind: 'buff',   mult: 0.5, dur: 4, heal: 0.3 } },
-    { id: 'dark',   name: '나이트폴', kind: '흑표범',  role: '해결사', grade: '전설', baseAtk: 32, baseHp: 260, atkSpd: 0.9, range: 'melee',
+    { id: 'dark',   name: '나이트폴', kind: '사람',  role: '해결사', grade: '전설', baseAtk: 32, baseHp: 260, atkSpd: 0.9, range: 'melee',
       skill: { name: '그림자 베기', cd: 8,  kind: 'aoe',    mult: 7 } },
   ];
   const STARTER_IDS = ['knight', 'archer', 'mage', 'priest'];

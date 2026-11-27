@@ -65,8 +65,8 @@ test('훈련소: 치명타 최대치와 비용', () => {
 });
 
 test('별 승급 조각', () => {
-  assert.equal(C.starNeed(1), 2);
-  assert.equal(C.starNeed(4), 8);
+  assert.equal(C.starNeed(1), 10);
+  assert.equal(C.starNeed(4), 200);
   assert.equal(C.starNeed(5), Infinity);
 });
 
@@ -82,15 +82,6 @@ test('오프라인 보상: 최소/최대 시간, 시계 되돌림', () => {
   assert.equal(h20.sec, 8 * 3600);
 });
 
-test('소환: 확률 구간과 잘못된 rng', () => {
-  assert.deepEqual(C.summon(1, () => 0.0), ['dark']);
-  assert.deepEqual(C.summon(1, () => 0.014), ['dark']);
-  assert.deepEqual(C.summon(1, () => 0.015), ['knight']);
-  assert.deepEqual(C.summon(1, () => 0.9999), ['priest']);
-  assert.equal(C.summon(10, Math.random).length, 10);
-  assert.throws(() => C.summon(1, () => 1), RangeError);
-  assert.throws(() => C.summon(1, null), TypeError);
-});
 
 test('applySummon: 신규 보유와 조각, 원본 불변', () => {
   const s = C.newState(0);
@@ -104,7 +95,7 @@ test('applySummon: 신규 보유와 조각, 원본 불변', () => {
 
 test('sanitize: 손상, 조작 데이터 복구', () => {
   const s = C.sanitize({
-    gold: -100, gems: 'lots', stage: 1e12, kills: 99,
+    v: 2, gold: -100, gems: 'lots', stage: 1e12, kills: 99,
     heroes: { knight: { owned: false, lv: -3, stars: 99, shards: NaN }, dark: { owned: 'yes' } },
     up: { atk: 3.7, crit: 500 },
   }, 1);
@@ -141,12 +132,6 @@ test('등급 이름: 희귀, 영웅, 전설만 사용', () => {
   for (const h of C.HEROES) assert.ok(['희귀', '영웅', '전설'].includes(h.grade), h.id + ' 등급 ' + h.grade);
 });
 
-test('특별 채용: 전설 확률이 올라가고 잘못된 확률은 거부', () => {
-  assert.deepEqual(C.summon(1, () => 0.025, C.CONST.PICKUP_LEGEND_RATE), ['dark']);   // 3% 안
-  assert.deepEqual(C.summon(1, () => 0.08), ['knight']);                              // 일반 호출은 3% 밖
-  assert.throws(() => C.summon(1, () => 0.5, 0), RangeError);
-  assert.throws(() => C.summon(1, () => 0.5, 1.2), RangeError);
-});
 
 test('특별 채용 남은 기간: 다음 월요일 0시까지', () => {
   const sun = new Date(2026, 10, 29, 12, 0, 0);          // 일요일 12시
@@ -165,7 +150,7 @@ test('가이드 퀘스트: 같은 종류만 쌓이고, 다 차야 보상', () =>
   C.questAdd(s, 'lvup', 3); assert.equal(C.questClaim(s), 0);
   C.questAdd(s, 'lvup', 10); assert.equal(s.q.p, 5);
   const g = s.gems; const r = C.questClaim(s);
-  assert.equal(r, 20); assert.equal(s.gems, g + 20); assert.deepEqual(s.q, { i: 1, p: 0 });
+  assert.equal(r, 100); assert.equal(s.gems, g + 100); assert.deepEqual(s.q, { i: 1, p: 0 });
 });
 test('가이드 퀘스트: 한 바퀴 돌면 목표 2배, 잘못된 번호는 오류', () => {
   const n = C.QUESTS.length;
@@ -178,13 +163,32 @@ test('저장 복구: 퀘스트, 자동 기술, 배속', () => {
   assert.equal(C.sanitize({}, 0).autoSkill, true);
 });
 
-test('천장: 전설 없이 49번 뒤 50번째는 전설 확정, 나오면 0부터', () => {
-  const never = () => 0.999;
-  const r = C.summonPity(10, never, C.CONST.LEGEND_RATE, 45);
-  assert.equal(r.ids[4], 'dark'); assert.equal(r.ids.filter(i => i === 'dark').length, 1); assert.equal(r.pity, 5);
-  assert.equal(C.summonPity(1, () => 0, C.CONST.LEGEND_RATE, 10).pity, 0);
-  assert.equal(C.sanitize({ pity: { normal: 999, pickup: -3 } }, 0).pity.normal, C.CONST.PITY - 1);
+
+test('소환 레벨: 세나 키우기처럼 1~4 는 전설 없음, 5 에서 0.10%, 10 에서 0.15%', () => {
+  assert.equal(C.summonLevel(0), 1); assert.equal(C.summonLevel(499), 4); assert.equal(C.summonLevel(500), 5); assert.equal(C.summonLevel(1e6), 10);
+  assert.equal(C.summonRates(4).legend, 0); assert.equal(C.summonRates(5).legend, 0.001); assert.equal(C.summonRates(10).legend, 0.0015);
+  for (let lv = 1; lv <= 10; lv++) { const r = C.summonRates(lv); assert.ok(Math.abs(r.legend + r.hero + r.rare - 1) < 1e-9); }
 });
-test('확률: 특별 채용 전설은 장르 수준(5% 이하)', () => {
-  assert.ok(C.CONST.PICKUP_LEGEND_RATE <= 0.05 && C.CONST.LEGEND_RATE < C.CONST.PICKUP_LEGEND_RATE);
+test('소환: 등급 구간과 잘못된 rng', () => {
+  assert.deepEqual(C.summon(1, () => 0.0005, 10), ['dark']);        // 0.15% 안
+  assert.deepEqual(C.summon(1, () => 0.0005, 4), ['mage']);         // 레벨 4 는 전설 없음 → 영웅 구간
+  assert.deepEqual(C.summon(1, () => 0.9999, 1), ['archer']);
+  assert.equal(C.summon(10, Math.random, 10).length, 10);
+  assert.throws(() => C.summon(1, () => 1, 1), RangeError);
+  assert.throws(() => C.summon(1, null), TypeError);
+});
+test('뽑기 실행: 보석 차감, 누적 횟수, 특별 채용 릴레이 2000회 확정', () => {
+  const s = C.newState(0); s.gems = 1e6;
+  const r = C.doSummon(s, 10, 'normal', () => 0.9);
+  assert.equal(r.state.gems, 1e6 - C.CONST.SUMMON_COST_10); assert.equal(r.state.pulls.total, 10); assert.equal(r.state.pulls.relay, 0);
+  assert.equal(s.pulls.total, 0);   // 원본 불변
+  s.pulls.relay = C.CONST.RELAY - 3;
+  const p = C.doSummon(s, 10, 'pickup', () => 0.9);
+  assert.equal(p.ids[2], 'dark'); assert.equal(p.relayHit, true); assert.equal(p.state.pulls.relay, 7);
+  s.gems = 5; assert.throws(() => C.doSummon(s, 1, 'normal', Math.random), RangeError);
+});
+test('저장: 예전 버전이면 개편 보상 한 번, 릴레이 값 복구', () => {
+  const old = C.sanitize({ v: 1, gems: 50 }, 0); assert.equal(old.gems, 50 + C.CONST.MIGRATE_GEMS); assert.equal(old.v, C.CONST.SAVE_VERSION);
+  assert.equal(C.sanitize({ v: 2, gems: 50 }, 0).gems, 50);
+  assert.equal(C.sanitize({ v: 2, pulls: { total: -5, relay: 99999 } }, 0).pulls.relay, C.CONST.RELAY - 1);
 });

@@ -153,6 +153,10 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 .rtable td{font-family:"Black Han Sans";font-size:14px}
 .rtable td:first-child{font-family:'IBM Plex Sans KR',sans-serif;font-size:13px;font-weight:600}
 .rtable tr + tr td{border-top:1px solid rgba(47,58,82,.5)}
+.slv{margin-top:14px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
+.slv-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.slv-h b{font:400 16px "Black Han Sans";color:var(--gold)}
+.slv-h span{font-size:12px;color:var(--dim)}
 .srow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 .srow .btn{min-height:56px;font-size:15px}
 .rates{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--panel);border:1px solid var(--line);font-size:13px}
@@ -1325,22 +1329,24 @@ function renderPanel() {
       <div class="urow"><div class="uic"><svg><use href="#i-gold"/></svg></div><div><div class="ut">자리 비움 보상</div><div class="uv">1시간 비운 것처럼 받아 보기</div></div><button class="btn ghost" data-act="testOff">받아 보기</button></div>
       <div class="urow"><div class="uic"><svg><use href="#i-target"/></svg></div><div><div class="ut">처음부터 다시</div><div class="uv">저장된 진행을 모두 지워요</div></div><button class="btn ghost" data-act="reset">초기화</button></div>`;
   } else {
-    const pk = C.heroById('dark'), lr = C.CONST.LEGEND_RATE, pr = C.CONST.PICKUP_LEGEND_RATE;
+    const pk = C.heroById('dark'), lv = C.summonLevel(S.pulls.total), rt = C.summonRates(lv);
     const cost1 = C.CONST.SUMMON_COST_1, cost10 = C.CONST.SUMMON_COST_10;
     const btns = (kind, verb, cls) => `<div class="srow"><button class="btn ${cls}" data-act="sum" data-kind="${kind}" data-n="1"><span>1회 ${verb}</span><span class="cost">${icon('gem')}${cost1}</span></button>
       <button class="btn" data-act="sum" data-kind="${kind}" data-n="10"><span>10회 ${verb}</span><span class="cost">${icon('gem')}${cost10}</span></button></div>`;
-    const row = (name, a, b) => `<tr><td>${name}</td><td>${a}</td><td>${b}</td></tr>`;
+    const pct = v => v === 0 ? '없음' : (v * 100 < 1 ? (v * 100).toFixed(4) : (v * 100).toFixed(2)) + '%';
+    const each = g => C.HEROES.filter(h => h.grade === g);
+    const rows = [['전설', rt.legend], ['영웅', rt.hero], ['희귀', rt.rare]].flatMap(([g, v]) => each(g).map(h => `<tr><td>${g} ${h.name}</td><td>${v === 0 ? '없음' : pct(v / each(g).length)}</td></tr>`)).join('');
+    const nextNeed = C.CONST.SUMMON_LV_PULLS[lv];   // 다음 레벨 기준 (10이면 없음)
     P.innerHTML = `<div class="sbanner"><canvas id="sbc"></canvas><span class="tag">한정</span><span class="left" id="pkLeft"></span>
-        <div class="tt"><b>특별 채용</b><span>전설 ${pk.role} ${pk.name} 확률 ${(pr * 100).toFixed(1)}%</span><em class="pity" id="pity-pickup"></em></div></div>
+        <div class="tt"><b>특별 채용</b><span>누적 ${C.CONST.RELAY.toLocaleString()}회 채용하면 전설 ${pk.name} 확정</span><em class="pity" id="pity-pickup"></em></div></div>
       ${btns('pickup', '채용', 'blue')}
       <div class="sgap"></div>
-      <div class="sbanner small"><canvas id="sbc2"></canvas><div class="tt"><b>요원 호출</b><span>상시 호출</span><em class="pity" id="pity-normal"></em></div></div>
+      <div class="sbanner small"><canvas id="sbc2"></canvas><div class="tt"><b>요원 호출</b><span>상시 호출</span></div></div>
       ${btns('normal', '호출', 'blue')}
-      <table class="rtable"><thead><tr><th>요원</th><th>호출</th><th>특별 채용</th></tr></thead><tbody>
-        ${row(`전설 ${pk.name}`, (lr * 100).toFixed(1) + '%', (pr * 100).toFixed(1) + '%')}
-        ${C.STARTER_IDS.map(id => row(`${C.heroById(id).grade} ${C.heroById(id).name}`, ((1 - lr) / 4 * 100).toFixed(2) + '%', ((1 - pr) / 4 * 100).toFixed(2) + '%')).join('')}
-      </tbody></table>
-      <p class="hint" style="margin:10px 2px">이미 있는 요원이 나오면 조각이 되고, 조각을 모아 승급하면 능력치가 크게 올라요. 보석은 근원체를 봉쇄하면 ${C.CONST.BOSS_GEMS}개씩 얻어요. 특별 채용은 매주 월요일 0시에 새로 열려요. 전설이 ${C.CONST.PITY - 1}번 연속 나오지 않으면 ${C.CONST.PITY}번째는 전설이 확정이에요(호출과 채용은 따로 세요).</p>`;
+      <div class="slv"><div class="slv-h"><b>소환 레벨 ${lv}</b><span>${nextNeed ? `다음 레벨까지 ${(nextNeed - S.pulls.total).toLocaleString()}회` : '최고 레벨'}</span></div>
+        <div class="bar"><i style="width:${nextNeed ? (100 * (S.pulls.total - C.CONST.SUMMON_LV_PULLS[lv - 1]) / (nextNeed - C.CONST.SUMMON_LV_PULLS[lv - 1])).toFixed(1) : 100}%"></i></div></div>
+      <table class="rtable"><thead><tr><th>요원</th><th>현재 확률</th></tr></thead><tbody>${rows}</tbody></table>
+      <p class="hint" style="margin:10px 2px">호출과 채용을 할수록 소환 레벨이 올라요. 전설은 소환 레벨 5부터 나오고, 레벨이 오를수록 확률도 올라요. 특별 채용은 누적 ${C.CONST.RELAY.toLocaleString()}회째에 ${pk.name}이 확정으로 나와요. 이미 있는 요원이 나오면 조각이 되고, 조각으로 승급해요. 보석은 근원체를 봉쇄하면 ${C.CONST.BOSS_GEMS}개씩 얻어요.</p>`;
     drawSummonBanner();
   }
   updatePanel();
@@ -1395,7 +1401,7 @@ function updatePanel() {
     }
   } else {
     const pl = $('pkLeft'); if (pl) pl.textContent = '남은 기간 ' + C.formatRemain(C.pickupRemainSec(new Date()));
-    for (const k of ['pickup', 'normal']) { const el = $('pity-' + k); if (el) el.textContent = `전설 확정까지 ${C.CONST.PITY - S.pity[k]}회`; }
+    const pe = $('pity-pickup'); if (pe) pe.textContent = `확정까지 ${(C.CONST.RELAY - S.pulls.relay).toLocaleString()}회`;
     for (const b of P.querySelectorAll('[data-act=sum]')) b.disabled = S.gems < (b.dataset.n === '10' ? C.CONST.SUMMON_COST_10 : C.CONST.SUMMON_COST_1);
   }
   // 탭 알림 점: 할 수 있는 강화가 있을 때
@@ -1460,15 +1466,15 @@ $('bossBtn').addEventListener('click', () => { S.farming = false; S.kills = C.CO
 function doSummon(n, pickup) {
   const cost = n === 10 ? C.CONST.SUMMON_COST_10 : C.CONST.SUMMON_COST_1;
   if (S.gems < cost) return toast('보석이 부족해요');
-  const kind = pickup ? 'pickup' : 'normal';
-  const pr = C.summonPity(n, Math.random, pickup ? C.CONST.PICKUP_LEGEND_RATE : C.CONST.LEGEND_RATE, S.pity[kind]), ids = pr.ids;
-  const res = C.applySummon(S, ids);
-  res.state.gems -= cost; res.state.pity[kind] = pr.pity; S = res.state; C.questAdd(S, 'summon', n);
+  const lvBefore = C.summonLevel(S.pulls.total);
+  const res = C.doSummon(S, n, pickup ? 'pickup' : 'normal', Math.random), ids = res.ids;
+  S = res.state; C.questAdd(S, 'summon', n);
+  const lvAfter = C.summonLevel(S.pulls.total);
   syncHeroes(false); writeSave();
   openModal(`<h2>${pickup ? '채용 결과' : '호출 결과'}</h2><div class="res ${n === 1 ? 'one' : ''}">${ids.map((id, i) => {
     const h = C.heroById(id);
     return `<div class="rc ${h.grade === '전설' ? 'leg' : ''}" style="animation-delay:${i * 0.07}s"><img src="${portrait(id)}" alt=""><small>${h.name}</small>${res.isNew[i] ? '<span class="new">NEW</span>' : ''}</div>`;
-  }).join('')}</div><p>${res.isNew.some(Boolean) ? '새 요원이 AIU에 합류했어요' : '조각은 요원 탭에서 승급에 써요'}</p><div class="mbtns"><button class="btn" data-close>확인</button></div>`);
+  }).join('')}</div><p>${res.relayHit ? `누적 ${C.CONST.RELAY.toLocaleString()}회 달성, ${C.heroById('dark').name} 확정 합류` : lvAfter > lvBefore ? `소환 레벨 ${lvAfter} 달성` : res.isNew.some(Boolean) ? '새 요원이 AIU에 합류했어요' : '조각은 요원 탭에서 승급에 써요'}</p><div class="mbtns"><button class="btn" data-close>확인</button></div>`);
   renderPanel();
 }
 
@@ -1505,6 +1511,7 @@ let started = false, splashReady = false;   // splashReady: 불러오기가 끝�
 function startGame() {
   if (started || !splashReady) return; started = true;
   $('splash').style.display = 'none'; paused = false; last = performance.now();
+  if (S.migrated) { delete S.migrated; writeSave(); setTimeout(() => toast(`뽑기 개편 보상으로 보석 ${C.CONST.MIGRATE_GEMS.toLocaleString()}개를 받았어요`), 600); }
   if (pending && pending.gold > 0) showOffline(pending);
   else if (firstRun) banner('출동');
 }

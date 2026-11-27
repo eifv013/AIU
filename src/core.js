@@ -36,19 +36,26 @@
   const CONST = {
     WAVE_KILLS: 10,          // 근원체 등장까지 처치 수
     BOSS_TIME: 30,           // 근원체 제한 시간(초)
-    BOSS_GEMS: 10,           // 근원체 처치 보석
-    SUMMON_COST_1: 30,
-    SUMMON_COST_10: 270,
-    LEGEND_RATE: 0.015,      // 요원 호출: 전설(해결사) 확률 1.5%
-    PICKUP_LEGEND_RATE: 0.03, // 특별 채용(기간 한정): 전설 확률 3% (2배)
-    PITY: 50,                // 천장: 전설 없이 49번 뽑으면 50번째는 전설 확정 (뽑기 종류마다 따로 셈)
+    BOSS_GEMS: 100,          // 근원체 처치 보석 (10회 호출 1번)
+    SUMMON_COST_1: 10,
+    SUMMON_COST_10: 100,
+    /* 세븐나이츠 키우기 방식 뽑기
+     * - 소환 레벨: 누적 뽑기 횟수로 오름. 레벨 1~4 는 전설이 아예 안 나오고, 5부터 0.10%, 10에서 0.15%
+     *   (세나 키우기 실제 값: 소환 레벨 5 레전드 0.1%, 10 에서 0.15%)
+     * - 영웅 등급도 레벨마다 1%씩 오름 (세나 에픽 10%→19% 와 같은 폭)
+     * - 특별 채용은 릴레이: 누적 2000회를 뽑으면 나이트폴 확정 (세나 픽업 릴레이 최소 2천 뽑기) */
+    SUMMON_LV_PULLS: [0, 50, 150, 300, 500, 800, 1200, 1700, 2300, 3000],
+    LEGEND_BY_LV:    [0, 0, 0, 0, 0.0010, 0.0011, 0.0012, 0.0013, 0.0014, 0.0015],
+    HERO_BY_LV:      [0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19],
+    RELAY: 2000,
     MAX_STARS: 5,
     OFFLINE_CAP_SEC: 8 * 3600,
     OFFLINE_MIN_SEC: 60,
     OFFLINE_RATE: 0.5,       // 오프라인 효율 50%
     MAX_KILLS_PER_SEC: 2,    // 오프라인 계산 시 처치 속도 상한
-    START_GEMS: 300,
-    SAVE_VERSION: 1,
+    START_GEMS: 1000,        // 시작 보석: 100회 호출
+    SAVE_VERSION: 2,         // 2: 세나 방식 뽑기로 바뀜 (예전 저장에는 보상 보석을 한 번 줌)
+    MIGRATE_GEMS: 1000,
   };
 
   /* ---------- 2. 유틸 ---------- */
@@ -175,7 +182,8 @@
   /** ★ 승급에 필요한 조각 수 (현재 ★ 기준). 최대 ★이면 Infinity */
   function starNeed(stars) {
     const s = clampInt(stars, 1, CONST.MAX_STARS, 1);
-    return s >= CONST.MAX_STARS ? Infinity : s * 2;
+    // 뽑기 양이 많아 중복 조각이 많이 쌓이므로 승급에 필요한 조각을 크게 (★2 10개, ★3 30개, ★4 80개, ★5 200개)
+    return s >= CONST.MAX_STARS ? Infinity : [10, 30, 80, 200][s - 1];
   }
 
   /* ---------- 5. 파티 / 오프라인 ---------- */
@@ -209,40 +217,55 @@
 
   /* ---------- 6. 소환 ---------- */
 
+  /** 누적 뽑기 횟수 → 소환 레벨 (1~10) */
+  function summonLevel(total) {
+    const t = isNum(total) && total > 0 ? total : 0;
+    let lv = 1;
+    CONST.SUMMON_LV_PULLS.forEach((need, i) => { if (t >= need) lv = i + 1; });
+    return lv;
+  }
+  /** 소환 레벨별 등급 확률 {legend, hero, rare} */
+  function summonRates(level) {
+    const i = clampInt(level, 1, CONST.SUMMON_LV_PULLS.length, 1) - 1;
+    const legend = CONST.LEGEND_BY_LV[i], hero = CONST.HERO_BY_LV[i];
+    return { legend, hero, rare: 1 - legend - hero };
+  }
+  const GRADE_IDS = g => HEROES.filter(h => h.grade === g).map(h => h.id);
   /**
-   * 소환 n회. rng() 는 [0,1) 난수 함수 (테스트에서 고정값 주입).
-   * 전설은 legendRate(기본 LEGEND_RATE, 특별 채용은 PICKUP_LEGEND_RATE), 나머지는 시작 요원 4명 균등.
-   * @returns {string[]} 뽑힌 요원 id 배열
+   * n회 뽑기. 등급을 먼저 정하고 그 등급 안에서 균등하게 한 명.
+   * @param {number} level 소환 레벨 1~10
    */
-  function summon(n, rng, legendRate) {
+  function summon(n, rng, level = 1) {
     if (typeof rng !== 'function') throw new TypeError('rng 함수가 필요합니다');
-    const lr = legendRate === undefined ? CONST.LEGEND_RATE : legendRate;
-    if (!isNum(lr) || lr <= 0 || lr >= 1) throw new RangeError('전설 확률은 0 초과 1 미만이어야 합니다');
-    const cnt = clampInt(n, 1, 100, 1);
-    const out = [];
+    const r0 = summonRates(level), cnt = clampInt(n, 1, 100, 1), out = [];
+    const pick = (ids, t) => ids[Math.min(ids.length - 1, Math.floor(t * ids.length))];
     for (let i = 0; i < cnt; i++) {
       const r = rng();
       if (!isNum(r) || r < 0 || r >= 1) throw new RangeError('rng 값은 0 이상 1 미만이어야 합니다');
-      if (r < lr) { out.push('dark'); continue; }
-      // 남은 구간을 4등분
-      const t = (r - lr) / (1 - lr);
-      out.push(STARTER_IDS[Math.min(STARTER_IDS.length - 1, Math.floor(t * STARTER_IDS.length))]);
+      if (r < r0.legend) out.push(pick(GRADE_IDS('전설'), r / r0.legend));
+      else if (r < r0.legend + r0.hero) out.push(pick(GRADE_IDS('영웅'), (r - r0.legend) / r0.hero));
+      else out.push(pick(GRADE_IDS('희귀'), (r - r0.legend - r0.hero) / r0.rare));
     }
     return out;
   }
-
   /**
-   * 천장이 있는 뽑기. pity = 지난 전설 이후 뽑은 횟수. 전설이 나오면 0으로.
-   * @returns {{ids: string[], pity: number}}
+   * 뽑기 한 번 실행 (상태를 바꾸지 않고 새 상태를 돌려줌).
+   * kind 'pickup' 이면 릴레이 카운트를 세고, 누적 RELAY 회째에 나이트폴 확정 후 0부터 다시.
    */
-  function summonPity(n, rng, legendRate, pity) {
-    let p = clampInt(pity, 0, CONST.PITY - 1, 0);
-    const cnt = clampInt(n, 1, 100, 1), ids = [];
+  function doSummon(state, n, kind, rng) {
+    const cnt = n === 10 ? 10 : 1, cost = cnt === 10 ? CONST.SUMMON_COST_10 : CONST.SUMMON_COST_1;
+    if (state.gems < cost) throw new RangeError('보석이 부족합니다');
+    const ids = [];
+    let total = state.pulls.total, relay = state.pulls.relay, relayHit = false;
     for (let i = 0; i < cnt; i++) {
-      const id = p + 1 >= CONST.PITY ? 'dark' : summon(1, rng, legendRate)[0];
-      ids.push(id); p = id === 'dark' ? 0 : p + 1;
+      let id = summon(1, rng, summonLevel(total))[0];
+      total++;
+      if (kind === 'pickup') { relay++; if (relay >= CONST.RELAY) { id = 'dark'; relay = 0; relayHit = true; } }
+      ids.push(id);
     }
-    return { ids, pity: p };
+    const res = applySummon(state, ids);
+    res.state.gems -= cost; res.state.pulls = { total, relay };
+    return { state: res.state, ids, isNew: res.isNew, relayHit };
   }
 
   /**
@@ -286,14 +309,14 @@
   /* ---------- 가이드 퀘스트 (세나 키우기의 왼쪽 퀘스트 줄처럼 하나씩 차례로) ----------
    * kind 별로 진행이 쌓이고, 다 차면 눌러서 보석을 받음. 목록을 다 돌면 처음으로 돌아가 목표만 커짐 */
   const QUESTS = [
-    { kind: 'lvup',   text: '요원 강화',     need: 5,  gems: 20 },
-    { kind: 'kill',   text: '이상체 처리',   need: 30, gems: 20 },
-    { kind: 'boss',   text: '근원체 봉쇄',   need: 1,  gems: 40 },
-    { kind: 'train',  text: '훈련소 강화',   need: 3,  gems: 20 },
-    { kind: 'summon', text: '요원 호출',     need: 1,  gems: 30 },
-    { kind: 'lvup',   text: '요원 강화',     need: 20, gems: 30 },
-    { kind: 'boss',   text: '근원체 봉쇄',   need: 3,  gems: 50 },
-    { kind: 'kill',   text: '이상체 처리',   need: 150, gems: 40 },
+    { kind: 'lvup',   text: '요원 강화',     need: 5,  gems: 100 },
+    { kind: 'kill',   text: '이상체 처리',   need: 30, gems: 100 },
+    { kind: 'boss',   text: '근원체 봉쇄',   need: 1,  gems: 200 },
+    { kind: 'train',  text: '훈련소 강화',   need: 3,  gems: 100 },
+    { kind: 'summon', text: '요원 호출',     need: 1,  gems: 100 },
+    { kind: 'lvup',   text: '요원 강화',     need: 20, gems: 150 },
+    { kind: 'boss',   text: '근원체 봉쇄',   need: 3,  gems: 250 },
+    { kind: 'kill',   text: '이상체 처리',   need: 150, gems: 200 },
   ];
   /** i 번째 퀘스트 (한 바퀴 돌 때마다 목표 2배, 보상 1.5배) */
   function questAt(i) {
@@ -333,7 +356,7 @@
       heroes,
       up: { atk: 0, gold: 0, crit: 0 },
       q: { i: 0, p: 0 },        // 가이드 퀘스트 번호와 진행
-      pity: { normal: 0, pickup: 0 },   // 천장 카운트 (요원 호출, 특별 채용 따로)
+      pulls: { total: 0, relay: 0 },    // 누적 뽑기(소환 레벨), 특별 채용 릴레이
       autoSkill: true,          // 기술 자동 사용
       speed: 1,                 // 전투 배속 1 또는 2
       lastSeen: isNum(now) ? now : 0,
@@ -360,7 +383,12 @@
       s.q.p = clampInt(raw.q.p, 0, questAt(s.q.i).need, 0);
     }
     s.autoSkill = raw.autoSkill !== false;
-    if (raw.pity && typeof raw.pity === 'object') for (const k of ['normal', 'pickup']) s.pity[k] = clampInt(raw.pity[k], 0, CONST.PITY - 1, 0);
+    if (raw.pulls && typeof raw.pulls === 'object') {
+      s.pulls.total = clampInt(raw.pulls.total, 0, 1e9, 0);
+      s.pulls.relay = clampInt(raw.pulls.relay, 0, CONST.RELAY - 1, 0);
+    }
+    // 예전 저장(버전 1)이면 뽑기 개편 보상 보석을 한 번 줌
+    if (!(isNum(raw.v) && raw.v >= CONST.SAVE_VERSION)) { s.gems += CONST.MIGRATE_GEMS; s.migrated = true; }
     s.speed = raw.speed === 2 ? 2 : 1;
     s.lastSeen = isNum(raw.lastSeen) && raw.lastSeen > 0 ? raw.lastSeen : base.lastSeen;
     if (raw.up && typeof raw.up === 'object') {
@@ -395,7 +423,7 @@
     stageLabel, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed,
-    partyDps, offlineReward, summon, summonPity, applySummon, pickupRemainSec, formatRemain,
+    partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, applySummon, pickupRemainSec, formatRemain,
     newState, cloneState, sanitize, loadFromString, QUESTS, questAt, questAdd, questClaim,
   };
 

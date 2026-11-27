@@ -392,7 +392,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 /* 시작 화면: 수사 3팀 로딩 화면과 같은 구성 (부제, 큰 제목, 그림 줄, 불러오기 줄, 건너뛰기 안내) */
 #splash{position:absolute;inset:0;z-index:30;background:var(--bg)}
 #spbg{position:absolute;inset:0;width:100%;height:100%;display:block}
-.sp-game{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:calc(env(safe-area-inset-top) + 20vh) 24px 24px;gap:22px}
+.sp-game{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:calc(env(safe-area-inset-top) + 9vh) 24px 24px;gap:22px}
 /* AIU 로고 */
 .aiu{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px}
 .aiu-mark{width:min(64vw,236px);height:auto;display:block;overflow:visible}
@@ -1653,7 +1653,7 @@ function updateUI() {
 
 /* ---------- UI: 패널 ---------- */
 let tab = 'hero', bulk = 1;
-const APP_VERSION = '0.9.1';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.9.2';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 const starStr = n => '★'.repeat(n) + `<s>${'★'.repeat(C.CONST.MAX_STARS - n)}</s>`;
 
@@ -2255,7 +2255,8 @@ $('splash').addEventListener('click', startGame);
     let iw = 0, ih = 0, iy = 0, ix = 0;
     if (imgOk('key')) {
       // 가로 폭에 맞추고 아래에 붙임 (요원이 양옆으로 잘리지 않게). 화면이 그림보다 납작하면 위쪽 하늘이 잘림
-      const sc = W2 / key.naturalWidth;
+      // 화면이 그림보다 길쭉하면 조금 키워서 위쪽 빈 하늘을 줄임 (양옆은 최대 7%씩만 잘림)
+      const sc = Math.min(W2 / key.naturalWidth * 1.15, Math.max(W2 / key.naturalWidth, H2 * 0.96 / key.naturalHeight));
       iw = key.naturalWidth * sc; ih = key.naturalHeight * sc; ix = (W2 - iw) / 2; iy = H2 - ih;
       q.drawImage(key, ix, iy, iw, ih);
       // 그림 윗선이 보이지 않게 하늘색으로 부드럽게 이음
@@ -2269,6 +2270,19 @@ $('splash').addEventListener('click', startGame);
       const cx = ix + iw * 0.53, cy = iy + ih * 0.42, gl = q.createRadialGradient(cx, cy, 0, cx, cy, iw * 0.5);
       gl.addColorStop(0, `rgba(170,120,255,${0.32 * fl})`); gl.addColorStop(1, 'rgba(170,120,255,0)');
       q.fillStyle = gl; q.fillRect(0, 0, W2, H2);
+    }
+    // 위쪽 하늘: 천천히 흘러가는 먹구름 + 로고 뒤 보랏빛 균열 빛 (로고를 위로 올려 비던 하늘을 채움)
+    for (let i = 0; i < 5; i++) {
+      const cx = ((i * 0.27 + t * 0.006 * (1 + i * 0.3)) % 1.4 - 0.2) * W2, cy = H2 * (0.04 + (i % 3) * 0.07), rr = W2 * (0.45 + (i % 2) * 0.2);
+      const cg = q.createRadialGradient(cx, cy, 0, cx, cy, rr); cg.addColorStop(0, 'rgba(46,38,82,.55)'); cg.addColorStop(1, 'rgba(46,38,82,0)');
+      q.fillStyle = cg; q.fillRect(cx - rr, cy - rr, rr * 2, rr * 2);
+    }
+    const lm = document.querySelector('.aiu-mark');
+    if (lm) {
+      const r = lm.getBoundingClientRect(), cr = cvs.getBoundingClientRect(), lx = r.left + r.width / 2 - cr.left, ly = r.top + r.height / 2 - cr.top;
+      const pulse = 0.22 + Math.sin(t * 1.6) * 0.05 + (age < 0.8 ? (1 - age / 0.8) * 0.25 : 0), lr = r.width * 0.9;
+      const lg = q.createRadialGradient(lx, ly, 0, lx, ly, lr); lg.addColorStop(0, `rgba(150,100,255,${pulse.toFixed(3)})`); lg.addColorStop(1, 'rgba(150,100,255,0)');
+      q.fillStyle = lg; q.fillRect(lx - lr, ly - lr, lr * 2, lr * 2);
     }
     // 아래쪽 글자(불러오기 줄, 제작사)가 잘 보이게 바닥을 어둡게
     const bot = q.createLinearGradient(0, H2 * 0.72, 0, H2); bot.addColorStop(0, 'rgba(6,8,14,0)'); bot.addColorStop(1, 'rgba(6,8,14,.88)');

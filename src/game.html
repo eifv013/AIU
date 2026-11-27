@@ -48,29 +48,29 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 @keyframes pulse{50%{transform:scale(1.06)}}
 /* 가이드 퀘스트: 세나 키우기처럼 전투 화면 왼쪽 아래에 한 줄 */
 /* 퀘스트 상자 (세나 키우기 왼쪽 아래 퀘스트처럼): 왼쪽에 번호와 할 일, 진행 줄, 오른쪽에 보상. 다 차면 오른쪽이 금색 '받기' */
-#quest{position:absolute;left:8px;bottom:8px;z-index:2;display:grid;grid-template-columns:minmax(0,1fr) 52px;align-items:stretch;width:min(64%,262px);height:50px;padding:0;border:1px solid var(--line);border-radius:var(--r);background:rgba(15,20,34,.9);color:var(--ink);text-align:left;overflow:hidden}
-#quest .q-l{display:grid;align-content:center;gap:5px;padding:0 10px;min-width:0}
+#quest{position:absolute;left:8px;bottom:8px;z-index:2;display:grid;grid-template-columns:minmax(0,1fr) 42px;align-items:stretch;width:min(58%,220px);height:40px;padding:0;border:1px solid var(--line);border-radius:var(--r);background:rgba(15,20,34,.9);color:var(--ink);text-align:left;overflow:hidden}
+#quest .q-l{display:grid;align-content:center;gap:4px;padding:0 8px;min-width:0}
 #quest .q-h{display:flex;align-items:center;gap:6px;min-width:0}
-#quest .qn{flex:none;padding:1px 5px;border-radius:3px;background:rgba(242,201,76,.14);font:400 11px "Black Han Sans";color:var(--gold)}
-#quest .qt{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#quest .qn{flex:none;padding:0 4px;border-radius:3px;background:rgba(242,201,76,.14);font:400 11px "Black Han Sans";color:var(--gold)}
+#quest .qt{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #quest .q-p{display:flex;align-items:center;gap:6px}
-#quest .q-bar{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+#quest .q-bar{flex:1;height:4px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
 #quest .q-bar i{display:block;height:100%;width:var(--qp,0%);background:var(--gold)}
 #quest .qc{font:400 11px "Black Han Sans";color:var(--dim);white-space:nowrap}
 #quest .qr{display:grid;place-items:center;align-content:center;gap:1px;border-left:1px solid var(--line);background:rgba(0,0,0,.2)}
-#quest .qr .ic{width:18px;height:18px}
-#quest .qr b{font:400 13px "Black Han Sans"}
+#quest .qr .ic{width:14px;height:14px}
+#quest .qr b{font:400 11px "Black Han Sans"}
 #quest .qr em{display:none;font-style:normal;font:400 11px "Black Han Sans"}
 #quest.done{border-color:var(--gold);box-shadow:0 0 12px rgba(242,201,76,.45);animation:qpulse 1.2s ease-in-out infinite}
 #quest.done .qr{background:var(--gold);color:#141824;border-left-color:var(--gold)}
-#quest.done .qr em{display:block;font-size:13px}
+#quest.done .qr em{display:block;font-size:11px}
 #quest.done .qr .ic{display:none}
 #quest.done .qc{color:var(--gold)}
 @keyframes qpulse{50%{box-shadow:0 0 2px rgba(242,201,76,.2)}}
 /* 전투 버튼: 퀘스트 상자와 같은 높이의 정사각, 아이콘 + 글자 */
 #bctl{position:absolute;right:8px;bottom:8px;z-index:2;display:flex;gap:6px}
-#bctl button{display:grid;place-items:center;align-content:center;gap:2px;width:50px;height:50px;padding:0;border:1px solid var(--line);border-radius:var(--r);background:rgba(15,20,34,.9);color:var(--dim);font:400 11px "Black Han Sans"}
-#bctl .ic{width:18px;height:18px}
+#bctl button{display:grid;place-items:center;align-content:center;gap:1px;width:40px;height:40px;padding:0;border:1px solid var(--line);border-radius:var(--r);background:rgba(15,20,34,.9);color:var(--dim);font:400 10px "Black Han Sans"}
+#bctl .ic{width:15px;height:15px}
 #bctl button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold);background:rgba(40,34,14,.9)}
 @media (prefers-reduced-motion:reduce){#quest.done{animation:none}}
 #banner{position:absolute;left:0;right:0;top:36%;padding:8px 0;background:linear-gradient(90deg,transparent,rgba(18,21,28,.82) 20%,rgba(18,21,28,.82) 80%,transparent);text-align:center;font-family:"Black Han Sans";font-size:30px;color:#fff;color:var(--gold);text-shadow:0 2px 0 #000;opacity:0;pointer-events:none;transition:opacity .3s}
@@ -94,6 +94,9 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 
 /* 패널 */
 #panel{flex:1;overflow-y:auto;padding:10px 10px 18px;background:var(--bg)}
+/* 메뉴 접기: 메뉴 칸을 숨기고 전투 화면이 남는 높이를 모두 씀 */
+#app.folded #panel{display:none}
+#app.folded #battle{flex:1;height:auto;max-height:none}
 #tabs{display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom);background:var(--bg);border-top:1px solid var(--line)}
 #tabs button{height:54px;border:0;background:none;color:var(--dim);font:700 15px 'IBM Plex Sans KR';position:relative}
 #tabs button.on{color:var(--gold);background:linear-gradient(rgba(242,201,76,.08),rgba(242,201,76,0))}
@@ -145,34 +148,36 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 .seg button.on{background:var(--panel2);color:var(--gold);box-shadow:inset 0 -2px 0 var(--gold)}
 
 /* 요원 카드 = 인사 파일: 왼쪽에 세로 증명사진(카드 높이 전체), 사진 위에 등급 도장 */
-.card{position:relative;display:grid;grid-template-columns:76px minmax(0,1fr) auto;column-gap:12px;align-items:center;margin-bottom:8px;border-radius:var(--r);background:var(--panel);border:1px solid var(--line);overflow:hidden}
-.card .ph{grid-row:1 / span 2;align-self:stretch;position:relative;min-height:112px;background:var(--bg);border-right:1px solid var(--line)}
+.card{position:relative;display:grid;grid-template-columns:68px minmax(0,1fr) 86px;column-gap:10px;align-items:stretch;margin-bottom:8px;border-radius:var(--r);background:var(--panel);border:1px solid var(--line);overflow:hidden}
+.card .ph{align-self:stretch;position:relative;min-height:92px;background:var(--bg);border-right:1px solid var(--line)}
 .card .pt{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0}
 .card .ph::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gc,var(--line))}
 .card.locked .pt{filter:grayscale(1) brightness(.4)}
-.card .info{padding:10px 0 0;min-width:0}
+.card .info{display:grid;align-content:center;gap:3px;padding:8px 0;min-width:0}
+.card .acts{display:grid;align-content:center;gap:6px;padding:8px 8px 8px 0}
+.card .acts .btn{min-width:0;width:100%}
+.card .acts [data-act=lv]{min-height:44px}
+.card .acts [data-act=star]{min-height:28px;height:28px}
 /* 사진 아래쪽 레벨 띠, 등급 도장은 위쪽 */
-.lvb{position:absolute;left:0;right:0;bottom:0;z-index:1;padding:14px 0 4px;text-align:center;font:400 11px "Black Han Sans";color:var(--dim);background:linear-gradient(rgba(10,13,20,0),rgba(10,13,20,.92) 55%)}
-.lvb b{margin-left:3px;font:400 16px "Black Han Sans";color:#fff}
+.lvb{position:absolute;left:0;right:0;bottom:0;z-index:1;padding:12px 0 3px;text-align:center;font:400 11px "Black Han Sans";color:var(--dim);background:linear-gradient(rgba(10,13,20,0),rgba(10,13,20,.92) 55%)}
+.lvb b{margin-left:3px;font:400 15px "Black Han Sans";color:#fff}
 /* 조각 줄: 굵게, 숫자는 줄 안에. 승급할 수 있으면 금색으로 반짝 */
-.sbar{position:relative;height:18px;border-radius:9px;background:#070A11;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line)}
+.sbar{position:relative;height:16px;margin-top:3px;border-radius:8px;background:#070A11;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line)}
 .sbar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#6a4fd0,var(--rift))}
-.sbar .st{position:relative;display:block;text-align:center;line-height:18px;font:400 11px "Black Han Sans";color:#fff;text-shadow:0 1px 2px #000}
+.sbar .st{position:absolute;inset:0;display:grid;place-items:center;line-height:1;font:400 11px "Black Han Sans";color:#fff;text-shadow:0 1px 2px #000}
 .card.canstar .sbar i{background:linear-gradient(90deg,#d9a92a,var(--gold))}
 .card.canstar [data-act=star]{box-shadow:0 0 12px rgba(157,123,255,.7)}
 .nm{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
-.nm b{font:400 20px/1.1 "Black Han Sans";letter-spacing:.01em}
+.nm b{font:400 18px/1.1 "Black Han Sans";letter-spacing:.01em}
 .role{font-size:12px;font-weight:600;color:var(--dim)}
-.card > .btn{margin:10px 10px 0 0}
 /* 등급 도장: 시작 화면의 '위험 등급' 도장과 같은 말투 */
-.gr{position:absolute;z-index:2;left:6px;top:6px;padding:1px 5px;border:1.5px solid currentColor;border-radius:3px;font:700 10px/1.3 'IBM Plex Sans KR',sans-serif;letter-spacing:.06em;transform:rotate(-8deg);background:rgba(10,13,20,.72)}
+.gr{position:absolute;z-index:2;left:4px;top:4px;padding:0 4px;border:1.5px solid currentColor;border-radius:3px;font:700 10px/1.3 'IBM Plex Sans KR',sans-serif;letter-spacing:.06em;transform:rotate(-8deg);background:rgba(10,13,20,.72)}
 .g-희귀{color:#8FB8F0}.g-영웅{color:#C2A6FF}.g-전설{color:var(--gold)}
 .c-희귀{--gc:#5B86C4}.c-영웅{--gc:var(--rift)}.c-전설{--gc:var(--gold)}
-.stars{margin-top:3px;color:var(--gold);font-size:12px;letter-spacing:1px}
+.stars{margin-top:0;color:var(--gold);font-size:12px;letter-spacing:1px}
 .stars s{color:#36405A;text-decoration:none}
-.stat{display:flex;gap:12px;margin-top:2px;font-size:12px;color:var(--dim);white-space:nowrap}
+.stat{display:flex;gap:10px;margin-top:0;font-size:12px;color:var(--dim);white-space:nowrap}
 .stat em{font-style:normal;color:var(--ink);font:400 14px "Black Han Sans";margin-left:2px}
-.shard{grid-column:2 / -1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 10px 10px 0}
 .bar{height:5px;border-radius:3px;background:#070A11;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line)}
 .bar i{display:block;height:100%;background:var(--rift)}
 .st{font-size:12px;color:var(--dim);white-space:nowrap}
@@ -255,23 +260,27 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 .rf-zone em{font-style:normal;font-size:12px;color:#a99ad6}
 .rf-zone b{display:block;font:400 18px "Black Han Sans";color:#efe8ff}
 .rf-shaft{position:relative;flex:1;overflow-y:auto;padding:8px 16px 40px;scroll-behavior:smooth}
-.rf-shaft::before{content:"";position:absolute;left:87px;top:0;bottom:0;width:2px;background:linear-gradient(rgba(157,123,255,.15),rgba(157,123,255,.6),rgba(157,123,255,.1))}
-.rf-row{position:relative;display:grid;grid-template-columns:52px 24px minmax(0,1fr);align-items:center;gap:8px;height:54px}
-.rf-row .fl{font:400 17px "Black Han Sans";text-align:right;color:#8f84b4}
-.rf-row .nd{width:12px;height:12px;margin:auto;border-radius:50%;background:#2a2142;border:2px solid #5b4a8f;z-index:1}
-.rf-row .rws{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:var(--r);background:rgba(20,14,36,.55);border:1px solid rgba(91,74,143,.35)}
-.rf-row .rws .rw{font-size:13px}
-.rf-row.done .fl,.rf-row.done .rws{opacity:.38}
-.rf-row.done .nd{background:#5b4a8f;border-color:#8b78cf}
-.rf-row.mile .rws{border-color:rgba(185,140,255,.7);background:linear-gradient(90deg,rgba(185,140,255,.2),rgba(20,14,36,.6))}
-.rf-row.cur .fl{color:var(--gold);font-size:20px}
-.rf-row.cur .nd{width:18px;height:18px;background:var(--gold);border-color:#fff3c4;box-shadow:0 0 0 4px rgba(242,201,76,.25),0 0 18px rgba(242,201,76,.8);animation:rfPulse 1.4s ease-in-out infinite}
-.rf-row.cur .rws{border-color:var(--gold);background:linear-gradient(90deg,rgba(242,201,76,.16),rgba(20,14,36,.7))}
-@keyframes rfPulse{50%{box-shadow:0 0 0 8px rgba(242,201,76,.08),0 0 24px rgba(242,201,76,.9)}}
-.rf-row.deep{opacity:.55}.rf-row.deeper{opacity:.3}
-.rf-sep{display:flex;align-items:center;gap:10px;margin:8px 0 6px 78px;font-size:12px;color:#a99ad6}
-.rf-sep::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(157,123,255,.5),transparent)}
-.rf-sep b{font:400 14px "Black Han Sans";color:#d9ccff}
+.rmap{position:relative;margin:0 -16px}
+.rmap svg{position:absolute;left:0;top:0}
+.rz{position:absolute;left:14px;z-index:1;text-align:left;pointer-events:none}
+.rz em{display:block;font-style:normal;font-size:11px;color:var(--ac)}
+.rz b{font:400 17px "Black Han Sans";color:#efe8ff;text-shadow:0 0 12px var(--ac)}
+.rn{position:absolute;z-index:2;width:34px;height:34px;margin:-17px 0 0 -17px;padding:0;display:grid;place-items:center;border-radius:50%;border:2px solid #5b4a8f;background:#1a1330;color:#8f84b4;font:400 13px "Black Han Sans"}
+.rn .ic{width:18px;height:18px}
+.rn.mile{border-radius:8px;transform:rotate(45deg)}.rn.mile .ic{transform:rotate(-45deg)}
+.rn.boss{width:52px;height:52px;margin:-26px 0 0 -26px;border-color:#ff6b5b;background:radial-gradient(#3a1420,#140a14);overflow:visible}
+.rn.boss img{width:44px;height:44px;object-fit:contain;border-radius:50%}
+.rn .rl{position:absolute;top:100%;left:50%;margin-top:3px;transform:translateX(-50%);font:400 11px "Black Han Sans";color:#cbbcf5;white-space:nowrap}
+.rn.mile .rl{transform:translateX(-50%) rotate(-45deg);margin-top:8px}
+.rn.done{border-color:#8b78cf;background:#3b2d6b;color:#d9ccff}
+.rn.lock{opacity:.7}
+.rn.cur{border-color:var(--gold);color:var(--gold);box-shadow:0 0 0 5px rgba(242,201,76,.18),0 0 20px rgba(242,201,76,.7);animation:rfPulse 1.4s ease-in-out infinite}
+.rn.pop{animation:rnPop .5s ease-out}
+@keyframes rnPop{40%{scale:1.35}}
+@keyframes rfPulse{50%{box-shadow:0 0 0 9px rgba(242,201,76,.06),0 0 26px rgba(242,201,76,.9)}}
+.rme{position:absolute;z-index:3;width:40px;height:40px;margin:-62px 0 0 -20px;border-radius:50%;border:2px solid var(--gold);overflow:hidden;box-shadow:0 4px 10px #000;transition:left .7s ease-in-out,top .7s ease-in-out;pointer-events:none}
+.rme img{width:100%;height:100%;object-fit:cover;object-position:50% 15%}
+@media (prefers-reduced-motion:reduce){.rme{transition:none}.rn.cur,.rn.pop{animation:none}}
 .rf-foot{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 16px calc(14px + env(safe-area-inset-bottom));border-top:1px solid rgba(157,123,255,.3);background:rgba(10,7,20,.92)}
 .rf-foot .tt b{font:400 20px "Black Han Sans";color:var(--gold)}
 .rf-foot .tt div{display:flex;gap:8px;align-items:center;margin-top:4px;font-size:12px;color:#a99ad6}
@@ -387,8 +396,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   </nav>
   <div id="modal"></div>
   <div id="rift" aria-hidden="true">
-    <div class="rf-head"><div><small>이상현상 전담수사팀 심층 조사</small><b>균열 심층</b></div><button class="rf-x" data-rf="close" aria-label="닫기">✕</button></div>
-    <div class="rf-zone" id="rfZone"></div>
+    <div class="rf-head"><div><small id="rfZone"></small><b>균열 심층</b></div><button class="rf-x" data-rf="close" aria-label="닫기">✕</button></div>
     <div class="rf-shaft" id="rfShaft"></div>
     <div class="rf-foot" id="rfFoot"></div>
   </div>
@@ -829,7 +837,7 @@ function perfTick(dt) {
 function resize() {
   const r = cv.getBoundingClientRect();
   DPR = Math.min(GQ.hi ? dprCap : 1, window.devicePixelRatio || 1);
-  W = Math.max(1, r.width); H = Math.max(1, r.height); u = H / 320;
+  W = Math.max(1, r.width); H = Math.max(1, r.height); u = Math.min(H, W) / 320;   // 메뉴를 접어 화면이 길어지면 확대 대신 더 넓게 보여 줌
   cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
 }
 const cvRO = new ResizeObserver(resize); cvRO.observe(cv);
@@ -1562,7 +1570,7 @@ function updateUI() {
 
 /* ---------- UI: 패널 ---------- */
 let tab = 'hero', bulk = 1;
-const APP_VERSION = '0.8.2';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.8.5';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 const starStr = n => '★'.repeat(n) + `<s>${'★'.repeat(C.CONST.MAX_STARS - n)}</s>`;
 
@@ -1577,9 +1585,10 @@ function renderPanel() {
         return `<div class="card c-${h.grade}" data-h="${h.id}">${ph}
           <div class="info"><div class="nm"><b>${h.name}</b><span class="role">${h.role}</span></div>
           <div class="stars">${starStr(d.stars)}</div>
-          <div class="stat"><span>공격력<em class="atk"></em></span><span>체력<em class="hp"></em></span></div></div>
-          <button class="btn" data-act="lv" data-h="${h.id}"><span class="bl">강화</span><span class="cost">${icon('gold')}<i></i></span></button>
-          <div class="shard"><div class="sbar"><i></i><span class="st"></span></div><button class="btn sm rift" data-act="star" data-h="${h.id}">승급</button></div></div>`;
+          <div class="stat"><span>공격력<em class="atk"></em></span><span>체력<em class="hp"></em></span></div>
+          <div class="sbar"><i></i><span class="st"></span></div></div>
+          <div class="acts"><button class="btn" data-act="lv" data-h="${h.id}"><span class="bl">강화</span><span class="cost">${icon('gold')}<i></i></span></button>
+          <button class="btn sm rift" data-act="star" data-h="${h.id}">승급</button></div></div>`;
       }).join('');
   } else if (tab === 'train') {
     const ic = { atk: 'sword', gold: 'gold', crit: 'target' };
@@ -1775,50 +1784,98 @@ function updateRun(P) {
  * 층을 돌파하고 돌아오면 표시가 한 칸 아래로 내려가고, 구역이 바뀌면 구역 이름 카드가 뜸 */
 const RIFT_ZONES = ['균열 입구', '메아리 회랑', '잿빛 승강장', '거꾸로 선 거리', '침묵 관측소', '검은 저수조', '끝없는 계단', '심연의 문'];
 const riftZone = f => { const z = Math.floor((f - 1) / 10); return { no: z + 1, name: RIFT_ZONES[z] || `심연 ${z + 1}구역` }; };
-function riftRows(target) {
-  const from = Math.max(1, target - 5), to = target + 12;
-  let h = '';
+/* 갱도 지도: 구역마다 색이 다른 띠, 그 위를 구불구불 내려가는 길, 층마다 점.
+ * 5층은 보상 점(정예 호출권), 10층은 구역 근원체 점. 현재 도전할 층에 요원 표시가 서 있음 */
+const ZONE_COL = [['#2b1d52', '#9d7bff'], ['#16284a', '#6fa8ff'], ['#2a2a30', '#b9b9c9'], ['#3a1630', '#ff6fb0'], ['#102e2e', '#5fe0c8'], ['#0e1830', '#4f7dff'], ['#2e2410', '#f2c94c'], ['#2e0f12', '#ff5a4a']];
+const RF = { gap: 84, top: 70, zoneGap: 64 };
+function riftLayout(target) {
+  const z0 = Math.max(0, riftZone(target).no - 2), z1 = riftZone(target).no;   // 이전 구역부터 다음 구역까지 (세 구역)
+  const from = z0 * 10 + 1, to = (z1 + 1) * 10, W = $('rfShaft').clientWidth || 360;
+  const pos = {}; let y = RF.top;
   for (let f = from; f <= to; f++) {
-    if ((f - 1) % 10 === 0) { const z = riftZone(f); h += `<div class="rf-sep">${z.no}구역 <b>${z.name}</b></div>`; }
-    const cls = f <= S.tower ? 'done' : f === target ? 'cur' : f - target > 6 ? 'deeper' : f - target > 2 ? 'deep' : '';
-    h += `<div class="rf-row ${cls} ${f % 5 === 0 ? 'mile' : ''}" data-f="${f}"><span class="fl">${f}층</span><i class="nd"></i><div class="rws">${rwHtml(C.towerReward(f))}${f <= S.tower ? '<span class="rw" style="color:#a99ad6;margin-left:auto">돌파</span>' : ''}</div></div>`;
+    if ((f - 1) % 10 === 0 && f !== from) y += RF.zoneGap;
+    const k = (f - 1) % 10;
+    pos[f] = { x: W * (0.5 + Math.sin(k * 0.95 + Math.floor((f - 1) / 10) * 1.7) * 0.28), y };
+    y += RF.gap;
   }
-  return h;
+  return { from, to, W, H: y + 40, pos };
+}
+function riftMap(target) {
+  const L = riftLayout(target), P = L.pos;
+  let svg = '', nodes = '';
+  // 구역 띠 + 구역 이름 + 균열 무늬
+  for (let zf = L.from; zf <= L.to; zf += 10) {
+    const z = riftZone(zf), [bg, ac] = ZONE_COL[(z.no - 1) % ZONE_COL.length], y0 = P[zf].y - 56, y1 = P[zf + 9].y + RF.gap + RF.zoneGap - 56;
+    svg += `<defs><linearGradient id="zg${z.no}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${bg}" stop-opacity=".95"/><stop offset="1" stop-color="${bg}" stop-opacity=".35"/></linearGradient></defs>
+      <rect x="0" y="${y0}" width="${L.W}" height="${y1 - y0}" fill="url(#zg${z.no})"/>
+      <line x1="0" y1="${y0}" x2="${L.W}" y2="${y0}" stroke="${ac}" stroke-opacity=".45"/>`;
+    const rnd = seeded(z.no * 977);
+    for (let c = 0; c < 5; c++) {   // 벽의 균열 금: 양옆 가장자리에 지그재그
+      const side = c % 2, cx = side ? L.W - 6 - rnd() * 30 : 6 + rnd() * 30, cy = y0 + 40 + rnd() * (y1 - y0 - 80);
+      let d = `M${cx.toFixed(0)},${cy.toFixed(0)}`; for (let k = 1; k < 5; k++) d += ` L${(cx + (rnd() - 0.5) * 26).toFixed(0)},${(cy + k * 18).toFixed(0)}`;
+      svg += `<path d="${d}" fill="none" stroke="${ac}" stroke-opacity=".35" stroke-width="1.5"/>`;
+    }
+    nodes += `<div class="rz" style="top:${y0 + 8}px;--ac:${ac}"><em>${z.no}구역</em><b>${z.name}</b></div>`;
+  }
+  // 길: 층 점을 부드럽게 잇는 곡선. 지난 길은 밝게
+  const pts = []; for (let f = L.from; f <= L.to; f++) pts.push([f, P[f]]);
+  const curve = list => list.reduce((d, [, p], i) => i ? d + ` Q${list[i - 1][1].x.toFixed(0)},${((list[i - 1][1].y + p.y) / 2).toFixed(0)} ${p.x.toFixed(0)},${p.y.toFixed(0)}` : `M${p.x.toFixed(0)},${p.y.toFixed(0)}`, '');
+  svg += `<path d="${curve(pts)}" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="10" stroke-linecap="round"/>
+    <path d="${curve(pts)}" fill="none" stroke="#5b4a8f" stroke-width="4" stroke-dasharray="2 9" stroke-linecap="round"/>`;
+  const walked = pts.filter(([f]) => f <= target);
+  if (walked.length > 1) svg += `<path d="${curve(walked)}" fill="none" stroke="#c9b3ff" stroke-width="4" stroke-linecap="round"/>`;
+  // 층 점
+  for (let f = L.from; f <= L.to; f++) {
+    const p = P[f], boss = f % 10 === 0, mile = f % 5 === 0 && !boss;
+    const st = f <= S.tower ? 'done' : f === target ? 'cur' : 'lock';
+    const inner = boss ? `<img src="${ART.spr_boss3 || ''}" alt="">` : mile ? icon('ptix') : `<b>${f}</b>`;
+    nodes += `<button class="rn ${st} ${boss ? 'boss' : ''} ${mile ? 'mile' : ''}" data-rf="node" data-f="${f}" style="left:${p.x.toFixed(0)}px;top:${p.y.toFixed(0)}px">${inner}${boss || mile ? `<span class="rl">${f}층</span>` : ''}</button>`;
+  }
+  // 요원 표시 (팀 대장 얼굴)
+  const lead = owned()[0], tp = P[target];
+  if (lead && tp) nodes += `<div class="rme" id="rfMe" style="left:${tp.x.toFixed(0)}px;top:${tp.y.toFixed(0)}px"><img src="${ART['card_' + lead.id] || portrait(lead.id)}" alt=""></div>`;
+  return `<div class="rmap" style="height:${L.H}px"><svg width="${L.W}" height="${L.H}" viewBox="0 0 ${L.W} ${L.H}">${svg}</svg>${nodes}</div>`;
 }
 function renderRift() {
   const f = S.tower + 1, z = riftZone(f);
-  $('rfZone').innerHTML = `<em>${z.no}구역</em><b>${z.name}</b>`;
-  $('rfShaft').innerHTML = riftRows(f) + '<div id="rfCard"></div>';
+  $('rfZone').textContent = `현재 ${z.no}구역 ${z.name}`;
+  $('rfShaft').innerHTML = riftMap(f) + '<div id="rfCard"></div>';
   $('rfFoot').innerHTML = `<div class="tt"><b>${f}층</b><div>처음 돌파 ${rwHtml(C.towerReward(f))}${diffTag(C.towerStage(f))}</div></div>
     <button class="btn" data-rf="go" ${R.chal ? 'disabled' : ''}>도전</button>`;
 }
-/** 열기. from 이 있으면 그 층에서 현재 층까지 내려가는 연출 */
+/** 열기. from 이 있으면 그 층 점에서 현재 층 점으로 요원 표시가 걸어 내려가는 연출 */
 function openRift(from) {
   const el = $('rift'); el.classList.add('on'); el.setAttribute('aria-hidden', 'false');
   renderRift();
-  const sh = $('rfShaft'), center = f => { const r = sh.querySelector(`[data-f="${f}"]`); if (r) sh.scrollTop = r.offsetTop - sh.clientHeight * 0.4; };
-  const now = S.tower + 1;
-  if (from && from < now) {
-    // 이전 층에 표시를 둔 채로 시작 → 한 칸 아래로 이동
-    const cur = sh.querySelector('.rf-row.cur'), old = sh.querySelector(`[data-f="${from}"]`);
-    if (cur && old) { cur.classList.remove('cur'); old.classList.remove('done'); old.classList.add('cur'); }
-    sh.style.scrollBehavior = 'auto'; center(from); sh.style.scrollBehavior = '';
+  const sh = $('rfShaft'), now = S.tower + 1, me = $('rfMe');
+  const at = f => sh.querySelector(`.rn[data-f="${f}"]`);
+  const center = f => { const n = at(f); if (n) sh.scrollTop = n.offsetTop - sh.clientHeight * 0.45; };
+  sh.style.scrollBehavior = 'auto';
+  if (from && from < now && at(from) && me) {
+    const a = at(from), b = at(now);
+    me.style.transition = 'none'; me.style.left = a.style.left; me.style.top = a.style.top;
+    a.classList.remove('done'); a.classList.add('cur'); b.classList.remove('cur'); b.classList.add('lock');
+    center(from); sh.style.scrollBehavior = '';
     setTimeout(() => {
-      if (old) { old.classList.remove('cur'); old.classList.add('done'); }
-      if (cur) cur.classList.add('cur');
+      me.style.transition = ''; me.style.left = b.style.left; me.style.top = b.style.top;
+      a.classList.remove('cur'); a.classList.add('done', 'pop'); b.classList.remove('lock'); b.classList.add('cur');
       center(now);
       if (riftZone(from).no !== riftZone(now).no) {   // 새 구역 진입 카드
         const z = riftZone(now), card = $('rfCard');
         card.innerHTML = `<em>${z.no}구역 진입</em><b>${z.name}</b>`; card.style.top = (sh.scrollTop + sh.clientHeight * 0.3) + 'px';
         card.classList.add('on'); setTimeout(() => card.classList.remove('on'), 1800);
       }
-    }, 450);
-  } else { sh.style.scrollBehavior = 'auto'; center(now); sh.style.scrollBehavior = ''; }
+    }, 500);
+  } else { center(now); sh.style.scrollBehavior = ''; }
 }
 function closeRift() { const el = $('rift'); el.classList.remove('on'); el.setAttribute('aria-hidden', 'true'); }
 $('rift').addEventListener('click', e => {
   const b = e.target.closest('[data-rf]'); if (!b || b.disabled) return;
   if (b.dataset.rf === 'close') closeRift();
+  else if (b.dataset.rf === 'node') {
+    const f = +b.dataset.f, r = C.towerReward(f), t = [r.gems && `보석 ${r.gems}`, r.ptix && `정예 호출권 ${r.ptix}`].filter(Boolean).join(', ');
+    toast(f <= S.tower ? `${f}층 돌파함` : f === S.tower + 1 ? `${f}층 처음 돌파 ${t}. 아래 도전을 눌러요` : `${f}층 처음 돌파 ${t}`);
+  }
   else if (b.dataset.rf === 'go') { closeRift(); startChal('tower', null, S.tower + 1); }
 });
 
@@ -1869,6 +1926,10 @@ $('panel').addEventListener('click', e => {
 });
 $('tabs').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
+  // 세나 키우기처럼: 열린 메뉴를 한 번 더 누르면 메뉴 칸이 접히고 전투 화면이 커짐. 접힌 상태에서 아무 메뉴나 누르면 다시 펼침
+  const app = $('app');
+  if (!app.classList.contains('folded') && b.dataset.tab === tab) { app.classList.add('folded'); for (const x of $('tabs').children) x.classList.remove('on'); return; }
+  app.classList.remove('folded');
   tab = b.dataset.tab;
   for (const x of $('tabs').children) x.classList.toggle('on', x === b);
   renderPanel(); $('panel').scrollTop = 0;

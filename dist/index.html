@@ -91,6 +91,7 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 .seg{display:grid;grid-template-columns:repeat(3,1fr);margin-bottom:10px;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .seg button{height:34px;border:0;border-left:1px solid var(--line);background:var(--panel);color:var(--dim);font:700 13px 'IBM Plex Sans KR'}
 .seg button:first-child{border-left:0}
+.seg.two{grid-template-columns:repeat(2,52px);margin:0}
 .seg button.on{background:var(--panel2);color:var(--gold);box-shadow:inset 0 -2px 0 var(--gold)}
 
 /* 요원 카드 = 인사 파일: 왼쪽에 세로 증명사진(카드 높이 전체), 사진 위에 등급 도장 */
@@ -886,6 +887,7 @@ function makeRim(k) {
     if (hi > lo) ax = (lo + hi) / 2 / w;
   } catch (e) { /* 읽기 실패 시 가운데 */ }
   RIM[k] = { c, pad, white: wc, ax };
+  if (window.createImageBitmap) Promise.all([createImageBitmap(c), createImageBitmap(wc)]).then(([bc, bw]) => { RIM[k].c = bc; RIM[k].white = bw; }).catch(() => { /* 캔버스 그대로 씀 */ });
 }
 /** 모든 그림이 준비될 때까지 기다림 (실패한 그림은 건너뜀, 최대 4초) */
 const artReady = Promise.race([
@@ -959,13 +961,14 @@ function drawSprite(g, im, x, y, h, t, swing, hurt, face, sh, rim) {
 
 /** 그림을 (x, y, w, h) 칸에 그림. 빛 테두리 판(rim)이 있으면 테두리까지 같은 비율로 */
 function drawRimmed(g, im, rim, x, y, w, h, bend = 0, flap = 0, flash = 0, slice = true) {
+  if (!GQ.hi) flap = 0;   // 낮음: 옷자락 흔들림 끔 (윤곽 빛은 그림 한 장에 합쳐져 있어 비용이 없으므로 유지)
   const src = rim ? rim.c : im, pad = rim ? rim.pad : 0, k = w / im.naturalWidth;
   const sw = src.width, sh = src.height, dx = x - pad * k, dy = y - pad * k, dw = sw * k, dh = sh * k;
   // 반투명(연기) 그림은 띠로 자르면 겹친 자리에 줄이 생김 → 발을 축으로 통째로 기울이기만 함
   let saved = false;
   if (!slice && bend) { g.save(); saved = true; g.translate(x + w / 2, y + h); g.rotate(bend * 0.9); g.translate(-(x + w / 2), -(y + h)); bend = 0; flap = 0; }
   // 불투명 그림: 가로 띠 N개로 잘라 발은 고정, 위로 갈수록 bend 만큼 더 밀어 그림 → 허리가 휨. flap: 아래 띠가 물결처럼 흔들림
-  const N = (bend || flap) ? 9 : 1;
+  const N = (bend || flap) && GQ.hi ? 9 : 1;
   for (let i = 0; i < N; i++) {
     const f0 = i / N, f1 = (i + 1) / N, fm = (f0 + f1) / 2, up = 1 - fm;
     const off = bend * up * up * h + (fm > 0.55 ? Math.sin(R.t * 13 + fm * 7) * flap * (fm - 0.55) * h : 0);
@@ -1167,19 +1170,32 @@ let W = 360, H = 300, DPR = 1, u = 1;
  * 최대 2배로 시작하고, 2초 평균이 초당 45프레임 아래면 0.25씩 낮춤 (최저 1배). 저장해서 다음에도 씀 */
 let dprCap = 2;
 try { const v = parseFloat(localStorage.getItem('aiu-dpr')); if (v >= 1 && v <= 2) dprCap = v; } catch (e) { /* 저장 불가 */ }
+/* 그래픽 설정 (세븐나이츠 키우기의 그래픽 품질, 프레임 설정과 같은 역할)
+ * hi: 높음이면 안개, 등불 반사, 윤곽 빛, 몸 휘기, 비 90줄. 낮음이면 모두 끄고 비 30줄, 해상도 1배
+ * fps60: 끄면 초당 30번만 그림 (배터리와 발열도 줄어듦) */
+const GQ = { hi: true, fps60: true, auto: true };
+try { Object.assign(GQ, JSON.parse(localStorage.getItem('aiu-gfx') || '{}')); } catch (e) { /* 저장 불가 */ }
+function saveGQ() { try { localStorage.setItem('aiu-gfx', JSON.stringify(GQ)); } catch (e) { /* 저장 불가 */ } }
 const perf = { t: 0, n: 0 };
+/** 2초마다 평균 프레임을 재서 느리면 단계적으로 낮춤: 해상도 2배 → 1배, 그다음 그래픽 낮음 (한 번만, 직접 고르면 자동 끔) */
 function perfTick(dt) {
   perf.t += dt; perf.n++;
   if (perf.t < 2) return;
   const fps = perf.n / perf.t; perf.t = 0; perf.n = 0;
-  if (fps < 45 && dprCap > 1 && !document.hidden) {
-    dprCap = Math.max(1, dprCap - 0.25); resize(); R.pat = null;
+  if (document.hidden) return;
+  const need = GQ.fps60 ? 45 : 24;   // 30프레임 고정이면 기준도 낮춤 (안 그러면 계속 낮추려 함)
+  if (fps >= need) return;
+  if (dprCap > 1) {
+    dprCap = Math.max(1, dprCap - 0.25); resize(); R.pat = null; vgKey = '';
     try { localStorage.setItem('aiu-dpr', String(dprCap)); } catch (e) { /* 저장 불가 */ }
+  } else if (GQ.hi && GQ.auto) {
+    GQ.hi = false; GQ.auto = false; saveGQ();
+    toast('기기에 맞춰 그래픽을 낮음으로 바꿨어요. 설정에서 바꿀 수 있어요');
   }
 }
 function resize() {
   const r = cv.getBoundingClientRect();
-  DPR = Math.min(dprCap, window.devicePixelRatio || 1);
+  DPR = Math.min(GQ.hi ? dprCap : 1, window.devicePixelRatio || 1);
   W = Math.max(1, r.width); H = Math.max(1, r.height); u = H / 320;
   cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
 }
@@ -1381,6 +1397,8 @@ function castSkill(h, atk, r, s, tgt) {
 let last = performance.now(), uiT = 0, saveT = 0, paused = true;
 const modalEl = $('modal');
 function loop(now) {
+  // 30프레임 설정: 직전 처리 뒤 30ms가 안 지났으면 이번 화면은 건너뜀
+  if (!GQ.fps60 && now - last < 30) { requestAnimationFrame(loop); return; }
   const dt = Math.min(0.1, (now - last) / 1000); last = now;
   try {
     // 시작 화면이나 팝업이 떠 있는 동안은 전투를 멈춤 (보스 제한 시간 보호)
@@ -1550,12 +1568,11 @@ function draw() {
   }
   g.globalCompositeOperation = 'lighter';
   for (const c of chunks) for (const d of c.tall) if (d.k === 'lamp') {
-    const fl = 0.9 + Math.sin(R.t * 9 + d.x) * 0.06, gy = d.y - 52 * d.s, rad = 60 * fl, gr = g.createRadialGradient(d.x, gy, 0, d.x, gy, rad);
-    const lc = lampCol(F, d); gr.addColorStop(0, `rgba(${lc},${(0.16 + F.night * 0.5 + F.neon * 0.06).toFixed(2)})`); gr.addColorStop(1, `rgba(${lc},0)`);
-    g.fillStyle = gr; g.beginPath(); g.arc(d.x, gy, rad, 0, 7); g.fill();
+    const fl = 0.9 + Math.sin(R.t * 9 + d.x) * 0.06, gy = d.y - 52 * d.s, rad = 60 * fl, spr = glowSprite(String(lampCol(F, d)));
+    g.globalAlpha = Math.min(1, 0.16 + F.night * 0.5 + F.neon * 0.06); g.drawImage(spr, d.x - rad, gy - rad, rad * 2, rad * 2);
     // 젖은 돌바닥에 비친 등불 (세로로 길게 번짐)
-    const rf = g.createRadialGradient(d.x, d.y + 6, 0, d.x, d.y + 6, 34); rf.addColorStop(0, `rgba(${lc},.24)`); rf.addColorStop(1, `rgba(${lc},0)`);
-    g.save(); g.translate(d.x, d.y + 6); g.scale(0.45, 1.3); g.translate(-d.x, -d.y - 6); g.fillStyle = rf; g.beginPath(); g.arc(d.x, d.y + 6, 34, 0, 7); g.fill(); g.restore();
+    if (GQ.hi) { g.globalAlpha = 0.24; g.drawImage(spr, d.x - 34 * 0.45, d.y + 6 - 34 * 1.3, 68 * 0.45, 68 * 1.3); }
+    g.globalAlpha = 1;
   }
   g.globalCompositeOperation = 'source-over';
   // 5) 숫자
@@ -1570,10 +1587,9 @@ function draw() {
   for (const f of R.fx) if (f.k === 'call') drawCall(f);   // 기술 이름 말풍선 (숫자보다 위)
   g.restore();
   // 화면 고정 요소: 안개, 비, 가장자리 어둡게
-  if (F.fog) drawFog();
+  if (F.fog && GQ.hi) drawFog();
   drawRain();
-  const vg = g.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.9); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.5)');
-  g.fillStyle = vg; g.fillRect(0, 0, W, H);
+  drawVignette();
   if (R.boss) drawBossBar();
   for (const f of R.fx) if (f.k === 'edge') {   // 화면 가장자리만 요원 색으로 (가운데는 투명)
     const eg = g.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.42, W / 2, H / 2, Math.max(W, H) * 0.72);
@@ -1588,19 +1604,44 @@ function draw() {
 /* 비: 화면 고정 빗줄기 (시간 기준이라 멈춰 있어도 내림) */
 const RAIN = Array.from({ length: 90 }, () => ({ x: Math.random(), y: Math.random(), l: 8 + Math.random() * 12, v: 0.9 + Math.random() * 0.6, a: 0.12 + Math.random() * 0.2 }));
 function drawRain() {
-  const t = performance.now() / 1000;
+  const t = performance.now() / 1000, n = GQ.hi ? RAIN.length : 30;
   g.lineWidth = 1; g.lineCap = 'round';
-  for (const d of RAIN) {
-    const y = ((d.y + t * d.v) % 1.1 - 0.05) * H, x = ((d.x - t * d.v * 0.12) % 1 + 1) % 1 * W;
-    g.strokeStyle = `rgba(185,200,240,${d.a})`; g.beginPath(); g.moveTo(x, y); g.lineTo(x - d.l * 0.22, y + d.l); g.stroke();
+  for (let b = 0; b < 3; b++) {
+    g.strokeStyle = `rgba(185,200,240,${(0.15 + b * 0.07).toFixed(2)})`; g.beginPath();
+    for (let i = b; i < n; i += 3) {
+      const d = RAIN[i], y = ((d.y + t * d.v) % 1.1 - 0.05) * H, x = ((d.x - t * d.v * 0.12) % 1 + 1) % 1 * W;
+      g.moveTo(x, y); g.lineTo(x - d.l * 0.22, y + d.l);
+    }
+    g.stroke();
   }
+}
+/* 미리 그려 둔 빛 덩어리: 화면 전체를 그라디언트로 매번 칠하는 대신 작은 그림을 늘려 찍음 */
+const glowCache = {};
+function glowSprite(rgb) {
+  if (glowCache[rgb]) return glowCache[rgb];
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const q = c.getContext('2d'), gr = q.createRadialGradient(64, 64, 0, 64, 64, 64);
+  gr.addColorStop(0, `rgba(${rgb},1)`); gr.addColorStop(1, `rgba(${rgb},0)`);
+  q.fillStyle = gr; q.fillRect(0, 0, 128, 128);
+  return (glowCache[rgb] = c);
+}
+/* 가장자리 어둡게: 화면 크기가 바뀔 때만 다시 만듦 */
+let vgCanvas = null, vgKey = '';
+function drawVignette() {
+  const key = Math.round(W * DPR) + 'x' + Math.round(H * DPR);
+  if (vgKey !== key) {
+    vgCanvas = document.createElement('canvas'); vgCanvas.width = Math.max(1, Math.round(W * DPR / 2)); vgCanvas.height = Math.max(1, Math.round(H * DPR / 2));
+    const q = vgCanvas.getContext('2d'); q.scale(vgCanvas.width / W, vgCanvas.height / H);
+    const vg = q.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.9); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.5)');
+    q.fillStyle = vg; q.fillRect(0, 0, W, H); vgKey = key;
+  }
+  g.drawImage(vgCanvas, 0, 0, W, H);
 }
 function drawFog() {
   const t = performance.now() / 1000;
   for (let i = 0; i < 4; i++) {
     const x = ((i * 0.37 + t * 0.012 * (i + 1)) % 1.4 - 0.2) * W, y = H * (0.25 + i * 0.18);
-    const fg = g.createRadialGradient(x, y, 0, x, y, W * 0.5); fg.addColorStop(0, 'rgba(150,150,175,.13)'); fg.addColorStop(1, 'rgba(150,150,175,0)');
-    g.fillStyle = fg; g.fillRect(0, 0, W, H);
+    g.globalAlpha = 0.13; g.drawImage(glowSprite('150,150,175'), x - W * 0.5, y - W * 0.5, W, W); g.globalAlpha = 1;
   }
 }
 /** 지도 테두리 돌담 (안쪽 위 모서리에 젖은 빛) */
@@ -1827,7 +1868,7 @@ function updateUI() {
 
 /* ---------- UI: 패널 ---------- */
 let tab = 'hero', bulk = 1;
-const APP_VERSION = '0.6.0';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.6.1';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 const starStr = n => '★'.repeat(n) + `<s>${'★'.repeat(C.CONST.MAX_STARS - n)}</s>`;
 
@@ -2005,14 +2046,25 @@ $('bossAuto').addEventListener('click', () => {
   toast(S.farming ? '자동 추적을 껐어요. 이 구역에서 계속 순찰해요' : '자동 추적을 켰어요. 처치가 다 차면 근원체를 쫓아가요');
   writeSave(); updateUI();
 });
+function gfxRows() {
+  const seg = (key, opts) => `<div class="seg two">${opts.map(([v, l]) => `<button data-gfx="${key}" data-v="${v}" class="${GQ[key] === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
+  return `<div class="setrow"><div><div class="ut">그래픽</div><div class="uv">낮음은 빛과 안개를 줄여 가볍게</div></div>${seg('hi', [[true, '높음'], [false, '낮음']])}</div>
+    <div class="setrow"><div><div class="ut">프레임</div><div class="uv">30은 배터리와 발열이 줄어요</div></div>${seg('fps60', [[true, '60'], [false, '30']])}</div>`;
+}
 $('btnSet').addEventListener('click', () => {
   openModal(`<h2>설정</h2>
+    <div id="gfxRows">${gfxRows()}</div>
     <div class="setrow"><div><div class="ut">버전</div><div class="uv">AIU ${APP_VERSION}</div></div></div>
     <div class="setrow"><div><div class="ut">자리 비움 보상 시험</div><div class="uv">1시간 비운 것처럼 받아 보기</div></div><button class="btn sm ghost" data-set="off">받아 보기</button></div>
     <div class="setrow"><div><div class="ut">처음부터 다시</div><div class="uv">저장된 진행을 모두 지워요</div></div><button class="btn sm ghost" data-set="reset">초기화</button></div>
     <div class="mbtns"><button class="btn" data-close>닫기</button></div>`);
 });
 modalEl.addEventListener('click', e => {
+  const gb = e.target.closest('[data-gfx]');
+  if (gb) {   // 직접 고르면 자동 낮춤은 끔
+    GQ[gb.dataset.gfx] = gb.dataset.v === 'true'; GQ.auto = false; saveGQ();
+    resize(); R.pat = null; vgKey = ''; $('gfxRows').innerHTML = gfxRows(); return;
+  }
   const b = e.target.closest('[data-set]'); if (!b) return;
   if (b.dataset.set === 'off') { modalEl.classList.remove('on'); showOffline(C.offlineReward(S, 3600)); }
   else if (b.dataset.set === 'reset') { modalEl.classList.remove('on'); confirmReset(); }

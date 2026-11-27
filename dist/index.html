@@ -51,12 +51,27 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 @keyframes ciBand{0%{opacity:0;transform:skewY(-7deg) translateX(-60%)}14%{opacity:1;transform:skewY(-7deg) translateX(0)}78%{opacity:1;transform:skewY(-7deg) translateX(0)}100%{opacity:0;transform:skewY(-7deg) translateX(40%)}}
 @keyframes ciPan{from{transform:skewY(7deg) translateX(-3%) scale(1.06)}to{transform:skewY(7deg) translateX(3%) scale(1.06)}}
 @media (prefers-reduced-motion:reduce){#cutin{display:none}}
+/* 가이드 퀘스트: 세나 키우기처럼 전투 화면 왼쪽 아래에 한 줄 */
+#quest{position:absolute;left:8px;bottom:8px;z-index:2;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;column-gap:8px;row-gap:1px;align-items:center;width:min(62%,250px);padding:6px 10px 8px;border:1px solid var(--line);border-radius:var(--r);background:rgba(15,20,34,.86);color:var(--ink);text-align:left;overflow:hidden}
+#quest .qn{grid-row:1 / span 2;font:400 13px "Black Han Sans";color:var(--gold)}
+#quest .qt{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#quest .qr{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--dim)}
+#quest .qr b{font:400 13px "Black Han Sans";color:var(--ink)}
+#quest i{position:absolute;left:0;bottom:0;height:3px;background:var(--gold);width:var(--qp,0%)}
+#quest.done{border-color:var(--gold);box-shadow:0 0 12px rgba(242,201,76,.45);animation:qpulse 1.2s ease-in-out infinite}
+#quest.done .qt::after{content:" 받기";color:var(--gold)}
+@keyframes qpulse{50%{box-shadow:0 0 2px rgba(242,201,76,.2)}}
+/* 자동 기술, 배속 */
+#bctl{position:absolute;right:8px;bottom:8px;z-index:2;display:flex;gap:6px}
+#bctl button{min-width:44px;height:34px;padding:0 9px;border:1px solid var(--line);border-radius:var(--r);background:rgba(15,20,34,.86);color:var(--dim);font:400 14px "Black Han Sans"}
+#bctl button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
+@media (prefers-reduced-motion:reduce){#quest.done{animation:none}}
 #banner{position:absolute;left:0;right:0;top:36%;padding:8px 0;background:linear-gradient(90deg,transparent,rgba(18,21,28,.82) 20%,rgba(18,21,28,.82) 80%,transparent);text-align:center;font-family:"Black Han Sans";font-size:30px;color:#fff;color:var(--gold);text-shadow:0 2px 0 #000;opacity:0;pointer-events:none;transition:opacity .3s}
 
 /* 파티 칸: 세나 키우기 같은 완성 게임처럼 얼굴 그림 위에는 아무것도 덮지 않음
  * 기술 대기는 테두리를 시계 방향으로 채우는 고리(보라, 다 차면 금색), 체력은 그림 아래 얇은 줄 */
 #party{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;padding:8px 10px 7px;background:var(--bg);border-bottom:1px solid var(--line)}
-.slot{position:relative}
+.slot{position:relative;cursor:pointer}
 .slot .face{position:relative;aspect-ratio:1;padding:2.5px;border-radius:var(--r);background:conic-gradient(var(--rift) calc((1 - var(--cd,0)) * 360deg),var(--line) 0)}
 .slot .face img{display:block;width:100%;height:100%;object-fit:cover;border-radius:calc(var(--r) - 2px)}
 .slot.ready .face{background:var(--gold);box-shadow:0 0 10px rgba(242,201,76,.55)}
@@ -236,6 +251,9 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     <button id="bossBtn">근원체 추적</button>
     <div id="cutin"><div class="ci" id="ci"><img id="ci-img" alt=""><div class="ci-t"><b id="ci-sk"></b><small id="ci-nm"></small></div></div></div>
     <div id="banner"></div>
+    <!-- 왼쪽 아래: 가이드 퀘스트 (다 차면 눌러서 보석 받기) / 오른쪽 아래: 자동 기술, 배속 -->
+    <button id="quest" aria-live="polite"><span class="qn" id="qn"></span><span class="qt" id="qt"></span><span class="qr"><svg class="ic"><use href="#i-gem"/></svg><b id="qg"></b></span><i id="qbar"></i></button>
+    <div id="bctl"><button id="bAuto" aria-pressed="true">자동</button><button id="bSpd" aria-pressed="false">×1</button></div>
   </div>
   <div id="party"></div>
   <div id="panel"></div>
@@ -568,6 +586,41 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 
   /* ---------- 7. 상태 생성 / 저장 검증 ---------- */
 
+  /* ---------- 가이드 퀘스트 (세나 키우기의 왼쪽 퀘스트 줄처럼 하나씩 차례로) ----------
+   * kind 별로 진행이 쌓이고, 다 차면 눌러서 보석을 받음. 목록을 다 돌면 처음으로 돌아가 목표만 커짐 */
+  const QUESTS = [
+    { kind: 'lvup',   text: '요원 강화',     need: 5,  gems: 20 },
+    { kind: 'kill',   text: '이상체 처리',   need: 30, gems: 20 },
+    { kind: 'boss',   text: '근원체 봉쇄',   need: 1,  gems: 40 },
+    { kind: 'train',  text: '훈련소 강화',   need: 3,  gems: 20 },
+    { kind: 'summon', text: '요원 호출',     need: 1,  gems: 30 },
+    { kind: 'lvup',   text: '요원 강화',     need: 20, gems: 30 },
+    { kind: 'boss',   text: '근원체 봉쇄',   need: 3,  gems: 50 },
+    { kind: 'kill',   text: '이상체 처리',   need: 150, gems: 40 },
+  ];
+  /** i 번째 퀘스트 (한 바퀴 돌 때마다 목표 2배, 보상 1.5배) */
+  function questAt(i) {
+    if (!Number.isInteger(i) || i < 0) throw new RangeError('퀘스트 번호가 올바르지 않습니다: ' + i);
+    const q = QUESTS[i % QUESTS.length], lap = Math.floor(i / QUESTS.length);
+    return { kind: q.kind, text: q.text, need: q.need * Math.pow(2, lap), gems: Math.round(q.gems * Math.pow(1.5, lap)) };
+  }
+  /** 행동이 일어났을 때 진행 올리기. 현재 퀘스트와 종류가 같을 때만 (상태를 직접 바꿈) */
+  function questAdd(state, kind, amount = 1) {
+    if (!state || !state.q) return false;
+    if (!isNum(amount) || amount <= 0) return false;
+    const q = questAt(state.q.i);
+    if (q.kind !== kind || state.q.p >= q.need) return false;
+    state.q.p = Math.min(q.need, state.q.p + amount);
+    return true;
+  }
+  /** 다 찼으면 보상을 주고 다음 퀘스트로. 안 찼으면 0 */
+  function questClaim(state) {
+    const q = questAt(state.q.i);
+    if (state.q.p < q.need) return 0;
+    state.gems += q.gems; state.q = { i: state.q.i + 1, p: 0 };
+    return q.gems;
+  }
+
   function newState(now) {
     const heroes = {};
     for (const h of HEROES) {
@@ -582,6 +635,9 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
       farming: false,     // 근원체에게 진 뒤 반복 사냥 모드
       heroes,
       up: { atk: 0, gold: 0, crit: 0 },
+      q: { i: 0, p: 0 },        // 가이드 퀘스트 번호와 진행
+      autoSkill: true,          // 기술 자동 사용
+      speed: 1,                 // 전투 배속 1 또는 2
       lastSeen: isNum(now) ? now : 0,
     };
   }
@@ -601,6 +657,12 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     s.stage  = clampInt(raw.stage, 1, 1e6, 1);
     s.kills  = clampInt(raw.kills, 0, CONST.WAVE_KILLS, 0);
     s.farming = raw.farming === true;
+    if (raw.q && typeof raw.q === 'object') {
+      s.q.i = clampInt(raw.q.i, 0, 1e6, 0);
+      s.q.p = clampInt(raw.q.p, 0, questAt(s.q.i).need, 0);
+    }
+    s.autoSkill = raw.autoSkill !== false;
+    s.speed = raw.speed === 2 ? 2 : 1;
     s.lastSeen = isNum(raw.lastSeen) && raw.lastSeen > 0 ? raw.lastSeen : base.lastSeen;
     if (raw.up && typeof raw.up === 'object') {
       for (const u of UPGRADES) s.up[u.id] = clampInt(raw.up[u.id], 0, u.max, 0);
@@ -635,7 +697,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed,
     partyDps, offlineReward, summon, applySummon, pickupRemainSec, formatRemain,
-    newState, cloneState, sanitize, loadFromString,
+    newState, cloneState, sanitize, loadFromString, QUESTS, questAt, questAdd, questClaim,
   };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = Core;
@@ -1087,11 +1149,11 @@ function kill(e) {
     const gold = C.bossGold(S.stage, S.up.gold);
     S.gold += gold; S.gems += C.CONST.BOSS_GEMS;
     banner('봉쇄 완료');
-    S.stage++; S.kills = 0; R.boss = null; S.farming = false;
+    S.stage++; S.kills = 0; R.boss = null; S.farming = false; C.questAdd(S, 'boss', 1);
     addText(e.x, e.y - e.size, '+' + C.formatNum(gold), '#ffd23a', true);
     writeSave(); renderPanel();
   } else {
-    S.gold += C.killGold(S.stage, S.up.gold);
+    S.gold += C.killGold(S.stage, S.up.gold); C.questAdd(S, 'kill', 1);
     if (!S.farming && S.kills < C.CONST.WAVE_KILLS) S.kills++;
   }
   for (let i = 0; i < (e.boss ? 26 : 9); i++) { const a = Math.random() * 6.28, v = 20 + Math.random() * (e.boss ? 90 : 50);
@@ -1134,12 +1196,17 @@ function heroAct(h, r, dt) {
     r.walk = moveTo(r, p.x, p.y, 105, dt) > 3;
     return;
   }
+  // 직접 누른 기술은 사거리를 기다리지 않고 바로 씀 (근처에 적이 있으면)
+  if (r.queued && r.cd <= 0) { r.queued = false; r.cd = h.skill.cd; r.face = tgt.x >= r.x ? 1 : -1; castSkill(h, atk, r, s, tgt); r.swing = 1; return; }
   const range = RANGE[h.range] + (h.range === 'melee' ? tgt.size * 0.25 : 0), dd = dist(r, tgt);
   if (dd > range) { moveTo(r, tgt.x, tgt.y, 90, dt); r.walk = true; return; }
   r.face = tgt.x >= r.x ? 1 : -1;
   // 스킬 (쿨타임마다 자동 사용)
   r.cd -= dt;
-  if (r.cd <= 0) { r.cd = h.skill.cd; castSkill(h, atk, r, s, tgt); r.swing = 1; return; }
+  if (r.cd <= 0) {
+    r.cd = 0;
+    if (S.autoSkill || r.queued) { r.queued = false; r.cd = h.skill.cd; castSkill(h, atk, r, s, tgt); r.swing = 1; return; }
+  }
   // 일반 공격
   r.at += dt * h.atkSpd;
   if (r.at < 1) return;
@@ -1180,7 +1247,7 @@ function loop(now) {
   try {
     // 시작 화면이나 팝업이 떠 있는 동안은 전투를 멈춤 (보스 제한 시간 보호)
     // 히트스톱: 치명타, 기술, 처치 순간 화면이 아주 잠깐 멈췄다 풀림 (타격감의 핵심)
-    if (!paused && !modalEl.classList.contains('on')) { if (R.stop > 0) { R.stop -= dt; R.shake = Math.max(0, (R.shake || 0) - dt * 10); } else update(dt); }
+    if (!paused && !modalEl.classList.contains('on')) { if (R.stop > 0) { R.stop -= dt; R.shake = Math.max(0, (R.shake || 0) - dt * 10); } else { update(dt); if (S.speed === 2) update(dt); } }
     if (g) draw();
     uiT += dt; if (uiT > 0.15) { uiT = 0; updateUI(); }
     saveT += dt; if (saveT > 5) { saveT = 0; writeSave(); }
@@ -1565,6 +1632,15 @@ function updateUI() {
   else if (S.farming) { bar.className = ''; bar.style.width = '100%'; lab.textContent = '구역 순찰'; }
   else { bar.className = ''; bar.style.width = (100 * S.kills / C.CONST.WAVE_KILLS) + '%'; lab.textContent = `${S.kills} / ${C.CONST.WAVE_KILLS}`; }
   $('bossBtn').style.display = S.farming && !R.boss ? 'block' : 'none';
+  // 가이드 퀘스트
+  const q = C.questAt(S.q.i), done = S.q.p >= q.need;
+  $('qn').textContent = '퀘스트 ' + (S.q.i + 1);
+  $('qt').textContent = `${q.text} ${C.formatNum(S.q.p)} / ${C.formatNum(q.need)}`;
+  $('qg').textContent = q.gems;
+  $('quest').style.setProperty('--qp', (100 * S.q.p / q.need).toFixed(1) + '%');
+  $('quest').classList.toggle('done', done);
+  $('bAuto').setAttribute('aria-pressed', S.autoSkill ? 'true' : 'false');
+  $('bSpd').setAttribute('aria-pressed', S.speed === 2 ? 'true' : 'false'); $('bSpd').textContent = '×' + S.speed;
   const key = owned().map(h => h.id).join();
   if (key !== partyKey) { partyKey = key; renderParty(); }
   for (const h of owned()) {
@@ -1697,7 +1773,7 @@ $('panel').addEventListener('click', e => {
     else if (act === 'lv') {
       const d = S.heroes[b.dataset.h], { n, cost } = lvPlan(d.lv);
       if (cost > S.gold) return toast('골드가 부족해요');
-      S.gold -= cost; d.lv += n; syncHeroes(false);
+      S.gold -= cost; d.lv += n; syncHeroes(false); C.questAdd(S, 'lvup', n);
     } else if (act === 'star') {
       const d = S.heroes[b.dataset.h], need = C.starNeed(d.stars);
       if (d.shards < need) return;
@@ -1705,7 +1781,7 @@ $('panel').addEventListener('click', e => {
     } else if (act === 'up') {
       const id = b.dataset.u, cost = C.upgradeCost(id, S.up[id]);
       if (cost > S.gold) return toast('골드가 부족해요');
-      S.gold -= cost; S.up[id]++;
+      S.gold -= cost; S.up[id]++; C.questAdd(S, 'train', 1);
     } else if (act === 'sum') doSummon(+b.dataset.n, b.dataset.kind === 'pickup');
     else if (act === 'testOff') showOffline(C.offlineReward(S, 3600));
     else if (act === 'reset') confirmReset();
@@ -1718,6 +1794,21 @@ $('tabs').addEventListener('click', e => {
   for (const x of $('tabs').children) x.classList.toggle('on', x === b);
   renderPanel(); $('panel').scrollTop = 0;
 });
+$('quest').addEventListener('click', () => {
+  const g = C.questClaim(S);
+  if (!g) { const q = C.questAt(S.q.i); return toast(`${q.text} ${q.need - S.q.p}번 더 하면 받을 수 있어요`); }
+  banner(`보석 ${g}개 획득`); writeSave(); updateUI();
+});
+$('bAuto').addEventListener('click', () => { S.autoSkill = !S.autoSkill; toast(S.autoSkill ? '기술을 자동으로 써요' : '준비된 요원 얼굴을 누르면 기술을 써요'); writeSave(); updateUI(); });
+$('bSpd').addEventListener('click', () => { S.speed = S.speed === 2 ? 1 : 2; writeSave(); updateUI(); });
+// 파티 칸: 기술이 준비된 요원을 누르면 바로 사용 (자동이 켜져 있어도 먼저 쓸 수 있음)
+$('party').addEventListener('click', e => {
+  const sl = e.target.closest('.slot[id]'); if (!sl) return;
+  const id = sl.id.slice(3), r = R.heroes[id];
+  if (!r || r.hp <= 0) return;
+  if (r.cd <= 0.15) { r.queued = true; r.cd = 0; if (!R.enemies.some(en => en.hp > 0 && dist(en, r) < 380)) toast('적이 가까이 오면 바로 써요'); }
+  else toast(`${C.heroById(id).skill.name} ${Math.ceil(r.cd)}초 남았어요`);
+});
 $('bossBtn').addEventListener('click', () => { S.farming = false; S.kills = C.CONST.WAVE_KILLS; R.enemies = []; R.boss = null; updateUI(); });
 
 /* ---------- 요원 호출 / 특별 채용 ---------- */
@@ -1727,7 +1818,7 @@ function doSummon(n, pickup) {
   if (S.gems < cost) return toast('보석이 부족해요');
   const ids = C.summon(n, Math.random, pickup ? C.CONST.PICKUP_LEGEND_RATE : C.CONST.LEGEND_RATE);
   const res = C.applySummon(S, ids);
-  res.state.gems -= cost; S = res.state;
+  res.state.gems -= cost; S = res.state; C.questAdd(S, 'summon', n);
   syncHeroes(false); writeSave();
   openModal(`<h2>${pickup ? '채용 결과' : '호출 결과'}</h2><div class="res ${n === 1 ? 'one' : ''}">${ids.map((id, i) => {
     const h = C.heroById(id);

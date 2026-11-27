@@ -157,3 +157,23 @@ test('특별 채용 남은 기간: 다음 월요일 0시까지', () => {
   assert.equal(C.formatRemain(7 * 86400 - 3600), '6일 23시간');
   assert.equal(C.formatRemain(5 * 3600 + 12 * 60), '5시간 12분');
 });
+
+test('가이드 퀘스트: 같은 종류만 쌓이고, 다 차야 보상', () => {
+  const s = C.newState(0);
+  assert.equal(C.questAt(0).kind, 'lvup');
+  assert.equal(C.questAdd(s, 'kill', 3), false);
+  C.questAdd(s, 'lvup', 3); assert.equal(C.questClaim(s), 0);
+  C.questAdd(s, 'lvup', 10); assert.equal(s.q.p, 5);
+  const g = s.gems; const r = C.questClaim(s);
+  assert.equal(r, 20); assert.equal(s.gems, g + 20); assert.deepEqual(s.q, { i: 1, p: 0 });
+});
+test('가이드 퀘스트: 한 바퀴 돌면 목표 2배, 잘못된 번호는 오류', () => {
+  const n = C.QUESTS.length;
+  assert.equal(C.questAt(n).need, C.QUESTS[0].need * 2);
+  assert.throws(() => C.questAt(-1), RangeError);
+});
+test('저장 복구: 퀘스트, 자동 기술, 배속', () => {
+  const s = C.sanitize({ q: { i: 2, p: 999 }, autoSkill: false, speed: 7 }, 0);
+  assert.equal(s.q.p, C.questAt(2).need); assert.equal(s.autoSkill, false); assert.equal(s.speed, 1);
+  assert.equal(C.sanitize({}, 0).autoSkill, true);
+});

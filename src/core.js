@@ -268,6 +268,41 @@
 
   /* ---------- 7. 상태 생성 / 저장 검증 ---------- */
 
+  /* ---------- 가이드 퀘스트 (세나 키우기의 왼쪽 퀘스트 줄처럼 하나씩 차례로) ----------
+   * kind 별로 진행이 쌓이고, 다 차면 눌러서 보석을 받음. 목록을 다 돌면 처음으로 돌아가 목표만 커짐 */
+  const QUESTS = [
+    { kind: 'lvup',   text: '요원 강화',     need: 5,  gems: 20 },
+    { kind: 'kill',   text: '이상체 처리',   need: 30, gems: 20 },
+    { kind: 'boss',   text: '근원체 봉쇄',   need: 1,  gems: 40 },
+    { kind: 'train',  text: '훈련소 강화',   need: 3,  gems: 20 },
+    { kind: 'summon', text: '요원 호출',     need: 1,  gems: 30 },
+    { kind: 'lvup',   text: '요원 강화',     need: 20, gems: 30 },
+    { kind: 'boss',   text: '근원체 봉쇄',   need: 3,  gems: 50 },
+    { kind: 'kill',   text: '이상체 처리',   need: 150, gems: 40 },
+  ];
+  /** i 번째 퀘스트 (한 바퀴 돌 때마다 목표 2배, 보상 1.5배) */
+  function questAt(i) {
+    if (!Number.isInteger(i) || i < 0) throw new RangeError('퀘스트 번호가 올바르지 않습니다: ' + i);
+    const q = QUESTS[i % QUESTS.length], lap = Math.floor(i / QUESTS.length);
+    return { kind: q.kind, text: q.text, need: q.need * Math.pow(2, lap), gems: Math.round(q.gems * Math.pow(1.5, lap)) };
+  }
+  /** 행동이 일어났을 때 진행 올리기. 현재 퀘스트와 종류가 같을 때만 (상태를 직접 바꿈) */
+  function questAdd(state, kind, amount = 1) {
+    if (!state || !state.q) return false;
+    if (!isNum(amount) || amount <= 0) return false;
+    const q = questAt(state.q.i);
+    if (q.kind !== kind || state.q.p >= q.need) return false;
+    state.q.p = Math.min(q.need, state.q.p + amount);
+    return true;
+  }
+  /** 다 찼으면 보상을 주고 다음 퀘스트로. 안 찼으면 0 */
+  function questClaim(state) {
+    const q = questAt(state.q.i);
+    if (state.q.p < q.need) return 0;
+    state.gems += q.gems; state.q = { i: state.q.i + 1, p: 0 };
+    return q.gems;
+  }
+
   function newState(now) {
     const heroes = {};
     for (const h of HEROES) {
@@ -282,6 +317,9 @@
       farming: false,     // 근원체에게 진 뒤 반복 사냥 모드
       heroes,
       up: { atk: 0, gold: 0, crit: 0 },
+      q: { i: 0, p: 0 },        // 가이드 퀘스트 번호와 진행
+      autoSkill: true,          // 기술 자동 사용
+      speed: 1,                 // 전투 배속 1 또는 2
       lastSeen: isNum(now) ? now : 0,
     };
   }
@@ -301,6 +339,12 @@
     s.stage  = clampInt(raw.stage, 1, 1e6, 1);
     s.kills  = clampInt(raw.kills, 0, CONST.WAVE_KILLS, 0);
     s.farming = raw.farming === true;
+    if (raw.q && typeof raw.q === 'object') {
+      s.q.i = clampInt(raw.q.i, 0, 1e6, 0);
+      s.q.p = clampInt(raw.q.p, 0, questAt(s.q.i).need, 0);
+    }
+    s.autoSkill = raw.autoSkill !== false;
+    s.speed = raw.speed === 2 ? 2 : 1;
     s.lastSeen = isNum(raw.lastSeen) && raw.lastSeen > 0 ? raw.lastSeen : base.lastSeen;
     if (raw.up && typeof raw.up === 'object') {
       for (const u of UPGRADES) s.up[u.id] = clampInt(raw.up[u.id], 0, u.max, 0);
@@ -335,7 +379,7 @@
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed,
     partyDps, offlineReward, summon, applySummon, pickupRemainSec, formatRemain,
-    newState, cloneState, sanitize, loadFromString,
+    newState, cloneState, sanitize, loadFromString, QUESTS, questAt, questAdd, questClaim,
   };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = Core;

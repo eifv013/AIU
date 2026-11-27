@@ -681,9 +681,23 @@ const R = { enemies: [], proj: [], fx: [], texts: [], heroes: {}, t: 0, buff: 0,
 const cv = $('cv'), g = cv.getContext('2d');
 if (!g) toast('이 기기에서는 전투 화면을 그릴 수 없어요');
 let W = 360, H = 300, DPR = 1, u = 1;
+/* 전투 화면 해상도: 화면 픽셀이 많을수록 느려짐 (측정: 3배 → 2배로 프레임 2배, 1.5배로 3배).
+ * 최대 2배로 시작하고, 2초 평균이 초당 45프레임 아래면 0.25씩 낮춤 (최저 1배). 저장해서 다음에도 씀 */
+let dprCap = 2;
+try { const v = parseFloat(localStorage.getItem('aiu-dpr')); if (v >= 1 && v <= 2) dprCap = v; } catch (e) { /* 저장 불가 */ }
+const perf = { t: 0, n: 0 };
+function perfTick(dt) {
+  perf.t += dt; perf.n++;
+  if (perf.t < 2) return;
+  const fps = perf.n / perf.t; perf.t = 0; perf.n = 0;
+  if (fps < 45 && dprCap > 1 && !document.hidden) {
+    dprCap = Math.max(1, dprCap - 0.25); resize(); R.pat = null;
+    try { localStorage.setItem('aiu-dpr', String(dprCap)); } catch (e) { /* 저장 불가 */ }
+  }
+}
 function resize() {
   const r = cv.getBoundingClientRect();
-  DPR = Math.min(3, window.devicePixelRatio || 1);
+  DPR = Math.min(dprCap, window.devicePixelRatio || 1);
   W = Math.max(1, r.width); H = Math.max(1, r.height); u = H / 320;
   cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
 }
@@ -890,7 +904,7 @@ function loop(now) {
     // 시작 화면이나 팝업이 떠 있는 동안은 전투를 멈춤 (보스 제한 시간 보호)
     // 히트스톱: 치명타, 기술, 처치 순간 화면이 아주 잠깐 멈췄다 풀림 (타격감의 핵심)
     if (!paused && !modalEl.classList.contains('on')) { if (R.stop > 0) { R.stop -= dt; R.shake = Math.max(0, (R.shake || 0) - dt * 10); } else { update(dt); if (S.speed === 2) update(dt); } }
-    if (g) draw();
+    if (g) { draw(); if (!paused) perfTick(dt); }
     uiT += dt; if (uiT > 0.15) { uiT = 0; updateUI(); }
     saveT += dt; if (saveT > 5) { saveT = 0; writeSave(); }
   } catch (e) { console.error(e); toast('전투 처리 중 오류: ' + e.message); }
@@ -1004,13 +1018,20 @@ function draw() {
   g.translate(W / 2 + (Math.random() - 0.5) * sk * 2, H * cy0 + (Math.random() - 0.5) * sk * 2); g.scale(u * (1 + (R.zoom || 0)), u * (1 + (R.zoom || 0))); g.translate(-R.cam.x, -R.cam.y);
   const vw = W / u, vh = H / u, x0 = R.cam.x - vw / 2 - 60, x1 = R.cam.x + vw / 2 + 60, y0 = R.cam.y - vh * cy0 - 80, y1 = R.cam.y + vh * (1 - cy0) + 60;
   // 지도 바닥 (경계 안만) + 장식은 경계 안으로 잘라 그림
-  g.fillStyle = F.ground; g.fillRect(-MAPW / 2, -MAPH / 2, MAPW, MAPH);
   // 바닥 그림(floor1~3)이 있으면 바둑판처럼 반복해 깔기. 한 장이 지도 단위 260 크기
   const fk = 'floor' + (Math.floor((S.stage - 1) / 10) % FIELD.length + 1);
+  const bx0 = Math.max(-MAPW / 2, x0), by0 = Math.max(-MAPH / 2, y0), bx1 = Math.min(MAPW / 2, x1), by1 = Math.min(MAPH / 2, y1);
   if (imgOk(fk)) {
-    if (!R.pat || R.patKey !== fk) { R.pat = g.createPattern(IMG[fk], 'repeat'); R.patKey = fk; }
-    if (R.pat) { const sc = 260 / IMG[fk].naturalWidth; R.pat.setTransform(new DOMMatrix([sc, 0, 0, sc, 0, 0])); g.fillStyle = R.pat; g.fillRect(-MAPW / 2, -MAPH / 2, MAPW, MAPH); }
-  }
+    const px = Math.max(16, Math.round(260 * u * DPR));   // 바닥 한 장의 실제 화면 픽셀 크기
+    if (!R.pat || R.patKey !== fk + px) {
+      const c = document.createElement('canvas'); c.width = px; c.height = Math.round(px * IMG[fk].naturalHeight / IMG[fk].naturalWidth);
+      c.getContext('2d').drawImage(IMG[fk], 0, 0, c.width, c.height);
+      R.pat = g.createPattern(c, 'repeat'); R.patKey = fk + px;
+    }
+    const sc = 1 / (u * DPR); R.pat.setTransform(new DOMMatrix([sc, 0, 0, sc, 0, 0]));
+    g.fillStyle = R.pat;
+  } else g.fillStyle = F.ground;
+  g.fillRect(bx0, by0, bx1 - bx0, by1 - by0);
   g.save(); g.beginPath(); g.rect(-MAPW / 2, -MAPH / 2, MAPW, MAPH); g.clip();
   const chunks = [];
   for (let cy = Math.floor(y0 / CH); cy <= Math.floor(y1 / CH); cy++) for (let cx = Math.floor(x0 / CH); cx <= Math.floor(x1 / CH); cx++) chunks.push(chunk(cx, cy));

@@ -547,6 +547,67 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 #op .go{position:absolute;left:0;right:0;top:calc(40% + 64px);text-align:center;font:400 52px "Black Han Sans";color:var(--gold);letter-spacing:.2em;opacity:0;transform:scale(1.6);transition:opacity .3s 2.4s,transform .4s cubic-bezier(.3,1.6,.5,1) 2.4s;text-shadow:0 0 24px rgba(255,210,63,.6)}
 #op .sc.on .go{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){#op *{transition-duration:.01s!important;animation:none!important}}
+
+/* ---------- 세나 키우기 첫 화면 배치 ----------
+ * 전투 화면이 화면 전체. 위: 프로필(왼쪽), 스테이지 진행(오른쪽). 오른쪽: 설정, 임무, 출석.
+ * 왼쪽 아래: 자동 기술, 배속. 가운데 아래: 가이드 퀘스트. 오른쪽 아래: 자동 추적. 그 아래: 팀 정보(출전 요원).
+ * 맨 아래: 전투력과 재화 띠, 아이콘 메뉴. 메뉴를 누르면 전투 화면 아래쪽 위에 창이 올라옴 (요원은 따로 된 창) */
+#app{display:flex;flex-direction:column}
+#battle{flex:1!important;height:auto!important;max-height:none!important;min-height:0}
+#hud{position:absolute;left:0;right:0;top:0;z-index:3;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:calc(env(safe-area-inset-top) + 8px) 8px 0;background:none;border:0;pointer-events:none}
+#hud>*{pointer-events:auto}
+#prof{display:flex;align-items:center;gap:7px;padding:4px 10px 4px 4px;border:1px solid rgba(160,180,230,.35);border-radius:8px;background:linear-gradient(90deg,rgba(18,24,40,.92),rgba(18,24,40,.7));box-shadow:0 2px 8px rgba(0,0,0,.4)}
+#prof .pf-face{width:46px;height:46px;border:2px solid var(--gold);border-radius:6px;overflow:hidden;background:var(--bg);flex:none}
+#prof .pf-face img{width:100%;height:100%;object-fit:cover;object-position:50% 15%;display:block}
+#prof .pf-t{display:grid;gap:1px;min-width:92px}
+#prof b{font:400 13px "Black Han Sans";color:var(--gold);line-height:1.1}
+#prof .pf-n{font:700 13px/1.15 'IBM Plex Sans KR'}
+#prof .pf-r{justify-self:start;padding:0 6px;border-radius:3px;background:rgba(255,255,255,.1);font:700 10px/1.5 'IBM Plex Sans KR';color:#c9d3ee}
+#prof .pf-bar{display:block;height:4px;margin-top:2px;border-radius:2px;background:#0a0d14;overflow:hidden}
+#prof .pf-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#4fd8c8,#6ff0c8)}
+#stageBox{flex:0 1 46%;padding:6px 8px 6px 10px;border-radius:8px;background:rgba(10,13,22,.62);text-align:right}
+#stageRow{justify-content:flex-end}
+#stage{font-size:22px}
+#area{font-size:12px}
+#prog{margin-top:5px}
+#side{left:auto;right:8px;top:calc(env(safe-area-inset-top) + 84px);gap:7px}
+#side button{width:46px;border-color:rgba(160,180,230,.35);background:rgba(20,26,44,.88);box-shadow:0 2px 6px rgba(0,0,0,.4)}
+#side svg{width:24px;height:24px}
+#btnSet{width:46px;height:auto;display:grid;place-items:center;gap:1px;padding:4px 0 3px}
+#bossBtn{left:50%;top:auto;bottom:calc(var(--teamH,74px) + 92px);transform:translateX(-50%);z-index:3}
+#bctl{left:8px;right:auto;bottom:calc(var(--teamH,74px) + 40px);flex-direction:column;gap:7px}
+#bctl button{flex-direction:column;width:44px;height:44px;padding:0;border-radius:10px;gap:1px;font-size:10px}
+#bctl .ic{width:18px;height:18px}
+#quest{left:60px;right:70px;transform:none;bottom:calc(var(--teamH,74px) + 46px);max-width:none;justify-content:space-between;height:40px;border-radius:8px;padding-left:8px}
+#quest .qt{font-size:13px}
+#quest .q-h{flex:1}
+#bossAuto{left:auto;right:8px;top:auto;bottom:calc(var(--teamH,74px) + 40px);display:grid;justify-items:center;gap:0;width:54px;height:54px;padding:6px 0 0;border-radius:50%;border:2px solid var(--line);background:rgba(20,26,44,.9);font:700 9px 'IBM Plex Sans KR'}
+#bossAuto::before{display:none}
+#bossAuto svg{width:22px;height:22px}
+#bossAuto[aria-pressed="true"]{border-color:var(--gold);color:var(--gold);box-shadow:0 0 10px rgba(242,201,76,.35)}
+#teamTg{position:absolute;left:8px;bottom:calc(var(--teamH,74px) + 4px);z-index:3;display:flex;align-items:center;gap:5px;height:26px;padding:0 10px 0 4px;border:0;background:none;color:var(--ink);font:700 12px 'IBM Plex Sans KR';text-shadow:0 1px 3px #000}
+#teamTg svg{width:20px;height:20px}
+#party{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:6px 10px 8px;background:linear-gradient(rgba(8,10,16,0),rgba(8,10,16,.75) 40%);border:0;gap:10px}
+#app.noteam #party{display:none}
+#app.noteam #battle{--teamH:0px}
+#bottom{position:relative;z-index:4;background:linear-gradient(#141a2a,#0c1019);border-top:1px solid #34405e}
+#bbar{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid #222b40}
+#bbar .pw{flex:1;font:700 13px 'IBM Plex Sans KR';color:#c9d3ee}
+#bbar .pw b{margin-left:4px;font:400 17px "Black Han Sans";color:#fff}
+#bbar .pill{height:26px;font-size:14px}
+#tabs{border-top:0;background:none}
+#tabs button{display:grid;justify-items:center;align-content:center;gap:2px;height:62px;font-size:12px}
+#tabs .tb{display:grid;place-items:center;width:40px;height:36px;clip-path:polygon(50% 0,100% 22%,100% 100%,0 100%,0 22%);background:linear-gradient(#3a4566,#1d2436)}
+#tabs .tb svg{width:26px;height:26px}
+#tabs button.on .tb{background:linear-gradient(#f2c94c,#8a6a14)}
+#tabs button.on::after{display:none}
+#tabs .dot{top:6px;right:calc(50% - 24px)}
+/* 메뉴 창: 전투 화면 아래쪽 위로 올라오는 창 (요원 말고 성장, 출동, 호출) */
+#app:not(.folded):not(.herofull) #panel{position:absolute;left:0;right:0;bottom:var(--bottomH,110px);z-index:5;height:min(62%,560px);border-top:1px solid #34405e;border-radius:14px 14px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.55);animation:sheetUp .22s ease-out}
+@keyframes sheetUp{from{transform:translateY(24px);opacity:.4}}
+@media (prefers-reduced-motion:reduce){#panel{animation:none!important}}
+#app.herofull #bottom{display:none}
+#app.herofull #battle{display:none}
 </style>
 </head>
 <body>
@@ -575,41 +636,52 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 </svg>
 
 <div id="app" class="folded">
-  <div id="hud">
-    <div id="stageBox">
-      <div id="stageRow"><span id="stage">1-1</span><span id="area">초원 길</span></div>
-      <div id="prog"><i></i><span></span></div>
-    </div>
-    <div class="pill"><svg class="ic"><use href="#i-gold"/></svg><span id="gold">0</span></div>
-    <div class="pill"><svg class="ic"><use href="#i-gem"/></svg><span id="gems">0</span></div>
-    <button id="btnSet" aria-label="설정"><svg class="ic"><use href="#i-gear"/></svg></button>
-  </div>
+  <!-- 세나 키우기 첫 화면처럼: 전투 화면이 화면 전체, 그 위에 정보와 버튼을 얹음 -->
   <div id="battle">
     <canvas id="cv"></canvas>
-    <button id="bossBtn">근원체 추적</button>
-    <button id="bossAuto" aria-pressed="true">자동 추적</button>
-    <!-- 왼쪽 아이콘: 일일 임무, 출석 (세나 키우기처럼 전투 화면 옆에) -->
-    <div id="side"><button data-side="mis"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2" fill="#2a3352" stroke="#9fb3e8" stroke-width="1.5"/><rect x="9" y="2.5" width="6" height="3.5" rx="1" fill="#9fb3e8"/><path d="M8 11l1.6 1.6L12.5 9.7M8 16l1.6 1.6 2.9-2.9" fill="none" stroke="#ffd23f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11.5h2.5M14 16.5h2.5" stroke="#9fb3e8" stroke-width="1.5" stroke-linecap="round"/></svg><span>임무</span><i class="dot" id="dotMis"></i></button>
+    <!-- 왼쪽 위: 수사팀 프로필 (대장 얼굴, 레벨, 계급, 구역 진행) / 오른쪽 위: 스테이지 진행 -->
+    <div id="hud">
+      <div id="prof"><div class="pf-face"><img id="pfImg" alt=""></div><div class="pf-t"><b>Lv.<span id="pfLv">1</span></b><span class="pf-n">AIU 수사팀</span><span class="pf-r" id="pfRank"></span><i class="pf-bar"><i id="pfBar"></i></i></div></div>
+      <div id="stageBox">
+        <div id="stageRow"><span id="stage">1-1</span><span id="area">초원 길</span></div>
+        <div id="prog"><i></i><span></span></div>
+      </div>
+    </div>
+    <!-- 오른쪽: 설정, 일일 임무, 출석 -->
+    <div id="side"><button id="btnSet" aria-label="설정"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5" fill="#c9d3ee"/><rect x="13" y="4" width="7" height="7" rx="1.5" fill="#c9d3ee"/><rect x="4" y="13" width="7" height="7" rx="1.5" fill="#c9d3ee"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="#f2c94c"/></svg><span>설정</span></button>
+      <button data-side="mis"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2" fill="#2a3352" stroke="#9fb3e8" stroke-width="1.5"/><rect x="9" y="2.5" width="6" height="3.5" rx="1" fill="#9fb3e8"/><path d="M8 11l1.6 1.6L12.5 9.7M8 16l1.6 1.6 2.9-2.9" fill="none" stroke="#ffd23f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11.5h2.5M14 16.5h2.5" stroke="#9fb3e8" stroke-width="1.5" stroke-linecap="round"/></svg><span>임무</span><i class="dot" id="dotMis"></i></button>
       <button data-side="att"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2" fill="#2a3352" stroke="#9fb3e8" stroke-width="1.5"/><path d="M3.5 9.5h17" stroke="#9fb3e8" stroke-width="1.5"/><path d="M8 3v4M16 3v4" stroke="#9fb3e8" stroke-width="1.8" stroke-linecap="round"/><path d="M12 11.6l1 2.1 2.3.3-1.7 1.6.4 2.3-2-1.1-2 1.1.4-2.3-1.7-1.6 2.3-.3z" fill="#ffd23f"/></svg><span>출석</span><i class="dot" id="dotAtt"></i></button></div>
+    <button id="bossBtn">근원체 추적</button>
     <div id="banner"></div>
-    <!-- 왼쪽 아래: 가이드 퀘스트 (다 차면 눌러서 보석 받기) / 오른쪽 아래: 자동 기술, 배속 -->
+    <!-- 왼쪽 아래 세로: 자동 기술, 배속 -->
+    <div id="bctl"><button id="bAuto" aria-pressed="true"><svg class="ic"><use href="#i-auto"/></svg><span>자동</span></button><button id="bSpd" aria-pressed="false"><svg class="ic"><use href="#i-fast"/></svg><span id="bSpdT">×1</span></button></div>
+    <!-- 가운데 아래: 가이드 퀘스트 -->
     <button id="quest" aria-live="polite">
       <span class="q-l"><span class="q-h"><span class="qn" id="qn"></span><span class="qt" id="qt"></span></span>
         <span class="q-p"><span class="q-bar"><i id="qbar"></i></span><span class="qc" id="qc"></span></span></span>
       <span class="qr"><svg class="ic"><use href="#i-gem"/></svg><b id="qg"></b><em>받기</em></span></button>
-    <div id="bctl"><button id="bAuto" aria-pressed="true"><svg class="ic"><use href="#i-auto"/></svg><span>자동</span></button><button id="bSpd" aria-pressed="false"><svg class="ic"><use href="#i-fast"/></svg><span id="bSpdT">×1</span></button></div>
+    <!-- 오른쪽 아래: 근원체 자동 추적 (세나 키우기 AUTO 자리) -->
+    <button id="bossAuto" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="M19 12a7 7 0 1 1-2.05-4.95" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M17.5 3.5v4h-4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>자동 추적</span></button>
+    <!-- 아래: 출전 요원 (팀 정보 접기) -->
+    <button id="teamTg" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.5 9-8 11c-4.5-2-8-6-8-11V5z" fill="#2a3352" stroke="#c9d3ee" stroke-width="1.6"/><path d="M12 7l1.3 2.7 3 .4-2.2 2 .6 2.9-2.7-1.5-2.7 1.5.6-2.9-2.2-2 3-.4z" fill="#f2c94c"/></svg><span id="teamTgT">팀 정보 닫기</span></button>
+    <div id="party"></div>
   </div>
-  <div id="party"></div>
   <div id="phead"><button id="phBack" aria-label="뒤로">
-      <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>요원</b>
+      <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b id="phTitle">요원</b>
     <span class="pill"><svg class="ic"><use href="#i-exp"/></svg><span id="phExp">0</span></span><span class="pill"><svg class="ic"><use href="#i-gold"/></svg><span id="phGold">0</span></span></div>
   <div id="panel"></div>
-  <nav id="tabs">
-    <button data-tab="hero">요원<i class="dot" id="dotHero"></i></button>
-    <button data-tab="train">성장<i class="dot" id="dotTrain"></i></button>
-    <button data-tab="run">출동<i class="dot" id="dotRun"></i></button>
-    <button data-tab="summon">호출</button>
-  </nav>
+  <!-- 아래 띠: 전투력과 재화 / 메뉴 -->
+  <div id="bottom">
+    <div id="bbar"><span class="pw">전투력 <b id="power">0</b></span>
+      <span class="pill"><svg class="ic"><use href="#i-gold"/></svg><span id="gold">0</span></span>
+      <span class="pill"><svg class="ic"><use href="#i-gem"/></svg><span id="gems">0</span></span></div>
+    <nav id="tabs">
+      <button data-tab="hero"><span class="tb"><svg viewBox="0 0 32 32"><circle cx="16" cy="11" r="5.5" fill="#c9d3ee"/><path d="M6 27c1-6.5 5-10 10-10s9 3.5 10 10z" fill="#c9d3ee"/><path d="M13 19l3 4 3-4" fill="none" stroke="#2a3352" stroke-width="1.6"/><rect x="20" y="19.5" width="6" height="4" rx="1" fill="#f2c94c"/></svg></span><span class="tl">요원</span><i class="dot" id="dotHero"></i></button>
+      <button data-tab="train"><span class="tb"><svg viewBox="0 0 32 32"><rect x="5" y="18" width="5" height="9" rx="1" fill="#8fa2d6"/><rect x="13.5" y="13" width="5" height="14" rx="1" fill="#b6c3ea"/><rect x="22" y="7" width="5" height="20" rx="1" fill="#f2c94c"/><path d="M5 12l7-6 4 3 7-6" fill="none" stroke="#f2c94c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="tl">성장</span><i class="dot" id="dotTrain"></i></button>
+      <button data-tab="run"><span class="tb"><svg viewBox="0 0 32 32"><path d="M10 22a6 6 0 0 1 12 0z" fill="#e0503e"/><rect x="7" y="22" width="18" height="4" rx="1" fill="#c9d3ee"/><path d="M16 6v4M7 9l2.5 2.5M25 9l-2.5 2.5M4 16h3M25 16h3" stroke="#f2c94c" stroke-width="2" stroke-linecap="round"/></svg></span><span class="tl">출동</span><i class="dot" id="dotRun"></i></button>
+      <button data-tab="summon"><span class="tb"><svg viewBox="0 0 32 32"><rect x="5" y="8" width="13" height="18" rx="2" transform="rotate(-10 11 17)" fill="#5b4a9a" stroke="#c9b6ff" stroke-width="1.4"/><rect x="13" y="6" width="13" height="18" rx="2" transform="rotate(8 19 15)" fill="#2a3352" stroke="#f2c94c" stroke-width="1.6"/><path d="M19.5 11.5l1.2 2.6 2.8.3-2.1 1.9.6 2.8-2.5-1.4-2.5 1.4.6-2.8-2.1-1.9 2.8-.3z" fill="#f2c94c"/></svg></span><span class="tl">호출</span></button>
+    </nav>
+  </div>
   <div id="modal"></div>
   <div id="rift" aria-hidden="true">
     <div class="rf-head"><div><small id="rfZone"></small><b>균열 심층</b></div><div class="rf-depth"><small>심도</small><b id="rfDepth"></b></div><button class="rf-x" data-rf="close" aria-label="닫기">✕</button></div>
@@ -1852,6 +1924,9 @@ function newMap() {
 const owned = () => C.HEROES.filter(h => S.heroes[h.id].owned);
 // 전투에 나가는 요원 (파티 최대 5명). 보유 요원 전체가 아니라 편성한 요원만 싸움
 const team = () => C.partyIds(S).map(id => C.heroById(id));
+const RANKS = ['신입 수사관', '정식 수사관', '선임 수사관', '수석 수사관', '수사팀장', '특수 수사관'];   // 프로필 계급 (구역 10스테이지마다 하나씩)
+/** 전투력: 출전 요원의 공격력 ×10 + 체력 합 (세나 키우기 전투력처럼 한 숫자로) */
+function teamPower() { return Math.round(team().reduce((a, h) => { const d = S.heroes[h.id]; return a + C.heroAtk(h.id, d.lv, d.stars, S.up.atk) * 10 + C.heroHp(h.id, d.lv, d.stars); }, 0)); }
 const HERO_SIZE = 50;
 // 진형: [앞(이동 방향), 옆] 오프셋. 근접은 앞줄, 원거리는 뒷줄 (파티가 바뀌면 다시 나눔)
 const FRONT = [[30, -16], [32, 18], [38, 1]], BACK = [[-20, -30], [-40, 4], [-18, 32], [-36, -12]];
@@ -2435,7 +2510,7 @@ function drawWalls(F) {
 }
 /** 미니맵: 지도 전체, 이상체(빨강), 근원체(크게), 요원 팀(노랑), 현재 보이는 범위 */
 function drawMinimap() {
-  const mw = 58, mh = mw * MAPH / MAPW, mx = W - mw - 10, my = R.boss ? 56 : 10, k = mw / MAPW;
+  const mw = 58, mh = mw * MAPH / MAPW, mx = 13, my = R.boss ? 124 : 80, k = mw / MAPW;   // 왼쪽 위 프로필 아래 (오른쪽은 메뉴 아이콘 자리)
   g.fillStyle = 'rgba(18,21,28,.78)'; g.fillRect(mx - 3, my - 3, mw + 6, mh + 6);
   g.strokeStyle = '#2E3542'; g.lineWidth = 1; g.strokeRect(mx - 3.5, my - 3.5, mw + 7, mh + 7);
   const P = (x, y) => [mx + (x + MAPW / 2) * k, my + (y + MAPH / 2) * k];
@@ -2592,7 +2667,7 @@ function drawFx(f) {
     g.restore(); g.globalAlpha = 1; }
 }
 function drawBossBar() {
-  const b = R.boss, x = 12, y = 12, w = W - 24, h = 14;
+  const b = R.boss, x = 12, y = 76, w = W - 78, h = 14;   // 프로필과 스테이지 칸 아래, 오른쪽 아이콘을 피해서
   g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(x - 2, y - 2, w + 4, h + 22);
   g.fillStyle = '#3a0c0c'; g.fillRect(x, y + 18, w, h);
   g.fillStyle = '#e84a3a'; g.fillRect(x, y + 18, w * Math.max(0, b.hp / b.max), h);
@@ -2644,6 +2719,13 @@ function updateUI() {
   $('stage').textContent = C.stageLabel(S.stage);
   $('area').textContent = theme().name;
   $('gold').textContent = C.formatNum(S.gold);
+  // 프로필: 대장(출전 첫 요원) 얼굴, 수사팀 레벨(스테이지), 계급(구역마다), 구역 안 진행 / 전투력
+  const lead = team()[0];
+  if (lead) { const src = ART['id_' + lead.id] || ART['card_' + lead.id] || portrait(lead.id); if ($('pfImg').getAttribute('src') !== src) $('pfImg').src = src; }
+  const chap = Math.floor((S.stage - 1) / 10);
+  $('pfLv').textContent = S.stage; $('pfRank').textContent = RANKS[Math.min(chap, RANKS.length - 1)];
+  $('pfBar').style.width = (((S.stage - 1) % 10) * 10 + 10 * Math.min(1, S.kills / C.CONST.WAVE_KILLS)).toFixed(1) + '%';
+  $('power').textContent = C.formatNum(teamPower());
   if ($('app').classList.contains('herofull')) { $('phExp').textContent = C.formatNum(S.exp); $('phGold').textContent = C.formatNum(S.gold); }
   $('gems').textContent = C.formatNum(S.gems);
   const bar = $('prog').firstElementChild, lab = $('prog').lastElementChild;
@@ -2653,7 +2735,7 @@ function updateUI() {
   else if (S.farming) { bar.className = ''; bar.style.width = '100%'; lab.textContent = '구역 순찰'; }
   else { bar.className = ''; bar.style.width = (100 * S.kills / C.CONST.WAVE_KILLS) + '%'; lab.textContent = `${S.kills} / ${C.CONST.WAVE_KILLS}`; }
   $('bossBtn').style.display = S.farming && !R.boss && !R.chal ? 'block' : 'none';
-  $('bossAuto').style.display = R.boss || R.chal ? 'none' : 'block';
+  $('bossAuto').style.display = R.boss || R.chal ? 'none' : 'grid';
   $('bossAuto').setAttribute('aria-pressed', S.farming ? 'false' : 'true');
   // 가이드 퀘스트
   const q = C.questAt(S.q.i), done = S.q.p >= q.need;
@@ -2694,7 +2776,7 @@ function sortHeroes(list, pids) {
     return hsort === 1 ? byLv(a, b) : byGrade(a, b);
   });
 }
-const APP_VERSION = '0.13.1';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.14.0';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 /** 기술 설명 (상세 창) */
 function skillText(h) {
@@ -3236,6 +3318,17 @@ function closeHeroWin() {
   partyKey = ''; updateUI();
 }
 $('phBack').addEventListener('click', closeHeroWin);
+// 팀 정보 닫기/열기: 출전 요원 줄을 숨기면 전투 화면이 더 넓게 보임 (세나 키우기와 같음)
+$('teamTg').addEventListener('click', () => {
+  const off = $('app').classList.toggle('noteam');
+  $('battle').style.setProperty('--teamH', (off ? 0 : $('party').offsetHeight) + 'px');
+  $('teamTgT').textContent = off ? '팀 정보 열기' : '팀 정보 닫기'; $('teamTg').setAttribute('aria-pressed', off ? 'false' : 'true');
+  try { localStorage.setItem('aiu-noteam', off ? '1' : ''); } catch (e) {}
+});
+try { if (localStorage.getItem('aiu-noteam') === '1') { $('app').classList.add('noteam'); $('teamTgT').textContent = '팀 정보 열기'; } } catch (e) {}
+// 출전 요원 줄과 아래 띠 높이를 재서, 버튼과 메뉴 창이 그 위에 오게
+new ResizeObserver(() => $('battle').style.setProperty('--teamH', ($('app').classList.contains('noteam') ? 0 : $('party').offsetHeight) + 'px')).observe($('party'));
+new ResizeObserver(() => $('app').style.setProperty('--bottomH', $('bottom').offsetHeight + 'px')).observe($('bottom'));
 $('tabs').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   if (b.dataset.tab === 'hero') return openHeroWin();

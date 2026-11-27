@@ -381,7 +381,15 @@ function makeRim(k) {
   // 맞았을 때 덮어 그리는 흰 실루엣 (같은 크기, 같은 여백)
   const wc = document.createElement('canvas'); wc.width = c.width; wc.height = c.height;
   const wq = wc.getContext('2d'); wq.drawImage(im, pad, pad); wq.globalCompositeOperation = 'source-in'; wq.fillStyle = '#fff'; wq.fillRect(0, 0, wc.width, wc.height);
-  RIM[k] = { c, pad, white: wc };
+  // 발 가운데: 그림 맨 아래 6% 줄에서 칠해진 가로 범위의 가운데 (자세가 바뀌어도 발 자리에 맞춰 그리려고)
+  let ax = 0.5;
+  try {
+    const y0 = pad + Math.floor(h * 0.94), dh = Math.max(1, Math.floor(h * 0.06)), d = wq.getImageData(pad, y0, w, dh).data;
+    let lo = w, hi = -1;
+    for (let yy = 0; yy < dh; yy++) for (let xx = 0; xx < w; xx++) if (d[(yy * w + xx) * 4 + 3] > 60) { if (xx < lo) lo = xx; if (xx > hi) hi = xx; }
+    if (hi > lo) ax = (lo + hi) / 2 / w;
+  } catch (e) { /* 읽기 실패 시 가운데 */ }
+  RIM[k] = { c, pad, white: wc, ax };
 }
 /** 모든 그림이 준비될 때까지 기다림 (실패한 그림은 건너뜀, 최대 4초) */
 const artReady = Promise.race([
@@ -437,7 +445,9 @@ function drawHumanHead(g, id, hy, s) {
 /** 전신 그림 한 장 그리기. h = 화면 높이(지도 단위), 발이 (x, y)
  * 숨 쉬듯 살짝 늘었다 줄고, 공격(swing)하면 보는 쪽으로 몸을 기울이며, 맞으면(hurt) 좌우로 떨림.
  * face: 1 이면 그림 그대로, -1 이면 좌우를 뒤집음. sh = 그림자 반지름 */
-let walkFlap = 0;   // drawHeroRt 가 걷는 중이면 코트 자락 흔들림 세기를 넣어 줌
+let walkFlap = 0;
+// 시험용: 자동 검수 스크립트가 그림과 동작 그림을 직접 그려 볼 수 있게 (게임 동작에는 영향 없음)
+window.AIU_TEST = { IMG, RIM, drawSprite: (...a) => drawSprite(...a) };   // drawHeroRt 가 걷는 중이면 코트 자락 흔들림 세기를 넣어 줌
 function drawSprite(g, im, x, y, h, t, swing, hurt, face, sh, rim) {
   const w = h * im.naturalWidth / im.naturalHeight;
   g.save(); g.translate(x, y);
@@ -447,7 +457,7 @@ function drawSprite(g, im, x, y, h, t, swing, hurt, face, sh, rim) {
   // 공격: 윗몸을 앞으로 휘며 앞으로 내딛음 (swing 1 → 0 으로 줄어들며 원래 자세로)
   const lunge = Math.sin(Math.min(1, swing) * Math.PI) * 0.6 + swing * 0.4;
   g.scale(1 + lunge * 0.04, 1 + Math.sin(t * 3 + x * 0.05) * 0.012 - lunge * 0.04);   // 숨쉬기, 내딛을 때 살짝 눌림
-  drawRimmed(g, im, rim, -w / 2 + lunge * h * 0.14, -h, w, h, lunge * 0.16 + Math.sin(t * 2.2 + x) * 0.006, walkFlap, hurt > 0.75 ? (hurt - 0.75) * 1.6 : 0);
+  drawRimmed(g, im, rim, -w * (rim ? rim.ax : 0.5) + lunge * h * 0.14, -h, w, h, lunge * 0.16 + Math.sin(t * 2.2 + x) * 0.006, walkFlap, hurt > 0.75 ? (hurt - 0.75) * 1.6 : 0);
   g.restore();
 }
 
@@ -477,9 +487,11 @@ function drawHero(g, id, x, y, s, t, swing, hurt, face = 1) {
   if (imgOk('spr_' + id)) {
     // 동작 그림이 있으면: 공격 중엔 C(공격 자세), 걷는 중엔 B와 D(한 발 내디딤)를 번갈아. 없으면 B 한 장
     let k = 'spr_' + id;
-    if (swing > 0.35 && imgOk(k + '_c')) k += '_c';
+    if (swing > 0.12 && imgOk(k + '_c')) k += '_c';
     else if (walkFlap > 0.02 && imgOk(k + '_d') && Math.floor(t * 5.5 + x * 0.01) % 2) k += '_d';
-    return drawSprite(g, IMG[k], x, y, s * 1.22, t, swing, hurt, face, 0.3 * s, RIM[k]);
+    // 동작 그림은 머리 크기를 맞춰 만들었으므로, 서 있는 그림과의 높이 비율 그대로 그림
+    const hk = s * 1.22 * IMG[k].naturalHeight / IMG['spr_' + id].naturalHeight;
+    return drawSprite(g, IMG[k], x, y, hk, t, swing, hurt, face, 0.3 * s, RIM[k]);
   }
   const L = LOOK[id], bob = Math.sin(t * 5 + x) * s * 0.02;
   g.save(); g.translate(x, y);

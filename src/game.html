@@ -138,7 +138,8 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
 /* 시작 화면 */
 /* 시작 화면: 수사 3팀 로딩 화면과 같은 구성 (부제, 큰 제목, 그림 줄, 불러오기 줄, 건너뛰기 안내) */
 #splash{position:absolute;inset:0;z-index:30;background:var(--bg)}
-.sp-game{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:14px}
+#spbg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.sp-game{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:calc(env(safe-area-inset-top) + 20vh) 24px 24px;gap:22px}
 /* AIU 로고 */
 .aiu{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px}
 .aiu-mark{width:min(64vw,236px);height:auto;display:block;overflow:visible}
@@ -152,8 +153,6 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
 @media (prefers-reduced-motion:reduce){.aiu .rift{animation:none}}
 .sp-sub{font-size:13px;font-weight:600;letter-spacing:.2em;color:var(--dim)}
 .sp-title{font-family:'Black Han Sans',sans-serif;font-size:60px;line-height:1;color:var(--gold);text-align:center}
-.lineup{display:flex;gap:10px;margin:10px 0 4px}
-.lineup img{width:84px;height:108px;object-fit:cover;border-radius:14px;border:1px solid var(--line);background:var(--panel)}
 .sp-load{width:200px;display:flex;flex-direction:column;gap:8px;align-items:center}
 .sp-bar{width:100%;height:4px;border-radius:2px;background:var(--line);overflow:hidden}
 .sp-bar i{display:block;height:100%;width:0;background:var(--gold);border-radius:2px;transition:width .3s ease}
@@ -204,6 +203,8 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
   <div id="modal"></div>
   <div id="toast"></div>
   <div id="splash" role="img" aria-label="Loop &amp; Lamp Studio 의 AIU 이상현상 전담수사팀, 불러오는 중">
+    <!-- 시작 화면 배경 그림: 비 오는 밤 도시, 하늘의 균열 (캔버스로 그림) -->
+    <canvas id="spbg" aria-hidden="true"></canvas>
     <div class="sp-game" aria-hidden="true">
       <!-- AIU 로고: 스텐실 글자 + 균열(이상현상) + 정식 명칭 + 기밀 도장. 그림은 SVG 로 직접 그림 -->
       <div class="aiu">
@@ -238,7 +239,6 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
         <div class="aiu-en">ANOMALOUS INCIDENT UNIT</div>
         <div class="aiu-ko"><i></i><span>이상현상 전담수사팀</span><i></i></div>
       </div>
-      <div class="lineup" id="sp-lineup"></div>
       <div class="sp-load">
         <div class="sp-bar"><i id="sp-fill"></i></div>
         <span class="sp-msg" id="sp-msg">비 내리는 중</span>
@@ -1211,7 +1211,59 @@ function startGame() {
   else if (firstRun) banner('출동');
 }
 $('splash').addEventListener('click', startGame);
-$('sp-lineup').innerHTML = ['knight', 'dark', 'priest'].map(id => `<img src="${portrait(id)}" alt="">`).join('');
+/* 시작 화면 배경: 하늘의 균열 + 빌딩 실루엣 + 젖은 바닥 반사 + 비. 시작하면 그리기를 멈춤 */
+{
+  const cvs = $('spbg'), q = cvs.getContext('2d');
+  // 빌딩은 한 번만 무작위로 정해 둠 (매 프레임 같은 모습)
+  const rnd = seeded(20261127), back = [], front = [];
+  for (let x = 0; x < 1; ) { const w = 0.06 + rnd() * 0.1; back.push({ x, w, h: 0.16 + rnd() * 0.2 }); x += w + 0.004; }
+  for (let x = -0.02; x < 1; ) { const w = 0.08 + rnd() * 0.13; front.push({ x, w, h: 0.1 + rnd() * 0.16, win: Array.from({ length: 7 }, () => rnd()) }); x += w + 0.01; }
+  const drops = Array.from({ length: 110 }, () => ({ x: rnd(), y: rnd(), l: 10 + rnd() * 16, v: 0.7 + rnd() * 0.6, a: 0.08 + rnd() * 0.18 }));
+  function spDraw(now) {
+    if (started || !q) return;
+    const W2 = cvs.clientWidth, H2 = cvs.clientHeight, d = Math.min(3, devicePixelRatio || 1);
+    if (cvs.width !== Math.round(W2 * d)) { cvs.width = Math.round(W2 * d); cvs.height = Math.round(H2 * d); }
+    q.setTransform(d, 0, 0, d, 0, 0);
+    const t = now / 1000, gy = H2 * 0.8;   // 바닥선
+    const sky = q.createLinearGradient(0, 0, 0, gy); sky.addColorStop(0, '#07080c'); sky.addColorStop(0.55, '#141827'); sky.addColorStop(1, '#1d2133');
+    q.fillStyle = sky; q.fillRect(0, 0, W2, H2);
+    // 하늘의 균열: 위에서 빌딩 쪽으로 내려오는 금, 보랏빛 번짐이 깜빡임
+    const fl = 0.8 + Math.sin(t * 2.1) * 0.08 + (Math.sin(t * 13) > 0.97 ? -0.4 : 0);
+    // 균열은 글자가 없는 왼쪽 하늘에 (로고와 불러오기 글자를 가로지르지 않게)
+    const cx = W2 * 0.11, glow = q.createRadialGradient(cx, H2 * 0.3, 0, cx, H2 * 0.3, H2 * 0.38);
+    glow.addColorStop(0, `rgba(150,110,255,${0.32 * fl})`); glow.addColorStop(1, 'rgba(150,110,255,0)');
+    q.fillStyle = glow; q.fillRect(0, 0, W2, gy);
+    const pts = [[0, 0.0], [-0.025, 0.08], [0.02, 0.15], [-0.02, 0.23], [0.015, 0.31], [-0.01, 0.39], [0.012, 0.47], [-0.004, 0.56]];
+    q.lineJoin = 'miter';
+    for (const [lw, col] of [[7, `rgba(150,110,255,${0.35 * fl})`], [2.4, `rgba(190,160,255,${0.9 * fl})`], [1, `rgba(245,238,255,${fl})`]]) {
+      q.strokeStyle = col; q.lineWidth = lw; q.beginPath();
+      pts.forEach(([dx, y], i) => i ? q.lineTo(cx + dx * W2, y * H2) : q.moveTo(cx + dx * W2, y * H2)); q.stroke();
+    }
+    // 뒤쪽 빌딩 (흐릿하게)
+    q.fillStyle = '#121624';
+    for (const b of back) q.fillRect(b.x * W2, gy - b.h * H2 - H2 * 0.05, b.w * W2, b.h * H2 + H2 * 0.05);
+    // 앞쪽 빌딩 + 불 켜진 창
+    for (const b of front) {
+      const x = b.x * W2, w = b.w * W2, top = gy - b.h * H2;
+      q.fillStyle = '#0b0d14'; q.fillRect(x, top, w, b.h * H2);
+      q.fillStyle = 'rgba(150,170,230,.08)'; q.fillRect(x, top, w, 1.5);
+      b.win.forEach((r, i) => { if (r > 0.55) { const col = r > 0.9 ? 'rgba(120,200,255,.6)' : 'rgba(255,200,110,.65)'; q.fillStyle = col; q.fillRect(x + w * (0.15 + (i % 3) * 0.28), top + 10 + Math.floor(i / 3) * 16, 5, 7); } });
+    }
+    // 젖은 바닥 + 창과 균열이 비친 세로 번짐
+    const gd = q.createLinearGradient(0, gy, 0, H2); gd.addColorStop(0, '#11141d'); gd.addColorStop(1, '#07080c');
+    q.fillStyle = gd; q.fillRect(0, gy, W2, H2 - gy);
+    const rf = q.createLinearGradient(0, gy, 0, gy + H2 * 0.16); rf.addColorStop(0, `rgba(170,130,255,${0.28 * fl})`); rf.addColorStop(1, 'rgba(170,130,255,0)');
+    q.fillStyle = rf; q.fillRect(cx - 3, gy, 6, H2 * 0.16);
+    // 비
+    q.lineWidth = 1;
+    for (const r of drops) {
+      const y = ((r.y + t * r.v) % 1.1 - 0.05) * H2, x = ((r.x - t * r.v * 0.1) % 1 + 1) % 1 * W2;
+      q.strokeStyle = `rgba(185,200,240,${r.a})`; q.beginPath(); q.moveTo(x, y); q.lineTo(x - r.l * 0.2, y + r.l); q.stroke();
+    }
+    requestAnimationFrame(spDraw);
+  }
+  requestAnimationFrame(spDraw);
+}
 [[30, '비 내리는 중'], [65, '요원 호출하는 중'], [100, '구역 지도 펼치는 중']].forEach(([w, m], i) => setTimeout(() => {
   if (started) return; $('sp-fill').style.width = w + '%'; $('sp-msg').textContent = m;
 }, 250 + i * 650));

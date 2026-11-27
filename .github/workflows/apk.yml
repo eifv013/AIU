@@ -7,7 +7,7 @@ name: APK
 on:
   push:
     branches: [main]
-    paths: ['src/**', 'assets/**', 'build.js', 'capacitor.config.json', '.github/workflows/apk.yml']
+    paths: ['src/**', 'assets/**', 'android-src/**', 'build.js', 'capacitor.config.json', '.github/workflows/apk.yml']
   workflow_dispatch:
 
 permissions:
@@ -40,8 +40,10 @@ jobs:
           npx capacitor-assets generate --android --iconBackgroundColor '#090d1b' --splashBackgroundColor '#090d1b'
           npx cap sync android
 
-      - name: 세로 고정, 버전 번호
+      - name: 세로 고정, 전체 화면, 버전 번호
         run: |
+          # 전체 화면: 상태 표시줄과 내비게이션 바를 숨기는 MainActivity 로 바꿈
+          cp android-src/MainActivity.java android/app/src/main/java/com/loopandlamp/aiu/MainActivity.java
           VER=$(grep -oP "APP_VERSION = '\K[^']+" src/game.html)
           echo "VER=$VER" >> $GITHUB_ENV
           sed -i 's/<activity/<activity android:screenOrientation="portrait"/' android/app/src/main/AndroidManifest.xml

@@ -84,7 +84,8 @@
     OFFLINE_MIN_SEC: 60,
     OFFLINE_RATE: 0.5,       // 오프라인 효율 50%
     MAX_KILLS_PER_SEC: 2,    // 오프라인 계산 시 처치 속도 상한
-    START_GEMS: 1000,        // 시작 보석: 100회 호출
+    START_GEMS: 1000,
+    START_EXP: 200,          // 시작 경험치 (예전 저장에도 처음 한 번)        // 시작 보석: 100회 호출
     SAVE_VERSION: 2,         // 2: 세나 방식 뽑기로 바뀜 (예전 저장에는 보상 보석을 한 번 줌)
     MIGRATE_GEMS: 1000,
     /* 출동 (세나 키우기의 일일 던전, 무한의 탑과 같은 자리) */
@@ -97,6 +98,7 @@
   const DUNGEONS = [
     { id: 'bounty',   name: '현상수배', reward: 'gold', text: '골드를 크게 벌어요',  step: 6, base: 0 },
     { id: 'evidence', name: '단서 추적',   reward: 'tix',  text: '호출권을 모아요',     step: 6, base: 3 },
+    { id: 'training', name: '모의 훈련',   reward: 'exp',  text: '경험치를 크게 벌어요', step: 6, base: 1 },   // 세나 키우기 영웅 경험치 던전 자리
   ];
   /* 일일 임무: 매일 0시에 초기화. 다 끝내면 정예 호출권 1장 더 */
   const MISSIONS = [
@@ -169,6 +171,9 @@
     return 3 * Math.pow(1.15, clampInt(stage, 1, 1e6, 1) - 1) * goldMult(goldLv);
   }
   function bossGold(stage, goldLv) { return killGold(stage, goldLv) * 10; }
+  /** 요원 경험치 (요원 레벨업 재화, 세나 키우기 영웅 경험치와 같음). 골드는 훈련소에만 씀 */
+  function killExp(stage) { return 2 * Math.pow(1.15, clampInt(stage, 1, 1e6, 1) - 1); }
+  function bossExp(stage) { return killExp(stage) * 10; }
 
   /* ---------- 4. 성장 공식 ---------- */
 
@@ -197,7 +202,7 @@
     return heroAtk(id, lv, stars, atkLv) * heroById(id).atkSpd * (1 + c * (CRIT_DMG - 1));
   }
 
-  /** 요원 Lv 강화 비용 (현재 lv → lv+1) */
+  /** 요원 Lv 강화 비용 (현재 lv → lv+1), 경험치 */
   function heroLvCost(lv) { return Math.floor(10 * Math.pow(1.13, clampInt(lv, 1, 1e6, 1) - 1)); }
 
   /** lv 에서 n 단계 올리는 총 비용 */
@@ -295,7 +300,7 @@
     const rate = Math.min(CONST.MAX_KILLS_PER_SEC, partyDps(state) / hp);
     const kills = Math.floor(rate * sec * CONST.OFFLINE_RATE);
     const gold = Math.floor(kills * killGold(state.stage, state.up.gold));
-    return { sec, gold, kills, tix: Math.floor(kills * CONST.TICKETS_PER_KILL) };
+    return { sec, gold, kills, tix: Math.floor(kills * CONST.TICKETS_PER_KILL), exp: Math.floor(kills * killExp(state.stage)) };
   }
 
   /* ---------- 6. 소환 ---------- */
@@ -452,6 +457,7 @@
   function dungeonReward(id, lv, goldLv) {
     const d = dungeonById(id), L = clampInt(lv, 1, 1e5, 1);
     if (d.reward === 'gold') return { gold: Math.floor(bossGold(dungeonStage(id, L), goldLv) * 15) };
+    if (d.reward === 'exp') return { exp: Math.floor(bossExp(dungeonStage(id, L)) * 15) };
     return { tix: 15 + 5 * L };
   }
   /** 균열 심층 f 층이 스테이지 몇만큼 센지, 처음 돌파 보상 (5층마다 정예 호출권, 10층마다 보석 200) */
@@ -465,6 +471,7 @@
   function chalAtk(stageEq) { return bossAtk(stageEq); }
   function giveReward(state, r) {
     if (r.gold) state.gold += r.gold;
+    if (r.exp) state.exp += r.exp;
     if (r.gems) state.gems += r.gems;
     if (r.tix) state.tix += r.tix;
     if (r.ptix) state.ptix += r.ptix;
@@ -572,6 +579,7 @@
     return {
       v: CONST.SAVE_VERSION,
       gold: 0,
+      exp: CONST.START_EXP,     // 요원 경험치 (요원 레벨업)
       gems: CONST.START_GEMS,
       stage: 1,
       kills: 0,
@@ -606,6 +614,7 @@
     if (!raw || typeof raw !== 'object') return base;
     const s = base;
     s.gold   = isNum(raw.gold) && raw.gold >= 0 ? raw.gold : 0;
+    s.exp    = isNum(raw.exp) && raw.exp >= 0 ? raw.exp : CONST.START_EXP;
     s.gems   = isNum(raw.gems) && raw.gems >= 0 ? Math.floor(raw.gems) : base.gems;
     s.stage  = clampInt(raw.stage, 1, 1e6, 1);
     s.kills  = clampInt(raw.kills, 0, CONST.WAVE_KILLS, 0);
@@ -670,7 +679,7 @@
   const Core = {
     HEROES, TYPES, STARTER_IDS, partyIds, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
-    stageLabel, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
+    stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,

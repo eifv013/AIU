@@ -299,3 +299,14 @@ test('파티 DPS 는 파티 요원만 셈', () => {
   const s = C.newState(0), all = C.partyDps(s);
   s.party = ['knight']; assert.ok(C.partyDps(s) < all);
 });
+
+test('경험치: 처치, 오프라인, 모의 훈련으로 쌓이고 저장 검증', () => {
+  assert.ok(C.killExp(1) > 0 && C.bossExp(5) === C.killExp(5) * 10);
+  const s = C.newState(0); assert.equal(s.exp, C.CONST.START_EXP);
+  s.party = ['knight'];
+  const r = C.offlineReward(s, 3600); assert.ok(r.exp > 0);
+  const before = s.exp; const got = C.clearDungeon(s, 'training', 1);
+  assert.ok(got.exp > 0); assert.equal(s.exp, before + got.exp);
+  assert.equal(C.sanitize({ exp: -5 }, 0).exp, C.CONST.START_EXP);
+  assert.equal(C.sanitize({ exp: 1234 }, 0).exp, 1234);
+});

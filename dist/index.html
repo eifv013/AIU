@@ -127,7 +127,7 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 .hph .pin{position:absolute;right:2px;top:2px;z-index:2;padding:0 3px;border-radius:3px;background:var(--gold);color:#1a1405;font:700 8px/1.35 'IBM Plex Sans KR'}
 .hc.inparty .hcard{border-color:rgba(255,210,63,.55)}
 .hcard{position:relative}
-.hc.canlv .hcard::after{content:'';position:absolute;right:-3px;top:-3px;z-index:4;width:8px;height:8px;border-radius:50%;background:#ff4d4d;box-shadow:0 0 0 2px var(--bg)}   /* 골드로 강화 가능 */
+.hc.canlv .hcard::after{content:'';position:absolute;right:-3px;top:-3px;z-index:4;width:8px;height:8px;border-radius:50%;background:#ff4d4d;box-shadow:0 0 0 2px var(--bg)}   /* 경험치로 강화 가능 */
 /* 분류 거르기 탭 + 일괄 강화 칸 (한 줄) */
 .htop{display:flex;gap:6px;align-items:center;margin-bottom:10px}
 .tfil{display:flex;gap:4px;flex:1;min-width:0}
@@ -138,6 +138,7 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 .htop .seg{margin:0;flex:none;grid-template-columns:repeat(3,38px)}
 .htop .seg button{height:32px;font-size:12px}
 .hcount{display:flex;align-items:center;gap:10px;margin:-4px 2px 8px;font-size:11px;color:var(--dim)}
+.hcount .xchip{display:inline-flex;align-items:center;gap:3px;padding:0 8px 0 5px;height:24px;border-radius:12px;background:var(--panel);border:1px solid var(--line)}.hcount .xchip b{color:#6ff0c8;font:400 13px 'Black Han Sans'}.hcount .xchip .ic{width:15px;height:15px}
 .hcount .hall{margin-left:auto}.hcount .hall:disabled{opacity:.4}
 .hcount .hall:not(:disabled){border-color:var(--rift);color:#fff;background:rgba(157,123,255,.25)}
 .hcount .hsort{display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 9px;border:1px solid var(--line);border-radius:13px;background:var(--panel);color:var(--ink);font:700 11px 'IBM Plex Sans KR'}
@@ -171,7 +172,7 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 .hd-btns{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-top:10px}
 .hd-btns .btn{min-width:0}
 /* 일일 출동 타일: 2칸 + 균열 심층 넓은 칸 */
-.dgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:8px}
+.dgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:8px}
 .dtile{position:relative;display:grid;align-content:end;justify-items:start;gap:2px;height:118px;padding:10px;overflow:hidden;border:1px solid var(--line);border-radius:var(--r);background:radial-gradient(circle at 75% 35%,#2a2140,#0b0d12 70%);color:var(--ink);text-align:left}
 .dtile img{position:absolute;right:-6px;top:4px;height:96%;opacity:.9;pointer-events:none}
 .dtile::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,10,16,.9),rgba(8,10,16,.2) 70%);pointer-events:none}
@@ -488,10 +489,12 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 <svg width="0" height="0" style="position:absolute">
   <defs>
     <radialGradient id="gG" cx="35%" cy="30%"><stop offset="0" stop-color="#fff2b0"/><stop offset=".5" stop-color="#f5c451"/><stop offset="1" stop-color="#b9780f"/></radialGradient>
+    <linearGradient id="gX" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6ff0c8"/><stop offset="1" stop-color="#14a07a"/></linearGradient>
     <linearGradient id="gM" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bff4ff"/><stop offset=".5" stop-color="#46b6ff"/><stop offset="1" stop-color="#2346c9"/></linearGradient>
   </defs>
   <symbol id="i-gold" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="url(#gG)" stroke="#8a5609" stroke-width="1.4"/><circle cx="12" cy="12" r="6.5" fill="none" stroke="#a96d0c" stroke-width="1.3"/><path d="M12 8.2l1.1 2.4 2.6.3-1.9 1.8.5 2.6-2.3-1.3-2.3 1.3.5-2.6-1.9-1.8 2.6-.3z" fill="#fff4c2"/></symbol>
   <symbol id="i-gem" viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 12L2 9z" fill="url(#gM)" stroke="#1a2f8f" stroke-width="1.3" stroke-linejoin="round"/><path d="M2 9h20M8 3l-2 6 6 12 6-12-2-6" fill="none" stroke="#e4fbff" stroke-width=".9" opacity=".8"/></symbol>
+  <symbol id="i-exp" viewBox="0 0 24 24"><path d="M12 2l8.5 5v10L12 22l-8.5-5V7z" fill="url(#gX)" stroke="#0d5a4a" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 13.5l4-4 4 4M8 17l4-4 4 4" fill="none" stroke="#eafff8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-tix" viewBox="0 0 24 24"><path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4z" fill="#E9C46A" stroke="#7a5a12" stroke-width="1.3" stroke-linejoin="round"/><path d="M15 7v10" stroke="#7a5a12" stroke-width="1.1" stroke-dasharray="1.6 1.6"/><path d="M7.5 10.2h4.5M7.5 13.8h3" stroke="#7a5a12" stroke-width="1.3" stroke-linecap="round"/></symbol>
   <symbol id="i-ptix" viewBox="0 0 24 24"><path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4z" fill="#A98BFF" stroke="#3c2a7a" stroke-width="1.3" stroke-linejoin="round"/><path d="M15 7v10" stroke="#3c2a7a" stroke-width="1.1" stroke-dasharray="1.6 1.6"/><path d="M9.5 9.3l.9 1.9 2.1.3-1.5 1.4.4 2-1.9-1-1.9 1 .4-2-1.5-1.4 2.1-.3z" fill="#fff"/></symbol>
   <symbol id="i-auto" viewBox="0 0 24 24"><path d="M19 8a8 8 0 0 0-14 1M5 16a8 8 0 0 0 14-1" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M19 3v5h-5M5 21v-5h5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -686,7 +689,8 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     OFFLINE_MIN_SEC: 60,
     OFFLINE_RATE: 0.5,       // 오프라인 효율 50%
     MAX_KILLS_PER_SEC: 2,    // 오프라인 계산 시 처치 속도 상한
-    START_GEMS: 1000,        // 시작 보석: 100회 호출
+    START_GEMS: 1000,
+    START_EXP: 200,          // 시작 경험치 (예전 저장에도 처음 한 번)        // 시작 보석: 100회 호출
     SAVE_VERSION: 2,         // 2: 세나 방식 뽑기로 바뀜 (예전 저장에는 보상 보석을 한 번 줌)
     MIGRATE_GEMS: 1000,
     /* 출동 (세나 키우기의 일일 던전, 무한의 탑과 같은 자리) */
@@ -699,6 +703,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   const DUNGEONS = [
     { id: 'bounty',   name: '현상수배', reward: 'gold', text: '골드를 크게 벌어요',  step: 6, base: 0 },
     { id: 'evidence', name: '단서 추적',   reward: 'tix',  text: '호출권을 모아요',     step: 6, base: 3 },
+    { id: 'training', name: '모의 훈련',   reward: 'exp',  text: '경험치를 크게 벌어요', step: 6, base: 1 },   // 세나 키우기 영웅 경험치 던전 자리
   ];
   /* 일일 임무: 매일 0시에 초기화. 다 끝내면 정예 호출권 1장 더 */
   const MISSIONS = [
@@ -771,6 +776,9 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     return 3 * Math.pow(1.15, clampInt(stage, 1, 1e6, 1) - 1) * goldMult(goldLv);
   }
   function bossGold(stage, goldLv) { return killGold(stage, goldLv) * 10; }
+  /** 요원 경험치 (요원 레벨업 재화, 세나 키우기 영웅 경험치와 같음). 골드는 훈련소에만 씀 */
+  function killExp(stage) { return 2 * Math.pow(1.15, clampInt(stage, 1, 1e6, 1) - 1); }
+  function bossExp(stage) { return killExp(stage) * 10; }
 
   /* ---------- 4. 성장 공식 ---------- */
 
@@ -799,7 +807,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     return heroAtk(id, lv, stars, atkLv) * heroById(id).atkSpd * (1 + c * (CRIT_DMG - 1));
   }
 
-  /** 요원 Lv 강화 비용 (현재 lv → lv+1) */
+  /** 요원 Lv 강화 비용 (현재 lv → lv+1), 경험치 */
   function heroLvCost(lv) { return Math.floor(10 * Math.pow(1.13, clampInt(lv, 1, 1e6, 1) - 1)); }
 
   /** lv 에서 n 단계 올리는 총 비용 */
@@ -897,7 +905,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     const rate = Math.min(CONST.MAX_KILLS_PER_SEC, partyDps(state) / hp);
     const kills = Math.floor(rate * sec * CONST.OFFLINE_RATE);
     const gold = Math.floor(kills * killGold(state.stage, state.up.gold));
-    return { sec, gold, kills, tix: Math.floor(kills * CONST.TICKETS_PER_KILL) };
+    return { sec, gold, kills, tix: Math.floor(kills * CONST.TICKETS_PER_KILL), exp: Math.floor(kills * killExp(state.stage)) };
   }
 
   /* ---------- 6. 소환 ---------- */
@@ -1054,6 +1062,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   function dungeonReward(id, lv, goldLv) {
     const d = dungeonById(id), L = clampInt(lv, 1, 1e5, 1);
     if (d.reward === 'gold') return { gold: Math.floor(bossGold(dungeonStage(id, L), goldLv) * 15) };
+    if (d.reward === 'exp') return { exp: Math.floor(bossExp(dungeonStage(id, L)) * 15) };
     return { tix: 15 + 5 * L };
   }
   /** 균열 심층 f 층이 스테이지 몇만큼 센지, 처음 돌파 보상 (5층마다 정예 호출권, 10층마다 보석 200) */
@@ -1067,6 +1076,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   function chalAtk(stageEq) { return bossAtk(stageEq); }
   function giveReward(state, r) {
     if (r.gold) state.gold += r.gold;
+    if (r.exp) state.exp += r.exp;
     if (r.gems) state.gems += r.gems;
     if (r.tix) state.tix += r.tix;
     if (r.ptix) state.ptix += r.ptix;
@@ -1174,6 +1184,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     return {
       v: CONST.SAVE_VERSION,
       gold: 0,
+      exp: CONST.START_EXP,     // 요원 경험치 (요원 레벨업)
       gems: CONST.START_GEMS,
       stage: 1,
       kills: 0,
@@ -1208,6 +1219,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     if (!raw || typeof raw !== 'object') return base;
     const s = base;
     s.gold   = isNum(raw.gold) && raw.gold >= 0 ? raw.gold : 0;
+    s.exp    = isNum(raw.exp) && raw.exp >= 0 ? raw.exp : CONST.START_EXP;
     s.gems   = isNum(raw.gems) && raw.gems >= 0 ? Math.floor(raw.gems) : base.gems;
     s.stage  = clampInt(raw.stage, 1, 1e6, 1);
     s.kills  = clampInt(raw.kills, 0, CONST.WAVE_KILLS, 0);
@@ -1272,7 +1284,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   const Core = {
     HEROES, TYPES, STARTER_IDS, partyIds, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
-    stageLabel, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
+    stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,
@@ -1833,7 +1845,7 @@ function startChal(kind, id, lv) {
   const a = R.heading, p = { x: R.A.x + Math.cos(a) * 200, y: R.A.y + Math.sin(a) * 200 }; keepIn(p, 120);
   const b = mkEnemy('boss', p.x, p.y, true);
   b.hp = b.max = C.chalHp(eq); b.atk = C.chalAtk(eq); b.home = { ...p }; b.wt = 0; b.aggro = true;
-  b.chap = kind === 'tower' ? 2 : id === 'bounty' ? 0 : 1; b.label = name;
+  b.chap = kind === 'tower' ? 2 : id === 'bounty' ? 0 : id === 'training' ? 2 : 1; b.label = name;
   R.boss = b; R.enemies.push(b); R.bossT = C.CONST.CHAL_TIME;
   banner(name); updateUI();
 }
@@ -1859,7 +1871,7 @@ function chalEnd(win, reason) {
     if (win && ch.kind !== 'tower') dsel[ch.id] = S.dbest[ch.id] + 1;   // 깨면 다음 단계를 골라 둠
   } catch (e) { toast(e.message); }
   // 결과 창 없이: 가운데 알림과 위쪽 보상 알림만 띄우고 잠깐 뒤 원래 스테이지로 (세나 키우기 던전처럼 흐름을 끊지 않음)
-  const lbl = { gold: '골드', gems: '보석', tix: '호출권', ptix: '정예 호출권' };
+  const lbl = { gold: '골드', exp: '경험치', gems: '보석', tix: '호출권', ptix: '정예 호출권' };
   const got = rw ? Object.entries(rw).filter(([, v]) => v) : [];
   banner(win ? `${ch.name} 완료` : (reason || '출동 실패'));
   toast(win ? `${ch.name} 완료  ${got.map(([k, v]) => `${lbl[k]} +${C.formatNum(v)}`).join('  ')}` : `${ch.name} 실패${ch.kind === 'tower' ? '' : '. 입장 횟수는 그대로예요'}`);
@@ -1912,13 +1924,13 @@ function kill(e) {
   if (e.boss && R.chal) chalEnd(true);
   else if (e.boss) {
     const gold = C.bossGold(S.stage, S.up.gold);
-    S.gold += gold; S.gems += C.CONST.BOSS_GEMS;
+    S.gold += gold; S.gems += C.CONST.BOSS_GEMS; S.exp += C.bossExp(S.stage);
     banner('봉쇄 완료');
     S.stage++; S.kills = 0; R.boss = null; S.farming = false; C.progress(S, 'boss', 1); C.addTickets(S, 0, 1);
     addText(e.x, e.y - e.size, '+' + C.formatNum(gold), '#ffd23a', true);
     writeSave(); renderPanel();
   } else {
-    S.gold += C.killGold(S.stage, S.up.gold); C.progress(S, 'kill', 1); C.addTickets(S, 1);
+    S.gold += C.killGold(S.stage, S.up.gold); S.exp += C.killExp(S.stage); C.progress(S, 'kill', 1); C.addTickets(S, 1);
     if (!S.farming && S.kills < C.CONST.WAVE_KILLS) S.kills++;
   }
   for (let i = 0; i < (e.boss ? 26 : 9); i++) { const a = Math.random() * 6.28, v = 20 + Math.random() * (e.boss ? 90 : 50);
@@ -2598,7 +2610,7 @@ function sortHeroes(list, pids) {
     return hsort === 1 ? byLv(a, b) : byGrade(a, b);
   });
 }
-const APP_VERSION = '0.10.3';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.11.0';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 /** 기술 설명 (상세 창) */
 function skillText(h) {
@@ -2624,7 +2636,7 @@ function renderPanel() {
     const pids = C.partyIds(S), list = sortHeroes(C.HEROES.filter(h => hfil === '전체' || h.type === hfil), pids);
     P.innerHTML = `<div class="htop"><div class="tfil">${['전체', ...C.TYPES].map(t => `<button data-act="hfil" data-v="${t}" class="${t === '전체' ? '' : 't-' + t}${hfil === t ? ' on' : ''}" aria-label="${t}">${t === '전체' ? '<b>전체</b>' : `<svg><use href="#i-t-${t}"/></svg>`}</button>`).join('')}</div>
 </div>
-      <div class="hcount">${hfil === '전체' ? '' : hfil + ' '}요원 ${list.filter(h => S.heroes[h.id].owned).length} / ${list.length}<span>출전 <b>${pids.length}</b> / ${C.CONST.PARTY_MAX}</span><button class="hsort hall" data-act="starall" id="hAll">일괄 승급</button><button class="hsort" data-act="hsort"><svg viewBox="0 0 24 24"><path d="M7 4v15M3 15l4 4l4-4M17 20V5M13 9l4-4l4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>${HSORT[hsort]}</button></div><div class="hgrid">` +
+      <div class="hcount"><span class="xchip">${icon('exp')}<b id="hExp"></b></span>${hfil === '전체' ? '' : hfil + ' '}요원 ${list.filter(h => S.heroes[h.id].owned).length} / ${list.length}<span>출전 <b>${pids.length}</b> / ${C.CONST.PARTY_MAX}</span><button class="hsort hall" data-act="starall" id="hAll">일괄 승급</button><button class="hsort" data-act="hsort"><svg viewBox="0 0 24 24"><path d="M7 4v15M3 15l4 4l4-4M17 20V5M13 9l4-4l4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>${HSORT[hsort]}</button></div><div class="hgrid">` +
       list.map(h => {
         const d = S.heroes[h.id], inP = pids.includes(h.id);
         const tic = `<i class="tic t-${h.type}"><svg><use href="#i-t-${h.type}"/></svg></i>`;
@@ -2639,7 +2651,7 @@ function renderPanel() {
     const ic = { atk: 'sword', gold: 'gold', crit: 'target' };
     P.innerHTML = C.UPGRADES.map(u => `<div class="urow" data-u="${u.id}"><div class="uic"><svg><use href="#i-${ic[u.id]}"/></svg></div>
       <div><div class="ut">${u.name}</div><div class="uv"></div></div>
-      <button class="btn" data-act="up" data-u="${u.id}"><span>강화</span><span class="cost">${icon('gold')}<i></i></span></button></div>`).join('');
+      <button class="btn" data-act="up" data-u="${u.id}"><span>강화</span><span class="cost">${icon('exp')}<i></i></span></button></div>`).join('');
   } else if (tab === 'run') {
     renderRun(P);
   } else {
@@ -2707,11 +2719,12 @@ function updatePanel() {
     for (const card of P.querySelectorAll('.hc[data-h]:not(.locked)')) {
       const id = card.dataset.h, d = S.heroes[id];
       card.querySelector('.lv').textContent = d.lv;
-      card.classList.toggle('canlv', card.classList.contains('inparty') && C.heroLvCost(d.lv) <= S.gold);   // 빨간 점: 출전 요원 중 골드로 강화할 수 있을 때만
+      card.classList.toggle('canlv', card.classList.contains('inparty') && C.heroLvCost(d.lv) <= S.exp);   // 빨간 점: 출전 요원 중 경험치로 강화할 수 있을 때만
       const need = C.starNeed(d.stars, C.heroById(id).grade), max = need === Infinity;
       card.querySelector('.sbar i').style.width = max ? '100%' : Math.min(100, 100 * d.shards / need) + '%';
       card.classList.toggle('canstar', !max && d.shards >= need);
     }
+    if ($('hExp')) $('hExp').textContent = C.formatNum(S.exp);
     const all = $('hAll'); if (all) all.disabled = !owned().some(h => S.heroes[h.id].shards >= C.starNeed(S.heroes[h.id].stars, h.grade));
     if (modalEl.classList.contains('on') && $('hdet')) fillHeroDetail();
   } else if (tab === 'train') {
@@ -2737,17 +2750,17 @@ function updatePanel() {
     const wt = $('wTix'); if (wt) { wt.textContent = C.formatNum(S.tix); $('wPtix').textContent = C.formatNum(S.ptix); }
   }
   // 탭 알림 점: 할 수 있는 강화가 있을 때
-  $('dotHero').style.display = owned().some(h => C.heroLvCost(S.heroes[h.id].lv) <= S.gold || S.heroes[h.id].shards >= C.starNeed(S.heroes[h.id].stars, h.grade)) && tab !== 'hero' ? 'block' : 'none';
+  $('dotHero').style.display = team().some(h => C.heroLvCost(S.heroes[h.id].lv) <= S.exp || S.heroes[h.id].shards >= C.starNeed(S.heroes[h.id].stars, h.grade)) && tab !== 'hero' ? 'block' : 'none';
   $('dotRun').style.display = runAlert() && tab !== 'run' ? 'block' : 'none';
   $('dotTrain').style.display = C.UPGRADES.some(u => C.upgradeCost(u.id, S.up[u.id]) <= S.gold) && tab !== 'train' ? 'block' : 'none';
 }
 /* ---------- 출동 탭: 출동 / 임무 / 출석 (세나 키우기의 던전, 일일 미션, 출석 자리) ---------- */
 let runSub = 'run';
 const dsel = {};   // 일일 출동마다 고른 단계
-const BOSS_ART = { bounty: 'spr_boss1', evidence: 'spr_boss2', tower: 'spr_boss3' };
+const BOSS_ART = { bounty: 'spr_boss1', evidence: 'spr_boss2', training: 'spr_shade', tower: 'spr_boss3' };
 /** 보상 묶음을 아이콘과 숫자로 */
 function rwHtml(r) {
-  return [['gold', r.gold], ['gem', r.gems], ['tix', r.tix], ['ptix', r.ptix]].filter(x => x[1]).map(([ic, v]) => `<span class="rw">${icon(ic)}${C.formatNum(v)}</span>`).join('');
+  return [['gold', r.gold], ['exp', r.exp], ['gem', r.gems], ['tix', r.tix], ['ptix', r.ptix]].filter(x => x[1]).map(([ic, v]) => `<span class="rw">${icon(ic)}${C.formatNum(v)}</span>`).join('');
 }
 /** 난이도 표시: 기술을 빼고 30초 동안 낼 수 있는 피해가 근원체 체력의 몇 배인지 */
 function diffTag(eq) {
@@ -3033,12 +3046,12 @@ function fillHeroDetail() {
   $('hdStar').disabled = max || d.shards < need;
   const { n, cost } = lvPlan(d.lv), up = $('hdUp');
   up.querySelector('.bl').textContent = bulk === 1 ? '강화' : `강화 +${Math.max(n, bulk === 0 ? 1 : bulk)}`;
-  up.querySelector('.cost i').textContent = C.formatNum(cost); up.disabled = !(n > 0 && cost <= S.gold);
+  up.querySelector('.cost i').textContent = C.formatNum(cost); up.disabled = !(n > 0 && cost <= S.exp);
 }
 
 /** 일괄 강화 계획: 1회/10회는 정해진 단계, 최대는 살 수 있는 만큼 */
 function lvPlan(lv) {
-  if (bulk === 0) { const r = C.heroLvAffordable(lv, S.gold, 1000); return r.n > 0 ? r : { n: 1, cost: C.heroLvCost(lv) }; }
+  if (bulk === 0) { const r = C.heroLvAffordable(lv, S.exp, 1000); return r.n > 0 ? r : { n: 1, cost: C.heroLvCost(lv) }; }
   return { n: bulk, cost: C.heroLvCostBulk(lv, bulk) };
 }
 
@@ -3072,7 +3085,7 @@ function onAct(e) {
     else if (act === 'dsweep') {
       const d = C.dungeonById(b.dataset.d), r = C.sweepDungeon(S, d.id);
       toast(`${d.name} ${S.dbest[d.id]}단계 소탕 완료`); banner('소탕 완료');
-      for (const [ic, v] of [['gold', r.gold], ['tix', r.tix]]) if (v) addText(R.A.x, R.A.y - 70, (ic === 'gold' ? '+' : '호출권 +') + C.formatNum(v), '#ffd23a', true);
+      for (const [ic, v] of [['gold', r.gold], ['tix', r.tix], ['exp', r.exp]]) if (v) addText(R.A.x, R.A.y - 70, ({ gold: '+', tix: '호출권 +', exp: '경험치 +' })[ic] + C.formatNum(v), ic === 'exp' ? '#6ff0c8' : '#ffd23a', true);
       writeSave(); renderPanel();
     } else if (act === 'mget') { const g = C.missionClaim(S, +b.dataset.m); if (g) { toast(`보석 ${g}개를 받았어요`); writeSave(); } }
     else if (act === 'mbonus') { const n = C.missionBonus(S); if (n) { toast(`정예 호출권 ${n}장을 받았어요`); writeSave(); } }
@@ -3082,8 +3095,8 @@ function onAct(e) {
     }
     else if (act === 'lv') {
       const d = S.heroes[b.dataset.h], { n, cost } = lvPlan(d.lv);
-      if (cost > S.gold) return toast('골드가 부족해요');
-      S.gold -= cost; d.lv += n; syncHeroes(false); C.progress(S, 'lvup', n);
+      if (cost > S.exp) return toast('경험치가 부족해요. 모의 훈련에서 많이 벌 수 있어요');
+      S.exp -= cost; d.lv += n; syncHeroes(false); C.progress(S, 'lvup', n);
     } else if (act === 'star') {
       const d = S.heroes[b.dataset.h], need = C.starNeed(d.stars, C.heroById(b.dataset.h).grade);
       if (d.shards < need) return;
@@ -3202,8 +3215,8 @@ function openModal(html, onClose) {
 function showOffline(r) {
   if (!r || r.gold <= 0) { if (r) toast('받을 보상이 없어요'); return; }
   openModal(`<h2>자리를 비운 동안</h2><p>요원들이 ${C.formatDuration(r.sec)} 동안 이상체 ${C.formatNum(r.kills)}개체를 처리했어요</p>
-    <div class="big">${icon('gold')}<span>${C.formatNum(r.gold)}</span></div>${r.tix ? `<div class="big">${icon('tix')}<span>${C.formatNum(r.tix)}</span></div>` : ''}<p class="hint">최대 8시간까지 쌓여요</p>
-    <div class="mbtns"><button class="btn" data-close="ok">받기</button></div>`, () => { S.gold += r.gold; S.tix += r.tix || 0; writeSave(); updateUI(); banner('보상 획득'); });
+    <div class="big">${icon('gold')}<span>${C.formatNum(r.gold)}</span></div>${r.exp ? `<div class="big">${icon('exp')}<span>${C.formatNum(r.exp)}</span></div>` : ''}${r.tix ? `<div class="big">${icon('tix')}<span>${C.formatNum(r.tix)}</span></div>` : ''}<p class="hint">최대 8시간까지 쌓여요</p>
+    <div class="mbtns"><button class="btn" data-close="ok">받기</button></div>`, () => { S.gold += r.gold; S.exp += r.exp || 0; S.tix += r.tix || 0; writeSave(); updateUI(); banner('보상 획득'); });
 }
 function confirmReset() {
   openModal(`<h2>처음부터 다시</h2><p>골드, 요원, 스테이지가 모두 지워져요</p><div class="mbtns"><button class="btn ghost" data-close="no">취소</button><button class="btn" data-close="yes" style="background:linear-gradient(#ff7a6b,#c7332a);color:#fff;box-shadow:0 3px 0 #6d1510">초기화</button></div>`, v => {

@@ -39,7 +39,8 @@
     BOSS_GEMS: 10,           // 보스 처치 보석
     SUMMON_COST_1: 30,
     SUMMON_COST_10: 270,
-    LEGEND_RATE: 0.03,       // 전설(해결사) 확률
+    LEGEND_RATE: 0.03,       // 요원 호출: 전설(해결사) 확률
+    PICKUP_LEGEND_RATE: 0.09, // 특별 채용(기간 한정): 전설 확률 3배
     MAX_STARS: 5,
     OFFLINE_CAP_SEC: 8 * 3600,
     OFFLINE_MIN_SEC: 60,
@@ -209,19 +210,21 @@
 
   /**
    * 소환 n회. rng() 는 [0,1) 난수 함수 (테스트에서 고정값 주입).
-   * 전설은 LEGEND_RATE, 나머지는 시작 요원 4명 균등.
+   * 전설은 legendRate(기본 LEGEND_RATE, 특별 채용은 PICKUP_LEGEND_RATE), 나머지는 시작 요원 4명 균등.
    * @returns {string[]} 뽑힌 요원 id 배열
    */
-  function summon(n, rng) {
+  function summon(n, rng, legendRate) {
     if (typeof rng !== 'function') throw new TypeError('rng 함수가 필요합니다');
+    const lr = legendRate === undefined ? CONST.LEGEND_RATE : legendRate;
+    if (!isNum(lr) || lr <= 0 || lr >= 1) throw new RangeError('전설 확률은 0 초과 1 미만이어야 합니다');
     const cnt = clampInt(n, 1, 100, 1);
     const out = [];
     for (let i = 0; i < cnt; i++) {
       const r = rng();
       if (!isNum(r) || r < 0 || r >= 1) throw new RangeError('rng 값은 0 이상 1 미만이어야 합니다');
-      if (r < CONST.LEGEND_RATE) { out.push('dark'); continue; }
+      if (r < lr) { out.push('dark'); continue; }
       // 남은 구간을 4등분
-      const t = (r - CONST.LEGEND_RATE) / (1 - CONST.LEGEND_RATE);
+      const t = (r - lr) / (1 - lr);
       out.push(STARTER_IDS[Math.min(STARTER_IDS.length - 1, Math.floor(t * STARTER_IDS.length))]);
     }
     return out;
@@ -241,6 +244,26 @@
       else { h.shards += 1; isNew.push(false); }
     }
     return { state: next, isNew };
+  }
+
+  /**
+   * 특별 채용 남은 시간(초): 매주 월요일 0시(기기 시간)에 새 기간이 시작된다.
+   * @param {Date} now 현재 시각
+   */
+  function pickupRemainSec(now) {
+    if (!(now instanceof Date) || !isNum(now.getTime())) return 0;
+    const next = new Date(now.getFullYear(), now.getMonth(), now.getDate());   // 오늘 0시
+    const daysToMon = ((8 - next.getDay()) % 7) || 7;                         // 다음 월요일까지 일수 (월요일이면 7)
+    next.setDate(next.getDate() + daysToMon);
+    return Math.max(0, Math.floor((next - now) / 1000));
+  }
+  /** 초 → "6일 23시간" / "5시간 12분" */
+  function formatRemain(sec) {
+    if (!isNum(sec) || sec <= 0) return '0분';
+    const d = Math.floor(sec / 86400), h = Math.floor((sec % 86400) / 3600), m = Math.floor((sec % 3600) / 60);
+    if (d > 0) return `${d}일 ${h}시간`;
+    if (h > 0) return `${h}시간 ${m}분`;
+    return `${Math.max(1, m)}분`;
   }
 
   /* ---------- 7. 상태 생성 / 저장 검증 ---------- */
@@ -311,7 +334,7 @@
     stageLabel, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed,
-    partyDps, offlineReward, summon, applySummon,
+    partyDps, offlineReward, summon, applySummon, pickupRemainSec, formatRemain,
     newState, cloneState, sanitize, loadFromString,
   };
 

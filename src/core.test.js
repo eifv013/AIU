@@ -140,3 +140,20 @@ test('요원 이름: 코드네임과 동물이 모두 있고 겹치지 않음', 
 test('등급 이름: 희귀, 영웅, 전설만 사용', () => {
   for (const h of C.HEROES) assert.ok(['희귀', '영웅', '전설'].includes(h.grade), h.id + ' 등급 ' + h.grade);
 });
+
+test('특별 채용: 전설 확률이 올라가고 잘못된 확률은 거부', () => {
+  assert.deepEqual(C.summon(1, () => 0.08, C.CONST.PICKUP_LEGEND_RATE), ['dark']);   // 9% 안
+  assert.deepEqual(C.summon(1, () => 0.08), ['knight']);                              // 일반 호출은 3% 밖
+  assert.throws(() => C.summon(1, () => 0.5, 0), RangeError);
+  assert.throws(() => C.summon(1, () => 0.5, 1.2), RangeError);
+});
+
+test('특별 채용 남은 기간: 다음 월요일 0시까지', () => {
+  const sun = new Date(2026, 10, 29, 12, 0, 0);          // 일요일 12시
+  assert.equal(C.pickupRemainSec(sun), 12 * 3600);
+  const mon = new Date(2026, 10, 30, 0, 0, 0);           // 월요일 0시 → 7일 뒤
+  assert.equal(C.pickupRemainSec(mon), 7 * 86400);
+  assert.equal(C.pickupRemainSec(new Date(NaN)), 0);
+  assert.equal(C.formatRemain(7 * 86400 - 3600), '6일 23시간');
+  assert.equal(C.formatRemain(5 * 3600 + 12 * 60), '5시간 12분');
+});

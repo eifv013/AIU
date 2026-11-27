@@ -104,6 +104,14 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
 .sbanner .tt{position:absolute;left:14px;bottom:12px;right:14px}
 .sbanner .tt b{display:block;font:400 26px "Black Han Sans";color:#fff;text-shadow:0 2px 0 #000}
 .sbanner .tt span{font-size:13px;color:#ffd98a}
+.sbanner.small{height:120px}
+.sbanner .tag{position:absolute;left:14px;top:12px;padding:2px 8px;border-radius:6px;background:var(--red);color:#fff;font:700 12px 'IBM Plex Sans KR',sans-serif}
+.sbanner .left{position:absolute;right:12px;top:12px;padding:2px 8px;border-radius:6px;background:rgba(18,21,28,.75);color:var(--ink);font-size:12px;white-space:nowrap}
+.sgap{height:16px}
+.rtable{width:100%;margin-top:10px;border-collapse:collapse;font-size:13px;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.rtable th,.rtable td{padding:6px 10px;text-align:right;white-space:nowrap}
+.rtable th:first-child,.rtable td:first-child{text-align:left}
+.rtable th{color:var(--dim);font-weight:600;border-bottom:1px solid var(--line)}
 .srow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .srow .btn{min-height:58px;font-size:15px}
 .rates{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--panel);border:1px solid var(--line);font-size:13px}
@@ -191,7 +199,7 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
   <nav id="tabs">
     <button data-tab="hero" class="on">요원<i class="dot" id="dotHero"></i></button>
     <button data-tab="train">훈련소<i class="dot" id="dotTrain"></i></button>
-    <button data-tab="summon">소환</button>
+    <button data-tab="summon">호출</button>
   </nav>
   <div id="modal"></div>
   <div id="toast"></div>
@@ -226,7 +234,7 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
             <polyline points="125,52 113,58 105,56" fill="none" stroke="#B48CFF" stroke-width="1.4"/>
           </g>
         </svg>
-        <div class="aiu-stamp">1급 기밀</div>
+        <div class="aiu-stamp">위험 등급 Ω</div>
         <div class="aiu-en">ANOMALOUS INCIDENT UNIT</div>
         <div class="aiu-ko"><i></i><span>이상현상 전담수사팀</span><i></i></div>
       </div>
@@ -284,7 +292,8 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
     BOSS_GEMS: 10,           // 보스 처치 보석
     SUMMON_COST_1: 30,
     SUMMON_COST_10: 270,
-    LEGEND_RATE: 0.03,       // 전설(해결사) 확률
+    LEGEND_RATE: 0.03,       // 요원 호출: 전설(해결사) 확률
+    PICKUP_LEGEND_RATE: 0.09, // 특별 채용(기간 한정): 전설 확률 3배
     MAX_STARS: 5,
     OFFLINE_CAP_SEC: 8 * 3600,
     OFFLINE_MIN_SEC: 60,
@@ -454,19 +463,21 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
 
   /**
    * 소환 n회. rng() 는 [0,1) 난수 함수 (테스트에서 고정값 주입).
-   * 전설은 LEGEND_RATE, 나머지는 시작 요원 4명 균등.
+   * 전설은 legendRate(기본 LEGEND_RATE, 특별 채용은 PICKUP_LEGEND_RATE), 나머지는 시작 요원 4명 균등.
    * @returns {string[]} 뽑힌 요원 id 배열
    */
-  function summon(n, rng) {
+  function summon(n, rng, legendRate) {
     if (typeof rng !== 'function') throw new TypeError('rng 함수가 필요합니다');
+    const lr = legendRate === undefined ? CONST.LEGEND_RATE : legendRate;
+    if (!isNum(lr) || lr <= 0 || lr >= 1) throw new RangeError('전설 확률은 0 초과 1 미만이어야 합니다');
     const cnt = clampInt(n, 1, 100, 1);
     const out = [];
     for (let i = 0; i < cnt; i++) {
       const r = rng();
       if (!isNum(r) || r < 0 || r >= 1) throw new RangeError('rng 값은 0 이상 1 미만이어야 합니다');
-      if (r < CONST.LEGEND_RATE) { out.push('dark'); continue; }
+      if (r < lr) { out.push('dark'); continue; }
       // 남은 구간을 4등분
-      const t = (r - CONST.LEGEND_RATE) / (1 - CONST.LEGEND_RATE);
+      const t = (r - lr) / (1 - lr);
       out.push(STARTER_IDS[Math.min(STARTER_IDS.length - 1, Math.floor(t * STARTER_IDS.length))]);
     }
     return out;
@@ -486,6 +497,26 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
       else { h.shards += 1; isNew.push(false); }
     }
     return { state: next, isNew };
+  }
+
+  /**
+   * 특별 채용 남은 시간(초): 매주 월요일 0시(기기 시간)에 새 기간이 시작된다.
+   * @param {Date} now 현재 시각
+   */
+  function pickupRemainSec(now) {
+    if (!(now instanceof Date) || !isNum(now.getTime())) return 0;
+    const next = new Date(now.getFullYear(), now.getMonth(), now.getDate());   // 오늘 0시
+    const daysToMon = ((8 - next.getDay()) % 7) || 7;                         // 다음 월요일까지 일수 (월요일이면 7)
+    next.setDate(next.getDate() + daysToMon);
+    return Math.max(0, Math.floor((next - now) / 1000));
+  }
+  /** 초 → "6일 23시간" / "5시간 12분" */
+  function formatRemain(sec) {
+    if (!isNum(sec) || sec <= 0) return '0분';
+    const d = Math.floor(sec / 86400), h = Math.floor((sec % 86400) / 3600), m = Math.floor((sec % 3600) / 60);
+    if (d > 0) return `${d}일 ${h}시간`;
+    if (h > 0) return `${h}시간 ${m}분`;
+    return `${Math.max(1, m)}분`;
   }
 
   /* ---------- 7. 상태 생성 / 저장 검증 ---------- */
@@ -556,7 +587,7 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
     stageLabel, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed,
-    partyDps, offlineReward, summon, applySummon,
+    partyDps, offlineReward, summon, applySummon, pickupRemainSec, formatRemain,
     newState, cloneState, sanitize, loadFromString,
   };
 
@@ -1307,7 +1338,7 @@ function renderParty() {
   const list = owned(), slots = [];
   for (let i = 0; i < 5; i++) {
     const h = list[i];
-    slots.push(h ? `<div class="slot" id="sl-${h.id}"><img src="${portrait(h.id)}" alt="${h.name}"><div class="cd"></div><div class="hp"><i></i></div></div>` : `<div class="slot empty" title="소환으로 합류">+</div>`);
+    slots.push(h ? `<div class="slot" id="sl-${h.id}"><img src="${portrait(h.id)}" alt="${h.name}"><div class="cd"></div><div class="hp"><i></i></div></div>` : `<div class="slot empty" title="호출로 합류">+</div>`);
   }
   $('party').innerHTML = slots.join('');
 }
@@ -1344,7 +1375,7 @@ function renderPanel() {
     P.innerHTML = `<div class="seg">${[[1, '1회'], [10, '10회'], [0, '최대']].map(([v, l]) => `<button data-act="bulk" data-v="${v}" class="${bulk === v ? 'on' : ''}">${l}</button>`).join('')}</div>` +
       C.HEROES.map(h => {
         const d = S.heroes[h.id];
-        if (!d.owned) return `<div class="card locked"><img class="pt" src="${portrait(h.id)}" alt=""><div><div class="nm"><b>${h.name}</b><span class="role">${h.role}</span><span class="gr g-${h.grade}">${h.grade}</span></div><div class="hint">소환에서 만날 수 있어요</div></div><div class="st">미보유</div></div>`;
+        if (!d.owned) return `<div class="card locked"><img class="pt" src="${portrait(h.id)}" alt=""><div><div class="nm"><b>${h.name}</b><span class="role">${h.role}</span><span class="gr g-${h.grade}">${h.grade}</span></div><div class="hint">호출로 만날 수 있어요</div></div><div class="st">미보유</div></div>`;
         return `<div class="card" data-h="${h.id}"><img class="pt" src="${portrait(h.id)}" alt="">
           <div><div class="nm"><b>${h.name}</b><span class="role">${h.role}</span><span class="gr g-${h.grade}">${h.grade}</span></div>
           <div class="stars">${starStr(d.stars)}</div>
@@ -1361,11 +1392,22 @@ function renderPanel() {
       <div class="urow"><div class="uic"><svg><use href="#i-gold"/></svg></div><div><div class="ut">자리 비움 보상</div><div class="uv">1시간 비운 것처럼 받아 보기</div></div><button class="btn ghost" data-act="testOff">받아 보기</button></div>
       <div class="urow"><div class="uic"><svg><use href="#i-target"/></svg></div><div><div class="ut">처음부터 다시</div><div class="uv">저장된 진행을 모두 지워요</div></div><button class="btn ghost" data-act="reset">초기화</button></div>`;
   } else {
-    P.innerHTML = `<div class="sbanner"><canvas id="sbc"></canvas><div class="tt"><b>AIU 요원 소환</b><span>전설 ${C.heroById('dark').role} ${C.heroById('dark').name} 확률 ${Math.round(C.CONST.LEGEND_RATE * 100)}%</span></div></div>
-      <div class="srow"><button class="btn blue" data-act="sum" data-n="1"><span>1회 소환</span><span class="cost">${icon('gem')}${C.CONST.SUMMON_COST_1}</span></button>
-      <button class="btn" data-act="sum" data-n="10"><span>10회 소환</span><span class="cost">${icon('gem')}${C.CONST.SUMMON_COST_10}</span></button></div>
-      <div class="rates"><div><span>전설 ${C.heroById('dark').name}</span><b>${(C.CONST.LEGEND_RATE * 100).toFixed(1)}%</b></div>${C.STARTER_IDS.map(id => `<div><span>${C.heroById(id).grade} ${C.heroById(id).name}</span><b>${((1 - C.CONST.LEGEND_RATE) / 4 * 100).toFixed(2)}%</b></div>`).join('')}</div>
-      <p class="hint" style="margin:10px 2px">이미 있는 요원이 나오면 조각이 되고, 조각을 모아 승급하면 능력치가 크게 올라요. 보석은 두목을 잡으면 ${C.CONST.BOSS_GEMS}개씩 얻어요.</p>`;
+    const pk = C.heroById('dark'), lr = C.CONST.LEGEND_RATE, pr = C.CONST.PICKUP_LEGEND_RATE;
+    const cost1 = C.CONST.SUMMON_COST_1, cost10 = C.CONST.SUMMON_COST_10;
+    const btns = (kind, verb, cls) => `<div class="srow"><button class="btn ${cls}" data-act="sum" data-kind="${kind}" data-n="1"><span>1회 ${verb}</span><span class="cost">${icon('gem')}${cost1}</span></button>
+      <button class="btn" data-act="sum" data-kind="${kind}" data-n="10"><span>10회 ${verb}</span><span class="cost">${icon('gem')}${cost10}</span></button></div>`;
+    const row = (name, a, b) => `<tr><td>${name}</td><td>${a}</td><td>${b}</td></tr>`;
+    P.innerHTML = `<div class="sbanner"><canvas id="sbc"></canvas><span class="tag">한정</span><span class="left" id="pkLeft"></span>
+        <div class="tt"><b>특별 채용</b><span>전설 ${pk.role} ${pk.name} 확률 ${Math.round(pr * 100)}%</span></div></div>
+      ${btns('pickup', '채용', 'blue')}
+      <div class="sgap"></div>
+      <div class="sbanner small"><canvas id="sbc2"></canvas><div class="tt"><b>요원 호출</b><span>상시 호출</span></div></div>
+      ${btns('normal', '호출', 'blue')}
+      <table class="rtable"><thead><tr><th>요원</th><th>호출</th><th>특별 채용</th></tr></thead><tbody>
+        ${row(`전설 ${pk.name}`, (lr * 100).toFixed(1) + '%', (pr * 100).toFixed(1) + '%')}
+        ${C.STARTER_IDS.map(id => row(`${C.heroById(id).grade} ${C.heroById(id).name}`, ((1 - lr) / 4 * 100).toFixed(2) + '%', ((1 - pr) / 4 * 100).toFixed(2) + '%')).join('')}
+      </tbody></table>
+      <p class="hint" style="margin:10px 2px">이미 있는 요원이 나오면 조각이 되고, 조각을 모아 승급하면 능력치가 크게 올라요. 보석은 두목을 잡으면 ${C.CONST.BOSS_GEMS}개씩 얻어요. 특별 채용은 매주 월요일 0시에 새로 열려요.</p>`;
     drawSummonBanner();
   }
   updatePanel();
@@ -1379,6 +1421,14 @@ function drawSummonBanner() {
   p.fillStyle = bg; p.fillRect(0, 0, w, h);
   p.strokeStyle = 'rgba(185,200,240,.18)'; p.lineWidth = 1; for (let i = 0; i < 46; i++) { const x = (i * 97) % w, y = (i * 53) % h; p.beginPath(); p.moveTo(x, y); p.lineTo(x - 3, y + 12); p.stroke(); }
   drawHero(p, 'dark', w * 0.74, h * 1.02, h * 0.95, 1, 0.3, 0);
+  // 요원 호출 배너: 시작 요원 넷이 나란히
+  const c2 = $('sbc2'); if (!c2) return;
+  const w2 = c2.clientWidth || 360, h2 = c2.clientHeight || 120;
+  c2.width = w2 * d; c2.height = h2 * d;
+  const q = c2.getContext('2d'); if (!q) return; q.scale(d, d);
+  const bg2 = q.createLinearGradient(0, 0, w2, 0); bg2.addColorStop(0, '#0b0d12'); bg2.addColorStop(1, '#243049');
+  q.fillStyle = bg2; q.fillRect(0, 0, w2, h2);
+  C.STARTER_IDS.forEach((id, i) => drawHero(q, id, w2 * (0.5 + i * 0.13), h2 * 1.04, h2 * 0.82, 1, 0, 0));
 }
 function updatePanel() {
   const P = $('panel');
@@ -1406,6 +1456,7 @@ function updatePanel() {
       btn.disabled = cost === Infinity || cost > S.gold;
     }
   } else {
+    const pl = $('pkLeft'); if (pl) pl.textContent = '남은 기간 ' + C.formatRemain(C.pickupRemainSec(new Date()));
     for (const b of P.querySelectorAll('[data-act=sum]')) b.disabled = S.gems < (b.dataset.n === '10' ? C.CONST.SUMMON_COST_10 : C.CONST.SUMMON_COST_1);
   }
   // 탭 알림 점: 할 수 있는 강화가 있을 때
@@ -1436,7 +1487,7 @@ $('panel').addEventListener('click', e => {
       const id = b.dataset.u, cost = C.upgradeCost(id, S.up[id]);
       if (cost > S.gold) return toast('골드가 부족해요');
       S.gold -= cost; S.up[id]++;
-    } else if (act === 'sum') doSummon(+b.dataset.n);
+    } else if (act === 'sum') doSummon(+b.dataset.n, b.dataset.kind === 'pickup');
     else if (act === 'testOff') showOffline(C.offlineReward(S, 3600));
     else if (act === 'reset') confirmReset();
     updateUI(); writeSave();
@@ -1450,15 +1501,16 @@ $('tabs').addEventListener('click', e => {
 });
 $('bossBtn').addEventListener('click', () => { S.farming = false; S.kills = C.CONST.WAVE_KILLS; R.enemies = []; R.boss = null; updateUI(); });
 
-/* ---------- 영입 ---------- */
-function doSummon(n) {
+/* ---------- 요원 호출 / 특별 채용 ---------- */
+/** n회 호출. pickup 이면 특별 채용(전설 확률 높음) */
+function doSummon(n, pickup) {
   const cost = n === 10 ? C.CONST.SUMMON_COST_10 : C.CONST.SUMMON_COST_1;
   if (S.gems < cost) return toast('보석이 부족해요');
-  const ids = C.summon(n, Math.random);
+  const ids = C.summon(n, Math.random, pickup ? C.CONST.PICKUP_LEGEND_RATE : C.CONST.LEGEND_RATE);
   const res = C.applySummon(S, ids);
   res.state.gems -= cost; S = res.state;
   syncHeroes(false); writeSave();
-  openModal(`<h2>소환 결과</h2><div class="res ${n === 1 ? 'one' : ''}">${ids.map((id, i) => {
+  openModal(`<h2>${pickup ? '채용 결과' : '호출 결과'}</h2><div class="res ${n === 1 ? 'one' : ''}">${ids.map((id, i) => {
     const h = C.heroById(id);
     return `<div class="rc ${h.grade === '전설' ? 'leg' : ''}" style="animation-delay:${i * 0.07}s"><img src="${portrait(id)}" alt=""><small>${h.name}</small>${res.isNew[i] ? '<span class="new">NEW</span>' : ''}</div>`;
   }).join('')}</div><p>${res.isNew.some(Boolean) ? '새 요원이 AIU에 합류했어요' : '조각은 요원 탭에서 승급에 써요'}</p><div class="mbtns"><button class="btn" data-close>확인</button></div>`);

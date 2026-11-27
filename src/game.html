@@ -153,11 +153,18 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 .rtable td{font-family:"Black Han Sans";font-size:14px}
 .rtable td:first-child{font-family:'IBM Plex Sans KR',sans-serif;font-size:13px;font-weight:600}
 .rtable tr + tr td{border-top:1px solid rgba(47,58,82,.5)}
+.wallet{display:flex;gap:14px;justify-content:flex-end;margin:0 2px 8px;font-size:12px;color:var(--dim)}
+.wallet span{display:flex;align-items:center;gap:4px}
+.wallet b{font:400 14px "Black Han Sans";color:var(--ink)}
+.sbanner.locked canvas{filter:grayscale(.8) brightness(.45)}
+.sbanner .lock{position:absolute;left:50%;top:32%;transform:translate(-50%,-50%);padding:6px 14px;border:1px solid var(--line);border-radius:var(--r);background:rgba(10,13,20,.85);font:400 16px "Black Han Sans";color:#fff;white-space:nowrap}
+.slv-r{display:flex;align-items:center;gap:4px;margin-top:7px;font-size:12px;color:var(--dim)}
 .slv{margin-top:14px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel)}
 .slv-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
 .slv-h b{font:400 16px "Black Han Sans";color:var(--gold)}
 .slv-h span{font-size:12px;color:var(--dim)}
 .srow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.btn .cost .ic{width:1.05em;height:1.05em}
 .srow .btn{min-height:56px;font-size:15px}
 .rates{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--panel);border:1px solid var(--line);font-size:13px}
 .rates div{display:flex;justify-content:space-between;padding:2px 0}
@@ -228,6 +235,8 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   </defs>
   <symbol id="i-gold" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="url(#gG)" stroke="#8a5609" stroke-width="1.4"/><circle cx="12" cy="12" r="6.5" fill="none" stroke="#a96d0c" stroke-width="1.3"/><path d="M12 8.2l1.1 2.4 2.6.3-1.9 1.8.5 2.6-2.3-1.3-2.3 1.3.5-2.6-1.9-1.8 2.6-.3z" fill="#fff4c2"/></symbol>
   <symbol id="i-gem" viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 12L2 9z" fill="url(#gM)" stroke="#1a2f8f" stroke-width="1.3" stroke-linejoin="round"/><path d="M2 9h20M8 3l-2 6 6 12 6-12-2-6" fill="none" stroke="#e4fbff" stroke-width=".9" opacity=".8"/></symbol>
+  <symbol id="i-tix" viewBox="0 0 24 24"><path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4z" fill="#E9C46A" stroke="#7a5a12" stroke-width="1.3" stroke-linejoin="round"/><path d="M15 7v10" stroke="#7a5a12" stroke-width="1.1" stroke-dasharray="1.6 1.6"/><path d="M7.5 10.2h4.5M7.5 13.8h3" stroke="#7a5a12" stroke-width="1.3" stroke-linecap="round"/></symbol>
+  <symbol id="i-ptix" viewBox="0 0 24 24"><path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4z" fill="#A98BFF" stroke="#3c2a7a" stroke-width="1.3" stroke-linejoin="round"/><path d="M15 7v10" stroke="#3c2a7a" stroke-width="1.1" stroke-dasharray="1.6 1.6"/><path d="M9.5 9.3l.9 1.9 2.1.3-1.5 1.4.4 2-1.9-1-1.9 1 .4-2-1.5-1.4 2.1-.3z" fill="#fff"/></symbol>
   <symbol id="i-sword" viewBox="0 0 24 24"><path d="M19 3l2 2-10 10-2-2z" fill="#dfe6ff" stroke="#6b78b5"/><path d="M6 14l4 4-2 1-1.5-1.5L4 20l-1-1 2.5-2.5L4 15z" fill="#f5c451" stroke="#8a5609"/></symbol>
   <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#e04848"/><circle cx="12" cy="12" r="6" fill="#fff"/><circle cx="12" cy="12" r="3" fill="#e04848"/></symbol>
 </svg>
@@ -767,11 +776,11 @@ function kill(e) {
     const gold = C.bossGold(S.stage, S.up.gold);
     S.gold += gold; S.gems += C.CONST.BOSS_GEMS;
     banner('봉쇄 완료');
-    S.stage++; S.kills = 0; R.boss = null; S.farming = false; C.questAdd(S, 'boss', 1);
+    S.stage++; S.kills = 0; R.boss = null; S.farming = false; C.questAdd(S, 'boss', 1); C.addTickets(S, 0, 1);
     addText(e.x, e.y - e.size, '+' + C.formatNum(gold), '#ffd23a', true);
     writeSave(); renderPanel();
   } else {
-    S.gold += C.killGold(S.stage, S.up.gold); C.questAdd(S, 'kill', 1);
+    S.gold += C.killGold(S.stage, S.up.gold); C.questAdd(S, 'kill', 1); C.addTickets(S, 1);
     if (!S.farming && S.kills < C.CONST.WAVE_KILLS) S.kills++;
   }
   for (let i = 0; i < (e.boss ? 26 : 9); i++) { const a = Math.random() * 6.28, v = 20 + Math.random() * (e.boss ? 90 : 50);
@@ -1329,24 +1338,34 @@ function renderPanel() {
       <div class="urow"><div class="uic"><svg><use href="#i-gold"/></svg></div><div><div class="ut">자리 비움 보상</div><div class="uv">1시간 비운 것처럼 받아 보기</div></div><button class="btn ghost" data-act="testOff">받아 보기</button></div>
       <div class="urow"><div class="uic"><svg><use href="#i-target"/></svg></div><div><div class="ut">처음부터 다시</div><div class="uv">저장된 진행을 모두 지워요</div></div><button class="btn ghost" data-act="reset">초기화</button></div>`;
   } else {
-    const pk = C.heroById('dark'), lv = C.summonLevel(S.pulls.total), rt = C.summonRates(lv);
-    const cost1 = C.CONST.SUMMON_COST_1, cost10 = C.CONST.SUMMON_COST_10;
-    const btns = (kind, verb, cls) => `<div class="srow"><button class="btn ${cls}" data-act="sum" data-kind="${kind}" data-n="1"><span>1회 ${verb}</span><span class="cost">${icon('gem')}${cost1}</span></button>
-      <button class="btn" data-act="sum" data-kind="${kind}" data-n="10"><span>10회 ${verb}</span><span class="cost">${icon('gem')}${cost10}</span></button></div>`;
-    const pct = v => v === 0 ? '없음' : (v * 100 < 1 ? (v * 100).toFixed(4) : (v * 100).toFixed(2)) + '%';
+    const pk = C.heroById('dark'), lv = C.summonLevel(S.pulls.total), rt = C.summonRates(lv), K = C.CONST;
+    const open = lv >= K.PICKUP_OPEN_LV;
+    // 버튼: 요원 호출은 호출권, 정예와 특별은 정예 호출권이 있으면 그것, 없으면 보석
+    const btns = (kind, verb) => [1, 10].map(n => `<button class="btn ${n === 1 ? 'blue' : ''}" data-act="sum" data-kind="${kind}" data-n="${n}"><span>${n}회 ${verb}</span><span class="cost" data-cost="${kind}-${n}"></span></button>`).join('');
+    const pct = v => v === 0 ? '없음' : (v * 100 < 1 ? (v * 100).toFixed(2) : (v * 100).toFixed(1)) + '%';
     const each = g => C.HEROES.filter(h => h.grade === g);
-    const rows = [['전설', rt.legend], ['영웅', rt.hero], ['희귀', rt.rare]].flatMap(([g, v]) => each(g).map(h => `<tr><td>${g} ${h.name}</td><td>${v === 0 ? '없음' : pct(v / each(g).length)}</td></tr>`)).join('');
-    const nextNeed = C.CONST.SUMMON_LV_PULLS[lv];   // 다음 레벨 기준 (10이면 없음)
-    P.innerHTML = `<div class="sbanner"><canvas id="sbc"></canvas><span class="tag">한정</span><span class="left" id="pkLeft"></span>
-        <div class="tt"><b>특별 채용</b><span>누적 ${C.CONST.RELAY.toLocaleString()}회 채용하면 전설 ${pk.name} 확정</span><em class="pity" id="pity-pickup"></em></div></div>
-      ${btns('pickup', '채용', 'blue')}
+    const prem = { 전설: K.PREMIUM_LEGEND, 영웅: 1 - K.PREMIUM_LEGEND, 희귀: 0 };
+    const rows = ['전설', '영웅', '희귀'].flatMap(g => each(g).map(h => {
+      const call = { 전설: rt.legend, 영웅: rt.hero, 희귀: rt.rare }[g] / each(g).length;
+      return `<tr><td>${g} ${h.name}</td><td>${call ? pct(call) : '없음'}</td><td>${prem[g] ? pct(prem[g] / each(g).length) : '없음'}</td></tr>`;
+    })).join('');
+    const nextNeed = K.SUMMON_LV_PULLS[lv];
+    P.innerHTML = `<div class="wallet"><span>${icon('tix')}호출권 <b id="wTix"></b></span><span>${icon('ptix')}정예 호출권 <b id="wPtix"></b></span></div>
+      <div class="sbanner ${open ? '' : 'locked'}"><canvas id="sbc"></canvas><span class="tag">한정</span><span class="left" id="pkLeft"></span>
+        <div class="tt"><b>특별 채용</b><span>전설 ${pk.name} 확률 ${pct(K.PREMIUM_LEGEND)}</span><em class="pity" id="pity-pickup"></em></div>
+        ${open ? '' : `<div class="lock">소환 레벨 ${K.PICKUP_OPEN_LV}부터 열려요</div>`}</div>
+      <div class="srow">${btns('pickup', '채용')}</div>
       <div class="sgap"></div>
-      <div class="sbanner small"><canvas id="sbc2"></canvas><div class="tt"><b>요원 호출</b><span>상시 호출</span></div></div>
-      ${btns('normal', '호출', 'blue')}
+      <div class="sbanner small"><canvas id="sbc3"></canvas><div class="tt"><b>정예 호출</b><span>영웅 이상만, 전설 ${pct(K.PREMIUM_LEGEND)}</span></div></div>
+      <div class="srow">${btns('elite', '호출')}</div>
+      <div class="sgap"></div>
+      <div class="sbanner small"><canvas id="sbc2"></canvas><div class="tt"><b>요원 호출</b><span>호출권으로 뽑아요</span><em class="pity">소환 레벨이 여기서 올라요</em></div></div>
+      <div class="srow">${btns('call', '호출')}</div>
       <div class="slv"><div class="slv-h"><b>소환 레벨 ${lv}</b><span>${nextNeed ? `다음 레벨까지 ${(nextNeed - S.pulls.total).toLocaleString()}회` : '최고 레벨'}</span></div>
-        <div class="bar"><i style="width:${nextNeed ? (100 * (S.pulls.total - C.CONST.SUMMON_LV_PULLS[lv - 1]) / (nextNeed - C.CONST.SUMMON_LV_PULLS[lv - 1])).toFixed(1) : 100}%"></i></div></div>
-      <table class="rtable"><thead><tr><th>요원</th><th>현재 확률</th></tr></thead><tbody>${rows}</tbody></table>
-      <p class="hint" style="margin:10px 2px">호출과 채용을 할수록 소환 레벨이 올라요. 전설은 소환 레벨 5부터 나오고, 레벨이 오를수록 확률도 올라요. 특별 채용은 2주마다 목요일 오전 9시에 바뀌고, 누적 ${C.CONST.RELAY.toLocaleString()}회째에 ${pk.name}이 확정으로 나와요. 이미 있는 요원이 나오면 조각이 되고, 조각으로 승급해요. 보석은 근원체를 봉쇄하면 ${C.CONST.BOSS_GEMS}개씩 얻어요.</p>`;
+        <div class="bar"><i style="width:${nextNeed ? (100 * (S.pulls.total - K.SUMMON_LV_PULLS[lv - 1]) / (nextNeed - K.SUMMON_LV_PULLS[lv - 1])).toFixed(1) : 100}%"></i></div>
+        ${nextNeed ? `<div class="slv-r">레벨 ${lv + 1} 보상 ${icon('gem')}${C.levelReward(lv + 1).gems} ${icon('ptix')}${C.levelReward(lv + 1).ptix}</div>` : ''}</div>
+      <table class="rtable"><thead><tr><th>요원</th><th>요원 호출</th><th>정예, 특별</th></tr></thead><tbody>${rows}</tbody></table>
+      <p class="hint" style="margin:10px 2px">요원 호출은 전투에서 쌓이는 호출권으로 뽑아요. 이상체 10마리마다 1장, 근원체를 봉쇄하면 ${K.BOSS_TICKETS}장이에요. 요원 호출을 할수록 소환 레벨이 오르고, 오를 때마다 보석과 정예 호출권을 받아요. 전설은 요원 호출에서 소환 레벨 5부터 나와요. 정예 호출과 특별 채용은 보석 ${K.PREMIUM_COST}개(또는 정예 호출권 1장)로 뽑고 희귀 요원은 나오지 않아요. 특별 채용은 2주마다 목요일 오전 9시에 바뀌고, 누적 ${K.RELAY}회째에 ${pk.name}이 확정으로 나와요.</p>`;
     drawSummonBanner();
   }
   updatePanel();
@@ -1359,14 +1378,14 @@ function drawCover(p, im, w, h, ax = 0.5, ay = 0.5) {
 /** 호출 배너: 일러스트를 배경으로 깔고, 왼쪽 글자가 잘 읽히게 왼쪽을 어둡게 */
 function drawSummonBanner() {
   const d = Math.min(3, devicePixelRatio || 1);
-  for (const [id, key, ax, ay] of [['sbc', 'banner_pick', 1, 0.3], ['sbc2', 'banner_call', 0.5, 0.35]]) {
+  for (const [id, key, ax, ay] of [['sbc', 'banner_pick', 1, 0.3], ['sbc2', 'banner_call', 0.5, 0.35], ['sbc3', 'banner_elite', 0.8, 0.35]]) {
     const c = $(id); if (!c) continue;
     const w = c.clientWidth || 360, h = c.clientHeight || 150;
     c.width = Math.round(w * d); c.height = Math.round(h * d);
     const p = c.getContext('2d'); if (!p) continue; p.scale(d, d);
     p.fillStyle = '#0b0d12'; p.fillRect(0, 0, w, h);
     if (imgOk(key)) drawCover(p, IMG[key], w, h, ax, ay);
-    else if (id === 'sbc') drawHero(p, 'dark', w * 0.74, h * 1.02, h * 0.95, 1, 0.3, 0);
+    else if (id !== 'sbc2') drawHero(p, id === 'sbc' ? 'dark' : 'mage', w * 0.74, h * 1.02, h * 0.95, 1, 0.3, 0);
     else C.STARTER_IDS.forEach((hid, i) => drawHero(p, hid, w * (0.5 + i * 0.13), h * 1.04, h * 0.82, 1, 0, 0));
     const sh = p.createLinearGradient(0, 0, w * 0.62, 0); sh.addColorStop(0, 'rgba(8,10,16,.88)'); sh.addColorStop(1, 'rgba(8,10,16,0)');
     p.fillStyle = sh; p.fillRect(0, 0, w, h);
@@ -1402,7 +1421,14 @@ function updatePanel() {
   } else {
     const pl = $('pkLeft'); if (pl) pl.textContent = '남은 기간 ' + C.formatRemain(C.pickupRemainSec(new Date()));
     const pe = $('pity-pickup'); if (pe) pe.textContent = `확정까지 ${(C.CONST.RELAY - S.pulls.relay).toLocaleString()}회`;
-    for (const b of P.querySelectorAll('[data-act=sum]')) b.disabled = S.gems < (b.dataset.n === '10' ? C.CONST.SUMMON_COST_10 : C.CONST.SUMMON_COST_1);
+    const K = C.CONST, open = C.summonLevel(S.pulls.total) >= K.PICKUP_OPEN_LV;
+    for (const b of P.querySelectorAll('[data-act=sum]')) {
+      const n = +b.dataset.n, kind = b.dataset.kind, c = b.querySelector('.cost');
+      if (kind === 'call') { c.innerHTML = icon('tix') + n * K.CALL_COST; b.disabled = S.tix < n * K.CALL_COST; }
+      else if (S.ptix >= n) { c.innerHTML = icon('ptix') + n; b.disabled = kind === 'pickup' && !open; }
+      else { c.innerHTML = icon('gem') + n * K.PREMIUM_COST; b.disabled = S.gems < n * K.PREMIUM_COST || (kind === 'pickup' && !open); }
+    }
+    const wt = $('wTix'); if (wt) { wt.textContent = C.formatNum(S.tix); $('wPtix').textContent = C.formatNum(S.ptix); }
   }
   // 탭 알림 점: 할 수 있는 강화가 있을 때
   $('dotHero').style.display = owned().some(h => C.heroLvCost(S.heroes[h.id].lv) <= S.gold || S.heroes[h.id].shards >= C.starNeed(S.heroes[h.id].stars)) && tab !== 'hero' ? 'block' : 'none';
@@ -1432,7 +1458,7 @@ $('panel').addEventListener('click', e => {
       const id = b.dataset.u, cost = C.upgradeCost(id, S.up[id]);
       if (cost > S.gold) return toast('골드가 부족해요');
       S.gold -= cost; S.up[id]++; C.questAdd(S, 'train', 1);
-    } else if (act === 'sum') doSummon(+b.dataset.n, b.dataset.kind === 'pickup');
+    } else if (act === 'sum') doSummon(+b.dataset.n, b.dataset.kind);
     else if (act === 'testOff') showOffline(C.offlineReward(S, 3600));
     else if (act === 'reset') confirmReset();
     updateUI(); writeSave();
@@ -1463,18 +1489,18 @@ $('bossBtn').addEventListener('click', () => { S.farming = false; S.kills = C.CO
 
 /* ---------- 요원 호출 / 특별 채용 ---------- */
 /** n회 호출. pickup 이면 특별 채용(전설 확률 높음) */
-function doSummon(n, pickup) {
-  const cost = n === 10 ? C.CONST.SUMMON_COST_10 : C.CONST.SUMMON_COST_1;
-  if (S.gems < cost) return toast('보석이 부족해요');
-  const lvBefore = C.summonLevel(S.pulls.total);
-  const res = C.doSummon(S, n, pickup ? 'pickup' : 'normal', Math.random), ids = res.ids;
+function doSummon(n, kind) {
+  let res;
+  try { res = C.doSummon(S, n, kind, Math.random); }
+  catch (e) { return toast(e.message.replace('습니다', '요').replace('열립니다', '열려요')); }
+  const ids = res.ids, pickup = kind === 'pickup';
   S = res.state; C.questAdd(S, 'summon', n);
-  const lvAfter = C.summonLevel(S.pulls.total);
+  const lvMsg = res.lvUps.length ? `소환 레벨 ${res.lvUps[res.lvUps.length - 1]} 달성! 보석 ${res.lvUps.reduce((a, L) => a + C.levelReward(L).gems, 0)}개, 정예 호출권 ${res.lvUps.reduce((a, L) => a + C.levelReward(L).ptix, 0)}장` : '';
   syncHeroes(false); writeSave();
-  openModal(`<h2>${pickup ? '채용 결과' : '호출 결과'}</h2><div class="res ${n === 1 ? 'one' : ''}">${ids.map((id, i) => {
+  openModal(`<h2>${pickup ? '채용 결과' : kind === 'elite' ? '정예 호출 결과' : '호출 결과'}</h2><div class="res ${n === 1 ? 'one' : ''}">${ids.map((id, i) => {
     const h = C.heroById(id);
     return `<div class="rc ${h.grade === '전설' ? 'leg' : ''}" style="animation-delay:${i * 0.07}s"><img src="${portrait(id)}" alt=""><small>${h.name}</small>${res.isNew[i] ? '<span class="new">NEW</span>' : ''}</div>`;
-  }).join('')}</div><p>${res.relayHit ? `누적 ${C.CONST.RELAY.toLocaleString()}회 달성, ${C.heroById('dark').name} 확정 합류` : lvAfter > lvBefore ? `소환 레벨 ${lvAfter} 달성` : res.isNew.some(Boolean) ? '새 요원이 AIU에 합류했어요' : '조각은 요원 탭에서 승급에 써요'}</p><div class="mbtns"><button class="btn" data-close>확인</button></div>`);
+  }).join('')}</div><p>${res.relayHit ? `누적 ${C.CONST.RELAY}회 달성, ${C.heroById('dark').name} 확정 합류` : lvMsg ? lvMsg : res.isNew.some(Boolean) ? '새 요원이 AIU에 합류했어요' : '조각은 요원 탭에서 승급에 써요'}</p><div class="mbtns"><button class="btn" data-close>확인</button></div>`);
   renderPanel();
 }
 
@@ -1486,8 +1512,8 @@ function openModal(html, onClose) {
 function showOffline(r) {
   if (!r || r.gold <= 0) { if (r) toast('받을 보상이 없어요'); return; }
   openModal(`<h2>자리를 비운 동안</h2><p>요원들이 ${C.formatDuration(r.sec)} 동안 이상체 ${C.formatNum(r.kills)}개체를 처리했어요</p>
-    <div class="big">${icon('gold')}<span>${C.formatNum(r.gold)}</span></div><p class="hint">최대 8시간까지 쌓여요</p>
-    <div class="mbtns"><button class="btn" data-close="ok">받기</button></div>`, () => { S.gold += r.gold; writeSave(); updateUI(); banner('보상 획득'); });
+    <div class="big">${icon('gold')}<span>${C.formatNum(r.gold)}</span></div>${r.tix ? `<div class="big">${icon('tix')}<span>${C.formatNum(r.tix)}</span></div>` : ''}<p class="hint">최대 8시간까지 쌓여요</p>
+    <div class="mbtns"><button class="btn" data-close="ok">받기</button></div>`, () => { S.gold += r.gold; S.tix += r.tix || 0; writeSave(); updateUI(); banner('보상 획득'); });
 }
 function confirmReset() {
   openModal(`<h2>처음부터 다시</h2><p>골드, 요원, 스테이지가 모두 지워져요</p><div class="mbtns"><button class="btn ghost" data-close="no">취소</button><button class="btn" data-close="yes" style="background:linear-gradient(#ff7a6b,#c7332a);color:#fff;box-shadow:0 3px 0 #6d1510">초기화</button></div>`, v => {

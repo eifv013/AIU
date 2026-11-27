@@ -174,15 +174,34 @@ test('소환: 등급 구간과 잘못된 rng', () => {
   assert.throws(() => C.summon(1, () => 1, 1), RangeError);
   assert.throws(() => C.summon(1, null), TypeError);
 });
-test('뽑기 실행: 보석 차감, 누적 횟수, 특별 채용 릴레이 2000회 확정', () => {
+test('요원 호출: 호출권 차감, 소환 레벨 상승 보상', () => {
+  const s = C.newState(0); s.tix = 600;
+  const r = C.doSummon(s, 10, 'call', () => 0.9);
+  assert.equal(r.paid, 'tix'); assert.equal(r.state.tix, 590); assert.equal(r.state.pulls.total, 10); assert.equal(s.tix, 600);
+  let st = s; for (let i = 0; i < 5; i++) st = C.doSummon(st, 10, 'call', () => 0.9).state;   // 50회 → 레벨 2
+  assert.equal(C.summonLevel(st.pulls.total), 2);
+  assert.equal(st.gems, s.gems + C.levelReward(2).gems); assert.equal(st.ptix, C.levelReward(2).ptix);
+  const poor = C.newState(0); poor.tix = 0; assert.throws(() => C.doSummon(poor, 1, 'call', Math.random), RangeError);
+});
+test('정예 호출: 희귀 없음, 전설 2%, 정예 호출권 먼저 사용', () => {
+  const s = C.newState(0); s.gems = 1000; s.ptix = 1;
+  const a = C.doSummon(s, 1, 'elite', () => 0.01); assert.deepEqual(a.ids, ['dark']); assert.equal(a.paid, 'ptix'); assert.equal(a.state.gems, 1000);
+  const b = C.doSummon(a.state, 10, 'elite', () => 0.99); assert.equal(b.paid, 'gems'); assert.equal(b.state.gems, 1000 - 300);
+  assert.ok(b.ids.every(id => C.heroById(id).grade !== '희귀'));
+  assert.equal(b.state.pulls.total, 0);   // 소환 레벨은 요원 호출로만
+});
+test('특별 채용: 소환 레벨 3부터, 릴레이 확정', () => {
   const s = C.newState(0); s.gems = 1e6;
-  const r = C.doSummon(s, 10, 'normal', () => 0.9);
-  assert.equal(r.state.gems, 1e6 - C.CONST.SUMMON_COST_10); assert.equal(r.state.pulls.total, 10); assert.equal(r.state.pulls.relay, 0);
-  assert.equal(s.pulls.total, 0);   // 원본 불변
-  s.pulls.relay = C.CONST.RELAY - 3;
+  assert.throws(() => C.doSummon(s, 1, 'pickup', Math.random), RangeError);
+  s.pulls.total = C.CONST.SUMMON_LV_PULLS[2]; s.pulls.relay = C.CONST.RELAY - 3;
   const p = C.doSummon(s, 10, 'pickup', () => 0.9);
   assert.equal(p.ids[2], 'dark'); assert.equal(p.relayHit, true); assert.equal(p.state.pulls.relay, 7);
-  s.gems = 5; assert.throws(() => C.doSummon(s, 1, 'normal', Math.random), RangeError);
+  assert.throws(() => C.doSummon(s, 1, 'nope', Math.random), TypeError);
+});
+test('호출권: 처치 10마리에 1장, 근원체 10장, 소수점은 모아 둠', () => {
+  const s = C.newState(0), t0 = s.tix;
+  C.addTickets(s, 5); assert.equal(s.tix, t0); C.addTickets(s, 5); assert.equal(s.tix, t0 + 1);
+  C.addTickets(s, 0, 1); assert.equal(s.tix, t0 + 1 + C.CONST.BOSS_TICKETS);
 });
 test('저장: 예전 버전이면 개편 보상 한 번, 릴레이 값 복구', () => {
   const old = C.sanitize({ v: 1, gems: 50 }, 0); assert.equal(old.gems, 50 + C.CONST.MIGRATE_GEMS); assert.equal(old.v, C.CONST.SAVE_VERSION);

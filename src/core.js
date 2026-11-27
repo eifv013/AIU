@@ -37,8 +37,18 @@
     WAVE_KILLS: 10,          // 근원체 등장까지 처치 수
     BOSS_TIME: 30,           // 근원체 제한 시간(초)
     BOSS_GEMS: 100,          // 근원체 처치 보석 (10회 호출 1번)
-    SUMMON_COST_1: 10,
-    SUMMON_COST_10: 100,
+    /* 뽑기 세 가지
+     * - 요원 호출: 호출권으로 뽑음(전투에서 계속 쌓임). 소환 레벨은 여기서만 오르고, 희귀 요원은 여기서만 나옴
+     * - 정예 호출: 보석(또는 정예 호출권). 희귀 없이 영웅 이상, 전설 2%. 소환 레벨과 상관없음
+     * - 특별 채용: 보석(또는 정예 호출권). 소환 레벨 3부터 열림(세나 키우기 픽업과 같음). 전설 2%는 모두 그 기간의 전설,
+     *   누적 RELAY 회째에 그 전설 확정 */
+    CALL_COST: 1,            // 요원 호출 1회 = 호출권 1장
+    PREMIUM_COST: 30,        // 정예 호출, 특별 채용 1회 = 보석 30 (10회 300)
+    PREMIUM_LEGEND: 0.02,    // 정예 호출, 특별 채용 전설 확률
+    PICKUP_OPEN_LV: 3,       // 특별 채용이 열리는 소환 레벨
+    TICKETS_PER_KILL: 0.1,   // 이상체 10마리에 호출권 1장
+    BOSS_TICKETS: 10,        // 근원체 봉쇄 호출권
+    START_TICKETS: 100,
     /* 세븐나이츠 키우기 방식 뽑기
      * - 소환 레벨: 누적 뽑기 횟수로 오름. 레벨 1~4 는 전설이 아예 안 나오고, 5부터 0.10%, 10에서 0.15%
      *   (세나 키우기 실제 값: 소환 레벨 5 레전드 0.1%, 10 에서 0.15%)
@@ -47,7 +57,7 @@
     SUMMON_LV_PULLS: [0, 50, 150, 300, 500, 800, 1200, 1700, 2300, 3000],
     LEGEND_BY_LV:    [0, 0, 0, 0, 0.0010, 0.0011, 0.0012, 0.0013, 0.0014, 0.0015],
     HERO_BY_LV:      [0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19],
-    RELAY: 2000,
+    RELAY: 200,              // 특별 채용 누적 확정 (보석 뽑기 기준)
     PICKUP_DAYS: 14,         // 특별 채용 한 번의 기간 (2주, 목요일 점검 기준)
     MAX_STARS: 5,
     OFFLINE_CAP_SEC: 8 * 3600,
@@ -213,7 +223,7 @@
     const rate = Math.min(CONST.MAX_KILLS_PER_SEC, partyDps(state) / hp);
     const kills = Math.floor(rate * sec * CONST.OFFLINE_RATE);
     const gold = Math.floor(kills * killGold(state.stage, state.up.gold));
-    return { sec, gold, kills };
+    return { sec, gold, kills, tix: Math.floor(kills * CONST.TICKETS_PER_KILL) };
   }
 
   /* ---------- 6. 소환 ---------- */
@@ -249,24 +259,52 @@
     }
     return out;
   }
+  /** 소환 레벨 보상: 레벨 L 에 처음 오르면 보석 L*100, 정예 호출권 L장 */
+  function levelReward(lv) { return { gems: lv * 100, ptix: lv }; }
+
   /**
-   * 뽑기 한 번 실행 (상태를 바꾸지 않고 새 상태를 돌려줌).
-   * kind 'pickup' 이면 릴레이 카운트를 세고, 누적 RELAY 회째에 나이트폴 확정 후 0부터 다시.
+   * 뽑기 한 번 실행 (원본 불변, 새 상태 반환).
+   * kind: 'call' 요원 호출(호출권) / 'elite' 정예 호출 / 'pickup' 특별 채용 (보석, 정예 호출권이 있으면 먼저 씀)
+   * @returns {{state, ids, isNew, relayHit, lvUps: number[], paid: 'tix'|'ptix'|'gems'}}
    */
   function doSummon(state, n, kind, rng) {
-    const cnt = n === 10 ? 10 : 1, cost = cnt === 10 ? CONST.SUMMON_COST_10 : CONST.SUMMON_COST_1;
-    if (state.gems < cost) throw new RangeError('보석이 부족합니다');
+    if (!['call', 'elite', 'pickup'].includes(kind)) throw new TypeError('뽑기 종류가 올바르지 않습니다: ' + kind);
+    const cnt = n === 10 ? 10 : 1;
+    const lv0 = summonLevel(state.pulls.total);
+    if (kind === 'pickup' && lv0 < CONST.PICKUP_OPEN_LV) throw new RangeError(`특별 채용은 소환 레벨 ${CONST.PICKUP_OPEN_LV}부터 열립니다`);
+    let paid;
+    if (kind === 'call') { if (state.tix < cnt * CONST.CALL_COST) throw new RangeError('호출권이 부족합니다'); paid = 'tix'; }
+    else if (state.ptix >= cnt) paid = 'ptix';
+    else if (state.gems >= cnt * CONST.PREMIUM_COST) paid = 'gems';
+    else throw new RangeError('보석이 부족합니다');
     const ids = [];
     let total = state.pulls.total, relay = state.pulls.relay, relayHit = false;
     for (let i = 0; i < cnt; i++) {
-      let id = summon(1, rng, summonLevel(total))[0];
-      total++;
-      if (kind === 'pickup') { relay++; if (relay >= CONST.RELAY) { id = 'dark'; relay = 0; relayHit = true; } }
+      let id;
+      if (kind === 'call') { id = summon(1, rng, summonLevel(total))[0]; total++; }
+      else {
+        const r = rng();
+        if (!isNum(r) || r < 0 || r >= 1) throw new RangeError('rng 값은 0 이상 1 미만이어야 합니다');
+        const heroes = GRADE_IDS('영웅');
+        id = r < CONST.PREMIUM_LEGEND ? 'dark' : heroes[Math.min(heroes.length - 1, Math.floor((r - CONST.PREMIUM_LEGEND) / (1 - CONST.PREMIUM_LEGEND) * heroes.length))];
+        if (kind === 'pickup') { relay++; if (id === 'dark') relay = 0; if (relay >= CONST.RELAY) { id = 'dark'; relay = 0; relayHit = true; } }
+      }
       ids.push(id);
     }
-    const res = applySummon(state, ids);
-    res.state.gems -= cost; res.state.pulls = { total, relay };
-    return { state: res.state, ids, isNew: res.isNew, relayHit };
+    const res = applySummon(state, ids), st = res.state;
+    if (paid === 'tix') st.tix -= cnt * CONST.CALL_COST; else if (paid === 'ptix') st.ptix -= cnt; else st.gems -= cnt * CONST.PREMIUM_COST;
+    st.pulls = { total, relay };
+    const lvUps = [];
+    for (let L = lv0 + 1; L <= summonLevel(total); L++) { const rw = levelReward(L); st.gems += rw.gems; st.ptix += rw.ptix; lvUps.push(L); }
+    return { state: st, ids, isNew: res.isNew, relayHit, lvUps, paid };
+  }
+  /** 전투에서 호출권 쌓기 (처치 수, 근원체 여부). 소수점은 tixPart 에 모아 둠 */
+  function addTickets(state, kills, bosses = 0) {
+    const k = isNum(kills) && kills > 0 ? kills : 0, b = isNum(bosses) && bosses > 0 ? bosses : 0;
+    const part = (state.tixPart || 0) + k * CONST.TICKETS_PER_KILL;
+    const whole = Math.floor(part + 1e-9);
+    state.tixPart = part - whole; state.tix += whole + b * CONST.BOSS_TICKETS;
+    return whole + b * CONST.BOSS_TICKETS;
   }
 
   /**
@@ -359,7 +397,9 @@
       heroes,
       up: { atk: 0, gold: 0, crit: 0 },
       q: { i: 0, p: 0 },        // 가이드 퀘스트 번호와 진행
-      pulls: { total: 0, relay: 0 },    // 누적 뽑기(소환 레벨), 특별 채용 릴레이
+      pulls: { total: 0, relay: 0 },    // 요원 호출 누적(소환 레벨), 특별 채용 릴레이
+      tix: CONST.START_TICKETS, tixPart: 0,   // 호출권
+      ptix: 0,                          // 정예 호출권
       autoSkill: true,          // 기술 자동 사용
       speed: 1,                 // 전투 배속 1 또는 2
       lastSeen: isNum(now) ? now : 0,
@@ -386,6 +426,9 @@
       s.q.p = clampInt(raw.q.p, 0, questAt(s.q.i).need, 0);
     }
     s.autoSkill = raw.autoSkill !== false;
+    s.tix = clampInt(raw.tix, 0, 1e9, s.tix);
+    s.tixPart = isNum(raw.tixPart) && raw.tixPart >= 0 && raw.tixPart < 1 ? raw.tixPart : 0;
+    s.ptix = clampInt(raw.ptix, 0, 1e6, 0);
     if (raw.pulls && typeof raw.pulls === 'object') {
       s.pulls.total = clampInt(raw.pulls.total, 0, 1e9, 0);
       s.pulls.relay = clampInt(raw.pulls.relay, 0, CONST.RELAY - 1, 0);
@@ -426,7 +469,7 @@
     stageLabel, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed,
-    partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, applySummon, pickupRemainSec, formatRemain,
+    partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,
     newState, cloneState, sanitize, loadFromString, QUESTS, questAt, questAdd, questClaim,
   };
 

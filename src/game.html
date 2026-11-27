@@ -153,6 +153,7 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
 @media (prefers-reduced-motion:reduce){.aiu .rift{animation:none}}
 .sp-sub{font-size:13px;font-weight:600;letter-spacing:.2em;color:var(--dim)}
 .sp-title{font-family:'Black Han Sans',sans-serif;font-size:60px;line-height:1;color:var(--gold);text-align:center}
+.sp-foot{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 64px);display:flex;flex-direction:column;align-items:center;gap:10px}
 .sp-load{width:200px;display:flex;flex-direction:column;gap:8px;align-items:center}
 .sp-bar{width:100%;height:4px;border-radius:2px;background:var(--line);overflow:hidden}
 .sp-bar{position:relative}
@@ -210,7 +211,7 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
   <div id="modal"></div>
   <div id="toast"></div>
   <div id="splash" role="img" aria-label="Loop &amp; Lamp Studio 의 AIU 이상현상 전담수사팀, 불러오는 중">
-    <!-- 시작 화면 배경 그림: 비 오는 밤 도시, 하늘의 균열 (캔버스로 그림) -->
+    <!-- 시작 화면 배경: 요원 다섯 명 그림(가로 폭에 맞춰 아래에 붙임) + 그 위로 내리는 비와 균열 빛 (캔버스) -->
     <canvas id="spbg" aria-hidden="true"></canvas>
     <div class="sp-game" aria-hidden="true">
       <!-- AIU 로고: 스텐실 글자 + 균열(이상현상) + 정식 명칭 + 기밀 도장. 그림은 SVG 로 직접 그림 -->
@@ -246,6 +247,9 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
         <div class="aiu-en">ANOMALOUS INCIDENT UNIT</div>
         <div class="aiu-ko"><i></i><span>이상현상 전담수사팀</span><i></i></div>
       </div>
+    </div>
+    <!-- 불러오기 줄과 접속 안내: 그림 속 요원들 발치 쪽(아래)에 둠 -->
+    <div class="sp-foot" aria-hidden="true">
       <div class="sp-load">
         <div class="sp-bar"><i id="sp-fill"></i></div>
         <span class="sp-msg" id="sp-msg">비 내리는 중</span>
@@ -257,8 +261,6 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
   </div>
 </div>
 
-<!-- 시작 화면 3D 용 Three.js r149 (UMD). 못 불러오면 2D 그림으로 대신함 -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
 <script>
 /*CORE*/
 </script>
@@ -302,7 +304,35 @@ const THEMES = [
 ];
 const theme = () => THEMES[Math.floor((S.stage - 1) / 10) % THEMES.length];
 
-/* ---------- 요원 외형 (그림이 오기 전 임시 모습: 사람 얼굴 + 역할 장비) ----------
+/* ---------- 그림 (빌드 때 assets/art 의 webp 가 data URI 로 들어감) ----------
+ * spr_<id>: 전신 그림 (요원은 오른쪽, 이상체와 근원체는 왼쪽을 봄, 배경은 투명)
+ * card_<id>: 요원 얼굴 카드, key: 시작 화면 그림
+ * 그림을 못 불러오면 아래 임시 그림(캔버스로 직접 그린 모습)으로 대신함 */
+const ART = /*ART*/{};
+const IMG = {};
+for (const [k, src] of Object.entries(ART)) { const im = new Image(); im.decoding = 'async'; im.src = src; IMG[k] = im; }
+const imgOk = k => { const im = IMG[k]; return !!(im && im.complete && im.naturalWidth > 0); };
+/* 어두운 바닥에서도 보이도록 전신 그림 둘레에 얇은 빛 테두리를 붙인 판을 한 번만 만들어 둠
+ * (매 프레임 테두리를 그리면 느려서 미리 구움). 요원은 밝은 빛, 이상체와 근원체는 보랏빛 */
+const RIM = {};
+function makeRim(k) {
+  const im = IMG[k], pad = 7, w = im.naturalWidth, h = im.naturalHeight;
+  const c = document.createElement('canvas'); c.width = w + pad * 2; c.height = h + pad * 2;
+  const q = c.getContext('2d'); if (!q) return;
+  for (let a = 0; a < 16; a++) q.drawImage(im, pad + Math.cos(a * Math.PI / 8) * pad * 0.7, pad + Math.sin(a * Math.PI / 8) * pad * 0.7);
+  q.globalCompositeOperation = 'source-in';
+  const hero = /^spr_(knight|archer|mage|priest|dark)$/.test(k);
+  q.fillStyle = hero ? 'rgba(215,224,255,.55)' : 'rgba(176,120,255,.8)'; q.fillRect(0, 0, c.width, c.height);
+  q.globalCompositeOperation = 'source-over'; q.drawImage(im, pad, pad);
+  RIM[k] = { c, pad };
+}
+/** 모든 그림이 준비될 때까지 기다림 (실패한 그림은 건너뜀, 최대 4초) */
+const artReady = Promise.race([
+  Promise.all(Object.entries(IMG).map(([k, im]) => (im.decode ? im.decode() : Promise.resolve()).then(() => { if (k.startsWith('spr_')) makeRim(k); }).catch(() => {}))),
+  new Promise(r => setTimeout(r, 4000)),
+]);
+
+/* ---------- 요원 외형 (그림을 못 불러왔을 때 쓰는 임시 모습: 사람 얼굴 + 역할 장비) ----------
  * 그림 주문서의 외모와 같게: 머리 색과 모양, 피부, 옷 색 */
 const LOOK = {
   knight: { coat: '#2f3a52', trim: '#5d6b86', hair: '#2a2620', hairStyle: 'buzz',  skin: '#d9b896' },   // 램파트: 짧은 머리, 진압 조끼
@@ -347,8 +377,31 @@ function drawHumanHead(g, id, hy, s) {
   g.beginPath(); g.arc(0, hy, r * 1.05, Math.PI * 1.0, Math.PI * 1.55); g.stroke();
 }
 
+/** 전신 그림 한 장 그리기. h = 화면 높이(지도 단위), 발이 (x, y)
+ * 숨 쉬듯 살짝 늘었다 줄고, 공격(swing)하면 보는 쪽으로 몸을 기울이며, 맞으면(hurt) 좌우로 떨림.
+ * face: 1 이면 그림 그대로, -1 이면 좌우를 뒤집음. sh = 그림자 반지름 */
+function drawSprite(g, im, x, y, h, t, swing, hurt, face, sh, rim) {
+  const w = h * im.naturalWidth / im.naturalHeight;
+  g.save(); g.translate(x, y);
+  if (hurt > 0) g.translate(Math.sin(hurt * 40) * hurt * 3, 0);
+  g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(0, 0, sh, sh * 0.24, 0, 0, 7); g.fill();
+  if (face < 0) g.scale(-1, 1);
+  g.rotate(swing * 0.14);                                   // 공격: 앞으로 기울임
+  g.scale(1, 1 + Math.sin(t * 3 + x * 0.05) * 0.012);         // 숨쉬기
+  drawRimmed(g, im, rim, -w / 2 + swing * h * 0.05, -h, w, h);
+  g.restore();
+}
+
+/** 그림을 (x, y, w, h) 칸에 그림. 빛 테두리 판(rim)이 있으면 테두리까지 같은 비율로 */
+function drawRimmed(g, im, rim, x, y, w, h) {
+  if (!rim) { g.drawImage(im, x, y, w, h); return; }
+  const k = w / im.naturalWidth;
+  g.drawImage(rim.c, x - rim.pad * k, y - rim.pad * k, rim.c.width * k, rim.c.height * k);
+}
+
 /** 요원 그리기. s = 키 기준 크기, swing = 공격 동작(0~1), face: 1 오른쪽 / -1 왼쪽 */
 function drawHero(g, id, x, y, s, t, swing, hurt, face = 1) {
+  if (imgOk('spr_' + id)) return drawSprite(g, IMG['spr_' + id], x, y, s * 1.22, t, swing, hurt, face, 0.3 * s, RIM['spr_' + id]);
   const L = LOOK[id], bob = Math.sin(t * 5 + x) * s * 0.02;
   g.save(); g.translate(x, y);
   if (face < 0) g.scale(-1, 1);
@@ -414,7 +467,15 @@ function drawEnemy(g, e, t) {
   if (e.hit > 0) { const k = 1 + e.hit * (e.boss ? 0.5 : 1.2); g.scale(k, 2 - k); }   // 맞으면 순간 부풀었다 돌아옴 (필터 대신)
   g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(0, 0, s * 0.32, s * 0.08, 0, 0, 7); g.fill();
   const wob = Math.sin(t * 4 + e.ph);
-  if (!e.boss && e.type === 'crawler') {
+  const key = e.boss ? 'spr_boss' + (chap + 1) : 'spr_' + (e.type === 'crawler' ? 'crawler' : 'shade');
+  if (imgOk(key)) {
+    // 그림은 왼쪽을 봄 → 위에서 이미 face 로 뒤집었으므로 여기서는 그대로. 걸을 때 살짝 흔들림, 공격하면 앞으로 기울임
+    const im = IMG[key], crawl = !e.boss && e.type === 'crawler';
+    const h = crawl ? s * 1.1 * im.naturalHeight / im.naturalWidth : s * (e.boss ? 1.12 : 1.05);
+    const w = h * im.naturalWidth / im.naturalHeight;
+    g.rotate((e.walk ? Math.sin(t * 9 + e.ph) * 0.05 : wob * 0.015) - e.swing * 0.16);
+    drawRimmed(g, im, RIM[key], -w / 2 - e.swing * s * 0.06, -h + (crawl ? s * 0.04 : 0), w, h);
+  } else if (!e.boss && e.type === 'crawler') {
     // 네발 타르 덩어리: 몸 + 꺾인 다리 넷 + 보랏빛 눈 둘
     g.strokeStyle = '#141219'; g.lineWidth = s * 0.06; g.lineCap = 'round';
     for (let i = 0; i < 4; i++) {
@@ -453,8 +514,9 @@ function drawEnemy(g, e, t) {
   }
   g.restore();
   if (!e.boss && e.hp < e.max) {
-    const w = s * 0.6; g.fillStyle = '#300'; g.fillRect(e.x - w / 2, e.y - s * 1.0, w, 4);
-    g.fillStyle = '#ff5a4a'; g.fillRect(e.x - w / 2, e.y - s * 1.0, w * Math.max(0, e.hp / e.max), 4);
+    const w = s * 0.6, by = e.y - s * (e.type === 'crawler' ? 1.05 : 1.15);
+    g.fillStyle = '#300'; g.fillRect(e.x - w / 2, by, w, 4);
+    g.fillStyle = '#ff5a4a'; g.fillRect(e.x - w / 2, by, w * Math.max(0, e.hp / e.max), 4);
   }
 }
 
@@ -978,6 +1040,7 @@ function drawBossBar() {
 /* ---------- 초상화 (캔버스로 한 번 그려서 재사용) ---------- */
 const portraitCache = {};
 function portrait(id) {
+  if (ART['card_' + id]) return ART['card_' + id];   // 그림 카드 (얼굴)
   if (portraitCache[id]) return portraitCache[id];
   const c = document.createElement('canvas'); c.width = c.height = 128;
   const p = c.getContext('2d'); if (!p) return '';
@@ -1209,61 +1272,41 @@ function startGame() {
   else if (firstRun) banner('출동');
 }
 $('splash').addEventListener('click', startGame);
-/*SPLASH3D*/
-/* 시작 화면 배경: 3D 를 먼저 시도하고, 안 되면 2D 그림(하늘의 균열 + 빌딩 실루엣 + 비)으로 대신함 */
-if (!startSplash3D($('spbg'), () => started)) {
-  const cvs = $('spbg'), q = cvs.getContext('2d');
-  // 빌딩은 한 번만 무작위로 정해 둠 (매 프레임 같은 모습)
-  const rnd = seeded(20261127), back = [], front = [];
-  for (let x = 0; x < 1; ) { const w = 0.06 + rnd() * 0.1; back.push({ x, w, h: 0.16 + rnd() * 0.2 }); x += w + 0.004; }
-  for (let x = -0.02; x < 1; ) { const w = 0.08 + rnd() * 0.13; front.push({ x, w, h: 0.1 + rnd() * 0.16, win: Array.from({ length: 7 }, () => rnd()) }); x += w + 0.01; }
-  let riftNext = 0.8, riftT0 = -9, riftSide = 1, riftPts = null;   // 균열 번쩍임 상태
-  const drops = Array.from({ length: 110 }, () => ({ x: rnd(), y: rnd(), l: 10 + rnd() * 16, v: 0.7 + rnd() * 0.6, a: 0.08 + rnd() * 0.18 }));
+/* 시작 화면 배경: 요원 다섯 명 그림(key)을 화면 가로 폭에 맞춰 아래에 붙이고, 남는 위쪽은 그림 하늘색으로 이어 칠함.
+ * 그 위에 비, 하늘 균열의 보랏빛 번쩍임, 글자가 잘 보이도록 위아래 어둡게 깔기. 그림이 없으면 하늘과 비만 그림 */
+{
+  const cvs = $('spbg'), q = cvs.getContext('2d'), key = IMG.key;
+  const rnd = seeded(20261127);
+  const drops = Array.from({ length: 120 }, () => ({ x: rnd(), y: rnd(), l: 10 + rnd() * 18, v: 0.8 + rnd() * 0.7, a: 0.07 + rnd() * 0.16 }));
+  let flashNext = 1.2, flashT0 = -9;
   function spDraw(now) {
     if (started || !q) return;
     const W2 = cvs.clientWidth, H2 = cvs.clientHeight, d = Math.min(3, devicePixelRatio || 1);
-    if (cvs.width !== Math.round(W2 * d)) { cvs.width = Math.round(W2 * d); cvs.height = Math.round(H2 * d); }
+    if (cvs.width !== Math.round(W2 * d) || cvs.height !== Math.round(H2 * d)) { cvs.width = Math.round(W2 * d); cvs.height = Math.round(H2 * d); }
     q.setTransform(d, 0, 0, d, 0, 0);
-    const t = now / 1000, gy = H2 * 0.8;   // 바닥선
-    const sky = q.createLinearGradient(0, 0, 0, gy); sky.addColorStop(0, '#07080c'); sky.addColorStop(0.55, '#141827'); sky.addColorStop(1, '#1d2133');
-    q.fillStyle = sky; q.fillRect(0, 0, W2, H2);
-    // 로고 뒤 은은한 보랏빛 (가운데, 항상)
-    const halo = q.createRadialGradient(W2 * 0.5, H2 * 0.27, 0, W2 * 0.5, H2 * 0.27, H2 * 0.4);
-    halo.addColorStop(0, 'rgba(140,105,255,.16)'); halo.addColorStop(1, 'rgba(140,105,255,0)');
-    q.fillStyle = halo; q.fillRect(0, 0, W2, gy);
-    // 하늘 균열: 3~6초마다 왼쪽, 오른쪽 하늘에 번갈아 잠깐 갈라졌다 사라짐 (글자 영역은 피함)
-    if (t >= riftNext) {
-      riftSide = -riftSide; riftT0 = t; riftNext = t + 3 + rnd() * 3;
-      const bx = riftSide < 0 ? 0.06 + rnd() * 0.08 : 0.86 + rnd() * 0.08;
-      riftPts = []; for (let i = 0; i <= 7; i++) riftPts.push([bx + (i ? (rnd() - 0.5) * 0.06 : 0), i * (0.5 + rnd() * 0.06) / 7]);
+    const t = now / 1000;
+    q.fillStyle = '#090d1b'; q.fillRect(0, 0, W2, H2);   // 그림 맨 위 하늘색과 같은 색
+    let iw = 0, ih = 0, iy = 0, ix = 0;
+    if (imgOk('key')) {
+      // 가로 폭에 맞추고 아래에 붙임 (요원이 양옆으로 잘리지 않게). 화면이 그림보다 납작하면 위쪽 하늘이 잘림
+      const sc = W2 / key.naturalWidth;
+      iw = key.naturalWidth * sc; ih = key.naturalHeight * sc; ix = (W2 - iw) / 2; iy = H2 - ih;
+      q.drawImage(key, ix, iy, iw, ih);
+      // 그림 윗선이 보이지 않게 하늘색으로 부드럽게 이음
+      if (iy > 0) { const fg = q.createLinearGradient(0, iy, 0, iy + ih * 0.12); fg.addColorStop(0, '#090d1b'); fg.addColorStop(1, 'rgba(9,13,27,0)'); q.fillStyle = fg; q.fillRect(0, iy, W2, ih * 0.12); }
     }
-    const age = t - riftT0, life = 0.9;
-    let fl = 0;
-    if (riftPts && age < life) {
-      fl = (1 - age / life) * (Math.sin(age * 60) > -0.3 ? 1 : 0.35);   // 처음엔 깜빡이며 밝다가 사라짐
-      const rx = riftPts[3][0] * W2, gl = q.createRadialGradient(rx, H2 * 0.25, 0, rx, H2 * 0.25, H2 * 0.35);
-      gl.addColorStop(0, `rgba(150,110,255,${0.35 * fl})`); gl.addColorStop(1, 'rgba(150,110,255,0)');
-      q.fillStyle = gl; q.fillRect(0, 0, W2, gy);
-      q.lineJoin = 'miter';
-      for (const [lw, col] of [[7, `rgba(150,110,255,${0.35 * fl})`], [2.4, `rgba(190,160,255,${0.9 * fl})`], [1, `rgba(245,238,255,${fl})`]]) {
-        q.strokeStyle = col; q.lineWidth = lw; q.beginPath();
-        riftPts.forEach(([x, y], i) => i ? q.lineTo(x * W2, y * H2) : q.moveTo(x * W2, y * H2)); q.stroke();
-      }
+    // 하늘 균열 번쩍임: 3~6초마다 그림 속 균열(가운데 뒤) 자리가 잠깐 밝아짐
+    if (t >= flashNext) { flashT0 = t; flashNext = t + 3 + rnd() * 3; }
+    const age = t - flashT0;
+    if (age < 0.8 && ih) {
+      const fl = (1 - age / 0.8) * (Math.sin(age * 55) > -0.3 ? 1 : 0.4);
+      const cx = ix + iw * 0.53, cy = iy + ih * 0.42, gl = q.createRadialGradient(cx, cy, 0, cx, cy, iw * 0.5);
+      gl.addColorStop(0, `rgba(170,120,255,${0.32 * fl})`); gl.addColorStop(1, 'rgba(170,120,255,0)');
+      q.fillStyle = gl; q.fillRect(0, 0, W2, H2);
     }
-    // 뒤쪽 빌딩 (흐릿하게)
-    q.fillStyle = '#121624';
-    for (const b of back) q.fillRect(b.x * W2, gy - b.h * H2 - H2 * 0.05, b.w * W2, b.h * H2 + H2 * 0.05);
-    // 앞쪽 빌딩 + 불 켜진 창
-    for (const b of front) {
-      const x = b.x * W2, w = b.w * W2, top = gy - b.h * H2;
-      q.fillStyle = '#0b0d14'; q.fillRect(x, top, w, b.h * H2);
-      q.fillStyle = 'rgba(150,170,230,.08)'; q.fillRect(x, top, w, 1.5);
-      b.win.forEach((r, i) => { if (r > 0.55) { const col = r > 0.9 ? 'rgba(120,200,255,.6)' : 'rgba(255,200,110,.65)'; q.fillStyle = col; q.fillRect(x + w * (0.15 + (i % 3) * 0.28), top + 10 + Math.floor(i / 3) * 16, 5, 7); } });
-    }
-    // 젖은 바닥 + 창과 균열이 비친 세로 번짐
-    const gd = q.createLinearGradient(0, gy, 0, H2); gd.addColorStop(0, '#11141d'); gd.addColorStop(1, '#07080c');
-    q.fillStyle = gd; q.fillRect(0, gy, W2, H2 - gy);
-    if (fl > 0) { const rx = riftPts[riftPts.length - 1][0] * W2, rf = q.createLinearGradient(0, gy, 0, gy + H2 * 0.16); rf.addColorStop(0, `rgba(170,130,255,${0.28 * fl})`); rf.addColorStop(1, 'rgba(170,130,255,0)'); q.fillStyle = rf; q.fillRect(rx - 3, gy, 6, H2 * 0.16); }
+    // 아래쪽 글자(불러오기 줄, 제작사)가 잘 보이게 바닥을 어둡게
+    const bot = q.createLinearGradient(0, H2 * 0.72, 0, H2); bot.addColorStop(0, 'rgba(6,8,14,0)'); bot.addColorStop(1, 'rgba(6,8,14,.88)');
+    q.fillStyle = bot; q.fillRect(0, H2 * 0.72, W2, H2 * 0.28);
     // 비
     q.lineWidth = 1;
     for (const r of drops) {
@@ -1279,7 +1322,8 @@ if (!startSplash3D($('spbg'), () => started)) {
   const DUR = 2200, steps = [[0, '비 내리는 중'], [0.35, '요원 호출하는 중'], [0.7, '구역 지도 펼치는 중']];
   const fill = $('sp-fill'), msg = $('sp-msg');
   const ease = x => 1 - Math.pow(1 - x, 2.2);   // 처음엔 빠르게, 끝으로 갈수록 천천히
-  let t0 = null;
+  let t0 = null, artDone = false;
+  artReady.then(() => { artDone = true; });
   function loadTick(now) {
     if (started) return;
     if (t0 === null) t0 = now;
@@ -1287,7 +1331,7 @@ if (!startSplash3D($('spbg'), () => started)) {
     fill.style.width = (p * 100).toFixed(2) + '%';
     let m = steps[0][1]; for (const [at, text] of steps) if (p >= at) m = text;
     if (msg.textContent !== m) msg.textContent = m;
-    if (x < 1) { requestAnimationFrame(loadTick); return; }
+    if (x < 1 || !artDone) { requestAnimationFrame(loadTick); return; }
     // 다 차면 자동으로 넘어가지 않고, 화면을 눌러야 접속
     splashReady = true; msg.textContent = 'READY'; msg.classList.add('ready');
     const tap = $('sp-tap'); tap.textContent = 'TOUCH TO START'; tap.classList.add('ready');

@@ -47,19 +47,31 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 #bossBtn{position:absolute;left:10px;top:42px;display:none;padding:8px 14px;border-radius:10px;border:0;background:var(--red);color:#fff;font-family:"Black Han Sans";font-size:15px;animation:pulse 1.2s infinite}
 @keyframes pulse{50%{transform:scale(1.06)}}
 /* 가이드 퀘스트: 세나 키우기처럼 전투 화면 왼쪽 아래에 한 줄 */
-#quest{position:absolute;left:8px;bottom:8px;z-index:2;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;column-gap:8px;row-gap:1px;align-items:center;width:min(62%,250px);padding:6px 10px 8px;border:1px solid var(--line);border-radius:var(--r);background:rgba(15,20,34,.86);color:var(--ink);text-align:left;overflow:hidden}
-#quest .qn{grid-row:1 / span 2;font:400 13px "Black Han Sans";color:var(--gold)}
+/* 퀘스트 상자 (세나 키우기 왼쪽 아래 퀘스트처럼): 왼쪽에 번호와 할 일, 진행 줄, 오른쪽에 보상. 다 차면 오른쪽이 금색 '받기' */
+#quest{position:absolute;left:8px;bottom:8px;z-index:2;display:grid;grid-template-columns:minmax(0,1fr) 52px;align-items:stretch;width:min(64%,262px);height:50px;padding:0;border:1px solid var(--line);border-radius:var(--r);background:rgba(15,20,34,.9);color:var(--ink);text-align:left;overflow:hidden}
+#quest .q-l{display:grid;align-content:center;gap:5px;padding:0 10px;min-width:0}
+#quest .q-h{display:flex;align-items:center;gap:6px;min-width:0}
+#quest .qn{flex:none;padding:1px 5px;border-radius:3px;background:rgba(242,201,76,.14);font:400 11px "Black Han Sans";color:var(--gold)}
 #quest .qt{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#quest .qr{display:flex;align-items:center;gap:3px;font-size:12px;color:var(--dim)}
-#quest .qr b{font:400 13px "Black Han Sans";color:var(--ink)}
-#quest i{position:absolute;left:0;bottom:0;height:3px;background:var(--gold);width:var(--qp,0%)}
+#quest .q-p{display:flex;align-items:center;gap:6px}
+#quest .q-bar{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+#quest .q-bar i{display:block;height:100%;width:var(--qp,0%);background:var(--gold)}
+#quest .qc{font:400 11px "Black Han Sans";color:var(--dim);white-space:nowrap}
+#quest .qr{display:grid;place-items:center;align-content:center;gap:1px;border-left:1px solid var(--line);background:rgba(0,0,0,.2)}
+#quest .qr .ic{width:18px;height:18px}
+#quest .qr b{font:400 13px "Black Han Sans"}
+#quest .qr em{display:none;font-style:normal;font:400 11px "Black Han Sans"}
 #quest.done{border-color:var(--gold);box-shadow:0 0 12px rgba(242,201,76,.45);animation:qpulse 1.2s ease-in-out infinite}
-#quest.done .qt::after{content:" 받기";color:var(--gold)}
+#quest.done .qr{background:var(--gold);color:#141824;border-left-color:var(--gold)}
+#quest.done .qr em{display:block;font-size:13px}
+#quest.done .qr .ic{display:none}
+#quest.done .qc{color:var(--gold)}
 @keyframes qpulse{50%{box-shadow:0 0 2px rgba(242,201,76,.2)}}
-/* 자동 기술, 배속 */
+/* 전투 버튼: 퀘스트 상자와 같은 높이의 정사각, 아이콘 + 글자 */
 #bctl{position:absolute;right:8px;bottom:8px;z-index:2;display:flex;gap:6px}
-#bctl button{min-width:44px;height:34px;padding:0 9px;border:1px solid var(--line);border-radius:var(--r);background:rgba(15,20,34,.86);color:var(--dim);font:400 14px "Black Han Sans"}
-#bctl button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
+#bctl button{display:grid;place-items:center;align-content:center;gap:2px;width:50px;height:50px;padding:0;border:1px solid var(--line);border-radius:var(--r);background:rgba(15,20,34,.9);color:var(--dim);font:400 11px "Black Han Sans"}
+#bctl .ic{width:18px;height:18px}
+#bctl button[aria-pressed="true"]{border-color:var(--gold);color:var(--gold);background:rgba(40,34,14,.9)}
 @media (prefers-reduced-motion:reduce){#quest.done{animation:none}}
 #banner{position:absolute;left:0;right:0;top:36%;padding:8px 0;background:linear-gradient(90deg,transparent,rgba(18,21,28,.82) 20%,rgba(18,21,28,.82) 80%,transparent);text-align:center;font-family:"Black Han Sans";font-size:30px;color:#fff;color:var(--gold);text-shadow:0 2px 0 #000;opacity:0;pointer-events:none;transition:opacity .3s}
 
@@ -138,20 +150,29 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 .card .pt{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0}
 .card .ph::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gc,var(--line))}
 .card.locked .pt{filter:grayscale(1) brightness(.4)}
-.card .info{padding:10px 0 0}
+.card .info{padding:10px 0 0;min-width:0}
+/* 사진 아래쪽 레벨 띠, 등급 도장은 위쪽 */
+.lvb{position:absolute;left:0;right:0;bottom:0;z-index:1;padding:14px 0 4px;text-align:center;font:400 11px "Black Han Sans";color:var(--dim);background:linear-gradient(rgba(10,13,20,0),rgba(10,13,20,.92) 55%)}
+.lvb b{margin-left:3px;font:400 16px "Black Han Sans";color:#fff}
+/* 조각 줄: 굵게, 숫자는 줄 안에. 승급할 수 있으면 금색으로 반짝 */
+.sbar{position:relative;height:18px;border-radius:9px;background:#070A11;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line)}
+.sbar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#6a4fd0,var(--rift))}
+.sbar .st{position:relative;display:block;text-align:center;line-height:18px;font:400 11px "Black Han Sans";color:#fff;text-shadow:0 1px 2px #000}
+.card.canstar .sbar i{background:linear-gradient(90deg,#d9a92a,var(--gold))}
+.card.canstar [data-act=star]{box-shadow:0 0 12px rgba(157,123,255,.7)}
 .nm{display:flex;align-items:baseline;gap:6px;white-space:nowrap}
 .nm b{font:400 20px/1.1 "Black Han Sans";letter-spacing:.01em}
 .role{font-size:12px;font-weight:600;color:var(--dim)}
 .card > .btn{margin:10px 10px 0 0}
 /* 등급 도장: 시작 화면의 '위험 등급' 도장과 같은 말투 */
-.gr{position:absolute;z-index:1;left:6px;bottom:6px;padding:1px 5px;border:1.5px solid currentColor;border-radius:3px;font:700 10px/1.3 'IBM Plex Sans KR',sans-serif;letter-spacing:.06em;transform:rotate(-8deg);background:rgba(10,13,20,.72)}
+.gr{position:absolute;z-index:2;left:6px;top:6px;padding:1px 5px;border:1.5px solid currentColor;border-radius:3px;font:700 10px/1.3 'IBM Plex Sans KR',sans-serif;letter-spacing:.06em;transform:rotate(-8deg);background:rgba(10,13,20,.72)}
 .g-희귀{color:#8FB8F0}.g-영웅{color:#C2A6FF}.g-전설{color:var(--gold)}
 .c-희귀{--gc:#5B86C4}.c-영웅{--gc:var(--rift)}.c-전설{--gc:var(--gold)}
 .stars{margin-top:3px;color:var(--gold);font-size:12px;letter-spacing:1px}
 .stars s{color:#36405A;text-decoration:none}
 .stat{display:flex;gap:12px;margin-top:2px;font-size:12px;color:var(--dim);white-space:nowrap}
 .stat em{font-style:normal;color:var(--ink);font:400 14px "Black Han Sans";margin-left:2px}
-.shard{grid-column:2 / -1;display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:8px 10px 10px 0}
+.shard{grid-column:2 / -1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 10px 10px 0}
 .bar{height:5px;border-radius:3px;background:#070A11;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line)}
 .bar i{display:block;height:100%;background:var(--rift)}
 .st{font-size:12px;color:var(--dim);white-space:nowrap}
@@ -217,6 +238,49 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 .rates div{display:flex;justify-content:space-between;padding:2px 0}
 
 /* 모달 */
+/* 균열 심층 화면: 아래로 내려가는 수직 갱도. 위가 얕은 층, 아래가 깊은 층 */
+#rift{position:absolute;inset:0;z-index:25;display:none;flex-direction:column;color:var(--ink);
+  background:radial-gradient(120% 60% at 50% 0%,rgba(157,123,255,.22),rgba(0,0,0,0) 60%),linear-gradient(#120d22,#07060d 70%)}
+#rift.on{display:flex}
+#rift::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;
+  background:radial-gradient(1.5px 1.5px at 20% 30%,#c9b3ff,transparent),radial-gradient(1px 1px at 70% 60%,#c9b3ff,transparent),radial-gradient(1.5px 1.5px at 40% 80%,#9d7bff,transparent),radial-gradient(1px 1px at 85% 20%,#fff,transparent);
+  background-size:180px 240px;animation:rfMote 9s linear infinite}
+@keyframes rfMote{to{background-position:0 -240px}}
+@media (prefers-reduced-motion:reduce){#rift::before{animation:none}}
+.rf-head{position:relative;display:flex;justify-content:space-between;align-items:flex-start;padding:14px 16px 8px}
+.rf-head small{display:block;font-size:11px;color:#a99ad6}
+.rf-head b{font:400 26px "Black Han Sans";color:#e6dcff;text-shadow:0 0 18px rgba(157,123,255,.7)}
+.rf-x{width:34px;height:34px;border:1px solid rgba(157,123,255,.4);border-radius:var(--r);background:rgba(20,14,36,.8);color:#cbbcf5;font-size:16px}
+.rf-zone{position:relative;margin:0 16px 8px;padding:8px 12px;border-left:3px solid var(--rift);background:linear-gradient(90deg,rgba(157,123,255,.16),rgba(0,0,0,0));text-align:left}
+.rf-zone em{font-style:normal;font-size:12px;color:#a99ad6}
+.rf-zone b{display:block;font:400 18px "Black Han Sans";color:#efe8ff}
+.rf-shaft{position:relative;flex:1;overflow-y:auto;padding:8px 16px 40px;scroll-behavior:smooth}
+.rf-shaft::before{content:"";position:absolute;left:87px;top:0;bottom:0;width:2px;background:linear-gradient(rgba(157,123,255,.15),rgba(157,123,255,.6),rgba(157,123,255,.1))}
+.rf-row{position:relative;display:grid;grid-template-columns:52px 24px minmax(0,1fr);align-items:center;gap:8px;height:54px}
+.rf-row .fl{font:400 17px "Black Han Sans";text-align:right;color:#8f84b4}
+.rf-row .nd{width:12px;height:12px;margin:auto;border-radius:50%;background:#2a2142;border:2px solid #5b4a8f;z-index:1}
+.rf-row .rws{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:var(--r);background:rgba(20,14,36,.55);border:1px solid rgba(91,74,143,.35)}
+.rf-row .rws .rw{font-size:13px}
+.rf-row.done .fl,.rf-row.done .rws{opacity:.38}
+.rf-row.done .nd{background:#5b4a8f;border-color:#8b78cf}
+.rf-row.mile .rws{border-color:rgba(185,140,255,.7);background:linear-gradient(90deg,rgba(185,140,255,.2),rgba(20,14,36,.6))}
+.rf-row.cur .fl{color:var(--gold);font-size:20px}
+.rf-row.cur .nd{width:18px;height:18px;background:var(--gold);border-color:#fff3c4;box-shadow:0 0 0 4px rgba(242,201,76,.25),0 0 18px rgba(242,201,76,.8);animation:rfPulse 1.4s ease-in-out infinite}
+.rf-row.cur .rws{border-color:var(--gold);background:linear-gradient(90deg,rgba(242,201,76,.16),rgba(20,14,36,.7))}
+@keyframes rfPulse{50%{box-shadow:0 0 0 8px rgba(242,201,76,.08),0 0 24px rgba(242,201,76,.9)}}
+.rf-row.deep{opacity:.55}.rf-row.deeper{opacity:.3}
+.rf-sep{display:flex;align-items:center;gap:10px;margin:8px 0 6px 78px;font-size:12px;color:#a99ad6}
+.rf-sep::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(157,123,255,.5),transparent)}
+.rf-sep b{font:400 14px "Black Han Sans";color:#d9ccff}
+.rf-foot{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 16px calc(14px + env(safe-area-inset-bottom));border-top:1px solid rgba(157,123,255,.3);background:rgba(10,7,20,.92)}
+.rf-foot .tt b{font:400 20px "Black Han Sans";color:var(--gold)}
+.rf-foot .tt div{display:flex;gap:8px;align-items:center;margin-top:4px;font-size:12px;color:#a99ad6}
+.rf-foot .btn{min-width:96px;height:46px;font-size:16px}
+#rfCard{position:absolute;left:0;right:0;top:38%;z-index:2;padding:16px 0;text-align:center;pointer-events:none;opacity:0;transition:opacity .5s;
+  background:linear-gradient(90deg,transparent,rgba(30,18,60,.92) 18%,rgba(30,18,60,.92) 82%,transparent)}
+#rfCard.on{opacity:1}
+#rfCard em{display:block;font-style:normal;font-size:12px;color:#a99ad6}
+#rfCard b{font:400 26px "Black Han Sans";color:#efe8ff;text-shadow:0 0 16px rgba(157,123,255,.8)}
 #modal{position:absolute;inset:0;z-index:20;display:none;place-items:center;padding:20px;background:rgba(8,9,12,.78)}
 #modal.on{display:grid}
 .mbox{width:100%;max-width:360px;padding:20px 18px 18px;border-radius:16px;background:var(--panel);border:1px solid var(--line);text-align:center;box-shadow:0 10px 40px #000}
@@ -284,6 +348,8 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   <symbol id="i-gem" viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 12L2 9z" fill="url(#gM)" stroke="#1a2f8f" stroke-width="1.3" stroke-linejoin="round"/><path d="M2 9h20M8 3l-2 6 6 12 6-12-2-6" fill="none" stroke="#e4fbff" stroke-width=".9" opacity=".8"/></symbol>
   <symbol id="i-tix" viewBox="0 0 24 24"><path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4z" fill="#E9C46A" stroke="#7a5a12" stroke-width="1.3" stroke-linejoin="round"/><path d="M15 7v10" stroke="#7a5a12" stroke-width="1.1" stroke-dasharray="1.6 1.6"/><path d="M7.5 10.2h4.5M7.5 13.8h3" stroke="#7a5a12" stroke-width="1.3" stroke-linecap="round"/></symbol>
   <symbol id="i-ptix" viewBox="0 0 24 24"><path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4z" fill="#A98BFF" stroke="#3c2a7a" stroke-width="1.3" stroke-linejoin="round"/><path d="M15 7v10" stroke="#3c2a7a" stroke-width="1.1" stroke-dasharray="1.6 1.6"/><path d="M9.5 9.3l.9 1.9 2.1.3-1.5 1.4.4 2-1.9-1-1.9 1 .4-2-1.5-1.4 2.1-.3z" fill="#fff"/></symbol>
+  <symbol id="i-auto" viewBox="0 0 24 24"><path d="M19 8a8 8 0 0 0-14 1M5 16a8 8 0 0 0 14-1" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M19 3v5h-5M5 21v-5h5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-fast" viewBox="0 0 24 24"><path d="M3 5l9 7-9 7zM12 5l9 7-9 7z" fill="currentColor"/></symbol>
   <symbol id="i-gear" viewBox="0 0 24 24"><path d="M10.3 2.5h3.4l.5 2.6 2 .9 2.2-1.5 2.4 2.4-1.5 2.2.9 2 2.6.5v3.4l-2.6.5-.9 2 1.5 2.2-2.4 2.4-2.2-1.5-2 .9-.5 2.6h-3.4l-.5-2.6-2-.9-2.2 1.5-2.4-2.4 1.5-2.2-.9-2-2.6-.5v-3.4l2.6-.5.9-2-1.5-2.2 2.4-2.4 2.2 1.5 2-.9z" fill="#8F9AB0"/><circle cx="12" cy="12" r="3.4" fill="#0F1422"/></symbol>
   <symbol id="i-sword" viewBox="0 0 24 24"><path d="M19 3l2 2-10 10-2-2z" fill="#dfe6ff" stroke="#6b78b5"/><path d="M6 14l4 4-2 1-1.5-1.5L4 20l-1-1 2.5-2.5L4 15z" fill="#f5c451" stroke="#8a5609"/></symbol>
   <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#e04848"/><circle cx="12" cy="12" r="6" fill="#fff"/><circle cx="12" cy="12" r="3" fill="#e04848"/></symbol>
@@ -305,8 +371,11 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     <button id="bossAuto" aria-pressed="true">자동 추적</button>
     <div id="banner"></div>
     <!-- 왼쪽 아래: 가이드 퀘스트 (다 차면 눌러서 보석 받기) / 오른쪽 아래: 자동 기술, 배속 -->
-    <button id="quest" aria-live="polite"><span class="qn" id="qn"></span><span class="qt" id="qt"></span><span class="qr"><svg class="ic"><use href="#i-gem"/></svg><b id="qg"></b></span><i id="qbar"></i></button>
-    <div id="bctl"><button id="bAuto" aria-pressed="true">자동</button><button id="bSpd" aria-pressed="false">×1</button></div>
+    <button id="quest" aria-live="polite">
+      <span class="q-l"><span class="q-h"><span class="qn" id="qn"></span><span class="qt" id="qt"></span></span>
+        <span class="q-p"><span class="q-bar"><i id="qbar"></i></span><span class="qc" id="qc"></span></span></span>
+      <span class="qr"><svg class="ic"><use href="#i-gem"/></svg><b id="qg"></b><em>받기</em></span></button>
+    <div id="bctl"><button id="bAuto" aria-pressed="true"><svg class="ic"><use href="#i-auto"/></svg><span>자동</span></button><button id="bSpd" aria-pressed="false"><svg class="ic"><use href="#i-fast"/></svg><span id="bSpdT">×1</span></button></div>
   </div>
   <div id="party"></div>
   <div id="panel"></div>
@@ -317,6 +386,12 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     <button data-tab="summon">호출</button>
   </nav>
   <div id="modal"></div>
+  <div id="rift" aria-hidden="true">
+    <div class="rf-head"><div><small>이상현상 전담수사팀 심층 조사</small><b>균열 심층</b></div><button class="rf-x" data-rf="close" aria-label="닫기">✕</button></div>
+    <div class="rf-zone" id="rfZone"></div>
+    <div class="rf-shaft" id="rfShaft"></div>
+    <div class="rf-foot" id="rfFoot"></div>
+  </div>
   <div id="toast"></div>
   <div id="splash" role="img" aria-label="Loop &amp; Lamp Studio 의 AIU 이상현상 전담수사팀, 불러오는 중">
     <!-- 시작 화면 배경: 요원 다섯 명 그림(가로 폭에 맞춰 아래에 붙임) + 그 위로 내리는 비와 균열 빛 (캔버스) -->
@@ -1477,7 +1552,10 @@ function chalEnd(win, reason) {
   banner(win ? `${ch.name} 완료` : (reason || '출동 실패'));
   toast(win ? `${ch.name} 완료  ${got.map(([k, v]) => `${lbl[k]} +${C.formatNum(v)}`).join('  ')}` : `${ch.name} 실패${ch.kind === 'tower' ? '' : '. 입장 횟수는 그대로예요'}`);
   writeSave(); renderPanel();
-  setTimeout(() => { R.chal = null; R.wipe = 0; newMap(); syncHeroes(true); renderPanel(); updateUI(); }, 1600);
+  setTimeout(() => {
+    R.chal = null; R.wipe = 0; newMap(); syncHeroes(true); renderPanel(); updateUI();
+    if (ch.kind === 'tower') openRift(win ? ch.lv : 0);   // 균열 심층은 갱도 화면으로 돌아옴 (이기면 한 층 내려가는 연출)
+  }, 1600);
 }
 
 function addText(x, y, txt, col, big) { if (R.texts.length < 60) R.texts.push({ x, y, txt, col, big, life: 0.9 }); }
@@ -1787,6 +1865,7 @@ function draw() {
   for (const p of R.proj) drawProj(p);
   for (const f of R.fx) drawFx(f);
   // 4) 밤 지역: 어둡게 덮고 등불만 밝게
+  if (R.chal && R.chal.kind === 'tower') { g.fillStyle = 'rgba(60,18,110,.32)'; g.fillRect(x0, y0, x1 - x0, y1 - y0); }
   if (F.night > 0) {
     g.fillStyle = `rgba(8,12,40,${F.night})`; g.fillRect(x0, y0, x1 - x0, y1 - y0);
   }
@@ -2074,12 +2153,13 @@ function updateUI() {
   // 가이드 퀘스트
   const q = C.questAt(S.q.i), done = S.q.p >= q.need;
   $('qn').textContent = '퀘스트 ' + (S.q.i + 1);
-  $('qt').textContent = `${q.text} ${C.formatNum(S.q.p)} / ${C.formatNum(q.need)}`;
+  $('qt').textContent = q.text;
+  $('qc').textContent = `${C.formatNum(S.q.p)} / ${C.formatNum(q.need)}`;
   $('qg').textContent = q.gems;
   $('quest').style.setProperty('--qp', (100 * S.q.p / q.need).toFixed(1) + '%');
   $('quest').classList.toggle('done', done);
   $('bAuto').setAttribute('aria-pressed', S.autoSkill ? 'true' : 'false');
-  $('bSpd').setAttribute('aria-pressed', S.speed === 2 ? 'true' : 'false'); $('bSpd').textContent = '×' + S.speed;
+  $('bSpd').setAttribute('aria-pressed', S.speed === 2 ? 'true' : 'false'); $('bSpdT').textContent = '×' + S.speed;
   const key = owned().map(h => h.id).join();
   if (key !== partyKey) { partyKey = key; renderParty(); }
   for (const h of owned()) {
@@ -2094,7 +2174,7 @@ function updateUI() {
 
 /* ---------- UI: 패널 ---------- */
 let tab = 'hero', bulk = 1;
-const APP_VERSION = '0.7.3';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.8.1';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 const starStr = n => '★'.repeat(n) + `<s>${'★'.repeat(C.CONST.MAX_STARS - n)}</s>`;
 
@@ -2104,14 +2184,14 @@ function renderPanel() {
     P.innerHTML = `<div class="seg">${[[1, '1회'], [10, '10회'], [0, '최대']].map(([v, l]) => `<button data-act="bulk" data-v="${v}" class="${bulk === v ? 'on' : ''}">${l}</button>`).join('')}</div>` +
       C.HEROES.map(h => {
         const d = S.heroes[h.id];
-        const ph = `<div class="ph"><img class="pt" src="${ART['id_' + h.id] || portrait(h.id)}" alt=""><span class="gr g-${h.grade}">${h.grade}</span></div>`;
+        const ph = `<div class="ph"><img class="pt" src="${ART['id_' + h.id] || portrait(h.id)}" alt=""><span class="gr g-${h.grade}">${h.grade}</span>${d.owned ? '<span class="lvb">Lv<b class="lv"></b></span>' : ''}</div>`;
         if (!d.owned) return `<div class="card locked c-${h.grade}">${ph}<div class="info"><div class="nm"><b>${h.name}</b><span class="role">${h.role}</span></div><div class="hint">호출로 만날 수 있어요</div></div><div class="st" style="margin-right:12px">미보유</div></div>`;
         return `<div class="card c-${h.grade}" data-h="${h.id}">${ph}
           <div class="info"><div class="nm"><b>${h.name}</b><span class="role">${h.role}</span></div>
           <div class="stars">${starStr(d.stars)}</div>
-          <div class="stat"><span>Lv<em class="lv"></em></span><span>공격력<em class="atk"></em></span></div></div>
+          <div class="stat"><span>공격력<em class="atk"></em></span><span>체력<em class="hp"></em></span></div></div>
           <button class="btn" data-act="lv" data-h="${h.id}"><span class="bl">강화</span><span class="cost">${icon('gold')}<i></i></span></button>
-          <div class="shard"><div class="bar"><i></i></div><span class="st"></span><button class="btn sm rift" data-act="star" data-h="${h.id}">승급</button></div></div>`;
+          <div class="shard"><div class="sbar"><i></i><span class="st"></span></div><button class="btn sm rift" data-act="star" data-h="${h.id}">승급</button></div></div>`;
       }).join('');
   } else if (tab === 'train') {
     const ic = { atk: 'sword', gold: 'gold', crit: 'target' };
@@ -2183,15 +2263,17 @@ function updatePanel() {
       const id = card.dataset.h, d = S.heroes[id];
       card.querySelector('.lv').textContent = d.lv;
       card.querySelector('.atk').textContent = C.formatNum(C.heroAtk(id, d.lv, d.stars, S.up.atk));
+      card.querySelector('.hp').textContent = C.formatNum(C.heroHp(id, d.lv, d.stars));
       const { n, cost } = lvPlan(d.lv);
       const btn = card.querySelector('[data-act=lv]');
       btn.querySelector('.bl').textContent = bulk === 1 ? '강화' : `강화 +${Math.max(n, bulk === 0 ? 1 : bulk)}`;
       btn.querySelector('.cost i').textContent = C.formatNum(cost);
       btn.disabled = !(n > 0 && cost <= S.gold);
       const need = C.starNeed(d.stars, C.heroById(id).grade), max = need === Infinity;
-      card.querySelector('.bar i').style.width = max ? '100%' : Math.min(100, 100 * d.shards / need) + '%';
+      card.querySelector('.sbar i').style.width = max ? '100%' : Math.min(100, 100 * d.shards / need) + '%';
       card.querySelector('.st').textContent = max ? '최고 등급' : `조각 ${d.shards} / ${need}`;
       card.querySelector('[data-act=star]').disabled = max || d.shards < need;
+      card.classList.toggle('canstar', !max && d.shards >= need);
     }
   } else if (tab === 'train') {
     for (const row of P.querySelectorAll('.urow[data-u]')) {
@@ -2261,7 +2343,7 @@ function renderRun(P) {
           <div class="dd">한 층씩 내려가요. 입장 제한 없음</div>
           <div class="dstep"><b>${f}층</b>${diffTag(C.towerStage(f))}</div>
           <div class="drw">처음 돌파 ${rwHtml(C.towerReward(f))}</div></div>
-        <div class="dbtns"><button class="btn sm" data-act="tgo">도전</button></div></div>
+        <div class="dbtns"><button class="btn sm rift" data-act="topen">입장</button></div></div>
       <p class="hint" style="margin:10px 2px">일일 출동은 하루 ${C.CONST.DAILY_KEYS}번, 매일 0시에 다시 채워져요. 실패하면 횟수가 줄지 않아요. 한 번 깬 단계는 소탕으로 싸우지 않고 바로 보상을 받아요. 제한 시간은 ${C.CONST.CHAL_TIME}초예요.</p>`;
   } else if (runSub === 'mis') {
     P.innerHTML = seg + C.MISSIONS.map((m, i) => `<div class="mrow" data-m="${i}"><div class="mt"><b>${m.text}</b><div class="bar"><i></i></div></div>
@@ -2285,7 +2367,7 @@ function updateRun(P) {
     c.querySelector('[data-act=dsweep]').disabled = k <= 0 || S.dbest[id] < 1;
     c.querySelector('[data-act=dgo]').disabled = k <= 0 || !!R.chal;
   }
-  const tg = P.querySelector('[data-act=tgo]'); if (tg) tg.disabled = !!R.chal;
+  const tg = P.querySelector('[data-act=topen]'); if (tg) tg.disabled = !!R.chal;
   for (const r of P.querySelectorAll('.mrow[data-m]')) {
     const i = +r.dataset.m, m = C.MISSIONS[i], p = S.daily.p[m.kind] || 0, got = S.daily.got.includes(i);
     r.querySelector('.bar i').style.width = (100 * p / m.need) + '%';
@@ -2300,6 +2382,58 @@ function updateRun(P) {
     const b = bn.querySelector('button'); b.disabled = S.daily.bonus || n < N; b.textContent = S.daily.bonus ? '완료' : '받기';
   }
 }
+/* ---------- 균열 심층 화면 ----------
+ * 10층마다 구역이 바뀜. 위에서 아래로 내려가는 갱도: 깬 층은 흐리게, 도전할 층은 금색 표시, 그 아래는 점점 어두워짐.
+ * 층을 돌파하고 돌아오면 표시가 한 칸 아래로 내려가고, 구역이 바뀌면 구역 이름 카드가 뜸 */
+const RIFT_ZONES = ['균열 입구', '메아리 회랑', '잿빛 승강장', '거꾸로 선 거리', '침묵 관측소', '검은 저수조', '끝없는 계단', '심연의 문'];
+const riftZone = f => { const z = Math.floor((f - 1) / 10); return { no: z + 1, name: RIFT_ZONES[z] || `심연 ${z + 1}구역` }; };
+function riftRows(target) {
+  const from = Math.max(1, target - 5), to = target + 12;
+  let h = '';
+  for (let f = from; f <= to; f++) {
+    if ((f - 1) % 10 === 0) { const z = riftZone(f); h += `<div class="rf-sep">${z.no}구역 <b>${z.name}</b></div>`; }
+    const cls = f <= S.tower ? 'done' : f === target ? 'cur' : f - target > 6 ? 'deeper' : f - target > 2 ? 'deep' : '';
+    h += `<div class="rf-row ${cls} ${f % 5 === 0 ? 'mile' : ''}" data-f="${f}"><span class="fl">${f}층</span><i class="nd"></i><div class="rws">${rwHtml(C.towerReward(f))}${f <= S.tower ? '<span class="rw" style="color:#a99ad6;margin-left:auto">돌파</span>' : ''}</div></div>`;
+  }
+  return h;
+}
+function renderRift() {
+  const f = S.tower + 1, z = riftZone(f);
+  $('rfZone').innerHTML = `<em>${z.no}구역</em><b>${z.name}</b>`;
+  $('rfShaft').innerHTML = riftRows(f) + '<div id="rfCard"></div>';
+  $('rfFoot').innerHTML = `<div class="tt"><b>${f}층</b><div>처음 돌파 ${rwHtml(C.towerReward(f))}${diffTag(C.towerStage(f))}</div></div>
+    <button class="btn" data-rf="go" ${R.chal ? 'disabled' : ''}>도전</button>`;
+}
+/** 열기. from 이 있으면 그 층에서 현재 층까지 내려가는 연출 */
+function openRift(from) {
+  const el = $('rift'); el.classList.add('on'); el.setAttribute('aria-hidden', 'false');
+  renderRift();
+  const sh = $('rfShaft'), center = f => { const r = sh.querySelector(`[data-f="${f}"]`); if (r) sh.scrollTop = r.offsetTop - sh.clientHeight * 0.4; };
+  const now = S.tower + 1;
+  if (from && from < now) {
+    // 이전 층에 표시를 둔 채로 시작 → 한 칸 아래로 이동
+    const cur = sh.querySelector('.rf-row.cur'), old = sh.querySelector(`[data-f="${from}"]`);
+    if (cur && old) { cur.classList.remove('cur'); old.classList.remove('done'); old.classList.add('cur'); }
+    sh.style.scrollBehavior = 'auto'; center(from); sh.style.scrollBehavior = '';
+    setTimeout(() => {
+      if (old) { old.classList.remove('cur'); old.classList.add('done'); }
+      if (cur) cur.classList.add('cur');
+      center(now);
+      if (riftZone(from).no !== riftZone(now).no) {   // 새 구역 진입 카드
+        const z = riftZone(now), card = $('rfCard');
+        card.innerHTML = `<em>${z.no}구역 진입</em><b>${z.name}</b>`; card.style.top = (sh.scrollTop + sh.clientHeight * 0.3) + 'px';
+        card.classList.add('on'); setTimeout(() => card.classList.remove('on'), 1800);
+      }
+    }, 450);
+  } else { sh.style.scrollBehavior = 'auto'; center(now); sh.style.scrollBehavior = ''; }
+}
+function closeRift() { const el = $('rift'); el.classList.remove('on'); el.setAttribute('aria-hidden', 'true'); }
+$('rift').addEventListener('click', e => {
+  const b = e.target.closest('[data-rf]'); if (!b || b.disabled) return;
+  if (b.dataset.rf === 'close') closeRift();
+  else if (b.dataset.rf === 'go') { closeRift(); startChal('tower', null, S.tower + 1); }
+});
+
 /** 일괄 강화 계획: 1회/10회는 정해진 단계, 최대는 살 수 있는 만큼 */
 function lvPlan(lv) {
   if (bulk === 0) { const r = C.heroLvAffordable(lv, S.gold, 1000); return r.n > 0 ? r : { n: 1, cost: C.heroLvCost(lv) }; }
@@ -2315,7 +2449,7 @@ $('panel').addEventListener('click', e => {
     else if (act === 'rsub') { runSub = b.dataset.v; renderPanel(); }
     else if (act === 'dlv') { dsel[b.dataset.d] = (dsel[b.dataset.d] || 1) + +b.dataset.v; renderPanel(); }
     else if (act === 'dgo') startChal('dungeon', b.dataset.d, dsel[b.dataset.d] || 1);
-    else if (act === 'tgo') startChal('tower', null, S.tower + 1);
+    else if (act === 'topen') openRift();
     else if (act === 'dsweep') {
       const d = C.dungeonById(b.dataset.d), r = C.sweepDungeon(S, d.id);
       toast(`${d.name} ${S.dbest[d.id]}단계 소탕 완료`); banner('소탕 완료');

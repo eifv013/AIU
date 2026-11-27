@@ -784,6 +784,7 @@ function kill(e) {
   for (let i = 0; i < (e.boss ? 26 : 9); i++) { const a = Math.random() * 6.28, v = 20 + Math.random() * (e.boss ? 90 : 50);
     addFx({ k: 'mote', x: e.x + (Math.random() - 0.5) * e.size * 0.4, y: e.y - Math.random() * e.size * 0.9, vx: Math.cos(a) * v, vy: -30 - Math.random() * 60, r: 1.5 + Math.random() * (e.boss ? 4 : 2.5), life: 0.7 + Math.random() * 0.5 }); }
   addFx({ k: 'ring', x: e.x, y: e.y, r: e.size * (e.boss ? 2.2 : 0.9), life: 0.45, col: '#b98cff' });
+  addFx({ k: 'vanish', x: e.x, y: e.y, h: e.size * (e.boss ? 2.2 : 1.5), life: 0.7 });
   if (e.boss) { shake(9); addFx({ k: 'flash', life: 0.35 }); hitStop(0.22); } else hitStop(0.03);
   for (let i = 0; i < (e.boss ? 14 : 4); i++) addFx({ k: 'coin', x: e.x, y: e.y - e.size * 0.4, vx: (Math.random() - 0.5) * 120, vy: -110 - Math.random() * 100, floor: e.y, life: 0.9 });
 }
@@ -837,7 +838,10 @@ function heroAct(h, r, dt) {
   if (r.at < 1) return;
   r.at = 0; r.swing = 1;
   if (h.range === 'melee') { damage(tgt, atk); addFx({ k: 'slash', x: tgt.x, y: tgt.y - tgt.size * 0.5, r: tgt.size * 0.5, face: r.face, life: 0.2, col: h.id === 'dark' ? '#c27bff' : '#fff' }); }
-  else R.proj.push({ k: h.id, x: r.x + r.face * s * 0.2, y: r.y - s * 0.5, tgt, dmg: atk, sp: h.id === 'archer' ? 520 : 340, aoe: h.range === 'aoe' });
+  else {
+    if (h.id === 'archer') addFx({ k: 'muzzle', x: r.x + r.face * s * 0.62, y: r.y - s * 0.86, face: r.face, life: 0.09 });
+    R.proj.push({ k: h.id, x: r.x + r.face * s * 0.2, y: r.y - s * 0.5, tgt, dmg: atk, sp: h.id === 'archer' ? 520 : 340, aoe: h.range === 'aoe' });
+  }
 }
 function castSkill(h, atk, r, s, tgt) {
   const sk = h.skill;
@@ -997,11 +1001,14 @@ function draw() {
   g.save(); g.beginPath(); g.rect(-MAPW / 2, -MAPH / 2, MAPW, MAPH); g.clip();
   const chunks = [];
   for (let cy = Math.floor(y0 / CH); cy <= Math.floor(y1 / CH); cy++) for (let cx = Math.floor(x0 / CH); cx <= Math.floor(x1 / CH); cx++) chunks.push(chunk(cx, cy));
+  // 바닥 그림이 깔렸으면 코드로 그린 바닥 무늬(얼룩, 널빤지 줄, 돌, 풀)는 그리지 않음. 웅덩이 물결만 남김
+  const tiled = imgOk(fk);
   // 0) 항구: 나무 부두 널빤지 줄
-  if (F.planks) { g.strokeStyle = 'rgba(0,0,0,.22)'; g.lineWidth = 2; g.beginPath(); for (let yy = Math.floor(y0 / 18) * 18; yy < y1; yy += 18) { g.moveTo(x0, yy); g.lineTo(x1, yy); } g.stroke(); g.strokeStyle = 'rgba(150,170,210,.05)'; g.beginPath(); for (let yy = Math.floor(y0 / 18) * 18 + 2; yy < y1; yy += 18) { g.moveTo(x0, yy); g.lineTo(x1, yy); } g.stroke(); }
+  if (F.planks && !tiled) { g.strokeStyle = 'rgba(0,0,0,.22)'; g.lineWidth = 2; g.beginPath(); for (let yy = Math.floor(y0 / 18) * 18; yy < y1; yy += 18) { g.moveTo(x0, yy); g.lineTo(x1, yy); } g.stroke(); g.strokeStyle = 'rgba(150,170,210,.05)'; g.beginPath(); for (let yy = Math.floor(y0 / 18) * 18 + 2; yy < y1; yy += 18) { g.moveTo(x0, yy); g.lineTo(x1, yy); } g.stroke(); }
   // 1) 바닥 무늬
-  for (const c of chunks) for (const d of c.flat) if (d.k === 'patch') { g.fillStyle = d.c; g.beginPath(); g.ellipse(d.x, d.y, d.rx, d.ry, 0, 0, 7); g.fill(); }
+  if (!tiled) for (const c of chunks) for (const d of c.flat) if (d.k === 'patch') { g.fillStyle = d.c; g.beginPath(); g.ellipse(d.x, d.y, d.rx, d.ry, 0, 0, 7); g.fill(); }
   for (const c of chunks) for (const d of c.flat) {
+    if (tiled && d.k !== 'puddle') continue;
     if (d.k === 'tuft') { g.strokeStyle = F.patch; g.lineWidth = 2; g.beginPath(); g.moveTo(d.x - 4, d.y); g.lineTo(d.x - 6, d.y - 7); g.moveTo(d.x, d.y); g.lineTo(d.x, d.y - 9); g.moveTo(d.x + 4, d.y); g.lineTo(d.x + 6, d.y - 7); g.stroke(); }
     else if (d.k === 'flower') { g.fillStyle = ['#6b6f86', '#8a7a4a', '#6d5a72', '#5b7089'][Math.floor(d.h * 4)]; g.beginPath(); g.arc(d.x, d.y, 2.2, 0, 7); g.fill(); }
     else if (d.k === 'stone') { g.fillStyle = 'rgba(0,0,0,.18)'; g.beginPath(); g.ellipse(d.x, d.y + 1, 3.6 + d.h * 1.8, 2.2 + d.h, 0, 0, 7); g.fill(); g.fillStyle = 'rgba(150,170,220,.06)'; g.beginPath(); g.ellipse(d.x - 0.6, d.y - 0.6, 2.4 + d.h, 1.3, 0, 0, 7); g.fill(); }
@@ -1179,7 +1186,9 @@ function drawFx(f) {
   // 이펙트 그림이 있으면 그것으로, 없으면 아래 코드 그림으로
   if (f.k === 'xslash' && fxImg('fx_slash', f.x, f.y, f.r * 2.4, f.r * 2.4, f.life * 4, -0.5)) { fxImg('fx_slash', f.x, f.y, f.r * 2.4, f.r * 2.4, f.life * 4, 1.1); return; }
   if (f.k === 'spark' && fxImg('fx_hit', f.x, f.y, f.len * 3, f.len * 3, f.life * 5, f.a0)) return;
-  if (f.k === 'burst' && f.col === '#ff8a2e' && fxImg('fx_fire', f.x, f.y, f.r * 2.6, f.r * 2.6, f.life * 3)) return;
+  if (f.k === 'burst' && (f.col === '#ff8a2e' || f.col === '#ff9a2e') && fxImg('fx_fire', f.x, f.y, f.r * 2.6, f.r * 2.6, f.life * 3)) return;
+  if (f.k === 'vanish') { fxImg('fx_vanish', f.x, f.y - f.h * 0.5 - (0.7 - f.life) * 20, f.h * 0.66, f.h, f.life * 1.5); return; }
+  if (f.k === 'muzzle') { fxImg('fx_muzzle', f.x + f.face * 14, f.y, 42, 28, f.life * 11, f.face < 0 ? Math.PI : 0); return; }
   if (f.k === 'pillar' && fxImg('fx_heal', f.x, f.y - 55, 60, 120, f.life * 1.5)) return;
   if (f.k === 'ring' && f.col === '#7fb2ff' && fxImg('fx_shock', f.x, f.y, f.r * 2.4, f.r * 1.3, f.life * 2.5)) return;
   if (f.k === 'coin') { g.save(); g.translate(f.x, f.y); g.scale(Math.abs(Math.cos(f.life * 12)) + 0.2, 1); g.fillStyle = '#f5c451'; g.strokeStyle = '#8a5609'; g.lineWidth = 1.2; g.beginPath(); g.arc(0, 0, 4.5, 0, 7); g.fill(); g.stroke(); g.restore(); }

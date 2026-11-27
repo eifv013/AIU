@@ -75,8 +75,8 @@
 
   /* 일일 출동 두 가지. stageEq: 단계마다 몇 스테이지 근원체만큼 센지 */
   const DUNGEONS = [
-    { id: 'bounty',   name: '현상금 사냥', reward: 'gold', text: '골드를 크게 벌어요',  step: 6, base: 0 },
-    { id: 'evidence', name: '증거 수집',   reward: 'tix',  text: '호출권을 모아요',     step: 6, base: 3 },
+    { id: 'bounty',   name: '현상수배', reward: 'gold', text: '골드를 크게 벌어요',  step: 6, base: 0 },
+    { id: 'evidence', name: '단서 추적',   reward: 'tix',  text: '호출권을 모아요',     step: 6, base: 3 },
   ];
   /* 일일 임무: 매일 0시에 초기화. 다 끝내면 정예 호출권 1장 더 */
   const MISSIONS = [
@@ -85,7 +85,7 @@
     { kind: 'lvup',    text: '요원 강화',       need: 10,  gems: 30 },
     { kind: 'summon',  text: '요원 호출',       need: 10,  gems: 30 },
     { kind: 'dungeon', text: '일일 출동 완료',  need: 3,   gems: 50 },
-    { kind: 'tower',   text: '격리 구역 돌파',  need: 1,   gems: 30 },
+    { kind: 'tower',   text: '균열 심층 돌파',  need: 1,   gems: 30 },
   ];
   /* 출석: 7일 한 바퀴, 하루 한 번 (연속이 아니어도 다음 칸) */
   const ATTEND = [
@@ -395,13 +395,13 @@
   }
   /** 출동 lv 단계가 스테이지 몇만큼 센지 */
   function dungeonStage(id, lv) { const d = dungeonById(id); return d.base + d.step * clampInt(lv, 1, 1e5, 1); }
-  /** 출동 보상: 현상금 사냥은 그 스테이지 근원체 골드 15번 분, 증거 수집은 호출권 15 + 단계당 5 */
+  /** 출동 보상: 현상수배는 그 스테이지 근원체 골드 15번 분, 단서 추적은 호출권 15 + 단계당 5 */
   function dungeonReward(id, lv, goldLv) {
     const d = dungeonById(id), L = clampInt(lv, 1, 1e5, 1);
     if (d.reward === 'gold') return { gold: Math.floor(bossGold(dungeonStage(id, L), goldLv) * 15) };
     return { tix: 15 + 5 * L };
   }
-  /** 격리 구역 f 층이 스테이지 몇만큼 센지, 처음 돌파 보상 (5층마다 정예 호출권, 10층마다 보석 200) */
+  /** 균열 심층 f 층이 스테이지 몇만큼 센지, 처음 돌파 보상 (5층마다 정예 호출권, 10층마다 보석 200) */
   function towerStage(f) { return 4 + 2 * clampInt(f, 1, 1e5, 1); }
   function towerReward(f) {
     const F = clampInt(f, 1, 1e5, 1);
@@ -434,7 +434,7 @@
     if (best < 1) throw new RangeError('한 번 깬 단계부터 소탕할 수 있어요');
     return clearDungeon(state, id, best);
   }
-  /** 격리 구역 다음 층 돌파 */
+  /** 균열 심층 다음 층 돌파 */
   function clearTower(state) {
     state.tower = (state.tower || 0) + 1;
     missionAdd(state, 'tower', 1);
@@ -535,7 +535,7 @@
       day: '',                  // 마지막 일일 초기화 날짜
       keys: Object.fromEntries(DUNGEONS.map(d => [d.id, CONST.DAILY_KEYS])),   // 일일 출동 남은 입장
       dbest: Object.fromEntries(DUNGEONS.map(d => [d.id, 0])),                 // 일일 출동 깬 최고 단계
-      tower: 0,                 // 격리 구역 돌파한 층
+      tower: 0,                 // 균열 심층 돌파한 층
       daily: { p: {}, got: [], bonus: false },   // 일일 임무 진행, 받은 번호, 보너스
       att: { n: 0, last: '' },  // 출석 받은 횟수, 마지막 날짜
     };

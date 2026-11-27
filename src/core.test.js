@@ -233,7 +233,7 @@ test('일일 출동: 다음 단계까지만, 깨면 입장 1회 쓰고 보상, �
   assert.ok(C.dungeonStage('bounty', 2) > C.dungeonStage('bounty', 1));
   assert.throws(() => C.dungeonById('x'), Error);
 });
-test('격리 구역: 층마다 보상, 5층 정예 호출권, 10층 보석 200', () => {
+test('균열 심층: 층마다 보상, 5층 정예 호출권, 10층 보석 200', () => {
   const s = C.newState(0); C.dailyReset(s, new Date(2026, 10, 27));
   for (let i = 0; i < 10; i++) C.clearTower(s);
   assert.equal(s.tower, 10); assert.equal(s.ptix, 2); assert.equal(s.gems, C.CONST.START_GEMS + 8 * 30 + 30 + 200);

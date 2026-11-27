@@ -819,7 +819,7 @@ function spawnBoss() {
   banner(theme().boss + ' 출현');
 }
 
-/* ---------- 출동 (일일 출동, 격리 구역) ----------
+/* ---------- 출동 (일일 출동, 균열 심층) ----------
  * 지금 지도의 이상체를 치우고 출동 근원체 하나와 30초 동안 싸움. 이기면 보상, 지면 그대로 (입장 횟수는 안 줄어듦).
  * 끝나면 1초 뒤 결과 창, 닫으면 원래 스테이지 지도로 돌아옴 */
 function startChal(kind, id, lv) {
@@ -827,7 +827,7 @@ function startChal(kind, id, lv) {
   if (R.boss) return toast('근원체 봉쇄가 끝난 뒤 출동할 수 있어요');
   if (!alive().length) return toast('요원이 회복한 뒤 출동할 수 있어요');
   const eq = kind === 'tower' ? C.towerStage(lv) : C.dungeonStage(id, lv);
-  const name = kind === 'tower' ? `격리 구역 ${lv}층` : `${C.dungeonById(id).name} ${lv}단계`;
+  const name = kind === 'tower' ? `균열 심층 ${lv}층` : `${C.dungeonById(id).name} ${lv}단계`;
   R.chal = { kind, id, lv, eq, name };
   R.enemies = []; R.proj = []; R.wipe = 0; syncHeroes(true);
   for (const h of owned()) Object.assign(R.heroes[h.id], formSlot(h.id), { cd: Math.min(R.heroes[h.id].cd, h.skill.cd * 0.3) });
@@ -1473,7 +1473,7 @@ function updateUI() {
 
 /* ---------- UI: 패널 ---------- */
 let tab = 'hero', bulk = 1;
-const APP_VERSION = '0.7.0';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.7.1';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 const starStr = n => '★'.repeat(n) + `<s>${'★'.repeat(C.CONST.MAX_STARS - n)}</s>`;
 
@@ -1636,8 +1636,8 @@ function renderRun(P) {
     const f = S.tower + 1;
     P.innerHTML = seg + C.DUNGEONS.map(dcard).join('') +
       `<div class="dcard tower"><div class="dimg"><img src="${ART[BOSS_ART.tower] || ''}" alt=""></div>
-        <div class="dinfo"><div class="dt"><b>격리 구역</b><span class="dleft">돌파 ${S.tower}층</span></div>
-          <div class="dd">한 층씩 올라가며 근원체를 봉쇄해요. 입장 제한이 없어요</div>
+        <div class="dinfo"><div class="dt"><b>균열 심층</b><span class="dleft">돌파 ${S.tower}층</span></div>
+          <div class="dd">한 층씩 내려가요. 입장 제한 없음</div>
           <div class="dstep"><b>${f}층</b>${diffTag(C.towerStage(f))}</div>
           <div class="drw">처음 돌파 ${rwHtml(C.towerReward(f))}</div></div>
         <div class="dbtns"><button class="btn sm" data-act="tgo">도전</button></div></div>

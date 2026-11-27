@@ -37,6 +37,19 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#0b0d12;color:var(
 #cv{position:absolute;inset:0;width:100%;height:100%;display:block}
 #bossBtn{position:absolute;left:10px;top:10px;display:none;padding:8px 14px;border-radius:10px;border:0;background:var(--red);color:#fff;font-family:"Black Han Sans";font-size:15px;animation:pulse 1.2s infinite}
 @keyframes pulse{50%{transform:scale(1.06)}}
+/* 기술 컷인: 비스듬한 띠에 요원 일러스트가 휙 지나감 (CSS 애니메이션, 1.1초) */
+#cutin{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:3}
+#cutin .ci{position:absolute;left:-10%;right:-10%;top:30%;height:30%;transform:skewY(-7deg);opacity:0;overflow:hidden;border-top:2px solid var(--ci,#fff);border-bottom:2px solid var(--ci,#fff);box-shadow:0 0 18px var(--ci,#fff);background:#000}
+#cutin .ci.go{animation:ciBand 1.1s cubic-bezier(.2,.8,.2,1) forwards}
+#cutin .ci img{position:absolute;inset:-20% 0;width:100%;height:140%;object-fit:cover;transform:skewY(7deg)}
+#cutin .ci.go img{animation:ciPan 1.1s linear forwards}
+#cutin .ci::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.75),rgba(0,0,0,0) 45%)}
+#cutin .ci-t{position:absolute;z-index:1;left:14%;top:50%;transform:translateY(-50%) skewY(7deg)}
+#cutin .ci-t b{display:block;font:400 26px "Black Han Sans";color:#fff;text-shadow:0 2px 0 #000,0 0 12px var(--ci,#fff);letter-spacing:.02em}
+#cutin .ci-t small{display:block;margin-top:2px;font:600 10px 'IBM Plex Sans KR',sans-serif;letter-spacing:.3em;color:var(--ci,#fff)}
+@keyframes ciBand{0%{opacity:0;transform:skewY(-7deg) translateX(-60%)}14%{opacity:1;transform:skewY(-7deg) translateX(0)}78%{opacity:1;transform:skewY(-7deg) translateX(0)}100%{opacity:0;transform:skewY(-7deg) translateX(40%)}}
+@keyframes ciPan{from{transform:skewY(7deg) translateX(-3%) scale(1.06)}to{transform:skewY(7deg) translateX(3%) scale(1.06)}}
+@media (prefers-reduced-motion:reduce){#cutin{display:none}}
 #banner{position:absolute;left:0;right:0;top:36%;padding:8px 0;background:linear-gradient(90deg,transparent,rgba(18,21,28,.82) 20%,rgba(18,21,28,.82) 80%,transparent);text-align:center;font-family:"Black Han Sans";font-size:30px;color:#fff;color:var(--gold);text-shadow:0 2px 0 #000;opacity:0;pointer-events:none;transition:opacity .3s}
 
 /* 파티 슬롯 */
@@ -202,6 +215,7 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
   <div id="battle">
     <canvas id="cv"></canvas>
     <button id="bossBtn">근원체 추적</button>
+    <div id="cutin"><div class="ci" id="ci"><img id="ci-img" alt=""><div class="ci-t"><b id="ci-sk"></b><small id="ci-nm"></small></div></div></div>
     <div id="banner"></div>
   </div>
   <div id="party"></div>
@@ -643,7 +657,22 @@ function spawnBoss() {
 }
 
 function addText(x, y, txt, col, big) { if (R.texts.length < 60) R.texts.push({ x, y, txt, col, big, life: 0.9 }); }
-function addFx(o) { if (R.fx.length < 140) R.fx.push(o); }
+function addFx(o) { if (R.fx.length < 180) R.fx.push(o); }
+/** 화면 흔들림 (세기 누적, 최대 10) */
+function shake(v) { R.shake = Math.min(10, (R.shake || 0) + v); }
+/* 기술 컷인: 같은 요원은 12초에 한 번, 전체로는 2.5초에 한 번까지만 (너무 자주 가리지 않게) */
+const CI_COL = { knight: '#7fb2ff', archer: '#8fe3a8', mage: '#ff8a3e', priest: '#ffe28a', dark: '#b98cff' };
+const ciLast = {}; let ciAny = -9;
+function cutIn(h) {
+  const el = $('ci'), now = R.t;
+  if (!el || !ART['cutin_' + h.id] || now - ciAny < 2.5 || now - (ciLast[h.id] ?? -99) < 12) return;
+  ciAny = now; ciLast[h.id] = now;
+  $('ci-img').src = ART['cutin_' + h.id]; $('ci-sk').textContent = h.skill.name; $('ci-nm').textContent = h.name;
+  el.style.setProperty('--ci', CI_COL[h.id] || '#fff');
+  el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');   // 애니메이션 다시 시작
+}
+/** 맞은 자리에서 튀는 불꽃 (짧은 선 여러 개) */
+function spark(x, y, col, n, len) { const a0 = Math.random() * 6.28; addFx({ k: 'spark', x, y, col, n, len, a0, life: 0.22 }); }
 
 /** 피해 적용 (치명타 판정 포함). 처치 시 보상 */
 function damage(e, base) {
@@ -651,6 +680,8 @@ function damage(e, base) {
   const crit = Math.random() < C.critChance(S.up.crit);
   const dmg = base * (R.buff > 0 ? 1.5 : 1) * (crit ? C.CRIT_DMG : 1);
   e.hp -= dmg; e.hit = 0.12; e.aggro = true;
+  spark(e.x, e.y - e.size * 0.5, crit ? '#ffd23a' : '#e8ecff', crit ? 9 : 5, e.size * (crit ? 0.6 : 0.4));
+  if (crit && e.boss) shake(1.5);
   addText(e.x + (Math.random() - 0.5) * e.size * 0.7, e.y - e.size * (0.75 + Math.random() * 0.35), C.formatNum(dmg), crit ? '#ffd23a' : '#fff', crit);
   if (e.hp <= 0) kill(e);
 }
@@ -666,6 +697,10 @@ function kill(e) {
     S.gold += C.killGold(S.stage, S.up.gold);
     if (!S.farming && S.kills < C.CONST.WAVE_KILLS) S.kills++;
   }
+  for (let i = 0; i < (e.boss ? 26 : 9); i++) { const a = Math.random() * 6.28, v = 20 + Math.random() * (e.boss ? 90 : 50);
+    addFx({ k: 'mote', x: e.x + (Math.random() - 0.5) * e.size * 0.4, y: e.y - Math.random() * e.size * 0.9, vx: Math.cos(a) * v, vy: -30 - Math.random() * 60, r: 1.5 + Math.random() * (e.boss ? 4 : 2.5), life: 0.7 + Math.random() * 0.5 }); }
+  addFx({ k: 'ring', x: e.x, y: e.y, r: e.size * (e.boss ? 2.2 : 0.9), life: 0.45, col: '#b98cff' });
+  if (e.boss) { shake(9); addFx({ k: 'flash', life: 0.35 }); }
   for (let i = 0; i < (e.boss ? 14 : 4); i++) addFx({ k: 'coin', x: e.x, y: e.y - e.size * 0.4, vx: (Math.random() - 0.5) * 120, vy: -110 - Math.random() * 100, floor: e.y, life: 0.9 });
 }
 function bossFail(reason) {
@@ -717,7 +752,11 @@ function heroAct(h, r, dt) {
 }
 function castSkill(h, atk, r, s, tgt) {
   const sk = h.skill;
-  addText(r.x, r.y - s * 1.45, sk.name, '#9fe8ff', false);
+  cutIn(h); shake(h.id === 'dark' ? 5 : 3);
+  if (h.id === 'dark') addFx({ k: 'xslash', x: tgt.x, y: tgt.y - tgt.size * 0.5, r: tgt.size * 1.3 + 30, life: 0.35 });
+  if (h.id === 'knight') addFx({ k: 'ring', x: tgt.x, y: tgt.y, r: 90, life: 0.4, col: '#7fb2ff' });
+  if (h.id === 'mage') for (let i = 0; i < 14; i++) { const a = Math.random() * 6.28, v = 60 + Math.random() * 120; addFx({ k: 'ember', x: tgt.x, y: tgt.y - 10, vx: Math.cos(a) * v, vy: Math.sin(a) * v * 0.5 - 60, r: 2 + Math.random() * 2.5, life: 0.6 + Math.random() * 0.4 }); }
+  if (h.id === 'priest') for (const a of alive()) addFx({ k: 'pillar', x: R.heroes[a.id].x, y: R.heroes[a.id].y, life: 0.8 });
   if (sk.kind === 'single') { damage(tgt, atk * sk.mult); addFx({ k: 'burst', x: tgt.x, y: tgt.y - tgt.size * 0.4, r: tgt.size * 0.9, life: 0.35, col: '#9fd0ff' }); }
   else if (sk.kind === 'multi') {
     for (let i = 0; i < sk.hits; i++) setTimeout(() => {
@@ -821,7 +860,8 @@ function update(dt) {
   for (const e of R.enemies) keepIn(e, e.boss ? 50 : 24);
   if (!alive().length) { R.wipe = 3; if (R.boss) bossFail('요원 후퇴'); else banner('요원 후퇴'); }
   // 효과
-  for (const f of R.fx) { f.life -= dt; if (f.k === 'coin') { f.x += f.vx * dt; f.y += f.vy * dt; f.vy += 380 * dt; if (f.y > f.floor) { f.y = f.floor; f.vy *= -0.4; f.vx *= 0.6; } } }
+  R.shake = Math.max(0, (R.shake || 0) - dt * 22);
+  for (const f of R.fx) { f.life -= dt; if (f.k === 'mote' || f.k === 'ember') { f.x += f.vx * dt; f.y += f.vy * dt; f.vx *= 0.96; f.vy += (f.k === 'ember' ? 160 : -20) * dt; } if (f.k === 'coin') { f.x += f.vx * dt; f.y += f.vy * dt; f.vy += 380 * dt; if (f.y > f.floor) { f.y = f.floor; f.vy *= -0.4; f.vx *= 0.6; } } }
   R.fx = R.fx.filter(f => f.life > 0);
   for (const t of R.texts) { t.life -= dt; t.y -= dt * 40; }
   R.texts = R.texts.filter(t => t.life > 0);
@@ -851,7 +891,8 @@ function draw() {
   // 화면 → 지도 변환
   g.save();
   const cy0 = R.boss ? 0.64 : 0.58;   // 보스전: 위쪽 체력 바만큼 화면을 내림
-  g.translate(W / 2, H * cy0); g.scale(u, u); g.translate(-R.cam.x, -R.cam.y);
+  const sk = R.shake || 0;
+  g.translate(W / 2 + (Math.random() - 0.5) * sk * 2, H * cy0 + (Math.random() - 0.5) * sk * 2); g.scale(u, u); g.translate(-R.cam.x, -R.cam.y);
   const vw = W / u, vh = H / u, x0 = R.cam.x - vw / 2 - 60, x1 = R.cam.x + vw / 2 + 60, y0 = R.cam.y - vh * cy0 - 80, y1 = R.cam.y + vh * (1 - cy0) + 60;
   // 지도 바닥 (경계 안만) + 장식은 경계 안으로 잘라 그림
   g.fillStyle = F.ground; g.fillRect(-MAPW / 2, -MAPH / 2, MAPW, MAPH);
@@ -900,7 +941,8 @@ function draw() {
   g.textAlign = 'center';
   for (const t of R.texts) {
     g.globalAlpha = Math.min(1, t.life * 2);
-    g.font = `${t.big ? 22 : 15}px "Black Han Sans", sans-serif`;
+    const age = 0.9 - t.life, pop = t.big ? 1 + Math.max(0, 0.18 - age) * 4 : 1 + Math.max(0, 0.1 - age) * 3;
+    g.font = `${Math.round((t.big ? 22 : 15) * pop)}px "Black Han Sans", sans-serif`;
     g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,.8)'; g.strokeText(t.txt, t.x, t.y); g.fillStyle = t.col; g.fillText(t.txt, t.x, t.y);
   }
   g.globalAlpha = 1;
@@ -911,6 +953,7 @@ function draw() {
   const vg = g.createRadialGradient(W / 2, H / 2, H * 0.35, W / 2, H / 2, H * 0.9); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.5)');
   g.fillStyle = vg; g.fillRect(0, 0, W, H);
   if (R.boss) drawBossBar();
+  const fl = R.fx.find(f => f.k === 'flash'); if (fl) { g.fillStyle = `rgba(230,215,255,${fl.life * 1.4})`; g.fillRect(0, 0, W, H); }
   drawMinimap();
   if (R.buff > 0) { g.fillStyle = `rgba(255,230,120,${0.06 + Math.sin(R.t * 8) * 0.03})`; g.fillRect(0, 0, W, H); }
   if (R.wipe > 0) { g.fillStyle = 'rgba(0,0,0,.45)'; g.fillRect(0, 0, W, H); g.fillStyle = '#fff'; g.textAlign = 'center'; g.font = '18px "Black Han Sans"'; g.fillText(`${Math.ceil(R.wipe)}초 뒤 다시 출발`, W / 2, H * 0.3); }
@@ -1029,6 +1072,20 @@ function drawFx(f) {
   if (f.k === 'coin') { g.save(); g.translate(f.x, f.y); g.scale(Math.abs(Math.cos(f.life * 12)) + 0.2, 1); g.fillStyle = '#f5c451'; g.strokeStyle = '#8a5609'; g.lineWidth = 1.2; g.beginPath(); g.arc(0, 0, 4.5, 0, 7); g.fill(); g.stroke(); g.restore(); }
   else if (f.k === 'slash') { g.strokeStyle = f.col; g.globalAlpha = f.life * 5; g.lineWidth = 4; g.beginPath(); if (f.face < 0) g.arc(f.x + f.r * 0.4, f.y, f.r, Math.PI - 0.9, Math.PI + 1); else g.arc(f.x - f.r * 0.4, f.y, f.r, -1, 0.9); g.stroke(); g.globalAlpha = 1; }
   else if (f.k === 'burst') { const p = 1 - f.life / 0.45; g.globalAlpha = Math.max(0, f.life * 2.4); const gr = g.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * (0.5 + p)); gr.addColorStop(0, '#fff'); gr.addColorStop(0.35, f.col); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.beginPath(); g.arc(f.x, f.y, f.r * (0.5 + p), 0, 7); g.fill(); g.globalAlpha = 1; }
+  else if (f.k === 'spark') { const p = 1 - f.life / 0.22; g.strokeStyle = f.col; g.lineWidth = 2; g.globalAlpha = Math.max(0, f.life * 5); g.beginPath();
+    for (let i = 0; i < f.n; i++) { const a = f.a0 + i * 6.283 / f.n, r0 = f.len * (0.2 + p * 0.6), r1 = r0 + f.len * 0.45 * (1 - p); g.moveTo(f.x + Math.cos(a) * r0, f.y + Math.sin(a) * r0 * 0.8); g.lineTo(f.x + Math.cos(a) * r1, f.y + Math.sin(a) * r1 * 0.8); }
+    g.stroke(); g.globalAlpha = 1; }
+  else if (f.k === 'mote' || f.k === 'ember') { g.globalAlpha = Math.min(1, f.life * 2); g.fillStyle = f.k === 'ember' ? (f.life > 0.4 ? '#ffd27a' : '#ff6a2e') : '#b98cff'; g.beginPath(); g.arc(f.x, f.y, f.r, 0, 7); g.fill(); g.globalAlpha = 1; }
+  else if (f.k === 'xslash') { const p = 1 - f.life / 0.35; g.globalAlpha = Math.min(1, f.life * 5); g.lineCap = 'round';
+    for (const [lw, col] of [[10, 'rgba(160,100,255,.45)'], [3, '#e9dcff']]) { g.strokeStyle = col; g.lineWidth = lw; g.beginPath();
+      const L = f.r * Math.min(1, p * 3); g.moveTo(f.x - L, f.y - L * 0.55); g.lineTo(f.x + L, f.y + L * 0.55); g.moveTo(f.x + L, f.y - L * 0.55); g.lineTo(f.x - L, f.y + L * 0.55); g.stroke(); }
+    g.globalAlpha = 1; }
+  else if (f.k === 'pillar') { // 치유 빛: 가운데가 밝고 양옆, 위로 갈수록 옅어지는 빛 기둥 + 떠오르는 빛 알갱이
+    const a = Math.min(1, f.life * 2), p = 1 - f.life / 0.8, gr = g.createLinearGradient(f.x - 12, 0, f.x + 12, 0);
+    gr.addColorStop(0, 'rgba(255,236,160,0)'); gr.addColorStop(0.5, 'rgba(255,240,190,1)'); gr.addColorStop(1, 'rgba(255,236,160,0)');
+    g.fillStyle = gr; for (let i = 0; i < 8; i++) { g.globalAlpha = a * 0.32 * (1 - i / 8); g.fillRect(f.x - 12, f.y - (i + 1) * 12, 24, 12); }
+    g.fillStyle = '#fff3c4'; for (let i = 0; i < 4; i++) { const yy = f.y - ((p * 90 + i * 24) % 96); g.globalAlpha = a * 0.9; g.beginPath(); g.arc(f.x + Math.sin(i * 2.1 + p * 6) * 7, yy, 1.6, 0, 7); g.fill(); }
+    g.globalAlpha = 1; }
   else if (f.k === 'ring') { const p = 1 - f.life / 0.6; g.globalAlpha = Math.max(0, f.life * 1.6); g.strokeStyle = f.col; g.lineWidth = 4; g.beginPath(); g.ellipse(f.x, f.y, f.r * (0.3 + p), f.r * (0.3 + p) * 0.55, 0, 0, 7); g.stroke(); g.globalAlpha = 1; }
 }
 function drawBossBar() {

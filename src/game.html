@@ -141,6 +141,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 .sbanner .tt{position:absolute;left:14px;bottom:12px;right:14px}
 .sbanner .tt b{display:block;font:400 28px "Black Han Sans";color:#fff;text-shadow:0 2px 0 #000}
 .sbanner .tt span{font-size:13px;font-weight:600;color:var(--gold)}
+.sbanner .tt .pity{display:block;margin-top:2px;font-style:normal;font-size:12px;color:#C9D0DE}
 .sbanner.small{height:124px}
 .sbanner .tag{position:absolute;left:12px;top:12px;padding:1px 6px;border:1.5px solid var(--red);border-radius:3px;color:#FF8A78;background:rgba(10,13,20,.7);font:700 11px 'IBM Plex Sans KR',sans-serif;letter-spacing:.06em;transform:rotate(-6deg)}
 .sbanner .left{position:absolute;right:12px;top:12px;padding:2px 8px;border-radius:var(--r);background:rgba(10,13,20,.75);color:var(--ink);font-size:12px;white-space:nowrap}
@@ -1330,16 +1331,16 @@ function renderPanel() {
       <button class="btn" data-act="sum" data-kind="${kind}" data-n="10"><span>10회 ${verb}</span><span class="cost">${icon('gem')}${cost10}</span></button></div>`;
     const row = (name, a, b) => `<tr><td>${name}</td><td>${a}</td><td>${b}</td></tr>`;
     P.innerHTML = `<div class="sbanner"><canvas id="sbc"></canvas><span class="tag">한정</span><span class="left" id="pkLeft"></span>
-        <div class="tt"><b>특별 채용</b><span>전설 ${pk.role} ${pk.name} 확률 ${Math.round(pr * 100)}%</span></div></div>
+        <div class="tt"><b>특별 채용</b><span>전설 ${pk.role} ${pk.name} 확률 ${(pr * 100).toFixed(1)}%</span><em class="pity" id="pity-pickup"></em></div></div>
       ${btns('pickup', '채용', 'blue')}
       <div class="sgap"></div>
-      <div class="sbanner small"><canvas id="sbc2"></canvas><div class="tt"><b>요원 호출</b><span>상시 호출</span></div></div>
+      <div class="sbanner small"><canvas id="sbc2"></canvas><div class="tt"><b>요원 호출</b><span>상시 호출</span><em class="pity" id="pity-normal"></em></div></div>
       ${btns('normal', '호출', 'blue')}
       <table class="rtable"><thead><tr><th>요원</th><th>호출</th><th>특별 채용</th></tr></thead><tbody>
         ${row(`전설 ${pk.name}`, (lr * 100).toFixed(1) + '%', (pr * 100).toFixed(1) + '%')}
         ${C.STARTER_IDS.map(id => row(`${C.heroById(id).grade} ${C.heroById(id).name}`, ((1 - lr) / 4 * 100).toFixed(2) + '%', ((1 - pr) / 4 * 100).toFixed(2) + '%')).join('')}
       </tbody></table>
-      <p class="hint" style="margin:10px 2px">이미 있는 요원이 나오면 조각이 되고, 조각을 모아 승급하면 능력치가 크게 올라요. 보석은 근원체를 봉쇄하면 ${C.CONST.BOSS_GEMS}개씩 얻어요. 특별 채용은 매주 월요일 0시에 새로 열려요.</p>`;
+      <p class="hint" style="margin:10px 2px">이미 있는 요원이 나오면 조각이 되고, 조각을 모아 승급하면 능력치가 크게 올라요. 보석은 근원체를 봉쇄하면 ${C.CONST.BOSS_GEMS}개씩 얻어요. 특별 채용은 매주 월요일 0시에 새로 열려요. 전설이 ${C.CONST.PITY - 1}번 연속 나오지 않으면 ${C.CONST.PITY}번째는 전설이 확정이에요(호출과 채용은 따로 세요).</p>`;
     drawSummonBanner();
   }
   updatePanel();
@@ -1394,6 +1395,7 @@ function updatePanel() {
     }
   } else {
     const pl = $('pkLeft'); if (pl) pl.textContent = '남은 기간 ' + C.formatRemain(C.pickupRemainSec(new Date()));
+    for (const k of ['pickup', 'normal']) { const el = $('pity-' + k); if (el) el.textContent = `전설 확정까지 ${C.CONST.PITY - S.pity[k]}회`; }
     for (const b of P.querySelectorAll('[data-act=sum]')) b.disabled = S.gems < (b.dataset.n === '10' ? C.CONST.SUMMON_COST_10 : C.CONST.SUMMON_COST_1);
   }
   // 탭 알림 점: 할 수 있는 강화가 있을 때
@@ -1458,9 +1460,10 @@ $('bossBtn').addEventListener('click', () => { S.farming = false; S.kills = C.CO
 function doSummon(n, pickup) {
   const cost = n === 10 ? C.CONST.SUMMON_COST_10 : C.CONST.SUMMON_COST_1;
   if (S.gems < cost) return toast('보석이 부족해요');
-  const ids = C.summon(n, Math.random, pickup ? C.CONST.PICKUP_LEGEND_RATE : C.CONST.LEGEND_RATE);
+  const kind = pickup ? 'pickup' : 'normal';
+  const pr = C.summonPity(n, Math.random, pickup ? C.CONST.PICKUP_LEGEND_RATE : C.CONST.LEGEND_RATE, S.pity[kind]), ids = pr.ids;
   const res = C.applySummon(S, ids);
-  res.state.gems -= cost; S = res.state; C.questAdd(S, 'summon', n);
+  res.state.gems -= cost; res.state.pity[kind] = pr.pity; S = res.state; C.questAdd(S, 'summon', n);
   syncHeroes(false); writeSave();
   openModal(`<h2>${pickup ? '채용 결과' : '호출 결과'}</h2><div class="res ${n === 1 ? 'one' : ''}">${ids.map((id, i) => {
     const h = C.heroById(id);

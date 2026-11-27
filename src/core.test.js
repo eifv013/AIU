@@ -84,8 +84,8 @@ test('오프라인 보상: 최소/최대 시간, 시계 되돌림', () => {
 
 test('소환: 확률 구간과 잘못된 rng', () => {
   assert.deepEqual(C.summon(1, () => 0.0), ['dark']);
-  assert.deepEqual(C.summon(1, () => 0.029), ['dark']);
-  assert.deepEqual(C.summon(1, () => 0.03), ['knight']);
+  assert.deepEqual(C.summon(1, () => 0.014), ['dark']);
+  assert.deepEqual(C.summon(1, () => 0.015), ['knight']);
   assert.deepEqual(C.summon(1, () => 0.9999), ['priest']);
   assert.equal(C.summon(10, Math.random).length, 10);
   assert.throws(() => C.summon(1, () => 1), RangeError);
@@ -142,7 +142,7 @@ test('등급 이름: 희귀, 영웅, 전설만 사용', () => {
 });
 
 test('특별 채용: 전설 확률이 올라가고 잘못된 확률은 거부', () => {
-  assert.deepEqual(C.summon(1, () => 0.08, C.CONST.PICKUP_LEGEND_RATE), ['dark']);   // 9% 안
+  assert.deepEqual(C.summon(1, () => 0.025, C.CONST.PICKUP_LEGEND_RATE), ['dark']);   // 3% 안
   assert.deepEqual(C.summon(1, () => 0.08), ['knight']);                              // 일반 호출은 3% 밖
   assert.throws(() => C.summon(1, () => 0.5, 0), RangeError);
   assert.throws(() => C.summon(1, () => 0.5, 1.2), RangeError);
@@ -176,4 +176,15 @@ test('저장 복구: 퀘스트, 자동 기술, 배속', () => {
   const s = C.sanitize({ q: { i: 2, p: 999 }, autoSkill: false, speed: 7 }, 0);
   assert.equal(s.q.p, C.questAt(2).need); assert.equal(s.autoSkill, false); assert.equal(s.speed, 1);
   assert.equal(C.sanitize({}, 0).autoSkill, true);
+});
+
+test('천장: 전설 없이 49번 뒤 50번째는 전설 확정, 나오면 0부터', () => {
+  const never = () => 0.999;
+  const r = C.summonPity(10, never, C.CONST.LEGEND_RATE, 45);
+  assert.equal(r.ids[4], 'dark'); assert.equal(r.ids.filter(i => i === 'dark').length, 1); assert.equal(r.pity, 5);
+  assert.equal(C.summonPity(1, () => 0, C.CONST.LEGEND_RATE, 10).pity, 0);
+  assert.equal(C.sanitize({ pity: { normal: 999, pickup: -3 } }, 0).pity.normal, C.CONST.PITY - 1);
+});
+test('확률: 특별 채용 전설은 장르 수준(5% 이하)', () => {
+  assert.ok(C.CONST.PICKUP_LEGEND_RATE <= 0.05 && C.CONST.LEGEND_RATE < C.CONST.PICKUP_LEGEND_RATE);
 });

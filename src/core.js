@@ -39,8 +39,9 @@
     BOSS_GEMS: 10,           // 근원체 처치 보석
     SUMMON_COST_1: 30,
     SUMMON_COST_10: 270,
-    LEGEND_RATE: 0.03,       // 요원 호출: 전설(해결사) 확률
-    PICKUP_LEGEND_RATE: 0.09, // 특별 채용(기간 한정): 전설 확률 3배
+    LEGEND_RATE: 0.015,      // 요원 호출: 전설(해결사) 확률 1.5%
+    PICKUP_LEGEND_RATE: 0.03, // 특별 채용(기간 한정): 전설 확률 3% (2배)
+    PITY: 50,                // 천장: 전설 없이 49번 뽑으면 50번째는 전설 확정 (뽑기 종류마다 따로 셈)
     MAX_STARS: 5,
     OFFLINE_CAP_SEC: 8 * 3600,
     OFFLINE_MIN_SEC: 60,
@@ -231,6 +232,20 @@
   }
 
   /**
+   * 천장이 있는 뽑기. pity = 지난 전설 이후 뽑은 횟수. 전설이 나오면 0으로.
+   * @returns {{ids: string[], pity: number}}
+   */
+  function summonPity(n, rng, legendRate, pity) {
+    let p = clampInt(pity, 0, CONST.PITY - 1, 0);
+    const cnt = clampInt(n, 1, 100, 1), ids = [];
+    for (let i = 0; i < cnt; i++) {
+      const id = p + 1 >= CONST.PITY ? 'dark' : summon(1, rng, legendRate)[0];
+      ids.push(id); p = id === 'dark' ? 0 : p + 1;
+    }
+    return { ids, pity: p };
+  }
+
+  /**
    * 소환 결과를 상태에 반영 (새 상태 반환, 원본 불변).
    * 미보유 요원은 보유로 바꾸고, 보유 요원은 조각 +1.
    */
@@ -318,6 +333,7 @@
       heroes,
       up: { atk: 0, gold: 0, crit: 0 },
       q: { i: 0, p: 0 },        // 가이드 퀘스트 번호와 진행
+      pity: { normal: 0, pickup: 0 },   // 천장 카운트 (요원 호출, 특별 채용 따로)
       autoSkill: true,          // 기술 자동 사용
       speed: 1,                 // 전투 배속 1 또는 2
       lastSeen: isNum(now) ? now : 0,
@@ -344,6 +360,7 @@
       s.q.p = clampInt(raw.q.p, 0, questAt(s.q.i).need, 0);
     }
     s.autoSkill = raw.autoSkill !== false;
+    if (raw.pity && typeof raw.pity === 'object') for (const k of ['normal', 'pickup']) s.pity[k] = clampInt(raw.pity[k], 0, CONST.PITY - 1, 0);
     s.speed = raw.speed === 2 ? 2 : 1;
     s.lastSeen = isNum(raw.lastSeen) && raw.lastSeen > 0 ? raw.lastSeen : base.lastSeen;
     if (raw.up && typeof raw.up === 'object') {
@@ -378,7 +395,7 @@
     stageLabel, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed,
-    partyDps, offlineReward, summon, applySummon, pickupRemainSec, formatRemain,
+    partyDps, offlineReward, summon, summonPity, applySummon, pickupRemainSec, formatRemain,
     newState, cloneState, sanitize, loadFromString, QUESTS, questAt, questAdd, questClaim,
   };
 

@@ -1,0 +1,10 @@
+{
+  "name": "aiu",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AIU 이상현상 전담수사팀 (Loop & Lamp Studio)",
+  "scripts": {
+    "test": "node --test src/core.test.js",
+    "build": "node build.js"
+  }
+}

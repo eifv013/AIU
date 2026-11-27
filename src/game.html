@@ -158,6 +158,10 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
 .sp-bar i{display:block;height:100%;width:0;background:var(--gold);border-radius:2px;transition:width .3s ease}
 .sp-msg{font-size:12px;color:var(--dim);min-height:16px}
 .sp-skip{font-size:11px;color:var(--dim);opacity:.6;margin-top:6px}
+/* 불러오기가 끝나면: 접속 안내가 또렷하게 깜빡임 */
+.sp-skip.ready{font-size:14px;font-weight:600;color:var(--ink);opacity:1;animation:tapBlink 1.4s ease-in-out infinite}
+@keyframes tapBlink{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.sp-skip.ready{animation:none}}
 /* 제작사 표기: 수사 3팀 .sp-brand 와 같은 값 (bottom 12px, gap 4px, 8px 글씨, 로고 108px, margin-top -7px) */
 #splash .by{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 12px);left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:4px}
 #splash .by small{font-family:'IBM Plex Sans KR',sans-serif;font-size:8px;font-weight:600;letter-spacing:.32em;color:#A3ACBA}
@@ -243,7 +247,7 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
         <div class="sp-bar"><i id="sp-fill"></i></div>
         <span class="sp-msg" id="sp-msg">비 내리는 중</span>
       </div>
-      <span class="sp-skip">화면을 누르면 건너뛰어요</span>
+      <span class="sp-skip" id="sp-tap">불러오는 중</span>
     </div>
     <!-- 제작사 표기: 수사 3팀 로딩 화면과 똑같이 (같은 SVG 로고, 같은 크기와 간격). 빌드 때 SVG 가 들어감 -->
     <div class="by" aria-label="A game by Loop &amp; Lamp Studio"><small>A GAME BY</small>LOGO_SVG</div>
@@ -1205,9 +1209,9 @@ window.addEventListener('pagehide', writeSave);
 /* ---------- 시작 ---------- */
 const pending = firstRun ? null : C.offlineReward(S, (Date.now() - S.lastSeen) / 1000);
 syncHeroes(true); renderPanel(); updateUI();
-let started = false;
+let started = false, splashReady = false;   // splashReady: 불러오기가 끝나야 화면을 눌러 접속할 수 있음
 function startGame() {
-  if (started) return; started = true;
+  if (started || !splashReady) return; started = true;
   $('splash').style.display = 'none'; paused = false; last = performance.now();
   if (pending && pending.gold > 0) showOffline(pending);
   else if (firstRun) banner('출동');
@@ -1281,7 +1285,11 @@ if (!startSplash3D($('spbg'), () => started)) {
 [[30, '비 내리는 중'], [65, '요원 호출하는 중'], [100, '구역 지도 펼치는 중']].forEach(([w, m], i) => setTimeout(() => {
   if (started) return; $('sp-fill').style.width = w + '%'; $('sp-msg').textContent = m;
 }, 250 + i * 650));
-setTimeout(startGame, 2500);
+// 불러오기가 끝나면 자동으로 넘어가지 않고, 화면을 눌러야 접속
+setTimeout(() => {
+  splashReady = true; $('sp-msg').textContent = '준비 완료';
+  const tap = $('sp-tap'); tap.textContent = '화면을 누르면 접속해요'; tap.classList.add('ready');
+}, 250 + 3 * 650);
 requestAnimationFrame(loop);
 }
 </script>

@@ -121,7 +121,7 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 .tic svg{width:10px;height:10px}
 .hn{display:flex;align-items:center;justify-content:center;gap:3px}
 .hn span{min-width:0;overflow:hidden;text-overflow:ellipsis}
-.hn.long span{font-size:10.5px;letter-spacing:-.04em}   /* 아이언사이드처럼 긴 이름도 한 줄에 다 보이게 */
+.hn.long{gap:2px}.hn.long span{font-size:9.5px;letter-spacing:-.06em}.hn.long .tic{width:13px;height:13px}.hn.long .tic svg{width:9px;height:9px}   /* 아이언사이드처럼 긴 이름도 한 줄에 다 보이게 */
 .hph .pin{position:absolute;right:3px;top:3px;z-index:2;padding:1px 4px;border-radius:3px;background:var(--gold);color:#1a1405;font:700 9px 'IBM Plex Sans KR'}
 .hc.inparty .hcard{border-color:rgba(255,210,63,.55)}
 /* 분류 거르기 탭 + 일괄 강화 칸 (한 줄) */
@@ -133,7 +133,9 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 .tfil button.on{border-color:var(--tc,var(--gold));color:var(--tc,var(--gold));background:var(--panel2)}
 .htop .seg{margin:0;flex:none;grid-template-columns:repeat(3,38px)}
 .htop .seg button{height:32px;font-size:12px}
-.hcount{margin:-4px 2px 8px;font-size:11px;color:var(--dim)}
+.hcount{display:flex;align-items:center;gap:10px;margin:-4px 2px 8px;font-size:11px;color:var(--dim)}
+.hcount .hsort{margin-left:auto;display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 9px;border:1px solid var(--line);border-radius:13px;background:var(--panel);color:var(--ink);font:700 11px 'IBM Plex Sans KR'}
+.hcount .hsort svg{width:13px;height:13px;color:var(--gold)}
 .hcount b{color:var(--gold)}
 /* 상세 창: 분류 배지와 세부 역할, 파티 넣기 */
 .tbadge{display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding:1px 7px 1px 3px;border-radius:10px;background:var(--panel2);color:var(--tc);font:700 12px 'IBM Plex Sans KR';vertical-align:2px}
@@ -1884,7 +1886,22 @@ function updateUI() {
 
 /* ---------- UI: 패널 ---------- */
 let tab = 'hero', bulk = 1, hfil = '전체';   // hfil: 요원 탭 분류 거르기
-const APP_VERSION = '0.10.0';   // 버전은 로딩 화면이 아니라 설정에만 표시
+let hsort = (() => { try { return +localStorage.getItem('aiu-hsort') % 3 || 0; } catch (e) { return 0; } })();   // 요원 탭 정렬 (다시 켜도 유지): 0 출전 먼저 / 1 등급 / 2 레벨
+const HSORT = ['출전 먼저', '등급 높은 순', '레벨 높은 순'];
+const GRADE_RANK = { 전설: 3, 영웅: 2, 희귀: 1 };
+/** 요원 탭 정렬. 미보유는 항상 맨 아래. 출전 먼저: 출전 칸 순서 그대로 위에, 나머지는 등급 → 레벨 */
+function sortHeroes(list, pids) {
+  const d = h => S.heroes[h.id], base = C.HEROES.indexOf.bind(C.HEROES);
+  const byGrade = (a, b) => GRADE_RANK[b.grade] - GRADE_RANK[a.grade] || d(b).stars - d(a).stars || d(b).lv - d(a).lv || base(a) - base(b);
+  const byLv = (a, b) => d(b).lv - d(a).lv || byGrade(a, b);
+  return list.slice().sort((a, b) => {
+    if (d(a).owned !== d(b).owned) return d(a).owned ? -1 : 1;
+    if (!d(a).owned) return byGrade(a, b);
+    if (hsort === 0) { const ia = pids.indexOf(a.id), ib = pids.indexOf(b.id); if ((ia < 0) !== (ib < 0)) return ia < 0 ? 1 : -1; if (ia >= 0) return ia - ib; }
+    return hsort === 2 ? byLv(a, b) : byGrade(a, b);
+  });
+}
+const APP_VERSION = '0.10.1';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 /** 기술 설명 (상세 창) */
 function skillText(h) {
@@ -1907,10 +1924,10 @@ function renderPanel() {
   const P = $('panel');
   if (tab === 'hero') {
     // 위: 분류 거르기(전체, 공격, 광역, 방어, 지원) + 일괄 강화. 세나 키우기 영웅 목록처럼 분류 그림으로
-    const pids = C.partyIds(S), list = C.HEROES.filter(h => hfil === '전체' || h.type === hfil);
+    const pids = C.partyIds(S), list = sortHeroes(C.HEROES.filter(h => hfil === '전체' || h.type === hfil), pids);
     P.innerHTML = `<div class="htop"><div class="tfil">${['전체', ...C.TYPES].map(t => `<button data-act="hfil" data-v="${t}" class="${t === '전체' ? '' : 't-' + t}${hfil === t ? ' on' : ''}" aria-label="${t}">${t === '전체' ? '<b>전체</b>' : `<svg><use href="#i-t-${t}"/></svg>`}</button>`).join('')}</div>
       <div class="seg">${[[1, '1회'], [10, '10회'], [0, '최대']].map(([v, l]) => `<button data-act="bulk" data-v="${v}" class="${bulk === v ? 'on' : ''}">${l}</button>`).join('')}</div></div>
-      <div class="hcount">${hfil === '전체' ? '' : hfil + ' '}요원 ${list.filter(h => S.heroes[h.id].owned).length} / ${list.length}<span style="float:right">출전 <b>${pids.length}</b> / ${C.CONST.PARTY_MAX}</span></div><div class="hgrid">` +
+      <div class="hcount">${hfil === '전체' ? '' : hfil + ' '}요원 ${list.filter(h => S.heroes[h.id].owned).length} / ${list.length}<span>출전 <b>${pids.length}</b> / ${C.CONST.PARTY_MAX}</span><button class="hsort" data-act="hsort"><svg viewBox="0 0 24 24"><path d="M7 4v15M3 15l4 4l4-4M17 20V5M13 9l4-4l4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>${HSORT[hsort]}</button></div><div class="hgrid">` +
       list.map(h => {
         const d = S.heroes[h.id], inP = pids.includes(h.id);
         const tic = `<i class="tic t-${h.type}"><svg><use href="#i-t-${h.type}"/></svg></i>`;
@@ -2335,6 +2352,7 @@ function onAct(e) {
   try {
     if (act === 'bulk') { bulk = +b.dataset.v; renderPanel(); }
     else if (act === 'hfil') { hfil = b.dataset.v; renderPanel(); }
+    else if (act === 'hsort') { hsort = (hsort + 1) % HSORT.length; try { localStorage.setItem('aiu-hsort', hsort); } catch (e) {} renderPanel(); toast(`${HSORT[hsort]} 정렬`); }
     else if (act === 'party' || act === 'pswap') {
       const id = b.dataset.h, nm = C.heroById(id).name;
       if (act === 'pswap') { if (!C.swapParty(S, b.dataset.o, id)) return; toast(`${C.heroById(b.dataset.o).name} 대신 ${nm} 출전`); }

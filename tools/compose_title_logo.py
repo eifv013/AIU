@@ -35,26 +35,27 @@ shadow = Image.new('RGBA', rot.size, (0, 0, 0, 0)); shadow.putalpha(rot.getchann
 cv.alpha_composite(shadow, (int(cx - rot.width / 2) + 6, int(cy - rot.height / 2) + 8))
 cv.alpha_composite(rot, (int(cx - rot.width / 2), int(cy - rot.height / 2)))
 
-# --- 아래 두 줄 ---
+# --- 아래 두 줄: 영문 줄은 AIU 글자 폭에 딱 맞게, 한글 줄은 그보다 조금 좁게 크게 ---
 d = ImageDraw.Draw(cv)
-y1 = B + oy + 70
-fe = font('NotoSansCJK-Bold.ttc', 44, 2)              # 영문은 일반 라틴 글꼴 모양이면 충분
-txt = 'ANOMALOUS INCIDENT UNIT'; sp = 14
-ws = [d.textlength(c, font=fe) for c in txt]; tw = sum(ws) + sp * (len(txt) - 1)
-x = W / 2 - tw / 2
-for c, w_ in zip(txt, ws):
-    d.text((x + 2, y1 + 3), c, font=fe, fill=(0, 0, 0, 160), anchor='lm'); d.text((x, y1), c, font=fe, fill=(178, 182, 196, 255), anchor='lm'); x += w_ + sp
-y2 = y1 + 92
-fk = font('NotoSansCJK-Bold.ttc', 62)
-k = '이상현상 전담수사팀'; spk = 10
-ws = [d.textlength(c, font=fk) for c in k]; kw = sum(ws) + spk * (len(k) - 1)
-x = W / 2 - kw / 2
-for c, w_ in zip(k, ws):
-    d.text((x + 2, y2 + 3), c, font=fk, fill=(0, 0, 0, 170), anchor='lm'); d.text((x, y2), c, font=fk, fill=(245, 245, 250, 255), anchor='lm'); x += w_ + spk
-for s in (-1, 1):
-    x0 = W / 2 + s * (kw / 2 + 28); x1 = x0 + s * 110
-    d.line((x0, y2, x1, y2), fill=(200, 200, 215, 230), width=5)
-out = cv.crop(cv.getchannel('A').point(lambda v: 255 if v > 6 else 0).getbbox())
+LW = R - L                                              # AIU 글자 몸통 폭
+def spaced(text, fnt, target_w, y, fill, shadow=True):
+    ws = [d.textlength(c, font=fnt) for c in text]
+    sp = (target_w - sum(ws)) / (len(text) - 1)         # 글자 사이 간격으로 폭을 정확히 맞춤
+    x = W / 2 - target_w / 2
+    for c, w_ in zip(text, ws):
+        if shadow: d.text((x + 3, y + 4), c, font=fnt, fill=(0, 0, 0, 170), anchor='lm')
+        d.text((x, y), c, font=fnt, fill=fill, anchor='lm'); x += w_ + sp
+y1 = B + oy + 78
+spaced('ANOMALOUS INCIDENT UNIT', font('NotoSansCJK-Bold.ttc', 58, 2), LW, y1, (186, 190, 204, 255))
+y2 = y1 + 112
+kw = LW * 0.70
+spaced('이상현상 전담수사팀', font('NotoSansCJK-Black.ttc', 84), kw, y2, (248, 248, 252, 255))
+for sgn in (-1, 1):                                       # 양옆 가로선: 한글 줄 끝에서 AIU 글자 끝까지
+    x0 = W / 2 + sgn * (kw / 2 + 26); x1 = W / 2 + sgn * (LW / 2)
+    d.line((x0, y2, x1, y2), fill=(205, 205, 220, 235), width=6)
+bb = cv.getchannel('A').point(lambda v: 255 if v > 6 else 0).getbbox()
+half = max(W / 2 - bb[0], bb[2] - W / 2)                 # 좌우 대칭으로 잘라야 화면 가운데에 놓았을 때 AIU 글자가 정확히 가운데
+out = cv.crop((int(W / 2 - half), bb[1], int(W / 2 + half), bb[3]))
 out.save('/home/claude/aiu/assets/brand/aiu_logo_final.png')
 w = 900; out.resize((w, int(out.height * w / out.width)), Image.LANCZOS).save('/home/claude/aiu/assets/art/logo_title.webp', quality=90, method=6)
 prev = Image.new('RGBA', out.size, (12, 12, 24, 255)); prev.alpha_composite(out); prev.convert('RGB').resize((out.width // 2, out.height // 2)).save('/home/claude/iconwork/logo_prev.png')

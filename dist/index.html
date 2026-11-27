@@ -97,32 +97,34 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 /* 작은 칸 안 글자 세로 가운데 맞춤: 글꼴마다 다른 위아래 여백을 잘라 글자 몸통 기준으로 맞춤 (Black Han Sans는 위로 떠 보임) */
 .sbar .st,#bctl button span,.lvb,.rn b,.seg button,#tabs button,.btn{text-box:trim-both cap alphabetic}
 /* 요원 격자: 세나 키우기 영웅 목록처럼 한 줄에 4명. 칸 = 얼굴(레벨, 등급) + 이름 + 별 + 조각 줄 + 강화 */
-.hgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.hgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px 5px}   /* 한 줄 5명: 첫 줄이 곧 출전 5명 (세나 키우기 영웅 목록처럼) */
 .hc{display:grid;gap:4px;min-width:0}
-.hcard{display:grid;gap:3px;padding:4px;border-radius:var(--r);background:var(--panel);border:1px solid var(--line);cursor:pointer;min-width:0}
+.hcard{display:grid;gap:3px;padding:3px;border-radius:var(--r);background:var(--panel);border:1px solid var(--line);cursor:pointer;min-width:0}
 .hc.locked{padding:4px;border-radius:var(--r);background:var(--panel);border:1px dashed var(--line);cursor:pointer;align-content:start}
 .hph{position:relative;aspect-ratio:1;border-radius:4px;overflow:hidden;background:var(--bg);box-shadow:inset 0 -3px 0 var(--gc,var(--line))}
 .hph img{width:100%;height:100%;object-fit:cover;display:block}
 .hc.locked .hph img{filter:grayscale(1) brightness(.35)}
-.hph .gr{transform:none;left:3px;top:3px;font-size:9px;padding:0 3px}
-.hph .lvb{padding:10px 0 2px;font-size:10px}.hph .lvb b{font-size:13px}
+.hph .gr{transform:none;left:2px;top:2px;font-size:8px;padding:0 2px;border-width:1px}
+.hph .lvb{padding:10px 0 2px;font-size:9px}.hph .lvb b{font-size:12px;margin-left:2px}
 .hph .no{position:absolute;inset:auto 0 6px;text-align:center;font:700 10px 'IBM Plex Sans KR';color:var(--dim)}
-.hph .up{display:none;position:absolute;right:3px;top:3px;z-index:3;padding:1px 4px;border-radius:3px;background:var(--rift);color:#fff;font:700 9px 'IBM Plex Sans KR'}
+.hph .up{display:none;position:absolute;right:2px;top:2px;z-index:3;padding:0 3px;border-radius:3px;background:var(--rift);color:#fff;font:700 9px 'IBM Plex Sans KR'}
 .hc.canstar .hph .up{display:block}
+.hc.inparty .hph .up{top:15px}   /* 출전 표시 아래로 (겹치지 않게) */
 .hc.canstar .hcard{border-color:var(--rift);box-shadow:0 0 8px rgba(157,123,255,.5)}
 .hn{font:700 12px/1.2 'IBM Plex Sans KR';text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hst{color:var(--gold);font-size:9px;letter-spacing:0;text-align:center;line-height:1}
+.hst{color:var(--gold);font-size:8px;letter-spacing:0;text-align:center;line-height:1}
 .hst s{color:#36405A;text-decoration:none}
 .sbar.mini{height:4px;margin:1px 2px 0;border-radius:2px}
-.hc .hb{min-width:0;min-height:30px;height:30px;padding:0 4px}
+.hc .hb{min-width:0;min-height:28px;height:28px;padding:0 2px}
 /* 분류 4가지: 색 + 그림. 명단과 파티에는 이것만, 세부 역할(돌격, 저격...)은 상세 창에만 */
 .t-공격{--tc:#ff6b5b}.t-광역{--tc:#ffa53a}.t-방어{--tc:#5ea8ff}.t-지원{--tc:#4fd88a}
 .tic{display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;background:rgba(10,13,20,.85);color:var(--tc);flex:none}
 .tic svg{width:10px;height:10px}
-.hn{display:flex;align-items:center;justify-content:center;gap:3px}
-.hn span{min-width:0;overflow:hidden;text-overflow:ellipsis}
-.hn.long{gap:2px}.hn.long span{font-size:9.5px;letter-spacing:-.06em}.hn.long .tic{width:13px;height:13px}.hn.long .tic svg{width:9px;height:9px}   /* 아이언사이드처럼 긴 이름도 한 줄에 다 보이게 */
-.hph .pin{position:absolute;right:3px;top:3px;z-index:2;padding:1px 4px;border-radius:3px;background:var(--gold);color:#1a1405;font:700 9px 'IBM Plex Sans KR'}
+.hph .tic{position:absolute;left:2px;bottom:2px;z-index:2;width:14px;height:14px}
+.hph .tic svg{width:9px;height:9px}
+.hn{font-size:11px;letter-spacing:-.02em}
+.hn.long{font-size:9.5px;letter-spacing:-.07em}   /* 아이언사이드처럼 긴 이름도 한 줄에 */   /* 아이언사이드처럼 긴 이름도 한 줄에 다 보이게 */
+.hph .pin{position:absolute;right:2px;top:2px;z-index:2;padding:0 3px;border-radius:3px;background:var(--gold);color:#1a1405;font:700 8px/1.35 'IBM Plex Sans KR'}
 .hc.inparty .hcard{border-color:rgba(255,210,63,.55)}
 /* 분류 거르기 탭 + 일괄 강화 칸 (한 줄) */
 .htop{display:flex;gap:6px;align-items:center;margin-bottom:10px}
@@ -147,7 +149,7 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 .pswap img{width:100%;height:100%;object-fit:cover;display:block}
 .pswap span{position:absolute;inset:auto 0 0;padding:6px 0 1px;font:700 9px 'IBM Plex Sans KR';color:#fff;background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.85))}
 .pswap-t{font-size:12px;color:var(--dim);margin-top:6px}
-.hc .hb .cost{font-size:12px}.hc .hb .ic{width:13px;height:13px}
+.hc .hb .cost{font-size:11px;gap:2px}.hc .hb .ic{width:12px;height:12px}
 /* 요원 상세 창 */
 .hdet{text-align:left}
 .hd-top{display:grid;grid-template-columns:84px minmax(0,1fr);gap:12px;align-items:center;margin-bottom:12px}
@@ -1976,6 +1978,8 @@ function heroAct(h, r, dt) {
     R.proj.push({ k: h.id, x: r.x + r.face * s * 0.2, y: r.y - s * 0.5, tgt, dmg: atk, sp: h.id === 'archer' ? 520 : 340, aoe: h.range === 'aoe' });
   }
 }
+/** 기술 이펙트 그림 한 장 (fx_mark 등). 그림이 들어오기 전에는 기존 고리, 불꽃 효과만 보임 */
+function fxPic(key, x, y, w, h, life) { if (imgOk(key)) addFx({ k: 'img', key, x, y, w, h, life }); }
 /** 요원 근처에서 체력이 가장 많은 일반 이상체 (근원체는 제외) */
 function strongest(r) {
   let best = null;
@@ -2005,35 +2009,37 @@ function castSkill(h, atk, r, s, tgt) {
       damage(e, atk * sk.mult); addFx({ k: 'burst', x: e.x, y: e.y - e.size * 0.4, r: e.size * 0.8, life: 0.45, col });
     }
     addFx({ k: 'ring', x: cx.x, y: cx.y, r: rad, life: sk.slow ? 0.7 : 0.45, col });
+    if (sk.stun) fxPic('fx_quake', cx.x, cx.y - 10, rad * 2, rad * 1.3, 0.45);
+    if (sk.slow) fxPic('fx_wave', cx.x, cx.y - 20, rad * 1.6, rad * 1.2, 0.7);
     if (sk.slow) addFx({ k: 'ring', x: cx.x, y: cx.y, r: rad * 0.6, life: 0.55, col });
   } else if (sk.kind === 'mark') {
     // 체력이 가장 많은 적에게 표식: 정해진 시간 동안 받는 피해 증가
     const e = strongest(r) || tgt;
-    e.mark = sk.dur; e.markAmp = sk.amp;
+    e.mark = sk.dur; e.markAmp = sk.amp; fxPic('fx_mark', e.x, e.y - e.size * 0.5, e.size * 1.6, e.size * 1.6, 0.6);
     damage(e, atk * sk.mult);
     addFx({ k: 'ring', x: e.x, y: e.y, r: e.size * 1.1, life: 0.5, col: CI_COL[h.id] });
   } else if (sk.kind === 'exorcise') {
     // 근원체에게 큰 피해. 일반 이상체는 작은 피해 + 일정 확률로 즉시 처리
     const b = R.boss && R.boss.hp > 0 && dist(R.boss, r) < ENGAGE * 1.8 ? R.boss : null, e = b || tgt;
-    addFx({ k: 'pillar', x: e.x, y: e.y, life: 0.8 });
+    if (imgOk('fx_holy')) fxPic('fx_holy', e.x, e.y - 60, 70, 140, 0.8); else addFx({ k: 'pillar', x: e.x, y: e.y, life: 0.8 });
     if (e.boss) damage(e, atk * sk.mult);
     else if (Math.random() < sk.kill) { addText(e.x, e.y - e.size * 1.2, '정화', CI_COL[h.id], true); damage(e, e.hp + 1); }
     else damage(e, atk * sk.low);
   } else if (sk.kind === 'shield') {
     // 팀 전체 보호막 (최대 체력 비율), 자신은 도발해서 적을 끌어옴
-    for (const a of alive()) { const hr = R.heroes[a.id]; hr.shield = hr.max * sk.mult; hr.shT = sk.dur; }
+    for (const a of alive()) { const hr = R.heroes[a.id]; hr.shield = hr.max * sk.mult; hr.shT = sk.dur; fxPic('fx_barrier', hr.x, hr.y - HERO_SIZE * 0.5, HERO_SIZE * 1.3, HERO_SIZE * 1.3, 0.7); }
     R.taunt = { id: h.id, t: sk.dur };
     addFx({ k: 'ring', x: r.x, y: r.y, r: 140, life: 0.6, col: CI_COL[h.id] });
     for (const e of R.enemies) if (e.hp > 0 && dist(e, r) < 260) e.aggro = true;
   } else if (sk.kind === 'cage') {
     // 가장 강한 적을 상자에 가둠 (행동 불가), 풀릴 때 큰 피해
     const e = (R.boss && R.boss.hp > 0 && dist(R.boss, r) < ENGAGE * 1.8) ? R.boss : (strongest(r) || tgt);
-    e.cage = sk.dur; e.cageDmg = atk * sk.mult;
+    e.cage = sk.dur; e.cageDmg = atk * sk.mult; fxPic('fx_cage', e.x, e.y - e.size * 0.6, e.size * 1.8, e.size * 1.8, 0.6);
     addFx({ k: 'ring', x: e.x, y: e.y, r: e.size * 1.2, life: 0.5, col: CI_COL[h.id] });
   } else if (sk.kind === 'execute') {
     // 체력이 가장 낮은 적 셋을 차례로 처형. 체력이 일정 비율 아래면 즉시 처리
     const list = R.enemies.filter(e => e.hp > 0 && dist(e, r) < ENGAGE * 1.8).sort((a, b) => a.hp / a.max - b.hp / b.max).slice(0, sk.hits);
-    r.cloak = 0.6;
+    r.cloak = 0.6; fxPic('fx_cloak', r.x, r.y - HERO_SIZE * 0.6, HERO_SIZE, HERO_SIZE * 1.5, 0.5);
     list.forEach((e, i) => setTimeout(() => {
       if (e.hp <= 0) return;
       addFx({ k: 'xslash', x: e.x, y: e.y - e.size * 0.5, r: e.size * 0.7 + 10, life: 0.22 });
@@ -2443,6 +2449,7 @@ function drawCall(f) {
 function drawFx(f) {
   if (f.k === 'call' || f.k === 'edge') return;   // 따로 그림 (말풍선은 맨 위, 가장자리는 화면 고정)
   // 이펙트 그림이 있으면 그것으로, 없으면 아래 코드 그림으로
+  if (f.k === 'img') { fxImg(f.key, f.x, f.y, f.w, f.h, Math.min(1, f.life * 3)); return; }   // 새 요원 기술 이펙트 그림 (그림이 없으면 아무것도 안 그림)
   if (f.k === 'xslash' && fxImg('fx_slash', f.x, f.y, f.r * 2.4, f.r * 2.4, f.life * 4, -0.5)) { fxImg('fx_slash', f.x, f.y, f.r * 2.4, f.r * 2.4, f.life * 4, 1.1); return; }
   if (f.k === 'spark' && fxImg('fx_hit', f.x, f.y, f.len * 3, f.len * 3, f.life * 5, f.a0)) return;
   if (f.k === 'burst' && (f.col === '#ff8a2e' || f.col === '#ff9a2e') && fxImg('fx_fire', f.x, f.y, f.r * 2.6, f.r * 2.6, f.life * 3)) return;
@@ -2570,10 +2577,10 @@ function updateUI() {
 
 /* ---------- UI: 패널 ---------- */
 let tab = 'hero', bulk = 1, hfil = '전체';   // hfil: 요원 탭 분류 거르기
-let hsort = (() => { try { return +localStorage.getItem('aiu-hsort') % 3 || 0; } catch (e) { return 0; } })();   // 요원 탭 정렬 (다시 켜도 유지): 0 출전 먼저 / 1 등급 / 2 레벨
-const HSORT = ['출전 먼저', '등급 높은 순', '레벨 높은 순'];
+let hsort = (() => { try { return +localStorage.getItem('aiu-hsort') % 2 || 0; } catch (e) { return 0; } })();   // 요원 탭 정렬 (다시 켜도 유지): 0 출전 먼저 / 1 등급 / 2 레벨
+const HSORT = ['등급 높은 순', '레벨 높은 순'];   // 출전 요원은 정렬과 상관없이 항상 맨 앞
 const GRADE_RANK = { 전설: 3, 영웅: 2, 희귀: 1 };
-/** 요원 탭 정렬. 미보유는 항상 맨 아래. 출전 먼저: 출전 칸 순서 그대로 위에, 나머지는 등급 → 레벨 */
+/** 요원 탭 정렬. 출전 요원은 항상 맨 앞(출전 칸 순서 그대로), 미보유는 항상 맨 아래, 나머지는 등급 또는 레벨 순 */
 function sortHeroes(list, pids) {
   const d = h => S.heroes[h.id], base = C.HEROES.indexOf.bind(C.HEROES);
   const byGrade = (a, b) => GRADE_RANK[b.grade] - GRADE_RANK[a.grade] || d(b).stars - d(a).stars || d(b).lv - d(a).lv || base(a) - base(b);
@@ -2581,11 +2588,11 @@ function sortHeroes(list, pids) {
   return list.slice().sort((a, b) => {
     if (d(a).owned !== d(b).owned) return d(a).owned ? -1 : 1;
     if (!d(a).owned) return byGrade(a, b);
-    if (hsort === 0) { const ia = pids.indexOf(a.id), ib = pids.indexOf(b.id); if ((ia < 0) !== (ib < 0)) return ia < 0 ? 1 : -1; if (ia >= 0) return ia - ib; }
-    return hsort === 2 ? byLv(a, b) : byGrade(a, b);
+    const ia = pids.indexOf(a.id), ib = pids.indexOf(b.id); if ((ia < 0) !== (ib < 0)) return ia < 0 ? 1 : -1; if (ia >= 0) return ia - ib;
+    return hsort === 1 ? byLv(a, b) : byGrade(a, b);
   });
 }
-const APP_VERSION = '0.10.1';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.10.2';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 /** 기술 설명 (상세 창) */
 function skillText(h) {
@@ -2615,8 +2622,8 @@ function renderPanel() {
       list.map(h => {
         const d = S.heroes[h.id], inP = pids.includes(h.id);
         const tic = `<i class="tic t-${h.type}"><svg><use href="#i-t-${h.type}"/></svg></i>`;
-        const ph = `<div class="hph"><img src="${ART['card_' + h.id] || portrait(h.id)}" alt=""><span class="gr g-${h.grade}">${h.grade}</span>${d.owned ? `<span class="lvb">Lv<b class="lv"></b></span><span class="up">승급</span>${inP ? '<span class="pin">출전</span>' : ''}` : '<span class="no">미보유</span>'}</div>`;
-        const nm = `<div class="hn${h.name.length >= 5 ? ' long' : ''}">${tic}<span>${h.name}</span></div>`;
+        const ph = `<div class="hph"><img src="${ART['card_' + h.id] || portrait(h.id)}" alt=""><span class="gr g-${h.grade}">${h.grade}</span>${tic}${d.owned ? `<span class="lvb">Lv<b class="lv"></b></span><span class="up">승급</span>${inP ? '<span class="pin">출전</span>' : ''}` : '<span class="no">미보유</span>'}</div>`;
+        const nm = `<div class="hn${h.name.length >= 5 ? ' long' : ''}">${h.name}</div>`;
         if (!d.owned) return `<div class="hc locked c-${h.grade}" data-act="hdet" data-h="${h.id}">${ph}${nm}</div>`;
         return `<div class="hc c-${h.grade}${inP ? ' inparty' : ''}" data-h="${h.id}"><div class="hcard" data-act="hdet" data-h="${h.id}">${ph}${nm}
           <div class="hst">${starStr(d.stars)}</div><div class="sbar mini"><i></i></div></div>

@@ -53,19 +53,18 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 @media (prefers-reduced-motion:reduce){#cutin{display:none}}
 #banner{position:absolute;left:0;right:0;top:36%;padding:8px 0;background:linear-gradient(90deg,transparent,rgba(18,21,28,.82) 20%,rgba(18,21,28,.82) 80%,transparent);text-align:center;font-family:"Black Han Sans";font-size:30px;color:#fff;color:var(--gold);text-shadow:0 2px 0 #000;opacity:0;pointer-events:none;transition:opacity .3s}
 
-/* 파티 칸: 각진 사진 칸, 아래 기술 게이지와 체력 */
-#party{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--line)}
-.slot{position:relative;aspect-ratio:1;border-radius:var(--r);border:1px solid var(--line);background:var(--panel);overflow:hidden}
-.slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.slot::after{content:"";position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(rgba(8,11,19,0),rgba(8,11,19,.9));pointer-events:none}
-.slot .cd{position:absolute;z-index:1;left:4px;right:4px;bottom:11px;height:3px;border-radius:2px;background:rgba(0,0,0,.6);overflow:hidden}
-.slot .cd::before{content:"";display:block;height:100%;width:calc((1 - var(--cd,0)) * 100%);background:var(--rift)}
-.slot.ready .cd::before{background:var(--gold)}
-.slot.ready{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 0 10px rgba(242,201,76,.45)}
-.slot .hp{position:absolute;z-index:1;left:4px;right:4px;bottom:4px;height:4px;border-radius:2px;background:#3a1010}
-.slot .hp i{display:block;height:100%;border-radius:2px;background:var(--ok);width:var(--hp,100%)}
-.slot.dead img{filter:grayscale(1) brightness(.5)}
-.slot.empty{display:grid;place-items:center;color:var(--dim);font-size:22px;border-style:dashed}
+/* 파티 칸: 세나 키우기 같은 완성 게임처럼 얼굴 그림 위에는 아무것도 덮지 않음
+ * 기술 대기는 테두리를 시계 방향으로 채우는 고리(보라, 다 차면 금색), 체력은 그림 아래 얇은 줄 */
+#party{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;padding:8px 10px 7px;background:var(--bg);border-bottom:1px solid var(--line)}
+.slot{position:relative}
+.slot .face{position:relative;aspect-ratio:1;padding:2.5px;border-radius:var(--r);background:conic-gradient(var(--rift) calc((1 - var(--cd,0)) * 360deg),var(--line) 0)}
+.slot .face img{display:block;width:100%;height:100%;object-fit:cover;border-radius:calc(var(--r) - 2px)}
+.slot.ready .face{background:var(--gold);box-shadow:0 0 10px rgba(242,201,76,.55)}
+.slot .hp{height:4px;margin-top:4px;border-radius:2px;background:#3a1010;overflow:hidden}
+.slot .hp i{display:block;height:100%;background:var(--ok);width:var(--hp,100%)}
+.slot.dead .face img{filter:grayscale(1) brightness(.5)}
+.slot.dead .face{background:var(--line)}
+.slot.empty{aspect-ratio:1;display:grid;place-items:center;color:var(--dim);font-size:22px;border:1px dashed var(--line);border-radius:var(--r)}
 
 /* 패널 */
 #panel{flex:1;overflow-y:auto;padding:10px 10px 18px;background:var(--bg)}
@@ -1209,7 +1208,7 @@ function renderParty() {
   const list = owned(), slots = [];
   for (let i = 0; i < 5; i++) {
     const h = list[i];
-    slots.push(h ? `<div class="slot" id="sl-${h.id}"><img src="${portrait(h.id)}" alt="${h.name}"><div class="cd"></div><div class="hp"><i></i></div></div>` : `<div class="slot empty" title="호출로 합류">+</div>`);
+    slots.push(h ? `<div class="slot" id="sl-${h.id}"><div class="face"><img src="${portrait(h.id)}" alt="${h.name}"></div><div class="hp"><i></i></div></div>` : `<div class="slot empty" title="호출로 합류">+</div>`);
   }
   $('party').innerHTML = slots.join('');
 }

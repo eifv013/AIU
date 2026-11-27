@@ -25,8 +25,8 @@ for i,k in enumerate(SRC):
   rows=w[pad+int(ht+0.08*H):pad+int(ht+0.42*H), pad+int(cx-H):pad+int(cx+H),0]
   cols=np.where((rows<0.5).mean(0)>0.25)[0]
   cx=cx-H+(cols[0]+cols[-1])/2+0.12*H; print(k,round(cx))  # 모두 오른쪽을 보므로 얼굴 쪽으로 조금
-  s=1.6*H; sq=make(k,P,w,pad,(cx-s/2,ht-0.18*H,cx+s/2,ht-0.18*H+s),(256,256))
-  cw,ch=1.5*H,2.0*H; cd=make(k,P,w,pad,(cx-cw/2,ht-0.2*H,cx+cw/2,ht-0.2*H+ch),(240,320))
+  s=1.75*H; sq=make(k,P,w,pad,(cx-s/2,ht-0.08*H,cx+s/2,ht-0.08*H+s),(256,256))
+  cw,ch=1.2*H,1.6*H; cd=make(k,P,w,pad,(cx-cw/2,ht-0.02*H,cx+cw/2,ht-0.02*H+ch),(240,320))
   sq.save(A+f'card_{k}.webp',quality=86); cd.save(A+f'id_{k}.webp',quality=86)
   # 확인용: 실제 표시 크기(칸 62, 카드 76x112)와 큰 크기
   sheet.paste(sq.resize((120,120)),(i*240,0)); sheet.paste(cd.resize((90,120)),(i*240+130,0))

@@ -43,10 +43,13 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#0b0d12;color:var(
 #party{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:8px 10px;background:var(--bg);border-bottom:1px solid var(--line)}
 .slot{position:relative;aspect-ratio:1;border-radius:10px;border:2px solid var(--line);background:var(--panel);overflow:hidden}
 .slot img{position:absolute;inset:0;width:100%;height:100%}
-.slot .cd{position:absolute;left:0;right:0;top:0;height:calc(var(--cd,0)*100%);background:rgba(5,8,25,.68);border-bottom:2px solid rgba(159,232,255,.8)}
-.slot.ready .cd{border-bottom:0}
+/* 얼굴은 가리지 않음: 아래쪽을 살짝 어둡게 하고, 기술 게이지(하늘색, 다 차면 금색)와 체력 줄을 겹치지 않게 둠 */
+.slot::after{content:"";position:absolute;left:0;right:0;bottom:0;height:40%;background:linear-gradient(rgba(8,10,16,0),rgba(8,10,16,.85));pointer-events:none}
+.slot .cd{position:absolute;z-index:1;left:3px;right:3px;bottom:11px;height:4px;border-radius:2px;background:rgba(0,0,0,.55);overflow:hidden}
+.slot .cd::before{content:"";display:block;height:100%;width:calc((1 - var(--cd,0)) * 100%);background:#7fd6ff;border-radius:2px}
+.slot.ready .cd::before{background:var(--gold);box-shadow:0 0 6px var(--gold)}
 .slot.ready{border-color:var(--gold);box-shadow:0 0 8px rgba(255,210,63,.5)}
-.slot .hp{position:absolute;left:3px;right:3px;bottom:3px;height:5px;border-radius:3px;background:#300}
+.slot .hp{position:absolute;z-index:1;left:3px;right:3px;bottom:3px;height:5px;border-radius:3px;background:#300}
 .slot .hp i{display:block;height:100%;border-radius:3px;background:var(--ok);width:var(--hp,100%)}
 .slot.dead img{filter:grayscale(1) brightness(.5)}
 .slot.empty{display:grid;place-items:center;color:var(--dim);font-size:22px;border-style:dashed}
@@ -1130,23 +1133,28 @@ function renderPanel() {
   }
   updatePanel();
 }
+/** 그림을 칸에 꽉 차게(비율 유지, 넘치는 쪽은 잘라냄) 그림. ax, ay: 0 왼쪽(위) ~ 1 오른쪽(아래) 기준 */
+function drawCover(p, im, w, h, ax = 0.5, ay = 0.5) {
+  const sc = Math.max(w / im.naturalWidth, h / im.naturalHeight), iw = im.naturalWidth * sc, ih = im.naturalHeight * sc;
+  p.drawImage(im, (w - iw) * ax, (h - ih) * ay, iw, ih);
+}
+/** 호출 배너: 일러스트를 배경으로 깔고, 왼쪽 글자가 잘 읽히게 왼쪽을 어둡게 */
 function drawSummonBanner() {
-  const c = $('sbc'); if (!c) return;
-  const w = c.clientWidth || 360, h = c.clientHeight || 170, d = Math.min(3, devicePixelRatio || 1);
-  c.width = w * d; c.height = h * d;
-  const p = c.getContext('2d'); if (!p) return; p.scale(d, d);
-  const bg = p.createRadialGradient(w * 0.72, h * 0.5, 0, w * 0.72, h * 0.5, w * 0.6); bg.addColorStop(0, '#3b2c5c'); bg.addColorStop(1, '#0b0d12');
-  p.fillStyle = bg; p.fillRect(0, 0, w, h);
-  p.strokeStyle = 'rgba(185,200,240,.18)'; p.lineWidth = 1; for (let i = 0; i < 46; i++) { const x = (i * 97) % w, y = (i * 53) % h; p.beginPath(); p.moveTo(x, y); p.lineTo(x - 3, y + 12); p.stroke(); }
-  drawHero(p, 'dark', w * 0.74, h * 1.02, h * 0.95, 1, 0.3, 0);
-  // 요원 호출 배너: 시작 요원 넷이 나란히
-  const c2 = $('sbc2'); if (!c2) return;
-  const w2 = c2.clientWidth || 360, h2 = c2.clientHeight || 120;
-  c2.width = w2 * d; c2.height = h2 * d;
-  const q = c2.getContext('2d'); if (!q) return; q.scale(d, d);
-  const bg2 = q.createLinearGradient(0, 0, w2, 0); bg2.addColorStop(0, '#0b0d12'); bg2.addColorStop(1, '#243049');
-  q.fillStyle = bg2; q.fillRect(0, 0, w2, h2);
-  C.STARTER_IDS.forEach((id, i) => drawHero(q, id, w2 * (0.5 + i * 0.13), h2 * 1.04, h2 * 0.82, 1, 0, 0));
+  const d = Math.min(3, devicePixelRatio || 1);
+  for (const [id, key, ax, ay] of [['sbc', 'banner_pick', 1, 0.3], ['sbc2', 'banner_call', 0.5, 0.35]]) {
+    const c = $(id); if (!c) continue;
+    const w = c.clientWidth || 360, h = c.clientHeight || 150;
+    c.width = Math.round(w * d); c.height = Math.round(h * d);
+    const p = c.getContext('2d'); if (!p) continue; p.scale(d, d);
+    p.fillStyle = '#0b0d12'; p.fillRect(0, 0, w, h);
+    if (imgOk(key)) drawCover(p, IMG[key], w, h, ax, ay);
+    else if (id === 'sbc') drawHero(p, 'dark', w * 0.74, h * 1.02, h * 0.95, 1, 0.3, 0);
+    else C.STARTER_IDS.forEach((hid, i) => drawHero(p, hid, w * (0.5 + i * 0.13), h * 1.04, h * 0.82, 1, 0, 0));
+    const sh = p.createLinearGradient(0, 0, w * 0.62, 0); sh.addColorStop(0, 'rgba(8,10,16,.88)'); sh.addColorStop(1, 'rgba(8,10,16,0)');
+    p.fillStyle = sh; p.fillRect(0, 0, w, h);
+    const bt = p.createLinearGradient(0, h * 0.55, 0, h); bt.addColorStop(0, 'rgba(8,10,16,0)'); bt.addColorStop(1, 'rgba(8,10,16,.6)');
+    p.fillStyle = bt; p.fillRect(0, h * 0.55, w, h * 0.45);
+  }
 }
 function updatePanel() {
   const P = $('panel');

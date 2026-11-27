@@ -43,7 +43,8 @@
       skill: { name: '투명 처형', cd: 8,  kind: 'execute', mult: 4, hits: 3, under: 0.3 } },
   ];
   const TYPES = ['공격', '광역', '방어', '지원'];
-  const STARTER_IDS = ['knight', 'archer', 'mage', 'priest'];
+  // 세나 키우기처럼 처음엔 요원 한 명으로 시작 (블레이즈). 나머지는 요원 호출로
+  const STARTER_IDS = ['mage'];
 
   // 공용 강화(훈련소) 목록
   const UPGRADES = [
@@ -80,6 +81,7 @@
     PICKUP_DAYS: 14,         // 특별 채용 한 번의 기간 (2주, 목요일 점검 기준)
     MAX_STARS: 5,
     PARTY_MAX: 5,            // 전투에 나가는 요원 수 (세나 키우기 5명 편성)
+    PARTY_SLOT_AT: [1, 1, 1, 11, 21],   // 출전 칸 i 번째가 열리는 스테이지 (처음 3칸, 2구역에서 4칸, 3구역에서 5칸)
     OFFLINE_CAP_SEC: 8 * 3600,
     OFFLINE_MIN_SEC: 60,
     OFFLINE_RATE: 0.5,       // 오프라인 효율 50%
@@ -251,12 +253,17 @@
 
   /* ---------- 5. 파티 / 오프라인 ---------- */
 
+  /** 현재 열린 출전 칸 수 (스테이지가 오를수록 늘어남) */
+  function partySlots(state) {
+    const st = clampInt(state && state.stage, 1, 1e9, 1);
+    return CONST.PARTY_SLOT_AT.filter(at => st >= at).length;
+  }
   /** 전투에 나가는 요원 id 목록 (보유, 중복 없음, 최대 5명). 비어 있으면 보유 요원 앞에서부터 */
   function partyIds(state) {
     const ok = id => state.heroes[id] && state.heroes[id].owned;
     let ids = Array.isArray(state.party) ? [...new Set(state.party)].filter(id => HEROES.some(h => h.id === id) && ok(id)) : [];
     if (!ids.length) ids = HEROES.filter(h => ok(h.id)).map(h => h.id);
-    return ids.slice(0, CONST.PARTY_MAX);
+    return ids.slice(0, partySlots(state));
   }
   /**
    * 파티에 넣거나 빼기 (상태를 직접 바꿈).
@@ -266,7 +273,7 @@
     if (!state.heroes[id] || !state.heroes[id].owned) return 'none';
     const p = partyIds(state);
     if (p.includes(id)) { if (p.length <= 1) return 'last'; state.party = p.filter(x => x !== id); return 'out'; }
-    if (p.length >= CONST.PARTY_MAX) return 'full';
+    if (p.length >= partySlots(state)) return 'full';
     state.party = [...p, id]; return 'in';
   }
   /** 파티 안 두 자리 바꾸기 (빠진 요원 id 를 넣고 원래 요원은 뺌) */
@@ -401,7 +408,7 @@
       if (!h.owned) {
         h.owned = true; isNew.push(true);
         // 파티에 빈자리가 있으면 새 요원이 바로 합류
-        const p = partyIds(next); if (!p.includes(id) && p.length < CONST.PARTY_MAX) next.party = [...p, id];
+        const p = partyIds(next); if (!p.includes(id) && p.length < partySlots(next)) next.party = [...p, id];
       }
       else { h.shards += 1; isNew.push(false); }
     }
@@ -677,7 +684,7 @@
   }
 
   const Core = {
-    HEROES, TYPES, STARTER_IDS, partyIds, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
+    HEROES, TYPES, STARTER_IDS, partyIds, partySlots, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
     stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,

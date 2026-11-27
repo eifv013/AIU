@@ -90,28 +90,28 @@ test('오프라인 보상: 최소/최대 시간, 시계 되돌림', () => {
 
 test('applySummon: 신규 보유와 조각, 원본 불변', () => {
   const s = C.newState(0);
-  const { state, isNew } = C.applySummon(s, ['dark', 'dark', 'knight']);
+  const { state, isNew } = C.applySummon(s, ['dark', 'dark', 'mage']);
   assert.deepEqual(isNew, [true, false, false]);
   assert.equal(state.heroes.dark.owned, true);
   assert.equal(state.heroes.dark.shards, 1);
-  assert.equal(state.heroes.knight.shards, 1);
+  assert.equal(state.heroes.mage.shards, 1);
   assert.equal(s.heroes.dark.owned, false);           // 원본은 그대로
 });
 
 test('sanitize: 손상, 조작 데이터 복구', () => {
   const s = C.sanitize({
     v: 2, gold: -100, gems: 'lots', stage: 1e12, kills: 99,
-    heroes: { knight: { owned: false, lv: -3, stars: 99, shards: NaN }, dark: { owned: 'yes' } },
+    heroes: { mage: { owned: false, lv: -3, stars: 99, shards: NaN }, dark: { owned: 'yes' } },
     up: { atk: 3.7, crit: 500 },
   }, 1);
   assert.equal(s.gold, 0);
   assert.equal(s.gems, C.CONST.START_GEMS);
   assert.equal(s.stage, 1e6);
   assert.equal(s.kills, C.CONST.WAVE_KILLS);
-  assert.equal(s.heroes.knight.owned, true);          // 시작 요원은 항상 보유
-  assert.equal(s.heroes.knight.lv, 1);
-  assert.equal(s.heroes.knight.stars, 5);
-  assert.equal(s.heroes.knight.shards, 0);
+  assert.equal(s.heroes.mage.owned, true);            // 시작 요원(블레이즈)은 항상 보유
+  assert.equal(s.heroes.mage.lv, 1);
+  assert.equal(s.heroes.mage.stars, 5);
+  assert.equal(s.heroes.mage.shards, 0);
   assert.equal(s.heroes.dark.owned, false);           // 'yes' 는 true 가 아님
   assert.equal(s.up.atk, 3);
   assert.equal(s.up.crit, 45);
@@ -279,24 +279,25 @@ test('분류: 모든 요원은 큰 분류 4가지 중 하나', () => {
 
 test('파티: 최대 5명, 보유 요원만, 마지막 한 명은 못 뺌', () => {
   let s = C.newState(0);
-  assert.deepEqual(C.partyIds(s), ['knight', 'archer', 'mage', 'priest']);
+  assert.deepEqual(C.partyIds(s), ['mage']);                      // 블레이즈 한 명으로 시작
+  assert.equal(C.partySlots(s), 3); s.stage = 11; assert.equal(C.partySlots(s), 4); s.stage = 21; assert.equal(C.partySlots(s), 5);
   assert.equal(C.toggleParty(s, 'dark'), 'none');                 // 미보유
-  s = C.applySummon(s, ['ghost', 'echo']).state;                  // 빈자리 1 → 고스트만 합류
-  assert.deepEqual(C.partyIds(s), ['knight', 'archer', 'mage', 'priest', 'ghost']);
+  s = C.applySummon(s, ['knight', 'archer', 'priest', 'ghost', 'echo']).state;   // 빈자리 4 → 고스트까지 합류
+  assert.deepEqual(C.partyIds(s), ['mage', 'knight', 'archer', 'priest', 'ghost']);
   assert.equal(C.toggleParty(s, 'echo'), 'full');
-  assert.ok(C.swapParty(s, 'knight', 'echo'));
-  assert.deepEqual(C.partyIds(s), ['echo', 'archer', 'mage', 'priest', 'ghost']);
-  for (const id of ['archer', 'mage', 'priest', 'ghost']) assert.equal(C.toggleParty(s, id), 'out');
+  assert.ok(C.swapParty(s, 'mage', 'echo'));
+  assert.deepEqual(C.partyIds(s), ['echo', 'knight', 'archer', 'priest', 'ghost']);
+  for (const id of ['knight', 'archer', 'priest', 'ghost']) assert.equal(C.toggleParty(s, id), 'out');
   assert.equal(C.toggleParty(s, 'echo'), 'last');
   // 저장 검증: 미보유, 중복, 6명 이상, 잘못된 값은 걸러짐
-  const r = C.sanitize({ heroes: { ghost: { owned: true } }, party: ['ghost', 'ghost', 'dark', 7, 'knight', 'archer', 'mage', 'priest', 'x'] }, 0);
+  const own = { owned: true }, r = C.sanitize({ stage: 30, heroes: { ghost: own, knight: own, archer: own, priest: own }, party: ['ghost', 'ghost', 'dark', 7, 'knight', 'archer', 'mage', 'priest', 'x'] }, 0);
   assert.deepEqual(r.party, ['ghost', 'knight', 'archer', 'mage', 'priest']);
-  // 예전 저장(파티 없음): 보유 요원 앞에서부터
-  assert.deepEqual(C.sanitize({ heroes: {} }, 0).party, ['knight', 'archer', 'mage', 'priest']);
+  // 예전 저장(파티 없음): 보유 요원 앞에서부터, 열린 칸만큼
+  assert.deepEqual(C.sanitize({ heroes: { knight: own, archer: own, priest: own } }, 0).party, ['knight', 'archer', 'mage']);
 });
 
 test('파티 DPS 는 파티 요원만 셈', () => {
-  const s = C.newState(0), all = C.partyDps(s);
+  const s = C.applySummon(C.newState(0), ['knight', 'archer']).state, all = C.partyDps(s);
   s.party = ['knight']; assert.ok(C.partyDps(s) < all);
 });
 

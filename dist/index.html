@@ -95,6 +95,9 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 .slot.dead .face img{filter:grayscale(1) brightness(.5)}
 .slot.dead .face{background:var(--line)}
 .slot.empty{aspect-ratio:1;display:grid;place-items:center;color:var(--dim);font-size:18px;border:1px dashed var(--line);border-radius:var(--r)}
+.slot.empty.open{border:2px solid rgba(242,201,76,.75);color:var(--gold);background:rgba(20,26,44,.7);font-size:24px}
+.slot.empty.lock{border-style:solid;background:rgba(20,26,44,.7);align-content:center;gap:0}
+.slot.empty.lock svg{width:18px;height:18px}.slot.empty.lock small{font:700 9px 'IBM Plex Sans KR';color:#6b7799}
 
 /* 패널 */
 #panel{flex:1;overflow-y:auto;padding:10px 10px 18px;background:var(--bg)}
@@ -497,55 +500,66 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 @media (prefers-reduced-motion:reduce){#bossBtn{animation:none}}
 
 /* ---------- 오프닝 (처음 시작할 때 한 번, 설정에서 다시 보기) ----------
- * 비 내리는 도시 → 하늘의 균열 → 이상체 → 근원체 → 사건 파일 001 오메가 → 나이트폴 → 수사팀 → 표어 */
-#op{position:fixed;inset:0;z-index:60;display:none;background:#04050a;overflow:hidden;color:#fff;touch-action:manipulation}
+ * 영화처럼: 위아래 검은 띠, 장면 그림은 천천히 다가가는 카메라(켄 번스), 필름 입자, 비, 번개.
+ * 자막과 대사는 아래 검은 띠 안에. 인물은 비스듬히 잘린 컷인 그림으로 */
+#op{position:fixed;inset:0;z-index:60;display:none;background:#020205;overflow:hidden;color:#fff;touch-action:manipulation}
 #op.on{display:block}
 #op canvas{position:absolute;inset:0;width:100%;height:100%}
-#op .sc{position:absolute;inset:0;opacity:0;transition:opacity .9s;pointer-events:none}
-#op .sc.on{opacity:1}
-#op .cap{position:absolute;left:24px;right:24px;bottom:15%;z-index:3;font:500 18px/1.65 'IBM Plex Sans KR',sans-serif;text-align:center;text-shadow:0 2px 12px #000,0 0 2px #000;min-height:3.3em;letter-spacing:-.01em}
-#op .cap b{color:#c9a8ff;font-weight:700}
-#op .skip{position:absolute;right:14px;top:calc(14px + env(safe-area-inset-top));z-index:5;height:32px;padding:0 14px;border:1px solid rgba(255,255,255,.3);border-radius:16px;background:rgba(0,0,0,.45);color:#ddd;font:600 13px 'IBM Plex Sans KR'}
-#op .hint{position:absolute;left:0;right:0;bottom:calc(5% + env(safe-area-inset-bottom));z-index:3;text-align:center;font:600 11px 'IBM Plex Sans KR';letter-spacing:.3em;color:rgba(255,255,255,.4);animation:opBlink 1.6s infinite}
+#op .still{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease}
+#op .still.on{opacity:1}
+#op .still>img.full{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#op .still.on>img.full{animation:kb var(--kbT,7s) ease-out forwards}
+@keyframes kb{from{transform:scale(var(--kb0,1.12)) translate(var(--kbx,0),var(--kby,2%))}to{transform:scale(1) translate(0,0)}}
+#op .lb{position:absolute;left:0;right:0;height:13%;background:#000;z-index:4;transition:transform 1s cubic-bezier(.3,0,.2,1)}
+#op .lb.t{top:0;transform:translateY(-100%)}#op .lb.b{bottom:0;transform:translateY(100%);height:20%}
+#op.on .lb{transform:none}
+#op .grain{position:absolute;inset:-50%;z-index:3;pointer-events:none;opacity:.09;mix-blend-mode:overlay;animation:grain .5s steps(4) infinite}
+@keyframes grain{25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-1%)}}
+#op .vig{position:absolute;inset:0;z-index:3;pointer-events:none;background:radial-gradient(ellipse 80% 70% at 50% 45%,transparent 55%,rgba(0,0,0,.7))}
+#op .sub{position:absolute;left:22px;right:22px;bottom:0;height:20%;z-index:5;display:grid;align-content:center;justify-items:center;text-align:center;font:500 17px/1.6 'IBM Plex Sans KR',sans-serif;letter-spacing:-.01em}
+#op .sub em{display:block;margin-bottom:2px;font:400 15px "Black Han Sans";font-style:normal;color:var(--sc,#b98cff);letter-spacing:.06em}
+#op .sub b{color:#c9a8ff;font-weight:700}
+#op .skip{position:absolute;right:14px;top:calc(env(safe-area-inset-top) + 3%);z-index:6;height:30px;padding:0 14px;border:1px solid rgba(255,255,255,.25);border-radius:15px;background:rgba(0,0,0,.4);color:#bbb;font:600 12px 'IBM Plex Sans KR'}
+#op .hint{position:absolute;right:16px;bottom:10px;z-index:6;font:600 10px 'IBM Plex Sans KR';letter-spacing:.3em;color:rgba(255,255,255,.3);animation:opBlink 1.6s infinite}
 @keyframes opBlink{50%{opacity:.3}}
-/* 이상체, 근원체: 어둠 속에서 떠오름 */
-#op .mob{position:absolute;bottom:30%;filter:brightness(.55) drop-shadow(0 0 14px rgba(150,90,255,.6));opacity:0;transform:translateY(14px);transition:opacity 1.6s,transform 2.4s}
-#op .sc.on .mob{opacity:.95;transform:none}
-#op .boss{position:absolute;left:50%;bottom:24%;height:62%;transform:translateX(-50%) scale(1.06);filter:brightness(.35) contrast(1.2) drop-shadow(0 0 30px rgba(120,60,255,.7));opacity:0;transition:opacity 2s,transform 5s}
-#op .sc.on .boss{opacity:1;transform:translateX(-50%) scale(1)}
+/* 그림이 없을 때 쓰는 장면: 이상체 무리, 근원체 실루엣 */
+#op .mob{position:absolute;bottom:22%;filter:brightness(.4) drop-shadow(0 0 16px rgba(150,90,255,.8));opacity:0;transform:translateY(20px);transition:opacity 2s,transform 3s}
+#op .still.on .mob{opacity:1;transform:none}
+#op .boss{position:absolute;left:50%;bottom:19%;height:66%;transform:translateX(-50%) scale(1.08);filter:brightness(.18) drop-shadow(0 0 40px rgba(120,60,255,.9));transition:transform 6s ease-out}
+#op .still.on .boss{transform:translateX(-50%) scale(1)}
+#op .still.flash .boss{animation:bossFlash 4s ease-out}
+@keyframes bossFlash{0%,8%{filter:brightness(.18) drop-shadow(0 0 40px rgba(120,60,255,.9))}10%{filter:brightness(1.1) drop-shadow(0 0 60px #fff)}16%{filter:brightness(.22) drop-shadow(0 0 40px rgba(120,60,255,.9))}}
+#op .eye{position:absolute;left:50%;top:38%;width:10px;height:4px;margin-left:-14px;border-radius:50%;background:#ff3b3b;box-shadow:0 0 12px 4px rgba(255,40,40,.8);opacity:0;transition:opacity .6s 2.2s}
+#op .still.on .eye{opacity:1}
 /* 사건 파일 */
-#op .file{position:absolute;left:50%;top:22%;width:min(78vw,320px);padding:22px 20px 26px;transform:translate(-50%,40px) rotate(-3deg);opacity:0;background:#d9cfb8;color:#2a2418;border-radius:3px;box-shadow:0 20px 50px rgba(0,0,0,.7);transition:transform .7s cubic-bezier(.2,.9,.3,1.2),opacity .5s}
-#op .sc.on .file{transform:translate(-50%,0) rotate(-3deg);opacity:1}
-#op .file small{display:block;font:700 11px 'IBM Plex Sans KR';letter-spacing:.25em;color:#6b5f48}
-#op .file b{display:block;margin:8px 0 2px;font:400 44px/1 "Black Han Sans";letter-spacing:.02em}
-#op .file i{display:block;font:400 26px "Black Han Sans";font-style:normal;color:#5a1e1e}
-#op .file p{margin:12px 0 0;font:500 12px/1.6 'IBM Plex Sans KR';color:#4a4232;border-top:1px dashed #8d8168;padding-top:10px}
-#op .stamp{position:absolute;right:-10px;top:52%;padding:4px 10px;border:3px solid #c4232a;border-radius:4px;color:#c4232a;font:400 22px "Black Han Sans";transform:rotate(14deg) scale(2.4);opacity:0;mix-blend-mode:multiply;transition:transform .25s cubic-bezier(.5,0,.8,.4) 1.1s,opacity .1s 1.1s}
-#op .sc.on .stamp{transform:rotate(14deg) scale(1);opacity:.92}
-/* 나이트폴 */
-#op .nf{position:absolute;right:-14%;bottom:24%;height:54%;opacity:0;transform:translateX(40px);transition:opacity 1.2s,transform 1.6s;mask-image:radial-gradient(ellipse 58% 52% at 60% 56%,#000 45%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 58% 52% at 60% 56%,#000 45%,transparent 100%)}
-#op .nf img{height:100%;display:block}
-#op .sc.on .nf{opacity:1;transform:none}
-#op .say{position:absolute;left:16px;right:16px;bottom:13%;z-index:4;padding:14px 16px 16px;border:1px solid rgba(185,140,255,.45);border-radius:8px;background:rgba(10,8,20,.86);opacity:0;transition:opacity .5s .6s}
-#op .sc.on .say{opacity:1}
-#op .say em{display:block;margin-bottom:6px;font:400 15px "Black Han Sans";font-style:normal;color:#b98cff}
-#op .say span{font:500 17px/1.6 'IBM Plex Sans KR'}
-/* 수사팀 카드 */
-#op .tm{position:absolute;left:0;right:0;top:16%;display:flex;flex-direction:column;align-items:center;gap:22px}
-#op .team{display:flex;justify-content:center;gap:8px;width:100%;padding:0 14px}
-#op .team div{flex:1;max-width:92px;opacity:0;transform:translateY(30px);transition:opacity .6s,transform .7s cubic-bezier(.2,.9,.3,1.2)}
-#op .sc.on .team div{opacity:1;transform:none}
-#op .team img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:50% 15%;border-radius:6px;border:1px solid rgba(255,255,255,.25);box-shadow:0 8px 20px rgba(0,0,0,.6)}
-#op .team span{display:block;margin-top:6px;text-align:center;font:400 14px "Black Han Sans"}
-#op .org{text-align:center;opacity:0;transition:opacity 1s 1.4s}
-#op .sc.on .org{opacity:1}
-#op .org img{width:min(64vw,260px)}
-/* 마지막 표어 */
-#op .tag{position:absolute;left:0;right:0;top:40%;text-align:center;font:400 26px/1.4 "Black Han Sans";letter-spacing:.04em;text-shadow:0 0 20px rgba(150,100,255,.8)}
+#op .file{position:absolute;left:50%;top:24%;width:min(76vw,300px);padding:20px 20px 24px;transform:translate(-50%,60px) rotate(-4deg);opacity:0;background:linear-gradient(#e2d8c0,#cfc4aa);color:#2a2418;border-radius:2px;box-shadow:0 30px 60px rgba(0,0,0,.8);transition:transform .8s cubic-bezier(.2,.9,.3,1.15),opacity .5s}
+#op .still.on .file{transform:translate(-50%,0) rotate(-4deg);opacity:1}
+#op .file small{display:block;font:700 10px 'IBM Plex Sans KR';letter-spacing:.3em;color:#6b5f48}
+#op .file b{display:block;margin:8px 0 2px;font:400 42px/1 "Black Han Sans"}
+#op .file i{display:block;font:400 24px "Black Han Sans";font-style:normal;color:#5a1e1e}
+#op .file p{margin:12px 0 0;font:500 12px/1.7 'IBM Plex Sans KR';color:#4a4232;border-top:1px dashed #8d8168;padding-top:10px}
+#op .stamp{position:absolute;right:-12px;top:50%;padding:4px 10px;border:3px solid #c4232a;border-radius:4px;color:#c4232a;font:400 21px "Black Han Sans";transform:rotate(14deg) scale(2.6);opacity:0;mix-blend-mode:multiply;transition:transform .22s cubic-bezier(.5,0,.8,.4) 1.2s,opacity .05s 1.2s}
+#op .still.on .stamp{transform:rotate(14deg) scale(1);opacity:.92}
+/* 인물 컷인: 비스듬히 잘린 판 안에 얼굴, 옆에서 미끄러져 들어옴 */
+#op .cut{position:absolute;top:16%;bottom:22%;width:88%;overflow:hidden;opacity:0;transition:opacity .5s,transform .9s cubic-bezier(.2,.8,.2,1)}
+#op .cut.r{right:0;clip-path:polygon(22% 0,100% 0,100% 100%,0 100%);transform:translateX(30%)}
+#op .cut.l{left:0;clip-path:polygon(0 0,100% 0,78% 100%,0 100%);transform:translateX(-30%)}
+#op .still.on .cut{opacity:1;transform:none}
+#op .cut img{width:100%;height:100%;object-fit:cover;object-position:50% 18%;filter:contrast(1.05) saturate(.95)}
+#op .cut::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(2,2,5,.85),transparent 35%),linear-gradient(var(--cd,90deg),rgba(0,0,0,.6),transparent 40%)}
+#op .cut .edge{position:absolute;top:0;bottom:0;width:3px;background:var(--sc,#b98cff);box-shadow:0 0 14px var(--sc,#b98cff);z-index:2}
+#op .cut.r .edge{left:11%;transform:skewX(-12deg)}#op .cut.l .edge{right:11%;transform:skewX(12deg)}
+#op .cut .nm{position:absolute;bottom:6%;z-index:2;font:400 40px "Black Han Sans";color:#fff;opacity:.9;text-shadow:0 0 20px var(--sc,#b98cff)}
+#op .cut.r .nm{right:6%}#op .cut.l .nm{left:6%}
+/* 마지막: 로고, 표어, 출동 */
+#op .ttl{position:absolute;left:0;right:0;top:22%;text-align:center}
+#op .ttl-logo img{width:min(70vw,290px);opacity:0;transform:scale(1.15);filter:drop-shadow(0 0 24px rgba(150,100,255,.6));transition:opacity 1s .2s,transform 1.6s cubic-bezier(.2,.8,.2,1) .2s}
+#op .still.on .ttl-logo img{opacity:1;transform:none}
+#op .tag{margin-top:22px;font:400 22px/1.4 "Black Han Sans";letter-spacing:.06em}
 #op .tag span{display:inline-block;opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s}
-#op .sc.on .tag span{opacity:1;transform:none}
-#op .go{position:absolute;left:0;right:0;top:calc(40% + 64px);text-align:center;font:400 52px "Black Han Sans";color:var(--gold);letter-spacing:.2em;opacity:0;transform:scale(1.6);transition:opacity .3s 2.4s,transform .4s cubic-bezier(.3,1.6,.5,1) 2.4s;text-shadow:0 0 24px rgba(255,210,63,.6)}
-#op .sc.on .go{opacity:1;transform:none}
+#op .still.on .tag span{opacity:1;transform:none}
+#op .go{margin-top:18px;font:400 50px "Black Han Sans";color:var(--gold);letter-spacing:.25em;opacity:0;transform:scale(1.8);transition:opacity .25s 2.6s,transform .45s cubic-bezier(.3,1.6,.5,1) 2.6s;text-shadow:0 0 30px rgba(255,210,63,.7)}
+#op .still.on .go{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){#op *{transition-duration:.01s!important;animation:none!important}}
 
 /* ---------- 세나 키우기 첫 화면 배치 ----------
@@ -693,13 +707,15 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   <div id="toast"></div>
   <div id="op" aria-label="오프닝">
     <canvas id="opc"></canvas>
-    <div class="sc" data-s="mobs"></div>
-    <div class="sc" data-s="boss"></div>
-    <div class="sc" data-s="file"><div class="file"><small>AIU 사건 파일</small><b>사건 001</b><i>오메가</i><p>발생: 도심 전역<br>상태: 미해결<br>담당: 이상현상 전담수사팀</p><span class="stamp">위험 등급 Ω</span></div></div>
-    <div class="sc" data-s="nf"><div class="nf"></div><div class="say"><em>나이트폴</em><span></span></div></div>
-    <div class="sc" data-s="team"><div class="tm"><div class="team"></div><div class="org"></div></div></div>
-    <div class="sc" data-s="tag"><div class="tag"></div><div class="go">출동</div></div>
-    <div class="cap"></div>
+    <div class="still" data-s="mobs"></div>
+    <div class="still" data-s="boss"></div>
+    <div class="still" data-s="file"><div class="file"><small>AIU 사건 파일</small><b>사건 001</b><i>오메가</i><p>발생: 도심 전역<br>상태: 미해결<br>담당: 이상현상 전담수사팀</p><span class="stamp">위험 등급 Ω</span></div></div>
+    <div class="still" data-s="nf"></div>
+    <div class="still" data-s="blaze"></div>
+    <div class="still" data-s="ttl"><div class="ttl"><div class="ttl-logo"></div><div class="tag"></div><div class="go">출동</div></div></div>
+    <div class="vig"></div><div class="grain"></div>
+    <div class="lb t"></div><div class="lb b"></div>
+    <div class="sub"></div>
     <button class="skip">건너뛰기</button>
     <div class="hint">TOUCH</div>
   </div>
@@ -803,7 +819,8 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
       skill: { name: '투명 처형', cd: 8,  kind: 'execute', mult: 4, hits: 3, under: 0.3 } },
   ];
   const TYPES = ['공격', '광역', '방어', '지원'];
-  const STARTER_IDS = ['knight', 'archer', 'mage', 'priest'];
+  // 세나 키우기처럼 처음엔 요원 한 명으로 시작 (블레이즈). 나머지는 요원 호출로
+  const STARTER_IDS = ['mage'];
 
   // 공용 강화(훈련소) 목록
   const UPGRADES = [
@@ -840,6 +857,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     PICKUP_DAYS: 14,         // 특별 채용 한 번의 기간 (2주, 목요일 점검 기준)
     MAX_STARS: 5,
     PARTY_MAX: 5,            // 전투에 나가는 요원 수 (세나 키우기 5명 편성)
+    PARTY_SLOT_AT: [1, 1, 1, 11, 21],   // 출전 칸 i 번째가 열리는 스테이지 (처음 3칸, 2구역에서 4칸, 3구역에서 5칸)
     OFFLINE_CAP_SEC: 8 * 3600,
     OFFLINE_MIN_SEC: 60,
     OFFLINE_RATE: 0.5,       // 오프라인 효율 50%
@@ -1011,12 +1029,17 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 
   /* ---------- 5. 파티 / 오프라인 ---------- */
 
+  /** 현재 열린 출전 칸 수 (스테이지가 오를수록 늘어남) */
+  function partySlots(state) {
+    const st = clampInt(state && state.stage, 1, 1e9, 1);
+    return CONST.PARTY_SLOT_AT.filter(at => st >= at).length;
+  }
   /** 전투에 나가는 요원 id 목록 (보유, 중복 없음, 최대 5명). 비어 있으면 보유 요원 앞에서부터 */
   function partyIds(state) {
     const ok = id => state.heroes[id] && state.heroes[id].owned;
     let ids = Array.isArray(state.party) ? [...new Set(state.party)].filter(id => HEROES.some(h => h.id === id) && ok(id)) : [];
     if (!ids.length) ids = HEROES.filter(h => ok(h.id)).map(h => h.id);
-    return ids.slice(0, CONST.PARTY_MAX);
+    return ids.slice(0, partySlots(state));
   }
   /**
    * 파티에 넣거나 빼기 (상태를 직접 바꿈).
@@ -1026,7 +1049,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     if (!state.heroes[id] || !state.heroes[id].owned) return 'none';
     const p = partyIds(state);
     if (p.includes(id)) { if (p.length <= 1) return 'last'; state.party = p.filter(x => x !== id); return 'out'; }
-    if (p.length >= CONST.PARTY_MAX) return 'full';
+    if (p.length >= partySlots(state)) return 'full';
     state.party = [...p, id]; return 'in';
   }
   /** 파티 안 두 자리 바꾸기 (빠진 요원 id 를 넣고 원래 요원은 뺌) */
@@ -1161,7 +1184,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
       if (!h.owned) {
         h.owned = true; isNew.push(true);
         // 파티에 빈자리가 있으면 새 요원이 바로 합류
-        const p = partyIds(next); if (!p.includes(id) && p.length < CONST.PARTY_MAX) next.party = [...p, id];
+        const p = partyIds(next); if (!p.includes(id) && p.length < partySlots(next)) next.party = [...p, id];
       }
       else { h.shards += 1; isNew.push(false); }
     }
@@ -1437,7 +1460,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   }
 
   const Core = {
-    HEROES, TYPES, STARTER_IDS, partyIds, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
+    HEROES, TYPES, STARTER_IDS, partyIds, partySlots, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
     stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
@@ -2711,7 +2734,11 @@ function renderParty() {
   const list = team(), slots = [];
   for (let i = 0; i < 5; i++) {
     const h = list[i];
-    slots.push(h ? `<div class="slot" id="sl-${h.id}"><div class="face"><img src="${portrait(h.id)}" alt="${h.name}"></div><div class="hp"><i></i></div></div>` : `<div class="slot empty" title="호출로 합류">+</div>`);
+    // 빈칸: 열린 칸은 + (누르면 요원 창), 아직 안 열린 칸은 자물쇠와 열리는 구역
+    const at = C.CONST.PARTY_SLOT_AT[i], open = S.stage >= at;
+    slots.push(h ? `<div class="slot" id="sl-${h.id}"><div class="face"><img src="${portrait(h.id)}" alt="${h.name}"></div><div class="hp"><i></i></div></div>`
+      : open ? `<div class="slot empty open" data-open="1">+</div>`
+      : `<div class="slot empty lock"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2" fill="#3a4566"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="#3a4566" stroke-width="2.4"/></svg><small>${Math.floor((at - 1) / 10) + 1}구역</small></div>`);
   }
   $('party').innerHTML = slots.join('');
 }
@@ -2747,7 +2774,7 @@ function updateUI() {
   $('quest').classList.toggle('done', done);
   $('bAuto').setAttribute('aria-pressed', S.autoSkill ? 'true' : 'false');
   $('bSpd').setAttribute('aria-pressed', S.speed === 2 ? 'true' : 'false'); $('bSpdT').textContent = '×' + S.speed;
-  const key = team().map(h => h.id).join();
+  const key = team().map(h => h.id).join() + '|' + C.partySlots(S);
   if (key !== partyKey) { partyKey = key; renderParty(); }
   for (const h of team()) {
     const el = $('sl-' + h.id), r = R.heroes[h.id]; if (!el || !r) continue;
@@ -2776,7 +2803,7 @@ function sortHeroes(list, pids) {
     return hsort === 1 ? byLv(a, b) : byGrade(a, b);
   });
 }
-const APP_VERSION = '0.14.0';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.15.0';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 /** 기술 설명 (상세 창) */
 function skillText(h) {
@@ -2802,7 +2829,7 @@ function renderPanel() {
     const pids = C.partyIds(S), list = sortHeroes(C.HEROES.filter(h => hfil === '전체' || h.type === hfil), pids);
     P.innerHTML = `<div class="htop"><div class="tfil">${['전체', ...C.TYPES].map(t => `<button data-act="hfil" data-v="${t}" class="${t === '전체' ? '' : 't-' + t}${hfil === t ? ' on' : ''}" aria-label="${t}">${t === '전체' ? '<b>전체</b>' : `<svg><use href="#i-t-${t}"/></svg>`}</button>`).join('')}</div>
 </div>
-      <div class="hcount"><span class="xchip">${icon('exp')}<b id="hExp"></b></span><span>출전 <b>${pids.length}</b> / ${C.CONST.PARTY_MAX}</span><button class="hsort hall" data-act="starall" id="hAll">일괄 승급</button><button class="hsort" data-act="hsort"><svg viewBox="0 0 24 24"><path d="M7 4v15M3 15l4 4l4-4M17 20V5M13 9l4-4l4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>${HSORT[hsort]}</button></div><div class="hgrid">` +
+      <div class="hcount"><span class="xchip">${icon('exp')}<b id="hExp"></b></span><span>출전 <b>${pids.length}</b> / ${C.partySlots(S)}</span><button class="hsort hall" data-act="starall" id="hAll">일괄 승급</button><button class="hsort" data-act="hsort"><svg viewBox="0 0 24 24"><path d="M7 4v15M3 15l4 4l4-4M17 20V5M13 9l4-4l4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>${HSORT[hsort]}</button></div><div class="hgrid">` +
       list.map(h => {
         const d = S.heroes[h.id], inP = pids.includes(h.id);
         const tic = `<i class="tic t-${h.type}"><svg><use href="#i-t-${h.type}"/></svg></i>`;
@@ -3203,7 +3230,7 @@ function fillHeroDetail() {
   $('hdStars').innerHTML = starStr(d.stars);
   if (!d.owned) return;
   // 파티: 넣기 / 빼기. 가득 차 있으면 바꿀 요원을 눌러서 자리 교체
-  const pids = C.partyIds(S), inP = pids.includes(id), full = pids.length >= C.CONST.PARTY_MAX;
+  const pids = C.partyIds(S), inP = pids.includes(id), full = pids.length >= C.partySlots(S);
   $('hdParty').innerHTML = inP
     ? `<button class="btn ghost" style="width:100%;margin-bottom:8px" data-act="party" data-h="${id}" ${pids.length <= 1 ? 'disabled' : ''}>출전에서 빼기</button>`
     : full ? `<div class="pswap-t">출전 자리가 가득 찼어요. 바꿀 요원을 눌러요</div><div class="pswap">${pids.map(p => { const ph = C.heroById(p); return `<button data-act="pswap" data-o="${p}" data-h="${id}"><img src="${ART['card_' + p] || portrait(p)}" alt=""><span>${ph.name}</span></button>`; }).join('')}</div>`
@@ -3350,6 +3377,7 @@ $('bSpd').addEventListener('click', () => { S.speed = S.speed === 2 ? 1 : 2; wri
 // 파티 칸: 기술이 준비된 요원을 누르면 바로 사용 (자동이 켜져 있어도 먼저 쓸 수 있음)
 $('side').addEventListener('click', e => { const b = e.target.closest('[data-side]'); if (b) openSide(b.dataset.side); });
 $('party').addEventListener('click', e => {
+  if (e.target.closest('[data-open]')) return openHeroWin();
   const sl = e.target.closest('.slot[id]'); if (!sl) return;
   const id = sl.id.slice(3), r = R.heroes[id];
   if (!r || r.hp <= 0) return;
@@ -3434,110 +3462,143 @@ window.addEventListener('pagehide', writeSave);
 
 
 /* ---------- 오프닝 연출 ----------
- * 장면마다 자막이 한 글자씩 나오고, 정해진 시간이 지나면 다음 장면으로. 화면을 누르면 자막을 바로 다 보여 주고, 한 번 더 누르면 다음 장면.
- * 배경(비 내리는 도시, 하늘 균열, 번개)은 캔버스 한 장에 그림. 그림이 없어도(ART 없음) 글과 도형만으로 동작 */
+ * 장면마다 자막(또는 대사)이 한 글자씩. 정해진 시간이 지나면 다음 장면. 누르면 자막을 바로 다 보여 주고, 한 번 더 누르면 다음.
+ * 배경 캔버스: 안개 낀 도시 실루엣, 하늘 균열(갈라지며 자라남), 비, 번개.
+ * 장면 그림: op_city, op_crack, op_mobs, op_boss 그림(그림 주문서 6)이 들어오면 그 그림을 천천히 다가가며 보여 줌. 없으면 이미 있는 그림으로 */
 const OP_SCENES = [
-  { bg: 'city',  cap: '그날 밤부터, 비는 그치지 않았다.', t: 3800 },
-  { bg: 'crack', cap: '하늘에 금이 갔다.<br>그 틈으로 무언가가 새어 나왔다.', t: 4200 },
-  { bg: 'crack', s: 'mobs', cap: '사람들은 그것을 <b>이상체</b>라 불렀다.', t: 4000 },
-  { bg: 'crack', s: 'boss', cap: '그리고 모든 이상현상의 중심에는<br><b>근원체</b>가 있다.', t: 4400 },
-  { bg: 'dark',  s: 'file', cap: '경찰도, 군대도 손댈 수 없는 사건.', t: 4200 },
-  { bg: 'crack', s: 'nf', say: '…늦었군. 균열이 열렸다.', t: 3600 },
-  { bg: 'crack', s: 'nf', say: '남은 건 우리뿐이다. 준비해.', t: 3600 },
-  { bg: 'city',  s: 'team', cap: '이상현상 전담수사팀, <b>AIU</b>', t: 4400 },
-  { bg: 'crack', s: 'tag', t: 3900 },
+  { bg: 'city',  img: 'op_city',  cap: '그날 밤부터, 비는 그치지 않았다.', t: 4200 },
+  { bg: 'crack', img: 'op_crack', cap: '도시 위 하늘에 금이 갔다.', t: 4400, grow: true },
+  { bg: 'crack', img: 'op_mobs', s: 'mobs', cap: '그 틈으로 <b>이상체</b>가 흘러나왔다.', t: 4400 },
+  { bg: 'crack', img: 'op_boss', s: 'boss', cap: '그리고 그 중심에는, <b>근원체</b>가 있다.', t: 4800 },
+  { bg: 'dark',  s: 'file', cap: '경찰도 군대도 손댈 수 없는 사건.', t: 4200 },
+  { bg: 'crack', s: 'nf', who: '나이트폴', col: '#b98cff', say: '…늦었군. 균열이 열렸다.', t: 3800 },
+  { bg: 'crack', s: 'blaze', who: '블레이즈', col: '#ff8a3e', say: '제가 갈게요. 혼자서라도.', t: 3800 },
+  { bg: 'crack', s: 'nf', who: '나이트폴', col: '#b98cff', say: '좋아. 오늘부터 넌 AIU다.', t: 3800 },
+  { bg: 'crack', s: 'ttl', t: 4300 },
 ];
-const OP = { on: false, i: -1, t0: 0, timer: 0, typing: 0, done: null, drops: [], flash: 0, city: null };
+const OP = { on: false, i: -1, timer: 0, typing: 0, done: null, drops: [], flash: 0, city: null, crack: null, grow: 0 };
 function playOpening(done) {
   const el = $('op'); if (!el) { done && done(); return; }
-  OP.on = true; OP.i = -1; OP.done = done; paused = true;
-  // 그림 채우기 (한 번만)
-  const q = (sel) => el.querySelector(sel);
-  q('[data-s=mobs]').innerHTML = ['spr_shade', 'spr_crawler', 'spr_shade'].map((k, i) => ART[k] ? `<img class="mob" src="${ART[k]}" style="left:${[6, 38, 66][i]}%;height:${[30, 16, 26][i]}%;transition-delay:${i * 0.5}s${i === 2 ? ';transform:translateY(14px) scaleX(-1)' : ''}" alt="">` : '').join('');
-  q('[data-s=boss]').innerHTML = ART.spr_boss1 ? `<img class="boss" src="${ART.spr_boss1}" alt="">` : '';
-  q('.nf').innerHTML = ART.id_dark || ART.card_dark ? `<img src="${ART.id_dark || ART.card_dark}" alt="나이트폴">` : '';
-  q('.team').innerHTML = C.STARTER_IDS.map((id, i) => `<div style="transition-delay:${0.2 + i * 0.25}s"><img src="${ART['id_' + id] || portrait(id)}" alt=""><span>${C.heroById(id).name}</span></div>`).join('');
-  q('.org').innerHTML = ART.logo_title ? `<img src="${ART.logo_title}" alt="AIU 이상현상 전담수사팀">` : '<b style="font:400 40px \'Black Han Sans\';color:var(--gold)">AIU</b>';
-  const tag = '추적하고, 격리하고, 봉쇄한다.';
-  q('.tag').innerHTML = [...tag].map((ch, i) => `<span style="transition-delay:${0.3 + i * 0.08}s">${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
+  OP.on = true; OP.i = -1; OP.done = done; OP.grow = 0; paused = true;
+  const q = sel => el.querySelector(sel);
+  const pic = k => ART[k] ? `<img class="full" src="${ART[k]}" alt="">` : '';
+  // 장면 그림: 주문한 그림이 있으면 그것, 없으면 이미 있는 그림으로 꾸밈
+  q('[data-s=mobs]').innerHTML = ART.op_mobs ? pic('op_mobs') : ['spr_shade', 'spr_crawler', 'spr_shade', 'spr_shade'].map((k, i) => ART[k] ? `<img class="mob" src="${ART[k]}" style="left:${[2, 30, 58, 74][i]}%;height:${[34, 15, 26, 20][i]}%;transition-delay:${i * 0.45}s${i % 2 ? ';transform:translateY(20px) scaleX(-1)' : ''}" alt="">` : '').join('');
+  q('[data-s=boss]').innerHTML = ART.op_boss ? pic('op_boss') : (ART.spr_boss1 ? `<img class="boss" src="${ART.spr_boss1}" alt=""><i class="eye"></i>` : '');
+  const cut = (id, side, col) => `<div class="cut ${side}" style="--sc:${col};--cd:${side === 'r' ? '90deg' : '270deg'}"><img src="${ART['id_' + id] || ART['card_' + id] || portrait(id)}" alt=""><i class="edge"></i><b class="nm">${C.heroById(id).name}</b></div>`;
+  q('[data-s=nf]').innerHTML = cut('dark', 'r', '#b98cff');
+  q('[data-s=blaze]').innerHTML = cut('mage', 'l', '#ff8a3e');
+  q('.ttl-logo').innerHTML = ART.logo_title ? `<img src="${ART.logo_title}" alt="AIU 이상현상 전담수사팀">` : '<b style="font:400 56px \'Black Han Sans\';color:var(--gold)">AIU</b>';
+  q('.tag').innerHTML = [...'추적하고, 격리하고, 봉쇄한다.'].map((ch, i) => `<span style="transition-delay:${0.5 + i * 0.08}s">${ch === ' ' ? '&nbsp;' : ch}</span>`).join('');
+  // 필름 입자 (작은 잡음 그림 한 장)
+  const gn = document.createElement('canvas'); gn.width = gn.height = 128; const gp = gn.getContext('2d'), id = gp.createImageData(128, 128);
+  for (let i = 0; i < id.data.length; i += 4) { const v = Math.random() * 255; id.data[i] = id.data[i + 1] = id.data[i + 2] = v; id.data[i + 3] = 255; }
+  gp.putImageData(id, 0, 0); q('.grain').style.background = `url(${gn.toDataURL()})`;
   el.classList.add('on');
   opResize(); opNext();
   requestAnimationFrame(opDraw);
 }
 function opEnd() {
   if (!OP.on) return; OP.on = false; clearTimeout(OP.timer); clearInterval(OP.typing);
-  const el = $('op'); el.style.transition = 'opacity .6s'; el.style.opacity = '0';
+  const el = $('op'); el.style.transition = 'opacity .7s'; el.style.opacity = '0';
   try { localStorage.setItem('aiu-op', '1'); } catch (e) {}
-  setTimeout(() => { el.classList.remove('on'); el.style.opacity = ''; el.querySelectorAll('.sc').forEach(x => x.classList.remove('on')); paused = false; last = performance.now(); const d = OP.done; OP.done = null; d && d(); }, 600);
+  setTimeout(() => { el.classList.remove('on'); el.style.opacity = ''; el.querySelectorAll('.still').forEach(x => x.classList.remove('on', 'flash')); paused = false; last = performance.now(); const d = OP.done; OP.done = null; d && d(); }, 700);
 }
 function opNext() {
   clearTimeout(OP.timer); clearInterval(OP.typing);
   OP.i++;
   if (OP.i >= OP_SCENES.length) return opEnd();
   const sc = OP_SCENES[OP.i], el = $('op');
-  el.querySelectorAll('.sc').forEach(x => x.classList.toggle('on', x.dataset.s === sc.s));
-  if (sc.bg === 'crack' && OP_SCENES[OP.i - 1] && OP_SCENES[OP.i - 1].bg !== 'crack') OP.flash = 1;   // 균열이 처음 열릴 때 번쩍
-  // 자막 또는 나이트폴 대사: 한 글자씩 (태그는 통째로)
-  const box = sc.say ? el.querySelector('.say span') : el.querySelector('.cap');
-  el.querySelector('.cap').innerHTML = ''; if (sc.say) box.textContent = '';
-  const full = sc.say || sc.cap || '', parts = full.match(/<[^>]+>|./gs) || [];
-  let n = 0;
-  OP.typing = setInterval(() => { n++; box.innerHTML = parts.slice(0, n).join(''); if (n >= parts.length) clearInterval(OP.typing); }, 55);
-  OP.full = () => { clearInterval(OP.typing); box.innerHTML = full; n = parts.length; };
+  // 주문한 장면 그림(op_*)이 있으면 그 그림 판을 하나 만들어 켬
+  el.querySelectorAll('.still').forEach(x => { if (x.dataset.tmp) x.remove(); else x.classList.toggle('on', x.dataset.s === sc.s); });
+  if (sc.img && ART[sc.img] && !sc.s) { const d = document.createElement('div'); d.className = 'still'; d.dataset.tmp = 1; d.innerHTML = `<img class="full" src="${ART[sc.img]}" alt="">`; el.insertBefore(d, el.querySelector('.vig')); requestAnimationFrame(() => d.classList.add('on')); }
+  if (sc.s === 'boss') setTimeout(() => { const b = el.querySelector('[data-s=boss]'); b.classList.add('flash'); OP.flash = 1; }, 300);
+  if (sc.grow) OP.grow = 0.001;
+  // 자막 또는 대사 (아래 검은 띠 안). 한 글자씩, 태그는 통째로
+  const box = el.querySelector('.sub'), full = sc.say || sc.cap || '';
+  box.style.setProperty('--sc', sc.col || '#b98cff');
+  const head = sc.who ? `<em>${sc.who}</em>` : '', parts = full.match(/<[^>]+>|./gs) || [];
+  let n = 0; box.innerHTML = head;
+  // 글은 span 하나에 담음 (강조 글자가 따로 줄바꿈되지 않게)
+  OP.typing = setInterval(() => { n++; box.innerHTML = head + `<span>${parts.slice(0, n).join('')}</span>`; if (n >= parts.length) clearInterval(OP.typing); }, 55);
+  OP.full = () => { clearInterval(OP.typing); box.innerHTML = head + `<span>${full}</span>`; n = parts.length; };
   OP.typed = () => n >= parts.length;
   OP.timer = setTimeout(opNext, sc.t);
+}
+/** 하늘 균열 모양 미리 만들기: 가운데 큰 금 하나 + 잔가지 (자라나는 순서대로) */
+function opMakeCrack(w, h) {
+  const segs = [], rnd = (() => { let sd = 11; return () => (sd = (sd * 9301 + 49297) % 233280) / 233280; })();
+  function branch(x, y, ang, len, depth, t0) {
+    let px = x, py = y, t = t0;
+    const n = Math.round(len / (w * 0.035));
+    for (let i = 0; i < n; i++) {
+      ang += (rnd() - 0.5) * 0.9;
+      const st = w * (0.025 + rnd() * 0.025), nx = px + Math.cos(ang) * st, ny = py + Math.sin(ang) * st;
+      segs.push({ x0: px, y0: py, x1: nx, y1: ny, w: Math.max(1, (depth ? 2.2 : 5.5) * (1 - i / n * 0.6)), t: t, d: depth });
+      if (!depth && rnd() < 0.35) branch(nx, ny, ang + (rnd() < 0.5 ? 1 : -1) * (0.7 + rnd() * 0.6), len * 0.35, 1, t + 0.02);
+      px = nx; py = ny; t += 1 / n * (depth ? 0.3 : 1);
+    }
+  }
+  branch(w * 0.08, h * 0.2, -0.25, w * 0.95, 0, 0);
+  return segs;
 }
 function opResize() {
   const c = $('opc'), dpr = Math.min(2, window.devicePixelRatio || 1);
   c.width = innerWidth * dpr; c.height = innerHeight * dpr;
   const w = c.width, h = c.height;
-  // 도시 실루엣: 높이가 다른 건물 + 드문드문 켜진 창문 (한 번 그려 둠)
+  // 도시: 먼 곳(흐리고 밝은 안개색)부터 가까운 곳(어둡고 큼)까지 세 겹. 창문 불빛은 가까운 겹에만, 아주 드물게
   const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const p = cv.getContext('2d');
-  let x = 0, seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
-  while (x < w) {
-    const bw = w * (0.08 + rnd() * 0.12), bh = h * (0.18 + rnd() * 0.32);
-    p.fillStyle = `rgb(${10 + rnd() * 8},${11 + rnd() * 8},${20 + rnd() * 12})`; p.fillRect(x, h * 0.78 - bh, bw, bh + h * 0.22);
-    for (let wy = h * 0.78 - bh + 8 * dpr; wy < h * 0.76; wy += 9 * dpr) for (let wx = x + 4 * dpr; wx < x + bw - 6 * dpr; wx += 8 * dpr)
-      if (rnd() < 0.09) { p.fillStyle = rnd() < 0.8 ? 'rgba(255,214,140,.55)' : 'rgba(170,140,255,.6)'; p.fillRect(wx, wy, 3 * dpr, 4 * dpr); }
-    x += bw + rnd() * 3 * dpr;
-  }
-  OP.city = cv;
-  OP.drops = Array.from({ length: Math.round(w * h / 9000) }, () => ({ x: Math.random() * w, y: Math.random() * h, v: (0.9 + Math.random() * 0.8) * h, l: (10 + Math.random() * 16) * dpr }));
+  let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  [[0.62, '#1a1530', 0.05, 0.12, 0], [0.7, '#100d1e', 0.07, 0.2, 0], [0.8, '#07060d', 0.1, 0.28, 1]].forEach(([base, col, wMin, hMax, lit]) => {
+    let x = -20;
+    while (x < w) {
+      const bw = w * (wMin + rnd() * wMin), bh = h * (0.05 + rnd() * hMax), top = h * base - bh;
+      p.fillStyle = col; p.fillRect(x, top, bw, h - top);
+      if (rnd() < 0.3) p.fillRect(x + bw * 0.4, top - h * 0.03, 2 * dpr, h * 0.03);   // 안테나
+      if (lit) for (let wy = top + 10 * dpr; wy < h * 0.95; wy += 14 * dpr) for (let wx = x + 6 * dpr; wx < x + bw - 8 * dpr; wx += 11 * dpr)
+        if (rnd() < 0.05) { p.fillStyle = rnd() < 0.75 ? 'rgba(255,200,130,.35)' : 'rgba(170,140,255,.4)'; p.fillRect(wx, wy, 3 * dpr, 4 * dpr); p.fillStyle = col; }
+      x += bw + rnd() * 4 * dpr;
+    }
+    // 겹 사이 안개
+    const fg = p.createLinearGradient(0, h * base - h * 0.08, 0, h * base + h * 0.05);
+    fg.addColorStop(0, 'rgba(90,70,150,0)'); fg.addColorStop(1, 'rgba(90,70,150,.12)'); p.fillStyle = fg; p.fillRect(0, h * base - h * 0.08, w, h * 0.13);
+  });
+  OP.city = cv; OP.crack = opMakeCrack(w, h);
+  OP.drops = Array.from({ length: Math.round(w * h / 6000) }, () => { const z = Math.random(); return { x: Math.random() * w, y: Math.random() * h, v: (0.8 + z * 1.2) * h, l: (8 + z * 22) * dpr, a: 0.08 + z * 0.25, wd: (0.6 + z * 1.2) * dpr }; });
 }
 function opDraw(now) {
   if (!OP.on) return;
   const c = $('opc'), g2 = c.getContext('2d'), w = c.width, h = c.height, sc = OP_SCENES[Math.max(0, OP.i)] || {}, t = now / 1000;
   const dt = Math.min(0.05, (now - (OP.last || now)) / 1000); OP.last = now;
+  const cracked = sc.bg === 'crack';
+  if (cracked && OP.grow < 1) OP.grow = Math.min(1, (OP.grow || 1) + dt * (OP.grow > 0 ? 0.45 : 9));
   // 하늘
   const sky = g2.createLinearGradient(0, 0, 0, h);
-  sky.addColorStop(0, sc.bg === 'crack' ? '#160c2c' : '#0a0c18'); sky.addColorStop(0.7, '#05060c'); sky.addColorStop(1, '#020205');
+  sky.addColorStop(0, cracked ? '#1b0f36' : '#0b0d1c'); sky.addColorStop(0.55, cracked ? '#0c0819' : '#06070f'); sky.addColorStop(1, '#020205');
   g2.fillStyle = sky; g2.fillRect(0, 0, w, h);
-  // 하늘 균열: 화면 위쪽을 가로지르는 보랏빛 금 (떨리며 빛남)
-  if (sc.bg === 'crack') {
-    const pts = [[0.18, 0.05], [0.34, 0.14], [0.31, 0.2], [0.48, 0.27], [0.45, 0.33], [0.6, 0.38], [0.57, 0.44]];
-    const glow = 0.6 + Math.sin(t * 3) * 0.2 + Math.random() * 0.1;
-    g2.save(); g2.lineJoin = 'round'; g2.lineCap = 'round';
-    for (const [lw, col] of [[26, `rgba(140,80,255,${0.18 * glow})`], [10, `rgba(185,140,255,${0.5 * glow})`], [3, `rgba(245,235,255,${0.95 * glow})`]]) {
-      g2.strokeStyle = col; g2.lineWidth = lw * (w / 400); g2.beginPath();
-      pts.forEach(([px, py], i) => { const jx = (Math.random() - 0.5) * 2; i ? g2.lineTo(px * w + jx, py * h) : g2.moveTo(px * w + jx, py * h); }); g2.stroke();
+  // 하늘 균열: 넓은 보라 번짐 → 가는 흰 중심. 처음 열릴 땐 왼쪽부터 자라남, 이후엔 숨 쉬듯 떨림
+  if (cracked && OP.crack) {
+    const glow = 0.75 + Math.sin(t * 2.4) * 0.15 + Math.random() * 0.08, k = w / 800;
+    const halo = g2.createRadialGradient(w * 0.5, h * 0.17, 0, w * 0.5, h * 0.17, w * 0.8);
+    halo.addColorStop(0, `rgba(130,70,255,${0.28 * glow * OP.grow})`); halo.addColorStop(1, 'rgba(130,70,255,0)');
+    g2.fillStyle = halo; g2.fillRect(0, 0, w, h * 0.6);
+    g2.lineCap = 'round'; g2.lineJoin = 'round';
+    for (const [mul, col] of [[7, `rgba(120,60,255,${0.12 * glow})`], [3, `rgba(185,140,255,${0.45 * glow})`], [1, `rgba(250,244,255,${0.95 * glow})`]]) {
+      g2.strokeStyle = col;
+      for (const sg of OP.crack) { if (sg.t > OP.grow) continue; g2.lineWidth = sg.w * mul * k; g2.beginPath(); g2.moveTo(sg.x0, sg.y0); g2.lineTo(sg.x1, sg.y1); g2.stroke(); }
     }
-    g2.restore();
-    const halo = g2.createRadialGradient(w * 0.42, h * 0.24, 0, w * 0.42, h * 0.24, w * 0.7);
-    halo.addColorStop(0, `rgba(120,60,255,${0.22 * glow})`); halo.addColorStop(1, 'rgba(120,60,255,0)');
-    g2.fillStyle = halo; g2.fillRect(0, 0, w, h);
-    if (Math.random() < dt * 0.35) OP.flash = Math.max(OP.flash, 0.5);   // 가끔 번개
+    if (Math.random() < dt * 0.3) OP.flash = Math.max(OP.flash, 0.45);   // 가끔 번개
   }
   // 도시 (사건 파일 장면에선 더 어둡게)
-  if (OP.city) { g2.globalAlpha = sc.bg === 'dark' ? 0.35 : 1; g2.drawImage(OP.city, 0, 0); g2.globalAlpha = 1; }
-  // 비
-  g2.strokeStyle = 'rgba(170,190,240,.28)'; g2.lineWidth = Math.max(1, w / 500); g2.beginPath();
-  for (const d of OP.drops) { d.y += d.v * dt; d.x -= d.v * dt * 0.12; if (d.y > h) { d.y = -d.l; d.x = Math.random() * w * 1.1; } g2.moveTo(d.x, d.y); g2.lineTo(d.x - d.l * 0.12, d.y + d.l); }
-  g2.stroke();
+  if (OP.city) { g2.globalAlpha = sc.bg === 'dark' ? 0.3 : 1; g2.drawImage(OP.city, 0, 0); g2.globalAlpha = 1; }
+  // 비: 앞쪽 빗줄기일수록 길고 굵고 진함
+  g2.lineCap = 'butt';
+  for (const d of OP.drops) {
+    d.y += d.v * dt; d.x -= d.v * dt * 0.1; if (d.y > h) { d.y = -d.l; d.x = Math.random() * w * 1.1; }
+    g2.strokeStyle = `rgba(180,195,240,${d.a})`; g2.lineWidth = d.wd; g2.beginPath(); g2.moveTo(d.x, d.y); g2.lineTo(d.x - d.l * 0.1, d.y + d.l); g2.stroke();
+  }
   // 번쩍임
-  if (OP.flash > 0) { g2.fillStyle = `rgba(200,170,255,${OP.flash * 0.55})`; g2.fillRect(0, 0, w, h); OP.flash = Math.max(0, OP.flash - dt * 2.5); }
-  // 위아래 어둡게 (글자 잘 보이게)
-  const vg = g2.createLinearGradient(0, 0, 0, h); vg.addColorStop(0, 'rgba(0,0,0,.35)'); vg.addColorStop(0.55, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.75)');
-  g2.fillStyle = vg; g2.fillRect(0, 0, w, h);
+  if (OP.flash > 0) { g2.fillStyle = `rgba(210,190,255,${OP.flash * 0.5})`; g2.fillRect(0, 0, w, h); OP.flash = Math.max(0, OP.flash - dt * 2.2); }
   requestAnimationFrame(opDraw);
 }
 $('op').addEventListener('click', e => {

@@ -196,6 +196,15 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 .btn small{font-size:10px;font-weight:600;opacity:.8}
 /* 메뉴 접기: 메뉴 칸을 숨기고 전투 화면이 남는 높이를 모두 씀 */
 #app.folded #panel{display:none}
+/* 요원 창: 세나 키우기 영웅 창처럼 전투 화면을 덮는 따로 된 창 (뒤로 가기로 닫음) */
+#phead{display:none;align-items:center;gap:8px;padding:calc(env(safe-area-inset-top) + 8px) 10px 9px;background:var(--bg);border-bottom:1px solid var(--line)}
+#phead b{flex:1;font:400 22px "Black Han Sans"}
+#phBack{display:grid;place-items:center;width:34px;height:34px;padding:0;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);color:var(--ink)}
+#phBack svg{width:20px;height:20px}
+#app.herofull #phead{display:flex}
+#app.herofull #hud,#app.herofull #battle,#app.herofull #party,#app.herofull #tabs{display:none}
+#app.herofull #panel{flex:1}
+#app.herofull .hcount .xchip{display:none}
 #app.folded #battle{flex:1;height:auto;max-height:none}
 #tabs{display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom);background:var(--bg);border-top:1px solid var(--line)}
 #tabs button{height:54px;border:0;background:none;color:var(--dim);font:700 15px 'IBM Plex Sans KR';position:relative}
@@ -565,7 +574,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#e04848"/><circle cx="12" cy="12" r="6" fill="#fff"/><circle cx="12" cy="12" r="3" fill="#e04848"/></symbol>
 </svg>
 
-<div id="app">
+<div id="app" class="folded">
   <div id="hud">
     <div id="stageBox">
       <div id="stageRow"><span id="stage">1-1</span><span id="area">초원 길</span></div>
@@ -591,9 +600,12 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     <div id="bctl"><button id="bAuto" aria-pressed="true"><svg class="ic"><use href="#i-auto"/></svg><span>자동</span></button><button id="bSpd" aria-pressed="false"><svg class="ic"><use href="#i-fast"/></svg><span id="bSpdT">×1</span></button></div>
   </div>
   <div id="party"></div>
+  <div id="phead"><button id="phBack" aria-label="뒤로">
+      <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b>요원</b>
+    <span class="pill"><svg class="ic"><use href="#i-exp"/></svg><span id="phExp">0</span></span><span class="pill"><svg class="ic"><use href="#i-gold"/></svg><span id="phGold">0</span></span></div>
   <div id="panel"></div>
   <nav id="tabs">
-    <button data-tab="hero" class="on">요원<i class="dot" id="dotHero"></i></button>
+    <button data-tab="hero">요원<i class="dot" id="dotHero"></i></button>
     <button data-tab="train">성장<i class="dot" id="dotTrain"></i></button>
     <button data-tab="run">출동<i class="dot" id="dotRun"></i></button>
     <button data-tab="summon">호출</button>
@@ -2632,6 +2644,7 @@ function updateUI() {
   $('stage').textContent = C.stageLabel(S.stage);
   $('area').textContent = theme().name;
   $('gold').textContent = C.formatNum(S.gold);
+  if ($('app').classList.contains('herofull')) { $('phExp').textContent = C.formatNum(S.exp); $('phGold').textContent = C.formatNum(S.gold); }
   $('gems').textContent = C.formatNum(S.gems);
   const bar = $('prog').firstElementChild, lab = $('prog').lastElementChild;
   if (C.dailyReset(S, new Date()) && tab === 'run') renderPanel();   // 0시가 지나면 입장 횟수와 임무 새로
@@ -2681,7 +2694,7 @@ function sortHeroes(list, pids) {
     return hsort === 1 ? byLv(a, b) : byGrade(a, b);
   });
 }
-const APP_VERSION = '0.13.0';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.13.1';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 /** 기술 설명 (상세 창) */
 function skillText(h) {
@@ -2821,12 +2834,12 @@ function updatePanel() {
     const wt = $('wTix'); if (wt) { wt.textContent = C.formatNum(S.tix); $('wPtix').textContent = C.formatNum(S.ptix); }
   }
   // 탭 알림 점: 할 수 있는 강화가 있을 때
-  $('dotHero').style.display = team().some(h => C.heroLvCost(S.heroes[h.id].lv) <= S.exp || S.heroes[h.id].shards >= C.starNeed(S.heroes[h.id].stars, h.grade)) && tab !== 'hero' ? 'block' : 'none';
-  $('dotRun').style.display = runAlert() && tab !== 'run' ? 'block' : 'none';
+  $('dotHero').style.display = team().some(h => C.heroLvCost(S.heroes[h.id].lv) <= S.exp || S.heroes[h.id].shards >= C.starNeed(S.heroes[h.id].stars, h.grade)) && !$('app').classList.contains('herofull') ? 'block' : 'none';
+  $('dotRun').style.display = runAlert() && (tab !== 'run' || $('app').classList.contains('folded')) ? 'block' : 'none';
   $('dotMis').style.display = misAlert() ? 'block' : 'none';
   $('dotAtt').style.display = C.canAttend(S, new Date()) ? 'block' : 'none';
   if ($('sideMis')) updateRun(modalEl);   // 임무 창이 열려 있으면 진행 갱신
-  $('dotTrain').style.display = C.UPGRADES.some(u => C.upgradeCost(u.id, S.up[u.id]) <= S.gold) && tab !== 'train' ? 'block' : 'none';
+  $('dotTrain').style.display = C.UPGRADES.some(u => C.upgradeCost(u.id, S.up[u.id]) <= S.gold) && (tab !== 'train' || $('app').classList.contains('folded')) ? 'block' : 'none';
 }
 /* ---------- 출동 탭: 출동 / 임무 / 출석 (세나 키우기의 던전, 일일 미션, 출석 자리) ---------- */
 const dsel = {};   // 일일 출동마다 고른 단계
@@ -3199,7 +3212,8 @@ function handleBack() {
     return keepHist();
   }
   if ($('rift').classList.contains('on')) { closeRift(); return keepHist(); }
-  if ($('app').classList.contains('folded')) { $('app').classList.remove('folded'); for (const x of $('tabs').children) x.classList.toggle('on', x.dataset.tab === tab); renderPanel(); return keepHist(); }
+  if ($('app').classList.contains('herofull')) { closeHeroWin(); return keepHist(); }
+  if (!$('app').classList.contains('folded')) { $('app').classList.add('folded'); for (const x of $('tabs').children) x.classList.remove('on'); return keepHist(); }   // 메뉴가 열려 있으면 접기
   const now = Date.now();
   if (now - backAt < 2000) { writeSave(); if (CapApp) CapApp.exitApp(); else history.back(); return; }
   backAt = now; toast('한 번 더 누르면 게임을 종료해요'); keepHist();
@@ -3207,8 +3221,24 @@ function handleBack() {
 if (CapApp) CapApp.addListener('backButton', handleBack);   // 앱: 안드로이드 뒤로 가기 버튼을 직접 받음
 else { keepHist(); window.addEventListener('popstate', handleBack); }   // 브라우저: 기록 한 칸으로 받음
 $('modal').addEventListener('click', onAct);   // 요원 상세, 일일 출동 창 안의 버튼
+/* 요원 창 열기, 닫기. 닫으면 열기 전 화면(접힌 전투 화면이나 다른 메뉴)으로 돌아감 */
+let heroBack = null;
+function openHeroWin() {
+  const app = $('app');
+  heroBack = app.classList.contains('folded') ? null : tab;
+  app.classList.remove('folded'); app.classList.add('herofull');
+  tab = 'hero'; renderPanel(); $('panel').scrollTop = 0; updateUI();
+}
+function closeHeroWin() {
+  const app = $('app'); app.classList.remove('herofull');
+  if (heroBack && heroBack !== 'hero') { tab = heroBack; for (const x of $('tabs').children) x.classList.toggle('on', x.dataset.tab === tab); renderPanel(); }
+  else { app.classList.add('folded'); for (const x of $('tabs').children) x.classList.remove('on'); }
+  partyKey = ''; updateUI();
+}
+$('phBack').addEventListener('click', closeHeroWin);
 $('tabs').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.tab === 'hero') return openHeroWin();
   // 세나 키우기처럼: 열린 메뉴를 한 번 더 누르면 메뉴 칸이 접히고 전투 화면이 커짐. 접힌 상태에서 아무 메뉴나 누르면 다시 펼침
   const app = $('app');
   if (!app.classList.contains('folded') && b.dataset.tab === tab) { app.classList.add('folded'); for (const x of $('tabs').children) x.classList.remove('on'); return; }

@@ -48,6 +48,7 @@
     LEGEND_BY_LV:    [0, 0, 0, 0, 0.0010, 0.0011, 0.0012, 0.0013, 0.0014, 0.0015],
     HERO_BY_LV:      [0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19],
     RELAY: 2000,
+    PICKUP_DAYS: 14,         // 특별 채용 한 번의 기간 (2주, 목요일 점검 기준)
     MAX_STARS: 5,
     OFFLINE_CAP_SEC: 8 * 3600,
     OFFLINE_MIN_SEC: 60,
@@ -285,15 +286,17 @@
   }
 
   /**
-   * 특별 채용 남은 시간(초): 매주 월요일 0시(기기 시간)에 새 기간이 시작된다.
+   * 특별 채용 남은 시간(초). 세나 키우기처럼 정기 점검(목요일) 단위로 2주씩 열린다.
+   * 기간: 목요일 오전 9시 시작 → 2주 뒤 목요일 오전 9시 직전까지 (기기 시간 기준)
+   * 기준 시작일: 2026-11-26(목) 09:00
    * @param {Date} now 현재 시각
    */
   function pickupRemainSec(now) {
     if (!(now instanceof Date) || !isNum(now.getTime())) return 0;
-    const next = new Date(now.getFullYear(), now.getMonth(), now.getDate());   // 오늘 0시
-    const daysToMon = ((8 - next.getDay()) % 7) || 7;                         // 다음 월요일까지 일수 (월요일이면 7)
-    next.setDate(next.getDate() + daysToMon);
-    return Math.max(0, Math.floor((next - now) / 1000));
+    const P = CONST.PICKUP_DAYS * 86400000;
+    const base = new Date(2026, 10, 26, 9, 0, 0).getTime();
+    const off = ((now.getTime() - base) % P + P) % P;     // 현재 기간 안에서 지난 시간
+    return Math.max(1, Math.round((P - off) / 1000));
   }
   /** 초 → "6일 23시간" / "5시간 12분" */
   function formatRemain(sec) {

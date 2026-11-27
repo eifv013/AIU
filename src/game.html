@@ -1346,7 +1346,7 @@ function renderPanel() {
       <div class="slv"><div class="slv-h"><b>소환 레벨 ${lv}</b><span>${nextNeed ? `다음 레벨까지 ${(nextNeed - S.pulls.total).toLocaleString()}회` : '최고 레벨'}</span></div>
         <div class="bar"><i style="width:${nextNeed ? (100 * (S.pulls.total - C.CONST.SUMMON_LV_PULLS[lv - 1]) / (nextNeed - C.CONST.SUMMON_LV_PULLS[lv - 1])).toFixed(1) : 100}%"></i></div></div>
       <table class="rtable"><thead><tr><th>요원</th><th>현재 확률</th></tr></thead><tbody>${rows}</tbody></table>
-      <p class="hint" style="margin:10px 2px">호출과 채용을 할수록 소환 레벨이 올라요. 전설은 소환 레벨 5부터 나오고, 레벨이 오를수록 확률도 올라요. 특별 채용은 누적 ${C.CONST.RELAY.toLocaleString()}회째에 ${pk.name}이 확정으로 나와요. 이미 있는 요원이 나오면 조각이 되고, 조각으로 승급해요. 보석은 근원체를 봉쇄하면 ${C.CONST.BOSS_GEMS}개씩 얻어요.</p>`;
+      <p class="hint" style="margin:10px 2px">호출과 채용을 할수록 소환 레벨이 올라요. 전설은 소환 레벨 5부터 나오고, 레벨이 오를수록 확률도 올라요. 특별 채용은 2주마다 목요일 오전 9시에 바뀌고, 누적 ${C.CONST.RELAY.toLocaleString()}회째에 ${pk.name}이 확정으로 나와요. 이미 있는 요원이 나오면 조각이 되고, 조각으로 승급해요. 보석은 근원체를 봉쇄하면 ${C.CONST.BOSS_GEMS}개씩 얻어요.</p>`;
     drawSummonBanner();
   }
   updatePanel();

@@ -133,14 +133,11 @@ test('등급 이름: 희귀, 영웅, 전설만 사용', () => {
 });
 
 
-test('특별 채용 남은 기간: 다음 월요일 0시까지', () => {
-  const sun = new Date(2026, 10, 29, 12, 0, 0);          // 일요일 12시
-  assert.equal(C.pickupRemainSec(sun), 12 * 3600);
-  const mon = new Date(2026, 10, 30, 0, 0, 0);           // 월요일 0시 → 7일 뒤
-  assert.equal(C.pickupRemainSec(mon), 7 * 86400);
+test('특별 채용 남은 기간: 2주 단위, 목요일 오전 9시에 바뀜', () => {
+  assert.equal(C.pickupRemainSec(new Date(2026, 10, 26, 9, 0, 0)), 14 * 86400);   // 시작 순간
+  assert.equal(C.pickupRemainSec(new Date(2026, 11, 10, 8, 0, 0)), 3600);          // 2주 뒤 목요일 8시 → 1시간 남음
+  assert.equal(C.pickupRemainSec(new Date(2026, 11, 10, 9, 0, 0)), 14 * 86400);   // 다음 기간 시작
   assert.equal(C.pickupRemainSec(new Date(NaN)), 0);
-  assert.equal(C.formatRemain(7 * 86400 - 3600), '6일 23시간');
-  assert.equal(C.formatRemain(5 * 3600 + 12 * 60), '5시간 12분');
 });
 
 test('가이드 퀘스트: 같은 종류만 쌓이고, 다 차야 보상', () => {

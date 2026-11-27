@@ -250,6 +250,8 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
   </div>
 </div>
 
+<!-- 시작 화면 3D 용 Three.js r149 (UMD). 못 불러오면 2D 그림으로 대신함 -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
 <script>
 /*CORE*/
 </script>
@@ -1211,13 +1213,15 @@ function startGame() {
   else if (firstRun) banner('출동');
 }
 $('splash').addEventListener('click', startGame);
-/* 시작 화면 배경: 하늘의 균열 + 빌딩 실루엣 + 젖은 바닥 반사 + 비. 시작하면 그리기를 멈춤 */
-{
+/*SPLASH3D*/
+/* 시작 화면 배경: 3D 를 먼저 시도하고, 안 되면 2D 그림(하늘의 균열 + 빌딩 실루엣 + 비)으로 대신함 */
+if (!startSplash3D($('spbg'), () => started)) {
   const cvs = $('spbg'), q = cvs.getContext('2d');
   // 빌딩은 한 번만 무작위로 정해 둠 (매 프레임 같은 모습)
   const rnd = seeded(20261127), back = [], front = [];
   for (let x = 0; x < 1; ) { const w = 0.06 + rnd() * 0.1; back.push({ x, w, h: 0.16 + rnd() * 0.2 }); x += w + 0.004; }
   for (let x = -0.02; x < 1; ) { const w = 0.08 + rnd() * 0.13; front.push({ x, w, h: 0.1 + rnd() * 0.16, win: Array.from({ length: 7 }, () => rnd()) }); x += w + 0.01; }
+  let riftNext = 0.8, riftT0 = -9, riftSide = 1, riftPts = null;   // 균열 번쩍임 상태
   const drops = Array.from({ length: 110 }, () => ({ x: rnd(), y: rnd(), l: 10 + rnd() * 16, v: 0.7 + rnd() * 0.6, a: 0.08 + rnd() * 0.18 }));
   function spDraw(now) {
     if (started || !q) return;
@@ -1227,17 +1231,28 @@ $('splash').addEventListener('click', startGame);
     const t = now / 1000, gy = H2 * 0.8;   // 바닥선
     const sky = q.createLinearGradient(0, 0, 0, gy); sky.addColorStop(0, '#07080c'); sky.addColorStop(0.55, '#141827'); sky.addColorStop(1, '#1d2133');
     q.fillStyle = sky; q.fillRect(0, 0, W2, H2);
-    // 하늘의 균열: 위에서 빌딩 쪽으로 내려오는 금, 보랏빛 번짐이 깜빡임
-    const fl = 0.8 + Math.sin(t * 2.1) * 0.08 + (Math.sin(t * 13) > 0.97 ? -0.4 : 0);
-    // 균열은 글자가 없는 왼쪽 하늘에 (로고와 불러오기 글자를 가로지르지 않게)
-    const cx = W2 * 0.11, glow = q.createRadialGradient(cx, H2 * 0.3, 0, cx, H2 * 0.3, H2 * 0.38);
-    glow.addColorStop(0, `rgba(150,110,255,${0.32 * fl})`); glow.addColorStop(1, 'rgba(150,110,255,0)');
-    q.fillStyle = glow; q.fillRect(0, 0, W2, gy);
-    const pts = [[0, 0.0], [-0.025, 0.08], [0.02, 0.15], [-0.02, 0.23], [0.015, 0.31], [-0.01, 0.39], [0.012, 0.47], [-0.004, 0.56]];
-    q.lineJoin = 'miter';
-    for (const [lw, col] of [[7, `rgba(150,110,255,${0.35 * fl})`], [2.4, `rgba(190,160,255,${0.9 * fl})`], [1, `rgba(245,238,255,${fl})`]]) {
-      q.strokeStyle = col; q.lineWidth = lw; q.beginPath();
-      pts.forEach(([dx, y], i) => i ? q.lineTo(cx + dx * W2, y * H2) : q.moveTo(cx + dx * W2, y * H2)); q.stroke();
+    // 로고 뒤 은은한 보랏빛 (가운데, 항상)
+    const halo = q.createRadialGradient(W2 * 0.5, H2 * 0.27, 0, W2 * 0.5, H2 * 0.27, H2 * 0.4);
+    halo.addColorStop(0, 'rgba(140,105,255,.16)'); halo.addColorStop(1, 'rgba(140,105,255,0)');
+    q.fillStyle = halo; q.fillRect(0, 0, W2, gy);
+    // 하늘 균열: 3~6초마다 왼쪽, 오른쪽 하늘에 번갈아 잠깐 갈라졌다 사라짐 (글자 영역은 피함)
+    if (t >= riftNext) {
+      riftSide = -riftSide; riftT0 = t; riftNext = t + 3 + rnd() * 3;
+      const bx = riftSide < 0 ? 0.06 + rnd() * 0.08 : 0.86 + rnd() * 0.08;
+      riftPts = []; for (let i = 0; i <= 7; i++) riftPts.push([bx + (i ? (rnd() - 0.5) * 0.06 : 0), i * (0.5 + rnd() * 0.06) / 7]);
+    }
+    const age = t - riftT0, life = 0.9;
+    let fl = 0;
+    if (riftPts && age < life) {
+      fl = (1 - age / life) * (Math.sin(age * 60) > -0.3 ? 1 : 0.35);   // 처음엔 깜빡이며 밝다가 사라짐
+      const rx = riftPts[3][0] * W2, gl = q.createRadialGradient(rx, H2 * 0.25, 0, rx, H2 * 0.25, H2 * 0.35);
+      gl.addColorStop(0, `rgba(150,110,255,${0.35 * fl})`); gl.addColorStop(1, 'rgba(150,110,255,0)');
+      q.fillStyle = gl; q.fillRect(0, 0, W2, gy);
+      q.lineJoin = 'miter';
+      for (const [lw, col] of [[7, `rgba(150,110,255,${0.35 * fl})`], [2.4, `rgba(190,160,255,${0.9 * fl})`], [1, `rgba(245,238,255,${fl})`]]) {
+        q.strokeStyle = col; q.lineWidth = lw; q.beginPath();
+        riftPts.forEach(([x, y], i) => i ? q.lineTo(x * W2, y * H2) : q.moveTo(x * W2, y * H2)); q.stroke();
+      }
     }
     // 뒤쪽 빌딩 (흐릿하게)
     q.fillStyle = '#121624';
@@ -1252,8 +1267,7 @@ $('splash').addEventListener('click', startGame);
     // 젖은 바닥 + 창과 균열이 비친 세로 번짐
     const gd = q.createLinearGradient(0, gy, 0, H2); gd.addColorStop(0, '#11141d'); gd.addColorStop(1, '#07080c');
     q.fillStyle = gd; q.fillRect(0, gy, W2, H2 - gy);
-    const rf = q.createLinearGradient(0, gy, 0, gy + H2 * 0.16); rf.addColorStop(0, `rgba(170,130,255,${0.28 * fl})`); rf.addColorStop(1, 'rgba(170,130,255,0)');
-    q.fillStyle = rf; q.fillRect(cx - 3, gy, 6, H2 * 0.16);
+    if (fl > 0) { const rx = riftPts[riftPts.length - 1][0] * W2, rf = q.createLinearGradient(0, gy, 0, gy + H2 * 0.16); rf.addColorStop(0, `rgba(170,130,255,${0.28 * fl})`); rf.addColorStop(1, 'rgba(170,130,255,0)'); q.fillStyle = rf; q.fillRect(rx - 3, gy, 6, H2 * 0.16); }
     // 비
     q.lineWidth = 1;
     for (const r of drops) {

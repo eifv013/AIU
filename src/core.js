@@ -108,7 +108,7 @@
     { kind: 'boss',    text: '근원체 봉쇄',     need: 2,   gems: 30 },
     { kind: 'lvup',    text: '요원 강화',       need: 10,  gems: 30 },
     { kind: 'summon',  text: '요원 호출',       need: 10,  gems: 30 },
-    { kind: 'dungeon', text: '일일 출동 완료',  need: 3,   gems: 50 },
+    { kind: 'dungeon', text: '일일 작전 완료',  need: 3,   gems: 50 },
     { kind: 'tower',   text: '균열 심층 돌파',  need: 1,   gems: 30 },
   ];
   /* 출석: 7일 한 바퀴, 하루 한 번 (연속이 아니어도 다음 칸) */
@@ -455,7 +455,7 @@
   }
   function dungeonById(id) {
     const d = DUNGEONS.find(x => x.id === id);
-    if (!d) throw new Error(`알 수 없는 출동: ${id}`);
+    if (!d) throw new Error(`알 수 없는 작전: ${id}`);
     return d;
   }
   /** 출동 lv 단계가 스테이지 몇만큼 센지 */

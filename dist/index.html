@@ -558,7 +558,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 #op .tag{margin-top:22px;font:400 22px/1.4 "Black Han Sans";letter-spacing:.06em}
 #op .tag span{display:inline-block;opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s}
 #op .still.on .tag span{opacity:1;transform:none}
-#op .go{margin-top:18px;font:400 50px "Black Han Sans";color:var(--gold);letter-spacing:.25em;opacity:0;transform:scale(1.8);transition:opacity .25s 2.6s,transform .45s cubic-bezier(.3,1.6,.5,1) 2.6s;text-shadow:0 0 30px rgba(255,210,63,.7)}
+#op .go{margin-top:18px;font:400 44px "Black Han Sans";color:var(--gold);letter-spacing:.12em;opacity:0;transform:scale(1.8);transition:opacity .25s 2.6s,transform .45s cubic-bezier(.3,1.6,.5,1) 2.6s;text-shadow:0 0 30px rgba(255,210,63,.7)}
 #op .still.on .go{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){#op *{transition-duration:.01s!important;animation:none!important}}
 
@@ -617,7 +617,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 #tabs button.on::after{display:none}
 #tabs .dot{top:6px;right:calc(50% - 24px)}
 /* 메뉴 창: 전투 화면 아래쪽 위로 올라오는 창 (요원 말고 성장, 출동, 호출) */
-#app:not(.folded):not(.herofull) #panel{position:absolute;left:0;right:0;bottom:var(--bottomH,110px);z-index:5;height:min(62%,560px);border-top:1px solid #34405e;border-radius:14px 14px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.55);animation:sheetUp .22s ease-out}
+#app:not(.folded):not(.herofull) #panel{position:absolute;left:0;right:0;bottom:var(--bottomH,110px);z-index:5;height:auto;max-height:min(66%,600px);overflow-y:auto;border-top:1px solid #34405e;border-radius:14px 14px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.55);animation:sheetUp .22s ease-out}
 @keyframes sheetUp{from{transform:translateY(24px);opacity:.4}}
 @media (prefers-reduced-motion:reduce){#panel{animation:none!important}}
 #app.herofull #bottom{display:none}
@@ -692,7 +692,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     <nav id="tabs">
       <button data-tab="hero"><span class="tb"><svg viewBox="0 0 32 32"><circle cx="16" cy="11" r="5.5" fill="#c9d3ee"/><path d="M6 27c1-6.5 5-10 10-10s9 3.5 10 10z" fill="#c9d3ee"/><path d="M13 19l3 4 3-4" fill="none" stroke="#2a3352" stroke-width="1.6"/><rect x="20" y="19.5" width="6" height="4" rx="1" fill="#f2c94c"/></svg></span><span class="tl">요원</span><i class="dot" id="dotHero"></i></button>
       <button data-tab="train"><span class="tb"><svg viewBox="0 0 32 32"><rect x="5" y="18" width="5" height="9" rx="1" fill="#8fa2d6"/><rect x="13.5" y="13" width="5" height="14" rx="1" fill="#b6c3ea"/><rect x="22" y="7" width="5" height="20" rx="1" fill="#f2c94c"/><path d="M5 12l7-6 4 3 7-6" fill="none" stroke="#f2c94c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="tl">성장</span><i class="dot" id="dotTrain"></i></button>
-      <button data-tab="run"><span class="tb"><svg viewBox="0 0 32 32"><path d="M10 22a6 6 0 0 1 12 0z" fill="#e0503e"/><rect x="7" y="22" width="18" height="4" rx="1" fill="#c9d3ee"/><path d="M16 6v4M7 9l2.5 2.5M25 9l-2.5 2.5M4 16h3M25 16h3" stroke="#f2c94c" stroke-width="2" stroke-linecap="round"/></svg></span><span class="tl">출동</span><i class="dot" id="dotRun"></i></button>
+      <button data-tab="run"><span class="tb"><svg viewBox="0 0 32 32"><path d="M10 22a6 6 0 0 1 12 0z" fill="#e0503e"/><rect x="7" y="22" width="18" height="4" rx="1" fill="#c9d3ee"/><path d="M16 6v4M7 9l2.5 2.5M25 9l-2.5 2.5M4 16h3M25 16h3" stroke="#f2c94c" stroke-width="2" stroke-linecap="round"/></svg></span><span class="tl">작전</span><i class="dot" id="dotRun"></i></button>
       <button data-tab="summon"><span class="tb"><svg viewBox="0 0 32 32"><rect x="5" y="8" width="13" height="18" rx="2" transform="rotate(-10 11 17)" fill="#5b4a9a" stroke="#c9b6ff" stroke-width="1.4"/><rect x="13" y="6" width="13" height="18" rx="2" transform="rotate(8 19 15)" fill="#2a3352" stroke="#f2c94c" stroke-width="1.6"/><path d="M19.5 11.5l1.2 2.6 2.8.3-2.1 1.9.6 2.8-2.5-1.4-2.5 1.4.6-2.8-2.1-1.9 2.8-.3z" fill="#f2c94c"/></svg></span><span class="tl">호출</span></button>
     </nav>
   </div>
@@ -712,7 +712,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     <div class="still" data-s="file"><div class="file"><small>AIU 사건 파일</small><b>사건 001</b><i>오메가</i><p>발생: 도심 전역<br>상태: 미해결<br>담당: 이상현상 전담수사팀</p><span class="stamp">위험 등급 Ω</span></div></div>
     <div class="still" data-s="nf"></div>
     <div class="still" data-s="blaze"></div>
-    <div class="still" data-s="ttl"><div class="ttl"><div class="ttl-logo"></div><div class="tag"></div><div class="go">출동</div></div></div>
+    <div class="still" data-s="ttl"><div class="ttl"><div class="ttl-logo"></div><div class="tag"></div></div></div>
     <div class="vig"></div><div class="grain"></div>
     <div class="lb t"></div><div class="lb b"></div>
     <div class="sub"></div>
@@ -884,7 +884,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     { kind: 'boss',    text: '근원체 봉쇄',     need: 2,   gems: 30 },
     { kind: 'lvup',    text: '요원 강화',       need: 10,  gems: 30 },
     { kind: 'summon',  text: '요원 호출',       need: 10,  gems: 30 },
-    { kind: 'dungeon', text: '일일 출동 완료',  need: 3,   gems: 50 },
+    { kind: 'dungeon', text: '일일 작전 완료',  need: 3,   gems: 50 },
     { kind: 'tower',   text: '균열 심층 돌파',  need: 1,   gems: 30 },
   ];
   /* 출석: 7일 한 바퀴, 하루 한 번 (연속이 아니어도 다음 칸) */
@@ -1231,7 +1231,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   }
   function dungeonById(id) {
     const d = DUNGEONS.find(x => x.id === id);
-    if (!d) throw new Error(`알 수 없는 출동: ${id}`);
+    if (!d) throw new Error(`알 수 없는 작전: ${id}`);
     return d;
   }
   /** 출동 lv 단계가 스테이지 몇만큼 센지 */
@@ -2012,9 +2012,9 @@ function spawnBoss() {
  * 지금 지도의 이상체를 치우고 출동 근원체 하나와 30초 동안 싸움. 이기면 보상, 지면 그대로 (입장 횟수는 안 줄어듦).
  * 끝나면 1초 뒤 결과 창, 닫으면 원래 스테이지 지도로 돌아옴 */
 function startChal(kind, id, lv) {
-  if (R.chal) return toast('이미 출동 중이에요');
-  if (R.boss) return toast('근원체 봉쇄가 끝난 뒤 출동할 수 있어요');
-  if (!alive().length) return toast('요원이 회복한 뒤 출동할 수 있어요');
+  if (R.chal) return toast('이미 작전 중이에요');
+  if (R.boss) return toast('근원체 봉쇄가 끝난 뒤 작전을 시작할 수 있어요');
+  if (!alive().length) return toast('요원이 회복한 뒤 작전을 시작할 수 있어요');
   const eq = kind === 'tower' ? C.towerStage(lv) : C.dungeonStage(id, lv);
   const name = kind === 'tower' ? `균열 심층 ${lv}층` : `${C.dungeonById(id).name} ${lv}단계`;
   R.chal = { kind, id, lv, eq, name };
@@ -2054,7 +2054,7 @@ function chalEnd(win, reason) {
   // 결과 창 없이: 가운데 알림과 위쪽 보상 알림만 띄우고 잠깐 뒤 원래 스테이지로 (세나 키우기 던전처럼 흐름을 끊지 않음)
   const lbl = { gold: '골드', exp: '경험치', gems: '보석', tix: '호출권', ptix: '정예 호출권' };
   const got = rw ? Object.entries(rw).filter(([, v]) => v) : [];
-  banner(win ? `${ch.name} 완료` : (reason || '출동 실패'));
+  banner(win ? `${ch.name} 완료` : (reason || '작전 실패'));
   toast(win ? `${ch.name} 완료  ${got.map(([k, v]) => `${lbl[k]} +${C.formatNum(v)}`).join('  ')}` : `${ch.name} 실패${ch.kind === 'tower' ? '' : '. 입장 횟수는 그대로예요'}`);
   writeSave(); renderPanel();
   setTimeout(() => {
@@ -2757,8 +2757,8 @@ function updateUI() {
   $('gems').textContent = C.formatNum(S.gems);
   const bar = $('prog').firstElementChild, lab = $('prog').lastElementChild;
   if (C.dailyReset(S, new Date()) && tab === 'run') renderPanel();   // 0시가 지나면 입장 횟수와 임무 새로
-  if (R.boss) { bar.className = 'boss'; bar.style.width = (100 * Math.max(0, R.boss.hp / R.boss.max)) + '%'; lab.textContent = R.chal ? '출동' : '봉쇄 작전'; }
-  else if (R.chal) { bar.className = ''; bar.style.width = '100%'; lab.textContent = '출동'; }
+  if (R.boss) { bar.className = 'boss'; bar.style.width = (100 * Math.max(0, R.boss.hp / R.boss.max)) + '%'; lab.textContent = R.chal ? '작전' : '봉쇄 작전'; }
+  else if (R.chal) { bar.className = ''; bar.style.width = '100%'; lab.textContent = '작전'; }
   else if (S.farming) { bar.className = ''; bar.style.width = '100%'; lab.textContent = '구역 순찰'; }
   else { bar.className = ''; bar.style.width = (100 * S.kills / C.CONST.WAVE_KILLS) + '%'; lab.textContent = `${S.kills} / ${C.CONST.WAVE_KILLS}`; }
   $('bossBtn').style.display = S.farming && !R.boss && !R.chal ? 'block' : 'none';
@@ -2803,7 +2803,7 @@ function sortHeroes(list, pids) {
     return hsort === 1 ? byLv(a, b) : byGrade(a, b);
   });
 }
-const APP_VERSION = '0.15.0';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.15.2';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 /** 기술 설명 (상세 창) */
 function skillText(h) {
@@ -2974,7 +2974,7 @@ function renderRun(P) {
     <button class="dtile wide" data-act="topen"><img src="${ART[BOSS_ART.tower] || ''}" alt="">
       <span class="dtn">균열 심층</span><span class="dtk">${z.no}구역 ${z.name}</span>
       <span class="dtr">다음 ${f}층 ${rwHtml(C.towerReward(f))}</span><span class="dtb">돌파 ${S.tower}층</span></button>
-    <p class="hint" style="margin:10px 2px">일일 출동은 하루 ${C.CONST.DAILY_KEYS}번, 매일 0시에 다시 채워져요. 실패하면 횟수가 줄지 않아요. 한 번 깬 단계는 소탕으로 싸우지 않고 바로 보상을 받아요. 제한 시간은 ${C.CONST.CHAL_TIME}초예요.</p>`;
+    <p class="hint" style="margin:10px 2px">일일 작전은 하루 ${C.CONST.DAILY_KEYS}번, 매일 0시에 다시 채워져요. 실패하면 횟수가 줄지 않아요. 한 번 깬 단계는 소탕으로 싸우지 않고 바로 보상을 받아요. 제한 시간은 ${C.CONST.CHAL_TIME}초예요.</p>`;
 }
 /* 일일 임무, 출석: 전투 화면 왼쪽 아이콘을 누르면 창으로 (세나 키우기 미션, 출석 아이콘과 같은 자리) */
 function misHtml() {
@@ -3474,7 +3474,7 @@ const OP_SCENES = [
   { bg: 'crack', s: 'nf', who: '나이트폴', col: '#b98cff', say: '…늦었군. 균열이 열렸다.', t: 3800 },
   { bg: 'crack', s: 'blaze', who: '블레이즈', col: '#ff8a3e', say: '제가 갈게요. 혼자서라도.', t: 3800 },
   { bg: 'crack', s: 'nf', who: '나이트폴', col: '#b98cff', say: '좋아. 오늘부터 넌 AIU다.', t: 3800 },
-  { bg: 'crack', s: 'ttl', t: 4300 },
+  { bg: 'crack', s: 'ttl', t: 3800 },
 ];
 const OP = { on: false, i: -1, timer: 0, typing: 0, done: null, drops: [], flash: 0, city: null, crack: null, grow: 0 };
 function playOpening(done) {
@@ -3618,7 +3618,7 @@ function startGame() {
   $('splash').style.display = 'none'; paused = false; last = performance.now();
   if (S.migrated) { delete S.migrated; writeSave(); setTimeout(() => toast(`뽑기 개편 보상으로 보석 ${C.CONST.MIGRATE_GEMS.toLocaleString()}개를 받았어요`), 600); }
   if (pending && pending.gold > 0) showOffline(pending);
-  else if (firstRun || !opSeen()) playOpening(() => banner('출동'));   // 처음 시작: 오프닝 연출 뒤 출동
+  else if (firstRun || !opSeen()) playOpening(() => banner(theme().name));   // 오프닝이 끝나면 첫 구역 이름   // 처음 시작: 오프닝 연출 뒤 출동
 }
 $('splash').addEventListener('click', startGame);
 /* 시작 화면 배경: 요원 다섯 명 그림(key)을 화면 가로 폭에 맞춰 아래에 붙이고, 남는 위쪽은 그림 하늘색으로 이어 칠함.

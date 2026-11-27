@@ -155,7 +155,9 @@ h3{margin:14px 2px 8px;font:400 17px "Black Han Sans";color:var(--gold)}
 .sp-title{font-family:'Black Han Sans',sans-serif;font-size:60px;line-height:1;color:var(--gold);text-align:center}
 .sp-load{width:200px;display:flex;flex-direction:column;gap:8px;align-items:center}
 .sp-bar{width:100%;height:4px;border-radius:2px;background:var(--line);overflow:hidden}
-.sp-bar i{display:block;height:100%;width:0;background:var(--gold);border-radius:2px;transition:width .3s ease}
+.sp-bar{position:relative}
+/* 로딩 바: 매 프레임 width 를 직접 바꿔 부드럽게 차오름 (transition 없음), 끝에 작은 빛 */
+.sp-bar i{display:block;height:100%;width:0;background:var(--gold);border-radius:2px;box-shadow:0 0 8px rgba(255,210,63,.7)}
 .sp-msg{font-size:12px;color:var(--dim);min-height:16px}
 .sp-skip{font-size:11px;color:var(--dim);opacity:.6;margin-top:6px}
 /* 불러오기가 끝나면: 접속 안내가 또렷하게 깜빡임 */
@@ -1282,14 +1284,26 @@ if (!startSplash3D($('spbg'), () => started)) {
   }
   requestAnimationFrame(spDraw);
 }
-[[30, '비 내리는 중'], [65, '요원 호출하는 중'], [100, '구역 지도 펼치는 중']].forEach(([w, m], i) => setTimeout(() => {
-  if (started) return; $('sp-fill').style.width = w + '%'; $('sp-msg').textContent = m;
-}, 250 + i * 650));
-// 불러오기가 끝나면 자동으로 넘어가지 않고, 화면을 눌러야 접속
-setTimeout(() => {
-  splashReady = true; $('sp-msg').textContent = '준비 완료';
-  const tap = $('sp-tap'); tap.textContent = '화면을 누르면 접속해요'; tap.classList.add('ready');
-}, 250 + 3 * 650);
+/* 로딩 바: 약 2.2초 동안 매 프레임 부드럽게 차오름. 지나는 지점마다 문구가 바뀌고, 다 차면 접속 안내 */
+{
+  const DUR = 2200, steps = [[0, '비 내리는 중'], [0.35, '요원 호출하는 중'], [0.7, '구역 지도 펼치는 중']];
+  const fill = $('sp-fill'), msg = $('sp-msg');
+  const ease = x => 1 - Math.pow(1 - x, 2.2);   // 처음엔 빠르게, 끝으로 갈수록 천천히
+  let t0 = null;
+  function loadTick(now) {
+    if (started) return;
+    if (t0 === null) t0 = now;
+    const x = Math.min(1, (now - t0) / DUR), p = ease(x);
+    fill.style.width = (p * 100).toFixed(2) + '%';
+    let m = steps[0][1]; for (const [at, text] of steps) if (p >= at) m = text;
+    if (msg.textContent !== m) msg.textContent = m;
+    if (x < 1) { requestAnimationFrame(loadTick); return; }
+    // 다 차면 자동으로 넘어가지 않고, 화면을 눌러야 접속
+    splashReady = true; msg.textContent = '준비 완료';
+    const tap = $('sp-tap'); tap.textContent = '터치하여 출동'; tap.classList.add('ready');
+  }
+  requestAnimationFrame(loadTick);
+}
 requestAnimationFrame(loop);
 }
 </script>

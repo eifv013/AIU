@@ -901,6 +901,9 @@ function startChal(kind, id, lv) {
   const eq = kind === 'tower' ? C.towerStage(lv) : C.dungeonStage(id, lv);
   const name = kind === 'tower' ? `균열 심층 ${lv}층` : `${C.dungeonById(id).name} ${lv}단계`;
   R.chal = { kind, id, lv, eq, name };
+  // 지금 사냥하던 지도를 그대로 맡겨 둠 (출동이 끝나면 이 장면으로 돌아옴)
+  R.saved = { enemies: R.enemies.filter(e => !e.boss && e.hp > 0), A: { ...R.A }, cam: { ...R.cam }, heading: R.heading, roam: R.roam, spawnT: R.spawnT,
+    heroes: Object.fromEntries(owned().filter(h => R.heroes[h.id]).map(h => { const r = R.heroes[h.id]; return [h.id, { x: r.x, y: r.y, hp: r.hp, max: r.max, cd: r.cd, face: r.face }]; })) };
   R.enemies = []; R.proj = []; R.wipe = 0; syncHeroes(true);
   for (const h of owned()) Object.assign(R.heroes[h.id], formSlot(h.id), { cd: Math.min(R.heroes[h.id].cd, h.skill.cd * 0.3) });
   const a = R.heading, p = { x: R.A.x + Math.cos(a) * 200, y: R.A.y + Math.sin(a) * 200 }; keepIn(p, 120);
@@ -909,6 +912,18 @@ function startChal(kind, id, lv) {
   b.chap = kind === 'tower' ? 2 : id === 'bounty' ? 0 : 1; b.label = name;
   R.boss = b; R.enemies.push(b); R.bossT = C.CONST.CHAL_TIME;
   banner(name); updateUI();
+}
+/** 출동 전에 맡겨 둔 지도로 복귀: 이상체, 요원 위치와 체력, 화면 위치까지 그대로 */
+function restoreField() {
+  const sv = R.saved; R.saved = null;
+  R.proj = []; R.texts = []; R.fx = R.fx.filter(f => f.k === 'flash');
+  if (!sv || R.mapStage !== S.stage) { newMap(); syncHeroes(true); return; }
+  R.enemies = sv.enemies; R.A = sv.A; R.cam = sv.cam; R.heading = sv.heading; R.roam = sv.roam; R.spawnT = sv.spawnT; R.boss = null;
+  for (const e of R.enemies) e.aggro = false;
+  for (const h of owned()) { const r = R.heroes[h.id], o = sv.heroes[h.id]; if (r && o) Object.assign(r, o, { swing: 0, hurt: 0 }); }
+  syncHeroes(false);
+  for (const h of owned()) { const r = R.heroes[h.id]; if (r && r.hp <= 0) r.hp = r.max * 0.3; }   // 쓰러진 채 맡겼으면 조금 회복
+  addFx({ k: 'flash', life: 0.25 });
 }
 function chalEnd(win, reason) {
   const ch = R.chal; if (!ch || ch.done) return;
@@ -926,7 +941,7 @@ function chalEnd(win, reason) {
   toast(win ? `${ch.name} 완료  ${got.map(([k, v]) => `${lbl[k]} +${C.formatNum(v)}`).join('  ')}` : `${ch.name} 실패${ch.kind === 'tower' ? '' : '. 입장 횟수는 그대로예요'}`);
   writeSave(); renderPanel();
   setTimeout(() => {
-    R.chal = null; R.wipe = 0; newMap(); syncHeroes(true); renderPanel(); updateUI();
+    R.chal = null; R.wipe = 0; restoreField(); renderPanel(); updateUI();
     if (ch.kind === 'tower') openRift(win ? ch.lv : 0);   // 균열 심층은 갱도 화면으로 돌아옴 (이기면 한 층 내려가는 연출)
   }, 1600);
 }
@@ -1547,7 +1562,7 @@ function updateUI() {
 
 /* ---------- UI: 패널 ---------- */
 let tab = 'hero', bulk = 1;
-const APP_VERSION = '0.8.1';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.8.2';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 const starStr = n => '★'.repeat(n) + `<s>${'★'.repeat(C.CONST.MAX_STARS - n)}</s>`;
 

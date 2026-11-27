@@ -126,6 +126,8 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 .hn.long{font-size:9.5px;letter-spacing:-.07em}   /* 아이언사이드처럼 긴 이름도 한 줄에 */   /* 아이언사이드처럼 긴 이름도 한 줄에 다 보이게 */
 .hph .pin{position:absolute;right:2px;top:2px;z-index:2;padding:0 3px;border-radius:3px;background:var(--gold);color:#1a1405;font:700 8px/1.35 'IBM Plex Sans KR'}
 .hc.inparty .hcard{border-color:rgba(255,210,63,.55)}
+.hcard{position:relative}
+.hc.canlv .hcard::after{content:'';position:absolute;right:-3px;top:-3px;z-index:4;width:8px;height:8px;border-radius:50%;background:#ff4d4d;box-shadow:0 0 0 2px var(--bg)}   /* 골드로 강화 가능 */
 /* 분류 거르기 탭 + 일괄 강화 칸 (한 줄) */
 .htop{display:flex;gap:6px;align-items:center;margin-bottom:10px}
 .tfil{display:flex;gap:4px;flex:1;min-width:0}
@@ -136,7 +138,9 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 .htop .seg{margin:0;flex:none;grid-template-columns:repeat(3,38px)}
 .htop .seg button{height:32px;font-size:12px}
 .hcount{display:flex;align-items:center;gap:10px;margin:-4px 2px 8px;font-size:11px;color:var(--dim)}
-.hcount .hsort{margin-left:auto;display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 9px;border:1px solid var(--line);border-radius:13px;background:var(--panel);color:var(--ink);font:700 11px 'IBM Plex Sans KR'}
+.hcount .hall{margin-left:auto}.hcount .hall:disabled{opacity:.4}
+.hcount .hall:not(:disabled){border-color:var(--rift);color:#fff;background:rgba(157,123,255,.25)}
+.hcount .hsort{display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 9px;border:1px solid var(--line);border-radius:13px;background:var(--panel);color:var(--ink);font:700 11px 'IBM Plex Sans KR'}
 .hcount .hsort svg{width:13px;height:13px;color:var(--gold)}
 .hcount b{color:var(--gold)}
 /* 상세 창: 분류 배지와 세부 역할, 파티 넣기 */
@@ -157,6 +161,8 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 .hd-t .gr{position:static;display:inline-block;transform:none;margin-bottom:4px}
 .hd-t b{display:block;font:400 24px "Black Han Sans"}
 .hd-t .hst{text-align:left;font-size:14px;margin-top:4px}
+.hd-seg{margin:0 0 8px}
+#hdParty:not(:empty){margin-top:8px}
 .hd-stat{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
 .hd-stat span{display:grid;gap:2px;padding:8px;border-radius:var(--r);background:var(--panel2);font-size:11px;color:var(--dim);text-align:center}
 .hd-stat b{font:400 17px "Black Han Sans";color:var(--ink)}
@@ -2592,7 +2598,7 @@ function sortHeroes(list, pids) {
     return hsort === 1 ? byLv(a, b) : byGrade(a, b);
   });
 }
-const APP_VERSION = '0.10.2';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.10.3';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 /** 기술 설명 (상세 창) */
 function skillText(h) {
@@ -2617,17 +2623,17 @@ function renderPanel() {
     // 위: 분류 거르기(전체, 공격, 광역, 방어, 지원) + 일괄 강화. 세나 키우기 영웅 목록처럼 분류 그림으로
     const pids = C.partyIds(S), list = sortHeroes(C.HEROES.filter(h => hfil === '전체' || h.type === hfil), pids);
     P.innerHTML = `<div class="htop"><div class="tfil">${['전체', ...C.TYPES].map(t => `<button data-act="hfil" data-v="${t}" class="${t === '전체' ? '' : 't-' + t}${hfil === t ? ' on' : ''}" aria-label="${t}">${t === '전체' ? '<b>전체</b>' : `<svg><use href="#i-t-${t}"/></svg>`}</button>`).join('')}</div>
-      <div class="seg">${[[1, '1회'], [10, '10회'], [0, '최대']].map(([v, l]) => `<button data-act="bulk" data-v="${v}" class="${bulk === v ? 'on' : ''}">${l}</button>`).join('')}</div></div>
-      <div class="hcount">${hfil === '전체' ? '' : hfil + ' '}요원 ${list.filter(h => S.heroes[h.id].owned).length} / ${list.length}<span>출전 <b>${pids.length}</b> / ${C.CONST.PARTY_MAX}</span><button class="hsort" data-act="hsort"><svg viewBox="0 0 24 24"><path d="M7 4v15M3 15l4 4l4-4M17 20V5M13 9l4-4l4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>${HSORT[hsort]}</button></div><div class="hgrid">` +
+</div>
+      <div class="hcount">${hfil === '전체' ? '' : hfil + ' '}요원 ${list.filter(h => S.heroes[h.id].owned).length} / ${list.length}<span>출전 <b>${pids.length}</b> / ${C.CONST.PARTY_MAX}</span><button class="hsort hall" data-act="starall" id="hAll">일괄 승급</button><button class="hsort" data-act="hsort"><svg viewBox="0 0 24 24"><path d="M7 4v15M3 15l4 4l4-4M17 20V5M13 9l4-4l4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>${HSORT[hsort]}</button></div><div class="hgrid">` +
       list.map(h => {
         const d = S.heroes[h.id], inP = pids.includes(h.id);
         const tic = `<i class="tic t-${h.type}"><svg><use href="#i-t-${h.type}"/></svg></i>`;
         const ph = `<div class="hph"><img src="${ART['card_' + h.id] || portrait(h.id)}" alt=""><span class="gr g-${h.grade}">${h.grade}</span>${tic}${d.owned ? `<span class="lvb">Lv<b class="lv"></b></span><span class="up">승급</span>${inP ? '<span class="pin">출전</span>' : ''}` : '<span class="no">미보유</span>'}</div>`;
         const nm = `<div class="hn${h.name.length >= 5 ? ' long' : ''}">${h.name}</div>`;
         if (!d.owned) return `<div class="hc locked c-${h.grade}" data-act="hdet" data-h="${h.id}">${ph}${nm}</div>`;
+        // 세나 키우기처럼 목록에서는 바로 강화하지 않음: 눌러서 상세 창에서 강화, 승급
         return `<div class="hc c-${h.grade}${inP ? ' inparty' : ''}" data-h="${h.id}"><div class="hcard" data-act="hdet" data-h="${h.id}">${ph}${nm}
-          <div class="hst">${starStr(d.stars)}</div><div class="sbar mini"><i></i></div></div>
-          <button class="btn hb" data-act="lv" data-h="${h.id}"><span class="cost">${icon('gold')}<i></i></span></button></div>`;
+          <div class="hst">${starStr(d.stars)}</div><div class="sbar mini"><i></i></div></div></div>`;
       }).join('') + '</div>';
   } else if (tab === 'train') {
     const ic = { atk: 'sword', gold: 'gold', crit: 'target' };
@@ -2701,13 +2707,12 @@ function updatePanel() {
     for (const card of P.querySelectorAll('.hc[data-h]:not(.locked)')) {
       const id = card.dataset.h, d = S.heroes[id];
       card.querySelector('.lv').textContent = d.lv;
-      const { n, cost } = lvPlan(d.lv), btn = card.querySelector('[data-act=lv]');
-      btn.querySelector('.cost i').textContent = C.formatNum(cost);
-      btn.disabled = !(n > 0 && cost <= S.gold);
+      card.classList.toggle('canlv', card.classList.contains('inparty') && C.heroLvCost(d.lv) <= S.gold);   // 빨간 점: 출전 요원 중 골드로 강화할 수 있을 때만
       const need = C.starNeed(d.stars, C.heroById(id).grade), max = need === Infinity;
       card.querySelector('.sbar i').style.width = max ? '100%' : Math.min(100, 100 * d.shards / need) + '%';
       card.classList.toggle('canstar', !max && d.shards >= need);
     }
+    const all = $('hAll'); if (all) all.disabled = !owned().some(h => S.heroes[h.id].shards >= C.starNeed(S.heroes[h.id].stars, h.grade));
     if (modalEl.classList.contains('on') && $('hdet')) fillHeroDetail();
   } else if (tab === 'train') {
     for (const row of P.querySelectorAll('.urow[data-u]')) {
@@ -3002,6 +3007,7 @@ function openHeroDetail(id) {
     <div class="hd-sk"><small>기술</small><b>${h.skill.name}</b><em>재사용 ${h.skill.cd}초</em><p>${skillText(h)}</p></div>
     <div class="sbar"><i id="hdBar"></i><span class="st" id="hdSh"></span></div>
     <div id="hdParty"></div>
+    <div class="seg hd-seg">${[[1, '1회'], [10, '10회'], [0, '최대']].map(([v, l]) => `<button data-act="bulk" data-v="${v}" class="${bulk === v ? 'on' : ''}">${l}</button>`).join('')}</div>
     <div class="hd-btns"><button class="btn sm rift" data-act="star" data-h="${id}" id="hdStar">승급</button>
       <button class="btn" data-act="lv" data-h="${id}" id="hdUp"><span class="bl"></span><span class="cost">${icon('gold')}<i></i></span></button></div>`
     : `<div class="hd-sk"><small>기술</small><b>${h.skill.name}</b><em>재사용 ${h.skill.cd}초</em><p>${skillText(h)}</p></div>
@@ -3041,7 +3047,14 @@ function onAct(e) {
   const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
   const act = b.dataset.act;
   try {
-    if (act === 'bulk') { bulk = +b.dataset.v; renderPanel(); }
+    if (act === 'bulk') { bulk = +b.dataset.v; for (const x of document.querySelectorAll('[data-act=bulk]')) x.classList.toggle('on', +x.dataset.v === bulk); fillHeroDetail(); }
+    else if (act === 'starall') {
+      // 일괄 승급: 조각이 다 찬 요원을 한 번에 (세나 키우기 영웅관리의 일괄 승급과 같음)
+      let n = 0;
+      for (const h of owned()) { const d = S.heroes[h.id]; let need; while ((need = C.starNeed(d.stars, h.grade)) !== Infinity && d.shards >= need) { d.shards -= need; d.stars++; n++; } }
+      if (!n) return;
+      syncHeroes(false); banner(`일괄 승급 ${n}회`); writeSave(); renderPanel();
+    }
     else if (act === 'hfil') { hfil = b.dataset.v; renderPanel(); }
     else if (act === 'hsort') { hsort = (hsort + 1) % HSORT.length; try { localStorage.setItem('aiu-hsort', hsort); } catch (e) {} renderPanel(); toast(`${HSORT[hsort]} 정렬`); }
     else if (act === 'party' || act === 'pswap') {

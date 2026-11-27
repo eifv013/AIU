@@ -302,6 +302,32 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 #rift{position:absolute;inset:0;z-index:25;display:none;flex-direction:column;color:var(--ink);
   background:radial-gradient(120% 60% at 50% 0%,rgba(157,123,255,.22),rgba(0,0,0,0) 60%),linear-gradient(#120d22,#07060d 70%)}
 #rift.on{display:flex}
+/* 열릴 때: 가운데 세로 균열이 갈라지며 양옆으로 열림 */
+#rift.opening{animation:rfOpen .55s cubic-bezier(.2,.8,.2,1)}
+@keyframes rfOpen{0%{clip-path:inset(0 49.5% 0 49.5%);filter:brightness(2.2)}60%{filter:brightness(1.3)}100%{clip-path:inset(0 0 0 0);filter:none}}
+.rf-tear{position:absolute;inset:0;z-index:6;pointer-events:none;opacity:0;background:radial-gradient(ellipse 6% 60% at 50% 50%,#fff,rgba(200,170,255,.8) 30%,rgba(157,123,255,0) 70%)}
+#rift.opening .rf-tear{animation:rfTear .55s ease-out}
+@keyframes rfTear{0%{opacity:1;transform:scaleX(.3)}100%{opacity:0;transform:scaleX(8)}}
+/* 도전: 현재 층 점으로 빨려 들어가듯 확대 + 보랏빛 번쩍 */
+#rift.diving .rf-shaft{transition:transform .6s cubic-bezier(.6,0,.9,.4),opacity .6s;transform:scale(2.4);opacity:0}
+#rift.diving .rf-tear{animation:rfDive .6s ease-in forwards;background:radial-gradient(circle at var(--dx,50%) var(--dy,50%),#fff 0,rgba(200,170,255,.9) 12%,rgba(60,20,120,.95) 60%)}
+@keyframes rfDive{0%{opacity:0}70%{opacity:.6}100%{opacity:1}}
+#rfFx{position:absolute;inset:0;z-index:4;width:100%;height:100%;pointer-events:none;mix-blend-mode:screen}
+.rf-depth{margin-left:auto;margin-right:10px;text-align:right}
+.rf-depth small{display:block;font-size:11px;color:#a99ad6}
+.rf-depth b{font:400 18px "Black Han Sans";color:#cbbcf5;text-shadow:0 0 10px rgba(157,123,255,.8)}
+/* 지나온 길 위로 빛이 흘러감 */
+.rf-flow{stroke-dasharray:4 18;animation:rfFlow 1.2s linear infinite}
+@keyframes rfFlow{to{stroke-dashoffset:-22}}
+/* 근원체 점: 붉은 고리가 천천히 돎 */
+.rn.boss::before{content:"";position:absolute;inset:-7px;border-radius:50%;border:2px dashed rgba(255,107,91,.7);animation:rfSpin 6s linear infinite}
+.rn.boss.done::before{border-color:rgba(139,120,207,.5);animation:none}
+@keyframes rfSpin{to{transform:rotate(360deg)}}
+.rn.mile:not(.done){box-shadow:0 0 12px rgba(185,140,255,.6)}
+/* 돌파 도장 */
+.rf-stamp{position:absolute;z-index:5;margin:-14px 0 0 24px;padding:2px 7px;border:2px solid var(--gold);border-radius:4px;color:var(--gold);font:400 14px "Black Han Sans";transform:rotate(-12deg) scale(2.4);opacity:0;animation:rfStamp .5s cubic-bezier(.2,1.6,.4,1) forwards;pointer-events:none;background:rgba(20,14,36,.8)}
+@keyframes rfStamp{to{transform:rotate(-12deg) scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){#rift.opening,#rift.opening .rf-tear,.rf-flow,.rn.boss::before,.rf-stamp{animation:none}.rf-stamp{opacity:1;transform:rotate(-12deg)}}
 #rift::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;
   background:radial-gradient(1.5px 1.5px at 20% 30%,#c9b3ff,transparent),radial-gradient(1px 1px at 70% 60%,#c9b3ff,transparent),radial-gradient(1.5px 1.5px at 40% 80%,#9d7bff,transparent),radial-gradient(1px 1px at 85% 20%,#fff,transparent);
   background-size:180px 240px;animation:rfMote 9s linear infinite}
@@ -451,8 +477,10 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   </nav>
   <div id="modal"></div>
   <div id="rift" aria-hidden="true">
-    <div class="rf-head"><div><small id="rfZone"></small><b>균열 심층</b></div><button class="rf-x" data-rf="close" aria-label="닫기">✕</button></div>
+    <div class="rf-head"><div><small id="rfZone"></small><b>균열 심층</b></div><div class="rf-depth"><small>심도</small><b id="rfDepth"></b></div><button class="rf-x" data-rf="close" aria-label="닫기">✕</button></div>
     <div class="rf-shaft" id="rfShaft"></div>
+    <canvas id="rfFx" aria-hidden="true"></canvas>
+    <div class="rf-tear" aria-hidden="true"></div>
     <div class="rf-foot" id="rfFoot"></div>
   </div>
   <div id="toast"></div>
@@ -2252,7 +2280,7 @@ function updateUI() {
 
 /* ---------- UI: 패널 ---------- */
 let tab = 'hero', bulk = 1;
-const APP_VERSION = '0.9.0';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.9.1';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 const starStr = n => '★'.repeat(n) + `<s>${'★'.repeat(C.CONST.MAX_STARS - n)}</s>`;
 
@@ -2504,7 +2532,8 @@ function riftMap(target) {
   svg += `<path d="${curve(pts)}" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="10" stroke-linecap="round"/>
     <path d="${curve(pts)}" fill="none" stroke="#5b4a8f" stroke-width="4" stroke-dasharray="2 9" stroke-linecap="round"/>`;
   const walked = pts.filter(([f]) => f <= target);
-  if (walked.length > 1) svg += `<path d="${curve(walked)}" fill="none" stroke="#c9b3ff" stroke-width="4" stroke-linecap="round"/>`;
+  if (walked.length > 1) svg += `<path d="${curve(walked)}" fill="none" stroke="#c9b3ff" stroke-width="4" stroke-linecap="round"/>
+    <path class="rf-flow" d="${curve(walked)}" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="2" stroke-linecap="round"/>`;
   // 층 점
   for (let f = L.from; f <= L.to; f++) {
     const p = P[f], boss = f % 10 === 0, mile = f % 5 === 0 && !boss;
@@ -2521,14 +2550,17 @@ function riftMap(target) {
 function renderRift() {
   const f = S.tower + 1, z = riftZone(f);
   $('rfZone').textContent = `현재 ${z.no}구역 ${z.name}`;
+  $('rfDepth').textContent = `${(S.tower * 37).toLocaleString()}m`;   // 한 층 37m (분위기용)
   $('rfShaft').innerHTML = riftMap(f) + '<div id="rfCard"></div>';
   $('rfFoot').innerHTML = `<div class="tt"><b>${f}층</b><div>처음 돌파 ${rwHtml(C.towerReward(f))}${diffTag(C.towerStage(f))}</div></div>
     <button class="btn" data-rf="go" ${R.chal ? 'disabled' : ''}>도전</button>`;
 }
 /** 열기. from 이 있으면 그 층 점에서 현재 층 점으로 요원 표시가 걸어 내려가는 연출 */
 function openRift(from) {
-  const el = $('rift'); el.classList.add('on'); el.setAttribute('aria-hidden', 'false');
-  renderRift();
+  const el = $('rift'); el.classList.remove('diving'); el.classList.add('on'); el.setAttribute('aria-hidden', 'false');
+  el.classList.remove('opening'); void el.offsetWidth; el.classList.add('opening');
+  setTimeout(() => el.classList.remove('opening'), 600);
+  renderRift(); rfFxStart();
   const sh = $('rfShaft'), now = S.tower + 1, me = $('rfMe');
   const at = f => sh.querySelector(`.rn[data-f="${f}"]`);
   const center = f => { const n = at(f); if (n) sh.scrollTop = n.offsetTop - sh.clientHeight * 0.45; };
@@ -2541,6 +2573,8 @@ function openRift(from) {
     setTimeout(() => {
       me.style.transition = ''; me.style.left = b.style.left; me.style.top = b.style.top;
       a.classList.remove('cur'); a.classList.add('done', 'pop'); b.classList.remove('lock'); b.classList.add('cur');
+      const st = document.createElement('div'); st.className = 'rf-stamp'; st.textContent = '돌파'; st.style.left = a.style.left; st.style.top = a.style.top; a.parentNode.appendChild(st);
+      rfBurst(a);
       center(now);
       if (riftZone(from).no !== riftZone(now).no) {   // 새 구역 진입 카드
         const z = riftZone(now), card = $('rfCard');
@@ -2550,7 +2584,57 @@ function openRift(from) {
     }, 500);
   } else { center(now); sh.style.scrollBehavior = ''; }
 }
-function closeRift() { const el = $('rift'); el.classList.remove('on'); el.setAttribute('aria-hidden', 'true'); }
+function closeRift() { const el = $('rift'); el.classList.remove('on', 'diving'); el.setAttribute('aria-hidden', 'true'); rfFx.on = false; }
+
+/* ---------- 균열 심층 효과: 아래에서 떠오르는 보랏빛 입자, 가끔 번지는 균열 번개, 돌파할 때 터지는 빛 ---------- */
+const rfFx = { on: false, p: [], bolts: [], burst: [], t: 0, last: 0 };
+function rfFxStart() {
+  if (rfFx.on) return;
+  rfFx.on = true; rfFx.last = performance.now();
+  const n = GQ.hi ? 70 : 28;
+  rfFx.p = Array.from({ length: n }, () => ({ x: Math.random(), y: Math.random(), v: 0.02 + Math.random() * 0.05, r: 0.6 + Math.random() * 1.8, a: 0.2 + Math.random() * 0.5, w: Math.random() * 6 }));
+  requestAnimationFrame(rfFxTick);
+}
+function rfBurst(node) {
+  const c = $('rfFx'), r = node.getBoundingClientRect(), cr = c.getBoundingClientRect();
+  rfFx.burst.push({ x: r.left + r.width / 2 - cr.left, y: r.top + r.height / 2 - cr.top, t: 0 });
+}
+function rfFxTick(now) {
+  if (!rfFx.on) return;
+  const c = $('rfFx'), d = Math.min(2, devicePixelRatio || 1), W2 = c.clientWidth, H2 = c.clientHeight;
+  if (c.width !== Math.round(W2 * d)) { c.width = Math.round(W2 * d); c.height = Math.round(H2 * d); }
+  const q = c.getContext('2d'), dt = Math.min(0.05, (now - rfFx.last) / 1000); rfFx.last = now; rfFx.t += dt;
+  q.setTransform(d, 0, 0, d, 0, 0); q.clearRect(0, 0, W2, H2);
+  // 떠오르는 입자 (깊이 내려가는 느낌)
+  for (const p of rfFx.p) {
+    p.y -= p.v * dt; if (p.y < -0.02) { p.y = 1.02; p.x = Math.random(); }
+    const x = (p.x + Math.sin(rfFx.t * 0.8 + p.w) * 0.01) * W2, y = p.y * H2;
+    q.globalAlpha = p.a * (0.6 + 0.4 * Math.sin(rfFx.t * 2 + p.w));
+    q.fillStyle = p.r > 1.8 ? '#e6dcff' : '#9d7bff'; q.beginPath(); q.arc(x, y, p.r, 0, 7); q.fill();
+  }
+  // 균열 번개: 3~6초마다 가장자리에서 짧게
+  if (GQ.hi && Math.random() < dt / 4) {
+    const side = Math.random() < 0.5, pts = []; let x = side ? 4 : W2 - 4, y = 80 + Math.random() * (H2 - 200);
+    for (let k = 0; k < 7; k++) { pts.push([x, y]); x += (side ? 1 : -1) * (6 + Math.random() * 14); y += (Math.random() - 0.3) * 28; }
+    rfFx.bolts.push({ pts, t: 0 });
+  }
+  for (const b of rfFx.bolts) {
+    b.t += dt; const a = Math.max(0, 1 - b.t / 0.35);
+    q.globalAlpha = a; q.strokeStyle = '#d8c8ff'; q.lineWidth = 1.6; q.shadowColor = '#9d7bff'; q.shadowBlur = 10;
+    q.beginPath(); b.pts.forEach(([x, y], i) => i ? q.lineTo(x, y) : q.moveTo(x, y)); q.stroke(); q.shadowBlur = 0;
+  }
+  rfFx.bolts = rfFx.bolts.filter(b => b.t < 0.35);
+  // 돌파 빛 터짐: 고리 + 흩어지는 조각
+  for (const b of rfFx.burst) {
+    b.t += dt; const k = b.t / 0.8, a = Math.max(0, 1 - k);
+    q.globalAlpha = a; q.strokeStyle = '#f2c94c'; q.lineWidth = 3 * a + 1; q.beginPath(); q.arc(b.x, b.y, 10 + k * 70, 0, 7); q.stroke();
+    q.fillStyle = '#ffe9a8';
+    for (let i = 0; i < 14; i++) { const an = i / 14 * 6.283, rr = 8 + k * 90; q.beginPath(); q.arc(b.x + Math.cos(an) * rr, b.y + Math.sin(an) * rr, 2.2 * a + 0.4, 0, 7); q.fill(); }
+  }
+  rfFx.burst = rfFx.burst.filter(b => b.t < 0.8);
+  q.globalAlpha = 1;
+  requestAnimationFrame(rfFxTick);
+}
 $('rift').addEventListener('click', e => {
   const b = e.target.closest('[data-rf]'); if (!b || b.disabled) return;
   if (b.dataset.rf === 'close') closeRift();
@@ -2558,7 +2642,17 @@ $('rift').addEventListener('click', e => {
     const f = +b.dataset.f, r = C.towerReward(f), t = [r.gems && `보석 ${r.gems}`, r.ptix && `정예 호출권 ${r.ptix}`].filter(Boolean).join(', ');
     toast(f <= S.tower ? `${f}층 돌파함` : f === S.tower + 1 ? `${f}층 처음 돌파 ${t}. 아래 도전을 눌러요` : `${f}층 처음 돌파 ${t}`);
   }
-  else if (b.dataset.rf === 'go') { closeRift(); startChal('tower', null, S.tower + 1); }
+  else if (b.dataset.rf === 'go') {
+    const el = $('rift'), cur = el.querySelector('.rn.cur'), sh = $('rfShaft');
+    if (cur) {   // 확대 기준점을 현재 층 점으로
+      const r = cur.getBoundingClientRect(), er = el.getBoundingClientRect(), sr = sh.getBoundingClientRect();
+      sh.style.transformOrigin = `${r.left + r.width / 2 - sr.left}px ${r.top + r.height / 2 - sr.top + sh.scrollTop}px`;
+      el.style.setProperty('--dx', ((r.left + r.width / 2 - er.left) / er.width * 100).toFixed(1) + '%');
+      el.style.setProperty('--dy', ((r.top + r.height / 2 - er.top) / er.height * 100).toFixed(1) + '%');
+    }
+    b.disabled = true; el.classList.add('diving');
+    setTimeout(() => { closeRift(); sh.style.transformOrigin = ''; startChal('tower', null, S.tower + 1); addFx({ k: 'flash', life: 0.4 }); }, 620);
+  }
 });
 
 /* ---------- 요원 상세 (카드를 누르면): 능력치, 기술, 조각, 강화와 승급 ---------- */
@@ -2640,6 +2734,25 @@ function onAct(e) {
   } catch (err) { console.error(err); toast('처리하지 못했어요: ' + err.message); }
 }
 $('panel').addEventListener('click', onAct);
+
+/* ---------- 뒤로 가기 버튼: 바로 꺼지지 않게 (휴대폰 게임 기본) ----------
+ * 열린 창 → 균열 심층 화면 → 접힌 메뉴 펼치기 순서로 하나씩 닫고, 아무것도 없으면 '한 번 더 누르면 종료' 안내.
+ * 2초 안에 한 번 더 누르면 그때 나감 */
+let backAt = 0;
+try { history.pushState({ aiu: 1 }, ''); } catch (e) { /* 막힌 환경 */ }
+window.addEventListener('popstate', () => {
+  const keep = () => { try { history.pushState({ aiu: 1 }, ''); } catch (e) { /* 무시 */ } };
+  if (modalEl.classList.contains('on')) {
+    const c = modalEl.querySelector('[data-close]');
+    if (c) c.click(); else modalEl.classList.remove('on');
+    return keep();
+  }
+  if ($('rift').classList.contains('on')) { closeRift(); return keep(); }
+  if ($('app').classList.contains('folded')) { $('app').classList.remove('folded'); for (const x of $('tabs').children) x.classList.toggle('on', x.dataset.tab === tab); renderPanel(); return keep(); }
+  const now = Date.now();
+  if (now - backAt < 2000) { writeSave(); history.back(); return; }
+  backAt = now; toast('한 번 더 누르면 게임을 종료해요'); keep();
+});
 $('modal').addEventListener('click', onAct);   // 요원 상세, 일일 출동 창 안의 버튼
 $('tabs').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;

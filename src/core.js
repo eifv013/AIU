@@ -191,11 +191,15 @@
   }
 
   /** ★ 승급에 필요한 조각 수 (현재 ★ 기준). 최대 ★이면 Infinity */
-  function starNeed(stars) {
+  /* 승급 조각: 등급마다 얼마나 자주 나오는지에 맞춰 다르게 (희귀는 흔하니 많이, 전설은 드무니 적게).
+   * 세나 계열처럼 전설을 같은 전설 수십 장으로 키우게 하지 않음 */
+  const STAR_NEED = { 희귀: [10, 30, 80, 200], 영웅: [5, 15, 40, 100], 전설: [1, 2, 3, 5] };
+  function starNeed(stars, grade = '희귀') {
     const s = clampInt(stars, 1, CONST.MAX_STARS, 1);
-    // 뽑기 양이 많아 중복 조각이 많이 쌓이므로 승급에 필요한 조각을 크게 (★2 10개, ★3 30개, ★4 80개, ★5 200개)
-    return s >= CONST.MAX_STARS ? Infinity : [10, 30, 80, 200][s - 1];
+    const t = STAR_NEED[grade] || STAR_NEED['희귀'];
+    return s >= CONST.MAX_STARS ? Infinity : t[s - 1];
   }
+
 
   /* ---------- 5. 파티 / 오프라인 ---------- */
 
@@ -468,7 +472,7 @@
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
     stageLabel, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
-    heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed,
+    heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,
     newState, cloneState, sanitize, loadFromString, QUESTS, questAt, questAdd, questClaim,
   };

@@ -1405,7 +1405,7 @@ function updatePanel() {
       btn.querySelector('.bl').textContent = bulk === 1 ? '강화' : `강화 +${Math.max(n, bulk === 0 ? 1 : bulk)}`;
       btn.querySelector('.cost i').textContent = C.formatNum(cost);
       btn.disabled = !(n > 0 && cost <= S.gold);
-      const need = C.starNeed(d.stars), max = need === Infinity;
+      const need = C.starNeed(d.stars, C.heroById(id).grade), max = need === Infinity;
       card.querySelector('.bar i').style.width = max ? '100%' : Math.min(100, 100 * d.shards / need) + '%';
       card.querySelector('.st').textContent = max ? '최고 등급' : `조각 ${d.shards} / ${need}`;
       card.querySelector('[data-act=star]').disabled = max || d.shards < need;
@@ -1431,7 +1431,7 @@ function updatePanel() {
     const wt = $('wTix'); if (wt) { wt.textContent = C.formatNum(S.tix); $('wPtix').textContent = C.formatNum(S.ptix); }
   }
   // 탭 알림 점: 할 수 있는 강화가 있을 때
-  $('dotHero').style.display = owned().some(h => C.heroLvCost(S.heroes[h.id].lv) <= S.gold || S.heroes[h.id].shards >= C.starNeed(S.heroes[h.id].stars)) && tab !== 'hero' ? 'block' : 'none';
+  $('dotHero').style.display = owned().some(h => C.heroLvCost(S.heroes[h.id].lv) <= S.gold || S.heroes[h.id].shards >= C.starNeed(S.heroes[h.id].stars, h.grade)) && tab !== 'hero' ? 'block' : 'none';
   $('dotTrain').style.display = C.UPGRADES.some(u => C.upgradeCost(u.id, S.up[u.id]) <= S.gold) && tab !== 'train' ? 'block' : 'none';
 }
 /** 일괄 강화 계획: 1회/10회는 정해진 단계, 최대는 살 수 있는 만큼 */
@@ -1451,7 +1451,7 @@ $('panel').addEventListener('click', e => {
       if (cost > S.gold) return toast('골드가 부족해요');
       S.gold -= cost; d.lv += n; syncHeroes(false); C.questAdd(S, 'lvup', n);
     } else if (act === 'star') {
-      const d = S.heroes[b.dataset.h], need = C.starNeed(d.stars);
+      const d = S.heroes[b.dataset.h], need = C.starNeed(d.stars, C.heroById(b.dataset.h).grade);
       if (d.shards < need) return;
       d.shards -= need; d.stars++; syncHeroes(false); banner(`${C.heroById(b.dataset.h).name} ★${d.stars} 승급`); renderPanel();
     } else if (act === 'up') {

@@ -67,6 +67,11 @@ test('훈련소: 치명타 최대치와 비용', () => {
 test('별 승급 조각', () => {
   assert.equal(C.starNeed(1), 10);
   assert.equal(C.starNeed(4), 200);
+  assert.equal(C.starNeed(1, '전설'), 1); assert.equal(C.starNeed(4, '전설'), 5);
+  assert.equal(C.starNeed(2, '영웅'), 15);
+  // 전설 ★5 까지 필요한 장수가 희귀보다 훨씬 적어야 함 (드문 만큼)
+  const sum = g => [1, 2, 3, 4].reduce((a, s) => a + C.starNeed(s, g), 0);
+  assert.ok(sum('전설') * 20 < sum('희귀'));
   assert.equal(C.starNeed(5), Infinity);
 });
 

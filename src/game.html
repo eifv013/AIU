@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.29.0';
+window.AIU_VER = '0.29.1';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1494,7 +1494,7 @@ img.rs-emb{width:76px;height:76px;top:-42px}
 .ac.g-각성::after{content:'';position:absolute;inset:-2px;border-radius:inherit;pointer-events:none;background:linear-gradient(120deg,transparent 40%,rgba(255,220,180,.5) 50%,transparent 60%) -150% 0/250% 100% no-repeat;animation:awkShine 2.6s ease-in-out infinite}
 @keyframes awkShine{to{background-position:150% 0}}
 .awk-st{color:#ff4a5a;letter-spacing:-2px;text-shadow:0 0 6px rgba(255,60,80,.9),0 0 2px #fff;font-weight:400}
-.awk-em{filter:hue-rotate(-40deg) saturate(1.6) drop-shadow(0 0 12px #ff3d55)!important}
+.awk-em{filter:drop-shadow(0 0 12px rgba(255,61,85,.8))!important}
 .hp-b.star.awk:not(:disabled){background:linear-gradient(#ff8a7a,#d0283c 50%,#6e0a18)!important;border-color:#ffd0c0!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 2px 0 #2e0408,0 0 16px rgba(255,60,80,.7)!important}
 .awk-face{box-shadow:0 0 24px rgba(255,61,85,.9)}
 
@@ -3687,7 +3687,7 @@ function renderHeroPage() {
   $('hpage').style.setProperty('--gc', col);
   $('hpage').innerHTML = `<img class="hp-bg" src="${bigArt(id)}" alt="">
     <div class="hp-tags"><span><i class="tic t-${h.type}"><svg><use href="#i-t-${h.type}"/></svg></i>${h.type}형</span><span><i class="tic" style="color:${col}"><svg><use href="#i-t-${h.type}"/></svg></i>${h.role}</span></div>
-    <div class="hp-grade" style="--gc:${col}"><img class="gi" src="${ART['ic_' + ({ 희귀: 'g_rare', 영웅: 'g_hero', 전설: 'g_legend', 각성: 'g_awake' })[gr]] || ART.ic_g_legend || ''}" alt="" class="${gr === '각성' ? 'awk-em' : ''}"><b>${gr}</b>${h.limited ? '<small>한정</small>' : ''}</div>
+    <div class="hp-grade" style="--gc:${col}"><img class="gi${gr === '각성' ? ' awk-em' : ''}" src="${ART['ic_' + ({ 희귀: 'g_rare', 영웅: 'g_hero', 전설: 'g_legend', 각성: 'g_awake' })[gr]] || ''}" alt=""><b>${gr}</b>${h.limited ? '<small>한정</small>' : ''}</div>
     ${list.length > 1 ? `<button class="hp-nav l" data-act="hpnav" data-h="${list[(i - 1 + list.length) % list.length].id}" aria-label="이전 요원">‹</button><button class="hp-nav r" data-act="hpnav" data-h="${list[(i + 1) % list.length].id}" aria-label="다음 요원">›</button>` : ''}
     <div class="hp-sd">${sp ? `<img src="${sp}" alt="">` : `<img class="face" src="${portrait(id)}" alt="">`}</div>
     <div class="hp-mid">
@@ -4868,6 +4868,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.29.1', '11월 28일', ['각성 등급 문장을 새 그림으로 바꿨어요']],
   ['0.29.0', '11월 28일', ['효과음을 넣었어요. 설정에서 끄거나 크기를 바꿀 수 있어요', '기술, 치명타, 처치, 근원체 출현과 처치 이펙트를 새 그림으로 바꿨어요']],
   ['0.28.0', '11월 28일', ['창, 버튼, 탭, 목록, 카드, 메뉴 판을 새 그림 틀로 바꿨어요']],
   ['0.27.0', '11월 28일', ['전설 다음 등급 각성: 전설 요원 ★5에서 조각 10개로 각성해요']],

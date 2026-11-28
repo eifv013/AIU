@@ -269,7 +269,8 @@
   function bossGold(stage, goldLv) { return killGold(stage, goldLv) * 10; }
   /** 요원 경험치 (요원 레벨업 재화, 세나 키우기 영웅 경험치와 같음). 골드는 훈련소에만 씀 */
   // 스테이지마다 8%씩 (예전 15%는 이상체 한 마리가 요원 1레벨 값이었음)
-  function killExp(stage) { return 3 * Math.pow(1.075, clampInt(stage, 1, 1e6, 1) - 1); }
+  // 0.38.8: 3 → 5. 처음 몇 분 동안 요원 강화 가이드가 1분에 1레벨꼴로 느렸음 (세나 키우기는 초반 강화가 빠름)
+  function killExp(stage) { return 5 * Math.pow(1.075, clampInt(stage, 1, 1e6, 1) - 1); }
   function bossExp(stage) { return killExp(stage) * 10; }
 
   /* ---------- 4. 성장 공식 ---------- */

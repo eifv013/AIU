@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.29.1';
+window.AIU_VER = '0.29.2';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1769,7 +1769,7 @@ const firstRun = !readSave();
 
 /* ---------- 알림 ---------- */
 let toastT = 0;
-function toast(msg) { const t = $('toast'); t.textContent = msg; t.style.opacity = 1; clearTimeout(toastT); toastT = setTimeout(() => t.style.opacity = 0, 2200); }
+function toast(msg) { if (/부족|열려요|잠겨|없어요|못 /.test(msg)) sfx('error', 0.7, 0.2); const t = $('toast'); t.textContent = msg; t.style.opacity = 1; clearTimeout(toastT); toastT = setTimeout(() => t.style.opacity = 0, 2200); }
 let bannerT = 0;
 function banner(msg) { const b = $('banner'); b.textContent = msg; b.style.opacity = 1; clearTimeout(bannerT); bannerT = setTimeout(() => b.style.opacity = 0, 1400); }
 window.addEventListener('error', e => toast('오류가 발생했어요: ' + (e.message || '알 수 없음')));
@@ -4265,6 +4265,7 @@ $('story').addEventListener('click', e => { if (e.target.id === 'stSkip') stEnd(
 /* ---------- 전투력 변화 표시 (레벨업, 승급) ---------- */
 let pwT = 0;
 function pwUp(before) {
+  sfx('levelup', 0.7, 0.2);
   const now = teamPower(), d = now - before; if (d <= 0) return;
   const el = $('pwup'); el.innerHTML = `전투력 ${C.formatNum(now)}<em>▲${C.formatNum(d)}</em>`;
   el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
@@ -4868,6 +4869,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.29.2', '11월 28일', ['레벨업, 승급 때 도장 소리, 재화가 부족할 때 빈 총 소리를 넣었어요']],
   ['0.29.1', '11월 28일', ['각성 등급 문장을 새 그림으로 바꿨어요']],
   ['0.29.0', '11월 28일', ['효과음을 넣었어요. 설정에서 끄거나 크기를 바꿀 수 있어요', '기술, 치명타, 처치, 근원체 출현과 처치 이펙트를 새 그림으로 바꿨어요']],
   ['0.28.0', '11월 28일', ['창, 버튼, 탭, 목록, 카드, 메뉴 판을 새 그림 틀로 바꿨어요']],

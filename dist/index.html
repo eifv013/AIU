@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.38.6';
+window.AIU_VER = '0.38.7';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -2239,6 +2239,44 @@ html,body{overflow-x:hidden}
 #tabs button.on:not(.ct) .tb{background:none!important;filter:none!important}
 #tabs button:not(.ct) .tb::before,#tabs button:not(.ct)::after{display:none!important}
 #bbar .pw b{font:800 15px "IBM Plex Sans KR"!important;letter-spacing:0}   /* 전투력 숫자가 단위(B)까지 크게 보이던 것 */
+/* 0.38.7 안내 문구: 둥근 검은 알약 대신 세나 키우기처럼 화면 너비 가로 띠 (가장자리는 흐려짐), 얇은 금색 선 */
+#toast{left:0!important;right:0!important;top:40%!important;transform:translateY(-50%)!important;max-width:none!important;width:auto!important;padding:9px 24px!important;border-radius:0!important;background:linear-gradient(90deg,transparent,rgba(6,8,14,.88) 18%,rgba(6,8,14,.88) 82%,transparent)!important;border:0!important;box-shadow:none!important;font:600 13.5px/1.4 'IBM Plex Sans KR'!important;color:#eef1f8!important}
+#toast::before,#toast::after{content:'';position:absolute;left:18%;right:18%;height:1px;background:linear-gradient(90deg,transparent,rgba(210,171,85,.55),transparent)}#toast::before{top:0}#toast::after{bottom:0}
+#banner{font-size:24px!important;padding:6px 0!important}
+#stageRow{white-space:nowrap;display:flex;align-items:baseline;gap:6px;min-width:0}#stageRow #stage{flex:none}#stageRow #area{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}   /* 11-10처럼 번호가 길어도 구역 이름이 두 줄로 꺾이지 않게 */
+/* 요원 상세 능력치: 세나 키우기처럼 두 칸씩 나란히, 아이콘 + 이름 + 값 한 줄. 얇은 줄 구분선만 */
+.hp-stats.hsg{bottom:64px!important;display:grid!important;grid-template-columns:1fr 1fr!important;column-gap:10px!important;row-gap:0!important;padding:6px 10px!important;background:rgba(8,11,19,.92)!important;border-top:1px solid rgba(201,211,238,.14);border-bottom:1px solid rgba(201,211,238,.14)}
+.hsg .hsg-c{display:grid!important;grid-template-columns:18px 1fr auto;align-items:center;gap:6px;height:24px!important;padding:0 2px!important;border:0!important;border-bottom:1px solid rgba(201,211,238,.08)!important;border-image:none!important;background:none!important;box-shadow:none!important;border-radius:0!important;color:#c9d3ee;text-align:left}
+.hsg .hsg-c .ic{width:16px!important;height:16px!important}
+.hsg .hsg-c span{font:600 12px 'IBM Plex Sans KR'!important;white-space:nowrap;border:0!important;border-image:none!important;background:none!important;padding:0!important;height:auto!important;display:block!important;box-shadow:none!important;color:#c9d3ee!important;justify-content:flex-start!important}
+.hsg .hsg-c:nth-child(4n+1),.hsg .hsg-c:nth-child(4n+2){background:rgba(255,255,255,.035)!important}.hsg .hsg-c b{color:#f2d27a!important}
+.hsg .hsg-c b{font:700 12.5px 'IBM Plex Sans KR'!important;color:#fff!important;white-space:nowrap}
+#hpage .hp-desc{bottom:230px!important}#hpage .hp-mid{bottom:268px!important}#hpage .hp-sd{bottom:350px!important}
+#hpage.unown .hp-stats.hsg{bottom:82px!important}#hpage.unown .hp-desc{bottom:248px!important}#hpage.unown .hp-mid{bottom:286px!important}
+.rz.rz2{left:0!important;right:0!important;text-align:center;display:grid;justify-items:center;gap:0;pointer-events:none}.rz.rz2 em{font:600 11px 'IBM Plex Sans KR';color:var(--ac);font-style:normal;letter-spacing:.1em}.rz.rz2 b{font:400 15px "Black Han Sans";color:#eef1f8;text-shadow:0 0 10px var(--ac)}
+/* 수사력: 세나 키우기 성장처럼 한 줄 목록. 칸은 얇은 선으로만 나누고 꾸밈 테두리 없음 */
+.gw .gw-top{display:grid;justify-items:stretch;gap:6px;margin:6px 0 6px}.gw .gw-top .gw-hint{order:2;margin:0!important;font:500 11.5px/1.35 'IBM Plex Sans KR'!important;color:#9aa6c2!important}
+.gw .gw-top .gw-mul{order:1;justify-self:end;margin:0!important;display:flex!important;gap:4px}.gw .gw-top .gw-mul button{min-width:44px;height:28px;padding:0 6px!important;font:700 12px 'IBM Plex Sans KR'!important}
+.gw-list{display:grid;gap:0;border-top:1px solid rgba(201,211,238,.12)}
+.gw-r{display:grid!important;grid-template-columns:40px minmax(0,1fr) auto 104px!important;align-items:center;gap:10px;padding:7px 6px!important;min-height:0!important;height:auto!important;border:0!important;border-bottom:1px solid rgba(201,211,238,.12)!important;border-image:none!important;border-radius:0!important;background:none!important;box-shadow:none!important;text-align:left!important}
+.gw-r:nth-child(odd){background:rgba(255,255,255,.025)!important}
+.gw-r .gw-ic{width:40px;height:40px;display:grid;place-items:center;border-radius:8px;background:rgba(201,211,238,.07)}.gw-r .gw-ic .ic{width:30px!important;height:30px!important}
+.gw-r .gw-t{display:grid;gap:1px;min-width:0;justify-items:start;text-align:left!important}.gw-r .gw-t *{text-align:left!important}.gw-r .gw-t b{font:700 14px 'IBM Plex Sans KR'!important;color:#eef1f8;white-space:nowrap}.gw-r .gw-t small{font:500 11.5px 'IBM Plex Sans KR';color:#9aa6c2;white-space:nowrap}.gw-r .gw-t small em{font-style:normal;color:#f2d27a}
+.gw-r .gw-v{display:grid;justify-items:end;font:700 12.5px 'IBM Plex Sans KR';white-space:nowrap}.gw-r .gw-v span{color:#c9d3ee}.gw-r .gw-v em{font-style:normal;color:#7ee08a}
+.gw-r .btn{height:38px!important;min-height:0!important;padding:0 8px!important;margin:0!important;width:104px}.gw-r .btn .cost{display:flex;align-items:center;justify-content:center;gap:4px;font:700 13px 'IBM Plex Sans KR'}.gw-r .btn .cost .ic{width:18px;height:18px}
+/* 0.38.7 창 틀: 금색 모서리 꺾쇠와 위쪽 금띠 그림(ui_window)을 걷어 내고 세나 키우기처럼 단순한 판 + 얇은 테두리.
+ * 꺾쇠 선이 안쪽 칸 위로 지나가던 것도 이걸로 사라짐 */
+.mbox{border:1px solid rgba(201,211,238,.2)!important;border-image:none!important;border-radius:10px!important;background:linear-gradient(180deg,#1b2235,#0f1320 60%)!important;padding:16px 14px 14px!important;box-shadow:0 18px 44px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.06)!important}
+.mbox .mx{right:-11px!important;top:-11px!important;width:32px!important;height:32px!important;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))!important}
+.mbox h2{margin:2px 20px 10px!important}
+.stw-strip{padding:3px!important}.stw-strip i.sel{outline-offset:-2px!important}
+.wb{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,auto);gap:6px;margin:8px 0 12px}
+.wb-c{display:grid;place-items:center;padding:4px;border-radius:8px;background:#141a2a;border:1px solid rgba(201,211,238,.14);transition:background .1s,box-shadow .1s}
+.wb-c.on{background:#3a3014;border-color:#f2d27a;box-shadow:0 0 0 2px rgba(242,210,122,.5),0 0 14px rgba(242,210,122,.45)}
+.wb-m{grid-column:2/4;grid-row:2;display:grid;place-items:center}.wb-m svg{width:56px;height:56px}
+.gs-row{display:flex;justify-content:center;align-items:center;gap:14px;margin:6px 0 4px;font:600 14px 'IBM Plex Sans KR'}.gs-row .ic{width:26px;height:26px}.gs-row b{color:#fff}.gs-row b.ng{color:#ff7a6b}
+#panel [data-act=sum].short{filter:saturate(.55) brightness(.85)}
+#sfx .sx-end{gap:14px!important}#sfx .sx-auto{margin-bottom:2px}   /* 자동 호출 칸이 아래 단추에 붙어 있던 것 */
 </style>
 </head>
 <body>
@@ -2581,9 +2619,15 @@ html,body{overflow-x:hidden}
 
   // 공용 강화(훈련소) 목록
   const UPGRADES = [
-    { id: 'atk',  name: '사격 훈련', baseCost: 50,  growth: 1.25, max: 999 },
-    { id: 'gold', name: '현상금 협상', baseCost: 80,  growth: 1.30, max: 999 },
+    // 0.38.7: 비용 증가율을 골드 수입(스테이지마다 ×1.08)에 맞춤. 예전 1.25, 1.30은 레벨 70쯤부터 비용이 수입보다
+    // 훨씬 빨리 커져서, 11-9(약 110스테이지)에서 한 번 올리는 데 수입 4시간치가 들었음 (가이드 21 '수사력 강화'가 막힘).
+    // 1.12, 1.13이면 대략 '스테이지 수 = 올릴 수 있는 레벨'이 되고, 한 번 올리는 데 수입 1~2분치가 들어요
+    { id: 'atk',  name: '사격 훈련', baseCost: 50,  growth: 1.12, max: 999 },
+    { id: 'gold', name: '현상금 협상', baseCost: 80,  growth: 1.13, max: 999 },
     { id: 'crit', name: '급소 노리기', baseCost: 120, growth: 1.35, max: 45 },
+    // 0.38.7: 세나 키우기 성장처럼 항목을 늘림. 생명력은 레벨당 팀 생명력 +10%, 치명타 피해는 레벨당 +2%
+    { id: 'hp',   name: '방탄 훈련',   baseCost: 60,  growth: 1.12, max: 999 },
+    { id: 'cdmg', name: '약점 분석',   baseCost: 150, growth: 1.33, max: 60 },
   ];
 
   const CONST = {
@@ -2608,9 +2652,10 @@ html,body{overflow-x:hidden}
      *   (세나 키우기 실제 값: 소환 레벨 5 레전드 0.1%, 10 에서 0.15%)
      * - 영웅 등급도 레벨마다 1%씩 오름 (세나 에픽 10%→19% 와 같은 폭)
      * - 특별 채용은 릴레이: 누적 2000회를 뽑으면 나이트폴 확정 (세나 픽업 릴레이 최소 2천 뽑기) */
-    SUMMON_LV_PULLS: [0, 50, 150, 300, 500, 800, 1200, 1700, 2300, 3000],
-    LEGEND_BY_LV:    [0, 0, 0, 0, 0.0010, 0.0011, 0.0012, 0.0013, 0.0014, 0.0015],
-    HERO_BY_LV:      [0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19],
+    // 0.38.7: 소환 레벨 10(3,000회)에서 끝나던 것을 30까지 (방치형이라 호출권이 계속 쌓이므로 오래 올릴 목표가 필요)
+    SUMMON_LV_PULLS: [0, 50, 150, 300, 500, 800, 1200, 1700, 2300, 3000, 3900, 5000, 6350, 7950, 9800, 11950, 14400, 17200, 20350, 23850, 27700, 31950, 36600, 41650, 47100, 52950, 59250, 66000, 73200, 80850],
+    LEGEND_BY_LV:    [0, 0, 0, 0, 0.001, 0.0011, 0.0012, 0.0013, 0.0014, 0.0015, 0.0017, 0.0019, 0.0021, 0.0023, 0.0025, 0.0027, 0.0029, 0.0031, 0.0033, 0.0035, 0.0037, 0.0039, 0.0041, 0.0043, 0.0045, 0.0047, 0.0049, 0.0051, 0.0053, 0.0055],
+    HERO_BY_LV:      [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.195, 0.2, 0.205, 0.21, 0.215, 0.22, 0.225, 0.23, 0.235, 0.24, 0.245, 0.25, 0.255, 0.26, 0.265, 0.27, 0.275, 0.28, 0.285, 0.29],
     RELAY: 200,              // 특별 채용 누적 확정 (보석 뽑기 기준)
     PICKUP_DAYS: 14,         // 특별 채용 한 번의 기간 (2주, 목요일 점검 기준)
     MAX_STARS: 5,
@@ -2761,6 +2806,18 @@ html,body{overflow-x:hidden}
     const h = heroById(id);
     return h.baseHp * Math.pow(1.07, clampInt(lv, 1, 1e6, 1) - 1) * starMult(stars);
   }
+  /* 세나 키우기 상세 능력치처럼 방어력, 회피, 생명력 회복을 따로 가짐 (0.38.7).
+   * - 방어력: 최대 체력의 일정 비율(방어형이 가장 높음). 받는 피해 = 피해 × 체력 / (체력 + 방어력)
+   * - 회피: 적 공격을 아예 피할 확률. 공격형이 가장 높음
+   * - 생명력 회복: 1초에 최대 체력의 1%를 회복 (전투 중에도) */
+  const DEF_RATE = { 방어: 0.24, 지원: 0.14, 공격: 0.1, 광역: 0.1 };
+  const DODGE = { 공격: 0.08, 지원: 0.06, 광역: 0.05, 방어: 0.03 };
+  const REGEN = 0.01;
+  function heroDef(id, lv, stars) { return heroHp(id, lv, stars) * (DEF_RATE[heroById(id).type] || 0.1); }
+  /** 방어력으로 줄어드는 비율 (0~1). 체력 대비 비율만 쓰므로 레벨과 상관없이 유형마다 같음 */
+  function defCut(id) { const r = DEF_RATE[heroById(id).type] || 0.1; return r / (1 + r); }
+  function heroDodge(id) { return DODGE[heroById(id).type] || 0.05; }
+  function heroRegen(id, lv, stars) { return heroHp(id, lv, stars) * REGEN; }
   /** 초당 기본 피해(스킬 제외, 치명타 기대값 포함) */
   function heroDps(id, lv, stars, atkLv, critLv) {
     const c = critChance(critLv);
@@ -2804,16 +2861,18 @@ html,body{overflow-x:hidden}
   const TSTEP = { LV: 10, CRIT: 3, COST: 3000, GROW: 1.7, BONUS: 0.05 };   // BONUS: 단계마다 팀 공격력, 체력 +5%
   function tstepOf(state) { return clampInt(state && state.tstep, 1, 9999, 1); }
   /** 현재 단계에서 이 강화의 상한 레벨 */
-  function upCap(state, id) { const u = upgradeById(id), t = tstepOf(state); return Math.min(u.max, t * (id === 'crit' ? TSTEP.CRIT : TSTEP.LV)); }
+  const SMALL_CAP = id => id === 'crit' || id === 'cdmg';   // 확률, 배율 항목은 단계마다 조금씩
+  function upCap(state, id) { const u = upgradeById(id), t = tstepOf(state); return Math.min(u.max, t * (SMALL_CAP(id) ? TSTEP.CRIT : TSTEP.LV)); }
   /** 단계 상한을 반영한 강화 비용 (상한이면 Infinity) */
   function upCost(state, id, lv) { return lv >= upCap(state, id) ? Infinity : upgradeCost(id, lv); }
   /** 단계 진행: 현재 단계 안에서 올린 수 / 필요한 수 */
   function tstepProg(state) {
     const t = tstepOf(state); let cur = 0, need = 0;
-    for (const u of UPGRADES) { const cap = upCap(state, u.id), lo = Math.min(cap, (t - 1) * (u.id === 'crit' ? TSTEP.CRIT : TSTEP.LV)); need += cap - lo; cur += Math.max(0, Math.min(cap, state.up[u.id]) - lo); }
+    for (const u of UPGRADES) { const cap = upCap(state, u.id), lo = Math.min(cap, (t - 1) * (SMALL_CAP(u.id) ? TSTEP.CRIT : TSTEP.LV)); need += cap - lo; cur += Math.max(0, Math.min(cap, state.up[u.id]) - lo); }
     return { cur, need, ready: UPGRADES.every(u => state.up[u.id] >= upCap(state, u.id)) };
   }
-  function tstepCost(state) { return Math.floor(TSTEP.COST * Math.pow(TSTEP.GROW, tstepOf(state) - 1)); }
+  /** 단계 승급 비용: 이 단계 마지막 사격 훈련 비용의 8배 (강화 비용과 같은 속도로 커짐, 수입 몇 분치). 처음엔 최소 3,000 */
+  function tstepCost(state) { const t = tstepOf(state); return Math.max(TSTEP.COST, Math.floor(8 * upgradeCost('atk', Math.min(998, t * TSTEP.LV - 1)))); }
   /** 단계 승급. 상태를 바꾸고 받은 보석 수 반환 */
   function tstepUp(state) {
     if (!tstepProg(state).ready) throw new RangeError('세 가지 강화를 모두 상한까지 올려야 해요');
@@ -3097,7 +3156,7 @@ html,body{overflow-x:hidden}
 
   /* ---------- 6. 소환 ---------- */
 
-  /** 누적 뽑기 횟수 → 소환 레벨 (1~10) */
+  /** 누적 뽑기 횟수 → 소환 레벨 (1~30) */
   function summonLevel(total) {
     const t = isNum(total) && total > 0 ? total : 0;
     let lv = 1;
@@ -3114,7 +3173,7 @@ html,body{overflow-x:hidden}
   const GRADE_IDS = g => HEROES.filter(h => h.grade === g && !h.limited).map(h => h.id);
   /**
    * n회 뽑기. 등급을 먼저 정하고 그 등급 안에서 균등하게 한 명.
-   * @param {number} level 소환 레벨 1~10
+   * @param {number} level 소환 레벨 1~30
    */
   function summon(n, rng, level = 1) {
     if (typeof rng !== 'function') throw new TypeError('rng 함수가 필요합니다');
@@ -3130,7 +3189,7 @@ html,body{overflow-x:hidden}
     return out;
   }
   /** 소환 레벨 보상: 레벨 L 에 처음 오르면 보석 L*100, 정예 호출권 L장 */
-  function levelReward(lv) { return { gems: lv * 100, ptix: lv }; }
+  function levelReward(lv) { return { gems: Math.min(1000, lv * 100), ptix: Math.min(10, lv) }; }   // 레벨 11부터는 보석 1,000, 정예 호출권 10장으로 고정
 
   /**
    * 뽑기 한 번 실행 (원본 불변, 새 상태 반환).
@@ -3564,7 +3623,7 @@ html,body{overflow-x:hidden}
       pre: [null, null, null], preI: 0,   // 편성 프리셋 3개            // 가방 (보급품 개수)           // 받은 우편
       cdx: {},            // 요원 도감 받은 단계            // 받은 수사 수첩 보상
       face: '',           // 프로필 얼굴 (비면 첫 출전 요원)
-      up: { atk: 0, gold: 0, crit: 0 },
+      up: { atk: 0, gold: 0, crit: 0, hp: 0, cdmg: 0 },
       q: { i: 0, p: 0, g: 1 },  // 퀘스트 번호와 진행 (g: 가이드 퀘스트가 있는 저장)
       pulls: { total: 0, relay: 0 },    // 요원 호출 누적(소환 레벨), 특별 채용 릴레이
       tix: CONST.START_TICKETS, tixPart: 0,   // 호출권
@@ -4009,7 +4068,8 @@ html,body{overflow-x:hidden}
   function battleMods(state, now = new Date()) {
     const y = synergy(state), b = statBonus(state);
     const pg = planLeft(state, 'p_month', now) > 0 ? planById('p_month').gold : 0;   // 골드 버프 월정액
-    return { atk: y.atk * (1 + b.atk), hp: y.hp * (1 + b.hp), cd: y.cd, crit: b.crit, cdmg: b.cdmg, boss: 1 + b.boss, gold: (1 + b.gold) * (1 + pg), lines: y.lines };
+    const up = state.up || {}, uh = 1 + 0.1 * (up.hp || 0), uc = 0.02 * (up.cdmg || 0);   // 수사력 방탄 훈련, 약점 분석
+    return { atk: y.atk * (1 + b.atk), hp: y.hp * (1 + b.hp) * uh, cd: y.cd, crit: b.crit, cdmg: b.cdmg + uc, boss: 1 + b.boss, gold: (1 + b.gold) * (1 + pg), lines: y.lines };
   }
 
   /** 저장 문자열 파싱. JSON 오류면 새 상태 */
@@ -4450,7 +4510,7 @@ html,body{overflow-x:hidden}
     WHEEL, WHEEL_FREE, WHEEL_GEMS, wheelLeft, wheelSpin, specStage, specCheck, specClear, specSweep, duelStage, duelCheck, duelResult, HUNTS, huntReset, huntReward, huntClaim, REP_STEP, repLv, repTitle, SEARCHES, searchReward, searchStart, searchClaim, SPECS, SPEC_KEYS, specReq, specKeys, specReward, specRun,
     DUEL_KEYS, DUEL_TIERS, duelTier, duelKeys, duelFoes, duelFight, PETS, PET_RATE, PET_COST, PET_MAX, PET_LV_MAX, petVal, petSnackNeed, petLevelUp, petSummon, petEquip, RELICS, RELIC_RATE, RELIC_COST, RELIC_MAX, relicVal, relicSummon,
     SEALS, sealNeed, sealDrop, sealUp, newSys, sanitizeSys, sysBonus,
-    skillGrow, skillOf, SKILL_GROW, heroLvCap, heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, upCap, upCost, tstepOf, tstepProg, tstepCost, tstepUp, TSTEP, starNeed, STAR_NEED,
+    skillGrow, skillOf, SKILL_GROW, heroDef, defCut, heroDodge, heroRegen, REGEN, heroLvCap, heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, upCap, upCost, tstepOf, tstepProg, tstepCost, tstepUp, TSTEP, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, summonMaxN, addTickets, shopItem, STREAK, streakClaim, GOLD_PACKS, goldPackCount, goldPackBuy, PLANS, planById, planLeft, planBuy, planClaim, levelReward, applySummon, pickupRemainSec, formatRemain,
     newState, cloneState, sanitize, loadFromString, QUESTS, GUIDE, questAt, questAdd, questClaim,
     DUNGEONS, MISSIONS, ATTEND, dayKey, dailyReset, dungeonById, dungeonStage, dungeonReward, towerStage, towerReward,
@@ -4494,7 +4554,18 @@ const firstRun = !readSave();
 
 /* ---------- 알림 ---------- */
 let toastT = 0;
-function toast(msg) { if (/부족|열려요|잠겨|없어요|못 /.test(msg)) sfx('error', 0.7, 0.2); const t = $('toast'); t.textContent = msg; t.style.opacity = 1; clearTimeout(toastT); toastT = setTimeout(() => t.style.opacity = 0, 2200); }
+/** 보석이 모자랄 때: 세나 키우기처럼 '보석이 부족합니다. 구매하시겠습니까?' 창을 띄우고 재화 상점으로 바로 보냄 */
+function gemShort(need) {
+  const have = C.gemTotal(S);
+  openModal(`<h2>보석이 부족해요</h2><div class="gs-row">${icon('gem')}<span>보유 <b>${C.formatNum(have)}</b></span>${need ? `<span>필요 <b class="ng">${C.formatNum(need)}</b></span>` : ''}</div><p class="hint">상점에서 보석을 구매할까요?</p>
+    <div class="mbtns"><button class="btn ghost" data-close>취소</button><button class="btn" data-close="buy">보석 구매하기</button></div>`, v => {
+    if (v !== 'buy') return;
+    closeHeroPage(); closeHeroWin();
+    if (tab !== 'summon' || $('app').classList.contains('folded')) $('tabs').querySelector('[data-tab="summon"]').click();
+    sumSub = subSel.summon = 'gems'; renderPanel();
+  });
+}
+function toast(msg) { if (/보석이 부족/.test(msg)) return gemShort(0); if (/부족|열려요|잠겨|없어요|못 /.test(msg)) sfx('error', 0.7, 0.2); const t = $('toast'); t.textContent = msg; t.style.opacity = 1; clearTimeout(toastT); toastT = setTimeout(() => t.style.opacity = 0, 2200); }
 let bannerT = 0;
 function banner(msg) { const b = $('banner'); b.textContent = msg; b.style.opacity = 1; clearTimeout(bannerT); bannerT = setTimeout(() => b.style.opacity = 0, 1400); }
 window.addEventListener('error', e => toast('오류가 발생했어요: ' + (e.message || '알 수 없음')));
@@ -5157,15 +5228,13 @@ function chalEnd(win, reason) {
   try {
     if (ch.kind === 'duel') { const r = C.duelResult(S, ch.id, win, new Date()); rw = r.rw; ch.name = `${ch.name} ${win ? '승리' : '패배'} (${r.pts > 0 ? '+' : ''}${r.pts}점)`; }
     else if (win) rw = ch.kind === 'tower' ? C.clearTower(S) : ch.kind === 'spec' ? C.specClear(S, ch.id, ch.lv, new Date()) : C.clearDungeon(S, ch.id, ch.lv);
-    if (rw && rw.shard) { toast(`${C.heroById(rw.shard).name} 조각 +${rw.n}`); rw = null; }
     if (win && ch.kind === 'tower') dropCard();   // 균열 심층 한 층 돌파마다 증거 카드 1장
     if (win && ch.kind !== 'tower' && ch.kind !== 'spec' && ch.kind !== 'duel') dsel[ch.id] = S.dbest[ch.id] + 1;   // 깨면 다음 단계를 골라 둠
   } catch (e) { toast(e.message); }
-  // 결과 창 없이: 가운데 알림과 위쪽 보상 알림만 띄우고 잠깐 뒤 원래 스테이지로 (세나 키우기 던전처럼 흐름을 끊지 않음)
-  const lbl = { gold: '골드', exp: '경험치', gems: '보석', tix: '호출권', ptix: '정예 호출권' };
-  const got = rw ? Object.entries(rw).filter(([, v]) => v) : [];
-  banner(win ? `${ch.name} 완료` : (reason || '작전 실패'));
-  toast(ch.kind === 'duel' ? ch.name : win ? `${ch.name} 완료  ${got.map(([k, v]) => `${lbl[k]} +${C.formatNum(v)}`).join('  ')}` : `${ch.name} 실패${ch.kind === 'tower' ? '' : '. 입장 횟수는 그대로예요'}`);
+  // 0.38.7: 띠 글씨 + 검은 알림 두 개로 겹쳐 보이던 것을 세나 키우기처럼 '보상 획득' 띠 창 하나로 보여 줌. 실패는 가운데 띠 한 줄만
+  if (win && rw) showResult('gift', ch.kind === 'duel' ? ch.name : `${ch.name} 완료`, rwTiles(rw));
+  else if (win) banner(ch.kind === 'duel' ? ch.name : `${ch.name} 완료`);
+  else banner(ch.kind === 'duel' ? ch.name : `${ch.name} 실패`);
   writeSave(); renderPanel();
   setTimeout(() => {
     R.chal = null; R.wipe = 0; restoreField(); renderPanel(); updateUI();
@@ -5258,6 +5327,8 @@ function goldBump() {
 /** 동전 n개가 (x, y) 지도 위치에서 골드 칸으로 날아감 */
 function coinFly(x, y, n) {
   if (sleeping || document.hidden) return;
+  // 창이 떠 있거나 메뉴 화면이 펼쳐져 있으면 동전이 글자와 창 위를 덮으므로 날리지 않음
+  if (modalEl.classList.contains('on') || !$('app').classList.contains('folded') || document.querySelector('#res.on, #rift.on')) return;
   const tgt = $('gold').parentElement.getBoundingClientRect(); if (!tgt.width) return;
   const a = w2s(x, y), tx = tgt.left + 14, ty = tgt.top + tgt.height / 2;
   for (let i = 0; i < n; i++) {
@@ -5523,12 +5594,16 @@ function update(dt) {
     if (e.at >= 1) {
       e.at = 0; e.swing = 1;
       // 보호막이 먼저 막음
-      let dmg = e.atk;
+      // 회피: 요원 유형별 확률로 공격을 피함. 방어력: 받는 피해를 줄임 (요원 상세 능력치에 나오는 값과 같음)
+      if (Math.random() < C.heroDodge(tg.id)) { addText(hr.x, hr.y - HERO_SIZE, '회피', '#9fd8ff', false); continue; }
+      let dmg = e.atk * (1 - C.defCut(tg.id));
       if (hr.shield > 0) { const a = Math.min(hr.shield, dmg); hr.shield -= a; dmg -= a; }
       hr.hp -= dmg; hr.hurt = 1;
       addText(hr.x, hr.y - HERO_SIZE, dmg > 0 ? C.formatNum(dmg) : '막음', dmg > 0 ? '#ff7a7a' : '#ffd98a', false);
     }
   }
+  // 생명력 회복: 살아 있는 요원은 1초에 최대 체력의 1%씩 회복
+  for (const h of hs) { const r = R.heroes[h.id]; if (r && r.hp > 0 && r.hp < r.max) r.hp = Math.min(r.max, r.hp + r.max * C.REGEN * dt); }
   separate();
   for (const h of hs) keepIn(R.heroes[h.id], 24);
   for (const e of R.enemies) keepIn(e, e.boss ? 50 : 24);
@@ -6143,6 +6218,8 @@ function placeHelp() {
 }
 function renderPanel() { renderPanel0(); requestAnimationFrame(placeHelp); }
 setInterval(() => { try { placeHelp(); } catch (e) {} }, 400);   // 메뉴를 닫거나 칸 높이가 바뀌면 도움말 단추 자리도 따라감
+const UP_IC = { atk: 's_atk', gold: 'gold', crit: 's_crit', hp: 's_hp', cdmg: 't_aoe' };
+const UP_ST = { atk: '공격력', gold: '골드 획득', crit: '치명타 확률', hp: '생명력', cdmg: '치명타 피해' };
 function renderPanel0() {
   const P = $('panel');
   $('app').classList.toggle('shopfull', tab === 'summon'); $('app').classList.toggle('bigp', tab === 'summon');   // 화면 위까지 크게 여는 건 상점만. 나머지 메뉴는 원래 높이
@@ -6153,15 +6230,13 @@ function renderPanel0() {
     for (const x of $('hsub').children) { x.classList.toggle('on', x.dataset.hsub === hsub); if (x.dataset.hsub === 'pet') x.classList.toggle('lk', !C.sysOpen(S, 'pet')); }
     P.innerHTML = hsub === 'form' ? formHtml() : hsub === 'codex' ? codexHtml() : hsub === 'team' ? teamHtml() : hsub === 'pet' ? `<div class="syw">${petBoxHtml()}</div>` : manageHtml();
   } else if (tab === 'train') {
-    // 세나 키우기 영향력 창처럼: 단계 + 막대, ×1/×10/×100, 강화 카드 3장, 아래 잠긴 탭
-    const ic = { atk: 'sword', gold: 'gold', crit: 'target' };
+    // 세나 키우기 성장 창처럼: 단계 + 막대, ×1/×10/×100, 항목마다 한 줄 (아이콘, 이름과 레벨, 현재 » 다음, 레벨업 단추)
     P.innerHTML = `<div class="gw"><div class="gw-h"><b id="gwLv"></b><div class="gw-bar"><i id="gwBar"></i></div><small id="gwN"></small></div>
-      <button class="btn gw-up" id="gwUp" data-act="tstep" hidden><span>${'단계 승급'}</span><span class="cost">${icon('gold')}<i id="gwUpC"></i></span></button>
-      <p class="gw-hint">세 가지를 모두 단계 상한까지 올리면 승급할 수 있어요. 승급할 때마다 팀 공격력과 체력이 5%씩 올라요.</p>
-      <div class="seg gw-mul">${[1, 10, 100].map(n => `<button data-act="umul" data-n="${n}" class="${uMul === n ? 'on' : ''}">×${n}</button>`).join('')}</div>
-      <div class="gw-cards">${C.UPGRADES.map(u => `<div class="gw-c" data-u="${u.id}"><div class="gw-ic"><svg class="ic"><use href="#i-${ic[u.id]}"/></svg></div><b>${u.name}</b><em class="gw-st">${({ atk: '공격력', gold: '골드 획득', crit: '치명타 확률' })[u.id]}</em><small class="gw-lv"></small><div class="gw-v"></div>
-        <button class="btn" data-act="up" data-u="${u.id}"><span>레벨업</span><span class="cost">${icon('gold')}<i></i></span></button></div>`).join('')}</div>
-      <p class="hint">출전한 요원 모두에게 적용돼요.</p>
+      <button class="btn gw-up" id="gwUp" data-act="tstep" hidden><span>단계 승급</span><span class="cost">${icon('gold')}<i id="gwUpC"></i></span></button>
+      <div class="gw-top"><p class="gw-hint">모든 항목을 단계 상한까지 올리면 승급해요. 승급마다 팀 공격력과 생명력 +5%</p>
+      <div class="seg gw-mul">${[1, 10, 100].map(n => `<button data-act="umul" data-n="${n}" class="${uMul === n ? 'on' : ''}">×${n}</button>`).join('')}</div></div>
+      <div class="gw-list">${C.UPGRADES.map(u => `<div class="gw-c gw-r" data-u="${u.id}"><i class="gw-ic">${icon(UP_IC[u.id])}</i><div class="gw-t"><b>${u.name}</b><small><em>${UP_ST[u.id]}</em> <span class="gw-lv"></span></small></div><div class="gw-v"></div>
+        <button class="btn" data-act="up" data-u="${u.id}"><span class="cost">${icon('gold')}<i></i></span></button></div>`).join('')}</div>
       </div>`;
   } else if (tab === 'run') {
     renderRun(P);
@@ -6239,9 +6314,9 @@ function updatePanel() {
     const tb = $('gwUp'); tb.hidden = !tp.ready; tb.disabled = tc > S.gold; $('gwUpC').textContent = C.formatNum(tc);
     for (const row of P.querySelectorAll('.gw-c[data-u]')) {
       const id = row.dataset.u, lv = S.up[id], { n, cost } = upPlan(id);
-      const val = L => id === 'crit' ? Math.round(C.critChance(L) * 100) + '%' : '+' + L * 10 + '%';
+      const val = L => id === 'crit' ? Math.round(C.critChance(L) * 100) + '%' : id === 'cdmg' ? '+' + L * 2 + '%' : '+' + L * 10 + '%';
       row.querySelector('.gw-lv').textContent = `Lv.${lv}`;
-      row.querySelector('.gw-v').innerHTML = n ? `${val(lv)} <i>»</i> <em>${val(lv + n)}</em>` : `${val(lv)}`;
+      row.querySelector('.gw-v').innerHTML = n ? `<span>${val(lv)}</span><em>${val(lv + n)}</em>` : `<span>${val(lv)}</span>`;
       const btn = row.querySelector('button');
       const cap = C.upCap(S, id), umax = C.UPGRADES.find(u => u.id === id).max;
       row.querySelector('.gw-lv').textContent = `Lv.${lv} / ${cap}`;
@@ -6256,7 +6331,8 @@ function updatePanel() {
     for (const b of P.querySelectorAll('[data-act=sum]')) {
       const kind = b.dataset.kind, n = +b.dataset.n, c = sumCost(kind, n), sp = b.querySelector('span');
       if (sp) sp.innerHTML = icon(c.ic) + C.formatNum(c.v);
-      b.disabled = !c.ok || (kind === 'pickup' && !open);
+      // 보석이 모자라도 누를 수 있게 둠: 누르면 '보석이 부족해요, 사러 갈까요?' 창 (호출권이 모자란 건 그대로 막음)
+      b.disabled = (!c.ok && c.ic !== 'gem') || (kind === 'pickup' && !open); b.classList.toggle('short', !c.ok && c.ic === 'gem');
     }
     const wt = $('wTix'); if (wt) { wt.textContent = C.formatNum(S.tix); $('wPtix').textContent = C.formatNum(S.ptix); }
   }
@@ -6443,16 +6519,18 @@ function riftMap(target) {
   // 구역 띠 + 구역 이름 + 균열 무늬
   for (let zf = L.from; zf <= L.to; zf += 10) {
     const z = riftZone(zf), [bg, ac] = ZONE_COL[(z.no - 1) % ZONE_COL.length], y0 = P[zf].y - 56, y1 = P[zf + 9].y + RF.gap + RF.zoneGap - 56;
-    svg += `<defs><linearGradient id="zg${z.no}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${bg}" stop-opacity=".95"/><stop offset="1" stop-color="${bg}" stop-opacity=".35"/></linearGradient></defs>
-      <rect x="0" y="${y0}" width="${L.W}" height="${y1 - y0}" fill="url(#zg${z.no})"/>
-      <line x1="0" y1="${y0}" x2="${L.W}" y2="${y0}" stroke="${ac}" stroke-opacity=".45"/>`;
+    // 0.38.7: 구역 경계를 딱 잘린 네모 띠 대신 위아래가 부드럽게 섞이는 색으로 (구역이 바뀌는 곳에만 얇은 선과 이름)
+    svg += `<defs><linearGradient id="zg${z.no}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${bg}" stop-opacity="0"/><stop offset=".12" stop-color="${bg}" stop-opacity=".75"/><stop offset=".88" stop-color="${bg}" stop-opacity=".75"/><stop offset="1" stop-color="${bg}" stop-opacity="0"/></linearGradient>
+      <linearGradient id="zl${z.no}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${ac}" stop-opacity="0"/><stop offset=".5" stop-color="${ac}" stop-opacity=".6"/><stop offset="1" stop-color="${ac}" stop-opacity="0"/></linearGradient></defs>
+      <rect x="0" y="${y0 - 30}" width="${L.W}" height="${y1 - y0 + 60}" fill="url(#zg${z.no})"/>
+      ${zf === L.from ? '' : `<rect x="${L.W * 0.1}" y="${y0 + 20}" width="${L.W * 0.8}" height="1" fill="url(#zl${z.no})"/>`}`;
     const rnd = seeded(z.no * 977);
     for (let c = 0; c < 5; c++) {   // 벽의 균열 금: 양옆 가장자리에 지그재그
       const side = c % 2, cx = side ? L.W - 6 - rnd() * 30 : 6 + rnd() * 30, cy = y0 + 40 + rnd() * (y1 - y0 - 80);
       let d = `M${cx.toFixed(0)},${cy.toFixed(0)}`; for (let k = 1; k < 5; k++) d += ` L${(cx + (rnd() - 0.5) * 26).toFixed(0)},${(cy + k * 18).toFixed(0)}`;
       svg += `<path d="${d}" fill="none" stroke="${ac}" stroke-opacity=".35" stroke-width="1.5"/>`;
     }
-    nodes += `<div class="rz" style="top:${y0 + 8}px;--ac:${ac}"><em>${z.no}구역</em><b>${z.name}</b></div>`;
+    if (zf !== L.from) nodes += `<div class="rz rz2" style="top:${y0 + 2}px;--ac:${ac}"><em>${z.no}구역</em><b>${z.name}</b></div>`;   // 첫 구역 이름은 위 머리띠에 이미 나옴
   }
   // 길: 층 점을 부드럽게 잇는 곡선. 지난 길은 밝게
   const pts = []; for (let f = L.from; f <= L.to; f++) pts.push([f, P[f]]);
@@ -6649,15 +6727,29 @@ function renderHeroPage() {
       <div class="hp-name"><b>${h.name}</b><div><span>Lv.<i id="hpLv"></i></span><span class="pw">${icon('s_power')}<i id="hpPw"></i></span></div></div>
     </div>
     <div class="hp-desc">${hpAim(h)}</div>
-    ${d.owned ? `<div class="hp-stats"><span data-act="hpstat" data-k="atk">${icon('s_atk')}<b id="hpAtk"></b></span><span data-act="hpstat" data-k="hp">${icon('s_hp')}<b id="hpHp"></b></span><span data-act="hpstat" data-k="cd">${icon('s_cd')}<b>${skCd(h)}초</b></span></div>
+    ${d.owned ? `<div class="hp-stats hsg" id="hpStatG"></div>
     <div class="hp-btns">
       <button class="hp-b sm" data-act="${C.partyIds(S).includes(id) ? 'party' : 'hpjoin'}" data-h="${id}" id="hpParty"></button>
       <button class="hp-b star ${h.grade === '전설' && d.stars >= 5 ? 'awk' : ''}" data-act="star" data-h="${id}" id="hpStar"><b>${h.grade === '전설' && d.stars >= 5 ? '각성' : '승급'}</b><span class="pill2"><svg class="ic" viewBox="0 0 24 24"><rect x="5" y="3" width="12" height="17" rx="2" fill="#3a4566" stroke="#c9d3ee" stroke-width="1.4"/><path d="M11 8l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.8 2.6-.4z" fill="#f2c94c"/></svg><i id="hpSh"></i></span></button>
       <button class="hp-b lv" data-act="lv" data-h="${id}" id="hpUp"><b id="hpUpT">레벨업</b><span class="pill2">${icon('exp')}<i id="hpCost"></i></span></button>
       <button class="hp-b sm bulk" data-act="hpbulk" id="hpBulk"></button></div>`
-    : `<div class="hp-stats"><span>${icon('s_atk')}<b id="hpAtk"></b></span><span>${icon('s_hp')}<b id="hpHp"></b></span><span>${icon('s_cd')}<b>${h.skill.cd}초</b></span></div>
+    : `<div class="hp-stats hsg" id="hpStatG"></div>
     <div class="hp-no2"><div><b>아직 합류하지 않은 요원이에요</b><small>${h.limited ? '특별 채용(한정)에서만 만날 수 있어요.' : h.grade === '희귀' ? '요원 호출에서 만날 수 있어요.' : '요원 호출이나 정예 호출에서 만날 수 있어요.'} 1레벨 기준 능력치예요.</small></div><button class="btn" data-act="hpgo">호출하러 가기</button></div>`}`;
   fillHeroDetail();
+}
+/* 요원 상세 능력치 (세나 키우기 영웅 화면처럼 두 줄씩 나란히): 전투에서 실제로 쓰는 값만 보여 줌.
+ * 방어력, 회피, 생명력 회복은 0.38.7부터 전투에 들어가요 (core의 heroDef, heroDodge, REGEN) */
+function heroStatGrid(id, lv, st) {
+  const h = C.heroById(id), b = C.statBonus(S), m = C.battleMods(S);
+  const hp = C.heroHp(id, lv, st) * m.hp, atk = C.heroAtk(id, lv, st, S.up.atk) * m.atk;
+  const rows = [
+    ['hp', 's_hp', '생명력', C.formatNum(hp)], ['atk', 's_atk', '공격력', C.formatNum(atk)],
+    ['def', 't_def', '방어력', C.formatNum(C.heroDef(id, lv, st) * m.hp)], ['crit', 's_crit', '치명타 확률', pct(Math.min(0.75, C.critChance(S.up.crit) + b.crit))],
+    ['dodge', 't_atk', '회피', pct(C.heroDodge(id))], ['cdmg', 't_aoe', '치명타 피해', pct(C.CRIT_DMG + b.cdmg)],
+    ['regen', 't_sup', '생명력 회복', C.formatNum(hp * C.REGEN) + '/초'], ['spd', 's_cd', '공격 속도', h.atkSpd.toFixed(1) + '회/초'],
+    ['boss', 'e_boss', '근원체 피해', '+' + pct(b.boss)], ['gold', 'gold', '골드 획득', '+' + pct(C.goldMult ? C.goldMult(S.up.gold) - 1 + b.gold : b.gold)],
+    ['cd', 's_cd', '기술 재사용', (skCd(h) * m.cd).toFixed(1) + '초'], ['rng', 's_power', '공격 거리', h.range === 'melee' ? '근거리' : '원거리']];
+  return rows.map(([k, ic, n, v]) => `<button class="hsg-c" data-act="hpstat" data-k="${k}">${icon(ic)}<span>${n}</span><b>${v}</b></button>`).join('');
 }
 function fillHeroDetail() {
   const id = hpageId; if (!id || !$('hpage').firstChild) return;
@@ -6665,14 +6757,14 @@ function fillHeroDetail() {
   if (!d.owned) {
     const atk = C.heroAtk(id, 1, 1, S.up.atk), hp = C.heroHp(id, 1, 1);
     $('hpLv').textContent = 1; $('hpPw').textContent = C.formatNum(Math.round(atk * 10 + hp));
-    if ($('hpAtk')) { $('hpAtk').textContent = C.formatNum(atk); $('hpHp').textContent = C.formatNum(hp); }
+    $('hpStatG').innerHTML = heroStatGrid(id, 1, 1);
     return;
   }
   $('hpLv').textContent = d.lv; $('hpLv').dataset.cap = C.heroLvCap(d.stars);
   const st = hpAwk && h.grade === '전설' ? C.AWAKE_STAR : d.stars;   // 각성 정보 보기: ★6 기준 능력치
   const atk = C.heroAtk(id, d.lv, st, S.up.atk), hp = C.heroHp(id, d.lv, st);
   $('hpPw').textContent = C.formatNum(Math.round(atk * 10 + hp));
-  $('hpAtk').textContent = C.formatNum(atk); $('hpHp').textContent = C.formatNum(hp);
+  $('hpStatG').innerHTML = heroStatGrid(id, d.lv, st);
   const pids = C.partyIds(S), inP = pids.includes(id), pb = $('hpParty');
   pb.dataset.act = inP ? 'party' : 'hpjoin'; pb.textContent = inP ? '출전 중' : '출전'; pb.classList.toggle('on', inP);
   const need = C.starNeed(d.stars, h.grade), max = need === Infinity;
@@ -6784,7 +6876,7 @@ function onAct(e) {
     else if (act === 'topen') openRift();
     else if (act === 'dsweep') {
       const d = C.dungeonById(b.dataset.d), r = C.sweepDungeon(S, d.id);
-      toast(`${d.name} ${S.dbest[d.id]}단계 소탕 완료`); banner('소탕 완료');
+      showResult('gift', `${d.name} ${S.dbest[d.id]}단계 소탕 완료`, rwTiles(r || {}));
       for (const [ic, v] of [['gold', r.gold], ['tix', r.tix], ['exp', r.exp]]) if (v) addText(R.A.x, R.A.y - 70, ({ gold: '+', tix: '호출권 +', exp: '경험치 +' })[ic] + C.formatNum(v), ic === 'exp' ? '#6ff0c8' : '#ffd23a', true);
       writeSave(); renderPanel();
     } else if (act === 'dsweepall') {
@@ -6805,8 +6897,8 @@ function onAct(e) {
       if (k === 'lvup') return openHeroWin();
       const t = MIS_GO[k]; if (t === 'boss') return $('bossBtn').click();
       const tb = $('tabs').querySelector(`[data-tab="${t}"]`); if (tb && tab !== t) tb.click();
-    } else if (act === 'mget') { const g = C.missionClaim(S, +b.dataset.m); if (g) { toast(`보석 ${g}개를 받았어요`); writeSave(); } }
-    else if (act === 'mbonus') { const n = C.missionBonus(S); if (n) { toast(`정예 호출권 ${n}장을 받았어요`); writeSave(); misRe(); } }
+    } else if (act === 'mget') { const g = C.missionClaim(S, +b.dataset.m); if (g) { showResult('gift', '보상 획득', rwTiles({ gems: g })); writeSave(); } }
+    else if (act === 'mbonus') { const n = C.missionBonus(S); if (n) { showResult('gift', '보상 획득', rwTiles({ ptix: n })); writeSave(); misRe(); } }
     else if (act === 'mms') { const r = C.dailyMsClaim(S, +b.dataset.i); if (r) { writeSave(); showResult('gift', '보상 획득', rwTiles(r)); misRe(); } }
     else if (act === 'attend') {
       const r = C.attend(S, new Date());
@@ -6828,7 +6920,7 @@ function onAct(e) {
     } else if (act === 'tstep') {
       try { C.tstepUp(S); sfx('levelup', 0.8); showResult('star', `수사력 ${C.tstepOf(S)}단계`, `<div class="rs-sub">팀 공격력과 체력이 영구로 5% 올랐어요. 강화 상한도 올라갔어요.</div>`); refreshMods && refreshMods(); writeSave(); renderPanel(); } catch (e) { toast(e.message); }
     } else if (act === 'umul') { uMul = +b.dataset.n; renderPanel(); }
-    else if (act === 'sum') doSummon(+b.dataset.n || C.summonMaxN(S, b.dataset.kind), b.dataset.kind);
+    else if (act === 'sum') { const c = sumCost(b.dataset.kind, +b.dataset.n || 1); if (c.ic === 'gem' && !c.ok) return gemShort(c.v); doSummon(+b.dataset.n || C.summonMaxN(S, b.dataset.kind), b.dataset.kind); }
     else if (act === 'testOff') showOffline(C.offlineReward(S, 3600));
     else if (act === 'reset') confirmReset();
     if (tab === 'mis' && ['mall', 'mget', 'mbonus'].includes(act) && !$('app').classList.contains('folded')) renderPanel();
@@ -6878,7 +6970,7 @@ let heroBack = null;
 function openHeroWin() {
   const app = $('app');
   heroBack = null; hsub = 'manage';   // 요원 창을 닫으면 전투 화면으로. 열 때는 항상 첫 화면(요원 관리)부터
-  app.classList.remove('folded'); app.classList.add('herofull');
+  app.classList.remove('folded'); app.classList.add('herofull'); document.querySelectorAll('.cfly').forEach(c => c.remove());
   helpOnce('hero');
   tab = 'hero'; hsub = 'manage'; for (const x of $('tabs').children) x.classList.toggle('on', x.dataset.tab === 'hero'); renderPanel(); $('panel').scrollTop = 0; updateUI();
 }
@@ -6927,7 +7019,7 @@ $('tabs').addEventListener('click', e => {
   const app = $('app');
   if (!app.classList.contains('folded') && b.dataset.tab === tab) { app.classList.add('folded'); for (const x of $('tabs').children) x.classList.remove('on'); return; }
   const wasFolded = app.classList.contains('folded');
-  app.classList.remove('folded');
+  app.classList.remove('folded'); document.querySelectorAll('.cfly').forEach(c => c.remove());
   if (tab !== b.dataset.tab || wasFolded) { const first = SUBS[b.dataset.tab] && SUBS[b.dataset.tab][0]; if (first) { subSel[b.dataset.tab] = first[0]; if (b.dataset.tab === 'summon') sumSub = first[0]; } if (b.dataset.tab === 'mis') misTab = 'd'; }   // 메뉴를 새로 열면 첫 화면부터
   tab = b.dataset.tab;
   for (const x of $('tabs').children) x.classList.toggle('on', x === b);
@@ -7052,6 +7144,7 @@ function doSummon(n, kind) {
 /** 창 열기. 같은 창을 다시 그릴 때(보상 받기 뒤 새로 고침 등)는 스크롤 위치를 그대로 둠 */
 const SCROLLERS = '.mbody,.sb-g,.rp,.ps,.road,.book,.cxl,.mlist,.ai-log,.tt-list,.cxrs,.cosl,.hstw,.pf2,.lore-p';
 function openModal(html, onClose) {
+  document.querySelectorAll('.cfly').forEach(c => c.remove());   // 날던 동전이 창 위에 남지 않게
   const m = $('modal'), was = m.classList.contains('on') ? (m.querySelector('.mbody h2') || {}).textContent : null;
   const keep = was ? [...m.querySelectorAll(SCROLLERS)].map(e => e.scrollTop) : null;
   m.innerHTML = `<div class="mbox"><button class="mx" data-close aria-label="닫기"><svg viewBox="0 0 40 40"><path d="M20 2L38 20 20 38 2 20z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.5" stroke-linejoin="round"/><path d="M14 14l12 12M26 14L14 26" stroke="#fff4e0" stroke-width="3.4" stroke-linecap="round"/></svg></button><div class="mbody">${html}</div></div>`; m.classList.add('on');
@@ -7063,8 +7156,13 @@ function showOffline(r) {
   if (!r || r.gold <= 0) { if (r) toast('받을 보상이 없어요'); return; }
   openModal(`<h2>자리를 비운 동안</h2><p>요원들이 ${C.formatDuration(r.sec)} 동안 이상체 ${C.formatNum(r.kills)}개체를 처리했어요</p>
     <div class="big">${icon('gold')}<span>${C.formatNum(r.gold)}</span></div>${r.exp ? `<div class="big">${icon('exp')}<span>${C.formatNum(r.exp)}</span></div>` : ''}${r.tix ? `<div class="big">${icon('tix')}<span>${C.formatNum(r.tix)}</span></div>` : ''}<p class="hint">최대 8시간까지 쌓여요</p>
-    <div class="mbtns"><button class="btn" data-close="ok">받기</button></div>`, () => { S.gold += r.gold; S.exp += r.exp || 0; S.tix += r.tix || 0; writeSave(); updateUI(); banner('보상 획득'); });
+    <div class="mbtns"><button class="btn ghost" data-close="ok">받기</button><button class="btn" data-close="ad">${AD_IC}광고 보고 2배</button></div>`, async v => {
+      // 세나 키우기 자리 비움 보상처럼 광고를 보면 2배. 광고를 끝까지 못 보면 1배만 받음 (보상이 사라지지 않게)
+      let m = 1; if (v === 'ad') { try { if (await Ads.show('offline')) m = 2; } catch (e) { m = 1; } }
+      S.gold += r.gold * m; S.exp += (r.exp || 0) * m; S.tix += (r.tix || 0) * m; writeSave(); updateUI(); showResult('gift', m === 2 ? '보상 2배 획득' : '보상 획득', rwTiles({ gold: r.gold * m, exp: (r.exp || 0) * m, tix: (r.tix || 0) * m }));
+    });
 }
+var AD_IC = '<svg class="ic" viewBox="0 0 24 24" style="width:18px;height:18px;margin-right:4px;vertical-align:-3px"><rect x="2" y="5" width="20" height="14" rx="3" fill="#2a1c04"/><path d="M10 9l6 3-6 3z" fill="#f7d77a"/></svg>';
 function confirmReset() {
   openModal(`<h2>처음부터 다시</h2><p>골드, 요원, 스테이지가 모두 지워져요</p><div class="mbtns"><button class="btn ghost" data-close="no">취소</button><button class="btn" data-close="yes" style="background:linear-gradient(#ff7a6b,#c7332a);color:#fff;box-shadow:0 3px 0 #6d1510">초기화</button></div>`, v => {
     if (v !== 'yes') return;
@@ -7234,7 +7332,7 @@ modalEl.addEventListener('click', e => {
 function rdTile(rw) {
   const [k, v] = Object.entries(rw)[0];
   // 보상이 여러 개면 노란 + 표시로 숨기지 않고 한 칸씩 모두 보여 줌
-  const I = { gems: 'gem', tix: 'tix', ptix: 'ptix', gold: 'gold', exp: 'exp', g2: 'g2', e2: 'e2', med: 'med' };
+  const I = { gems: 'gem', tix: 'tix', ptix: 'ptix', gold: 'gold', exp: 'exp', g2: 'g2', e2: 'e2', med: 'med', snack: 'snack' };
   return Object.entries(rw).filter(([q]) => I[q]).map(([q, n]) => `<i class="rdi">${icon(I[q])}<span>${C.formatNum(n)}</span></i>`).join('');
 }
 function roadHtml() {
@@ -7661,7 +7759,8 @@ function statRowsHtml(id, stars) {
   return R2.map(([k, n, v]) => `<button class="hst" data-hst="${k}"><span>${C.STATS[k] ? stIc(k) : ''}${n}</span><b>${v}</b></button>`).join('');
 }
 const STAT_DESC = { ...Object.fromEntries(Object.entries(C.STATS).map(([k, v]) => [k, v.desc])), spd: '1초에 몇 번 공격하는지예요.', rng: '근거리는 붙어서, 원거리는 떨어져서 공격해요.', cd: '기술을 다시 쓰기까지 걸리는 시간이에요. 지원형 요원을 함께 편성하면 줄어요.' };
-const STAT_NAME = { spd: '공격 속도', rng: '공격 거리', cd: '기술 재사용' };
+const STAT_NAME = { spd: '공격 속도', rng: '공격 거리', cd: '기술 재사용', def: '방어력', dodge: '회피', regen: '생명력 회복', hp: '생명력', atk: '공격력' };
+Object.assign(STAT_DESC, { def: '적에게 받는 피해를 줄여요. 방어형 요원이 가장 높아요.', dodge: '적의 공격을 아예 피할 확률이에요. 공격형 요원이 가장 높아요.', regen: '전투 중에도 1초마다 최대 생명력의 1%씩 회복해요.' });
 function hpAct(act, b) {
   const id = hpageId, h = C.heroById(id), d = S.heroes[id];
   if (act === 'hpstats') openModal(`<h2>${h.name} 능력치</h2><div class="hstw">${statRowsHtml(id)}</div><p class="hint">항목을 누르면 설명을 볼 수 있어요.</p><div class="mbtns"><button class="btn" data-close>닫기</button></div>`);
@@ -8113,7 +8212,7 @@ const PRODUCTS = {   // 스토어에 등록할 상품 ID (구글 플레이 콘�
   mpass: 'aiu_mission_pass', px_level: 'aiu_pass_level', px_summon: 'aiu_pass_summon', px_rift: 'aiu_pass_rift', p_new: 'aiu_pack_new', p_lv: 'aiu_pack_summon', p_ptix: 'aiu_pack_elite', w_sum: 'aiu_weekly_summon', p_month: 'aiu_monthly', p_noad: 'aiu_no_ads', pass: 'aiu_pass_s1',
   g0: 'aiu_gem_60', g1: 'aiu_gem_300', g2: 'aiu_gem_650', g3: 'aiu_gem_1350', g4: 'aiu_gem_2800', g5: 'aiu_gem_6000',
 };
-const AD_UNITS = { gold: 'ad_gold_buff', shop: 'ad_shop_reward', mail: 'ad_mail' };   // 광고 자리 ID
+const AD_UNITS = { gold: 'ad_gold_buff', shop: 'ad_shop_reward', mail: 'ad_mail', offline: 'ad_offline_double' };   // 광고 자리 ID
 const Pay = {
   test: true,
   /** @returns {Promise<boolean>} 결제 완료면 true. 실패나 취소면 false */
@@ -8656,6 +8755,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.38.7', '11월 29일', ['수사력 강화 비용이 골드 수입에 맞게 내려갔어요 (가이드 21이 막히던 문제)', '수사력에 방탄 훈련(생명력), 약점 분석(치명타 피해)이 생기고 한 줄 목록으로 바뀌었어요', '요원 상세에 생명력, 방어력, 회피, 생명력 회복 등 능력치가 두 줄로 나와요. 방어력, 회피, 회복은 전투에 실제로 들어가요', '자리 비움 보상을 광고 보고 2배로 받을 수 있어요', '보석이 부족하면 보석 구매 창이 떠요', '작전, 임무 보상은 보상 획득 창으로 보여 줘요', '창 테두리를 단순하게 바꿨어요', '행운 돌림판이 네모 판으로 바뀌었어요', '동전 연출이 창과 메뉴를 덮지 않아요', '소환 레벨이 30까지 올라가요', '자동 호출 칸과 단추 사이를 띄웠어요']],
   ['0.38.6', '11월 29일', ['아래 메뉴 아이콘 뒤 네모 칸을 없애 가운데 단추 날개가 보여요', '기록, 메뉴 펼치기 아이콘의 네모 바탕을 없앴어요', '전투력 숫자 크기를 줄였어요', '효과음은 작게, 배경 음악은 크게 바꿨어요. 설정에서 0부터 100까지 10씩 조절해요 (기본 50)']],
   ['0.38.5', '11월 29일', ['요원 강화 가이드가 레벨이 가장 낮은 출전 요원을 열어 줘요', '요원 창을 연 동안 전투 대사 말풍선이 화면을 가리지 않아요']],
   ['0.38.4', '11월 29일', ['편성의 코드 단추로 현재 편성을 복사하거나, 받은 코드로 같은 편성을 만들어요']],
@@ -8953,7 +9053,7 @@ function syDo(b) {
     else if (a === 'basepet') { $('tabs').querySelector('[data-tab=summon]').click(); sumTop = 'pet'; return renderPanel(); }
     else if (a === 'gview') { gearView = b.dataset.v; }
     else if (a === 'gequip') { const pw0 = teamPower(); C.gearEquip(S, +b.dataset.u); sfx('button', 0.5, 0.1); pwUp(pw0, true); }
-    else if (a === 'gscrap') { const r = C.gearScrap(S, +b.dataset.g); sfx('coins', 0.6, 0.1); toast(`장비 ${r.n}개를 분해해서 골드 ${C.formatNum(r.gold)}을 받았어요`); }
+    else if (a === 'gscrap') { const r = C.gearScrap(S, +b.dataset.g); showResult('gift', `장비 ${r.n}개 분해`, rwTiles({ gold: r.gold })); }
     else if (a === 'lab') { C.labStart(S, id, now); sfx('button', 0.5, 0.1); }
     else if (a === 'labrush') { const pw0 = teamPower(); C.labRush(S, now); sfx('levelup', 0.6, 0.1); pwUp(pw0, true); }
     else if (a === 'aid') { const r = C.aidGive(S, id, now); sfx(r.up ? 'levelup' : 'coins', 0.6, 0.1); if (r.up) toast(`후원 레벨이 올랐어요 (Lv.${S.sys.aid.lv})`); }
@@ -8999,24 +9099,33 @@ function camHtml() {
   return `<h2>카메라 대상</h2><p class="hint">화면이 따라갈 요원을 골라요.</p><div class="pfw-g"><button data-act="camset" data-h="" class="${camTarget ? '' : 'on'} cam-all"><b>팀 전체</b></button>${team().map(h => `<button data-act="camset" data-h="${h.id}" class="${camTarget === h.id ? 'on' : ''}"><img src="${ART['id_' + h.id] || portrait(h.id)}" alt=""></button>`).join('')}</div><div class="mbtns"><button class="btn" data-close>닫기</button></div>`;
 }
 /* ---------- 행운 돌림판 (세나 키우기 돌림판처럼) ---------- */
-let wheelRot = 0;
+
+/* 행운 돌림판: 세나 키우기 '행운 돌림판'처럼 네모 판 (가로 4칸 × 세로 3줄 테두리 10칸, 가운데 문장).
+ * 돌리면 불빛이 칸을 시계 방향으로 돌다가 점점 느려져 결과 칸에 멈춤 */
+const WH_POS = [[0, 0], [1, 0], [2, 0], [3, 0], [3, 1], [3, 2], [2, 2], [1, 2], [0, 2], [0, 1]];   // 시계 방향 칸 자리 (열, 줄)
+let wheelAt = 0;
 function wheelHtml() {
-  const n = C.WHEEL.length, left = C.wheelLeft(S, Date.now());
-  const seg = C.WHEEL.map((x, i) => `<div class="wh-s" style="transform:rotate(${360 / n * i + 180 / n}deg)"><span>${rdTile(x.rw)}</span></div>`).join('');
-  const bg = `conic-gradient(${C.WHEEL.map((x, i) => `${i % 2 ? '#1d2440' : '#2a1d4a'} ${360 / n * i}deg ${360 / n * (i + 1)}deg`).join(',')})`;
-  return `<h2>행운 돌림판</h2><p class="hint">하루 ${C.WHEEL_FREE}번은 무료로 돌릴 수 있어요. 그다음부터는 보석 ${C.WHEEL_GEMS}개예요.</p>
-    <div class="wh"><i class="wh-pin"></i><div class="wh-d" id="whD" style="background:${bg};transform:rotate(${wheelRot}deg)">${seg}</div><b class="wh-c"></b></div>
+  const left = C.wheelLeft(S, Date.now());
+  const cells = C.WHEEL.map((x, i) => `<div class="wb-c ${i === wheelAt ? 'on' : ''}" data-wc="${i}" style="grid-column:${WH_POS[i][0] + 1};grid-row:${WH_POS[i][1] + 1}">${rdTile(x.rw)}</div>`).join('');
+  return `<h2>행운 돌림판</h2><p class="hint">하루 ${C.WHEEL_FREE}번 무료, 그다음부터 보석 ${C.WHEEL_GEMS}개</p>
+    <div class="wb">${cells}<div class="wb-m"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="27" fill="none" stroke="#d4ab55" stroke-width="2"/><path d="M32 6l5 21 21 5-21 5-5 21-5-21-21-5 21-5z" fill="#e8ecf6"/><circle cx="32" cy="32" r="5" fill="#d4ab55"/></svg></div></div>
     <div class="mbtns"><button class="btn ghost" data-close>닫기</button><button class="btn wh-b" data-wspin>${left > 0 ? `돌리기 <small>무료 ${left}</small>` : `돌리기 <span class="cost">${icon('gem')}${C.WHEEL_GEMS}</span>`}</button></div>`;
 }
 let wheelBusy = false;
 modalEl.addEventListener('click', e => {
   if (!e.target.closest('[data-wspin]') || wheelBusy) return;
   let r; try { r = C.wheelSpin(S, Date.now()); } catch (x) { sfx('error', 0.4, 0.2); return toast(x.message); }
-  writeSave(); wheelBusy = true; sfx('whoosh', 0.6, 0.1);
-  const n = C.WHEEL.length, target = 360 - (360 / n * r.i + 180 / n);   // 위쪽 핀이 r.i 칸 가운데를 가리키게
-  wheelRot += 360 * 5 + ((target - wheelRot % 360) + 360) % 360;
-  const d = $('whD'); d.style.transition = 'transform 3.2s cubic-bezier(.15,.85,.25,1)'; d.style.transform = `rotate(${wheelRot}deg)`;
-  setTimeout(() => { wheelBusy = false; showResult('gift', '보상 획득', rwTiles(r.rw)); }, 3300);
+  writeSave(); wheelBusy = true;
+  const n = C.WHEEL.length, steps = n * 3 + ((r.i - wheelAt + n) % n);   // 세 바퀴 돌고 결과 칸까지
+  let k = 0;
+  const tick = () => {
+    wheelAt = (wheelAt + 1) % n; k++;
+    for (const c of modalEl.querySelectorAll('.wb-c')) c.classList.toggle('on', +c.dataset.wc === wheelAt);
+    sfx('whoosh', 0.15, 0);
+    if (k >= steps) { setTimeout(() => { wheelBusy = false; const b = modalEl.querySelector('[data-wspin]'); if (b) b.closest('.mbox') && openModal(wheelHtml()); showResult('gift', '보상 획득', rwTiles(r.rw)); }, 450); return; }
+    const t = k / steps; setTimeout(tick, 45 + 260 * t * t * t);   // 끝으로 갈수록 느려짐
+  };
+  tick();
 });
 /* ---------- 특별 채용 알림 창 (세나 키우기 접속 시 픽업 소환 창처럼). 하루 한 번, '오늘 다시 보지 않기' ---------- */
 function promoCheck(tries = 0) {
@@ -9089,7 +9198,7 @@ const opSeen = () => { try { return localStorage.getItem('aiu-op') === '1'; } ca
 function startGame() {
   if (started || !splashReady) return; started = true;
   $('splash').style.display = 'none'; paused = false; last = performance.now();
-  if (S.migrated) { delete S.migrated; writeSave(); setTimeout(() => toast(`뽑기 개편 보상으로 보석 ${C.CONST.MIGRATE_GEMS.toLocaleString()}개를 받았어요`), 600); }
+  if (S.migrated) { delete S.migrated; writeSave(); setTimeout(() => showResult('gift', '뽑기 개편 보상', rwTiles({ gems: C.CONST.MIGRATE_GEMS })), 600); }
   if (pending && pending.gold > 0) showOffline(pending);
   else if (firstRun || !opSeen()) playOpening(() => banner(theme().name));   // 오프닝이 끝나면 첫 구역 이름   // 처음 시작: 오프닝 연출 뒤 출동
 }

@@ -185,7 +185,7 @@ test('저장 복구: 퀘스트, 자동 기술, 배속 / 가이드 전 저장은 
 
 
 test('소환 레벨: 세나 키우기처럼 1~4 는 전설 없음, 5 에서 0.10%, 10 에서 0.15%', () => {
-  assert.equal(C.summonLevel(0), 1); assert.equal(C.summonLevel(499), 4); assert.equal(C.summonLevel(500), 5); assert.equal(C.summonLevel(1e6), 10);
+  assert.equal(C.summonLevel(0), 1); assert.equal(C.summonLevel(499), 4); assert.equal(C.summonLevel(500), 5); assert.equal(C.summonLevel(1e6), 30);
   assert.equal(C.summonRates(4).legend, 0); assert.equal(C.summonRates(5).legend, 0.001); assert.equal(C.summonRates(10).legend, 0.0015);
   for (let lv = 1; lv <= 10; lv++) { const r = C.summonRates(lv); assert.ok(Math.abs(r.legend + r.hero + r.rare - 1) < 1e-9); }
 });
@@ -547,6 +547,8 @@ test('수사력 단계: 상한까지만 강화, 모두 채우면 승급', () => 
   s.up.atk = 10; assert.equal(C.upCost(s, 'atk', 10), Infinity);
   assert.throws(() => C.tstepUp(s), RangeError);
   s.up.gold = 10; s.up.crit = 3; s.gold = 0;
+  assert.equal(C.tstepProg(s).ready, false);   // 0.38.7: 방탄 훈련, 약점 분석도 채워야 함
+  s.up.hp = 10; s.up.cdmg = 3;
   assert.equal(C.tstepProg(s).ready, true);
   assert.throws(() => C.tstepUp(s), RangeError);   // 골드 부족
   s.gold = C.tstepCost(s); const g0 = s.gems;
@@ -554,7 +556,7 @@ test('수사력 단계: 상한까지만 강화, 모두 채우면 승급', () => 
   assert.equal(C.tstepOf(s), 2); assert.equal(s.gold, 0); assert.equal(s.gems, g0);   // 보석 대신 능력치
   assert.ok(C.statBonus(s).src.수사력.atk > 0.049);
   assert.equal(C.upCap(s, 'atk'), 20); assert.ok(C.upCost(s, 'atk', 10) < Infinity);
-  assert.deepEqual(C.tstepProg(s), { cur: 0, need: 23, ready: false });
+  assert.deepEqual(C.tstepProg(s), { cur: 0, need: 36, ready: false });
 });
 test('수사력 단계: 예전 저장은 현재 강화 레벨에 맞는 단계로', () => {
   const s = C.sanitize({ v: 2, up: { atk: 35, gold: 12, crit: 4 } });

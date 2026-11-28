@@ -125,9 +125,15 @@
 
   // 공용 강화(훈련소) 목록
   const UPGRADES = [
-    { id: 'atk',  name: '사격 훈련', baseCost: 50,  growth: 1.25, max: 999 },
-    { id: 'gold', name: '현상금 협상', baseCost: 80,  growth: 1.30, max: 999 },
+    // 0.38.7: 비용 증가율을 골드 수입(스테이지마다 ×1.08)에 맞춤. 예전 1.25, 1.30은 레벨 70쯤부터 비용이 수입보다
+    // 훨씬 빨리 커져서, 11-9(약 110스테이지)에서 한 번 올리는 데 수입 4시간치가 들었음 (가이드 21 '수사력 강화'가 막힘).
+    // 1.12, 1.13이면 대략 '스테이지 수 = 올릴 수 있는 레벨'이 되고, 한 번 올리는 데 수입 1~2분치가 들어요
+    { id: 'atk',  name: '사격 훈련', baseCost: 50,  growth: 1.12, max: 999 },
+    { id: 'gold', name: '현상금 협상', baseCost: 80,  growth: 1.13, max: 999 },
     { id: 'crit', name: '급소 노리기', baseCost: 120, growth: 1.35, max: 45 },
+    // 0.38.7: 세나 키우기 성장처럼 항목을 늘림. 생명력은 레벨당 팀 생명력 +10%, 치명타 피해는 레벨당 +2%
+    { id: 'hp',   name: '방탄 훈련',   baseCost: 60,  growth: 1.12, max: 999 },
+    { id: 'cdmg', name: '약점 분석',   baseCost: 150, growth: 1.33, max: 60 },
   ];
 
   const CONST = {
@@ -152,9 +158,10 @@
      *   (세나 키우기 실제 값: 소환 레벨 5 레전드 0.1%, 10 에서 0.15%)
      * - 영웅 등급도 레벨마다 1%씩 오름 (세나 에픽 10%→19% 와 같은 폭)
      * - 특별 채용은 릴레이: 누적 2000회를 뽑으면 나이트폴 확정 (세나 픽업 릴레이 최소 2천 뽑기) */
-    SUMMON_LV_PULLS: [0, 50, 150, 300, 500, 800, 1200, 1700, 2300, 3000],
-    LEGEND_BY_LV:    [0, 0, 0, 0, 0.0010, 0.0011, 0.0012, 0.0013, 0.0014, 0.0015],
-    HERO_BY_LV:      [0.10, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19],
+    // 0.38.7: 소환 레벨 10(3,000회)에서 끝나던 것을 30까지 (방치형이라 호출권이 계속 쌓이므로 오래 올릴 목표가 필요)
+    SUMMON_LV_PULLS: [0, 50, 150, 300, 500, 800, 1200, 1700, 2300, 3000, 3900, 5000, 6350, 7950, 9800, 11950, 14400, 17200, 20350, 23850, 27700, 31950, 36600, 41650, 47100, 52950, 59250, 66000, 73200, 80850],
+    LEGEND_BY_LV:    [0, 0, 0, 0, 0.001, 0.0011, 0.0012, 0.0013, 0.0014, 0.0015, 0.0017, 0.0019, 0.0021, 0.0023, 0.0025, 0.0027, 0.0029, 0.0031, 0.0033, 0.0035, 0.0037, 0.0039, 0.0041, 0.0043, 0.0045, 0.0047, 0.0049, 0.0051, 0.0053, 0.0055],
+    HERO_BY_LV:      [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.195, 0.2, 0.205, 0.21, 0.215, 0.22, 0.225, 0.23, 0.235, 0.24, 0.245, 0.25, 0.255, 0.26, 0.265, 0.27, 0.275, 0.28, 0.285, 0.29],
     RELAY: 200,              // 특별 채용 누적 확정 (보석 뽑기 기준)
     PICKUP_DAYS: 14,         // 특별 채용 한 번의 기간 (2주, 목요일 점검 기준)
     MAX_STARS: 5,
@@ -305,6 +312,18 @@
     const h = heroById(id);
     return h.baseHp * Math.pow(1.07, clampInt(lv, 1, 1e6, 1) - 1) * starMult(stars);
   }
+  /* 세나 키우기 상세 능력치처럼 방어력, 회피, 생명력 회복을 따로 가짐 (0.38.7).
+   * - 방어력: 최대 체력의 일정 비율(방어형이 가장 높음). 받는 피해 = 피해 × 체력 / (체력 + 방어력)
+   * - 회피: 적 공격을 아예 피할 확률. 공격형이 가장 높음
+   * - 생명력 회복: 1초에 최대 체력의 1%를 회복 (전투 중에도) */
+  const DEF_RATE = { 방어: 0.24, 지원: 0.14, 공격: 0.1, 광역: 0.1 };
+  const DODGE = { 공격: 0.08, 지원: 0.06, 광역: 0.05, 방어: 0.03 };
+  const REGEN = 0.01;
+  function heroDef(id, lv, stars) { return heroHp(id, lv, stars) * (DEF_RATE[heroById(id).type] || 0.1); }
+  /** 방어력으로 줄어드는 비율 (0~1). 체력 대비 비율만 쓰므로 레벨과 상관없이 유형마다 같음 */
+  function defCut(id) { const r = DEF_RATE[heroById(id).type] || 0.1; return r / (1 + r); }
+  function heroDodge(id) { return DODGE[heroById(id).type] || 0.05; }
+  function heroRegen(id, lv, stars) { return heroHp(id, lv, stars) * REGEN; }
   /** 초당 기본 피해(스킬 제외, 치명타 기대값 포함) */
   function heroDps(id, lv, stars, atkLv, critLv) {
     const c = critChance(critLv);
@@ -348,16 +367,18 @@
   const TSTEP = { LV: 10, CRIT: 3, COST: 3000, GROW: 1.7, BONUS: 0.05 };   // BONUS: 단계마다 팀 공격력, 체력 +5%
   function tstepOf(state) { return clampInt(state && state.tstep, 1, 9999, 1); }
   /** 현재 단계에서 이 강화의 상한 레벨 */
-  function upCap(state, id) { const u = upgradeById(id), t = tstepOf(state); return Math.min(u.max, t * (id === 'crit' ? TSTEP.CRIT : TSTEP.LV)); }
+  const SMALL_CAP = id => id === 'crit' || id === 'cdmg';   // 확률, 배율 항목은 단계마다 조금씩
+  function upCap(state, id) { const u = upgradeById(id), t = tstepOf(state); return Math.min(u.max, t * (SMALL_CAP(id) ? TSTEP.CRIT : TSTEP.LV)); }
   /** 단계 상한을 반영한 강화 비용 (상한이면 Infinity) */
   function upCost(state, id, lv) { return lv >= upCap(state, id) ? Infinity : upgradeCost(id, lv); }
   /** 단계 진행: 현재 단계 안에서 올린 수 / 필요한 수 */
   function tstepProg(state) {
     const t = tstepOf(state); let cur = 0, need = 0;
-    for (const u of UPGRADES) { const cap = upCap(state, u.id), lo = Math.min(cap, (t - 1) * (u.id === 'crit' ? TSTEP.CRIT : TSTEP.LV)); need += cap - lo; cur += Math.max(0, Math.min(cap, state.up[u.id]) - lo); }
+    for (const u of UPGRADES) { const cap = upCap(state, u.id), lo = Math.min(cap, (t - 1) * (SMALL_CAP(u.id) ? TSTEP.CRIT : TSTEP.LV)); need += cap - lo; cur += Math.max(0, Math.min(cap, state.up[u.id]) - lo); }
     return { cur, need, ready: UPGRADES.every(u => state.up[u.id] >= upCap(state, u.id)) };
   }
-  function tstepCost(state) { return Math.floor(TSTEP.COST * Math.pow(TSTEP.GROW, tstepOf(state) - 1)); }
+  /** 단계 승급 비용: 이 단계 마지막 사격 훈련 비용의 8배 (강화 비용과 같은 속도로 커짐, 수입 몇 분치). 처음엔 최소 3,000 */
+  function tstepCost(state) { const t = tstepOf(state); return Math.max(TSTEP.COST, Math.floor(8 * upgradeCost('atk', Math.min(998, t * TSTEP.LV - 1)))); }
   /** 단계 승급. 상태를 바꾸고 받은 보석 수 반환 */
   function tstepUp(state) {
     if (!tstepProg(state).ready) throw new RangeError('세 가지 강화를 모두 상한까지 올려야 해요');
@@ -641,7 +662,7 @@
 
   /* ---------- 6. 소환 ---------- */
 
-  /** 누적 뽑기 횟수 → 소환 레벨 (1~10) */
+  /** 누적 뽑기 횟수 → 소환 레벨 (1~30) */
   function summonLevel(total) {
     const t = isNum(total) && total > 0 ? total : 0;
     let lv = 1;
@@ -658,7 +679,7 @@
   const GRADE_IDS = g => HEROES.filter(h => h.grade === g && !h.limited).map(h => h.id);
   /**
    * n회 뽑기. 등급을 먼저 정하고 그 등급 안에서 균등하게 한 명.
-   * @param {number} level 소환 레벨 1~10
+   * @param {number} level 소환 레벨 1~30
    */
   function summon(n, rng, level = 1) {
     if (typeof rng !== 'function') throw new TypeError('rng 함수가 필요합니다');
@@ -674,7 +695,7 @@
     return out;
   }
   /** 소환 레벨 보상: 레벨 L 에 처음 오르면 보석 L*100, 정예 호출권 L장 */
-  function levelReward(lv) { return { gems: lv * 100, ptix: lv }; }
+  function levelReward(lv) { return { gems: Math.min(1000, lv * 100), ptix: Math.min(10, lv) }; }   // 레벨 11부터는 보석 1,000, 정예 호출권 10장으로 고정
 
   /**
    * 뽑기 한 번 실행 (원본 불변, 새 상태 반환).
@@ -1108,7 +1129,7 @@
       pre: [null, null, null], preI: 0,   // 편성 프리셋 3개            // 가방 (보급품 개수)           // 받은 우편
       cdx: {},            // 요원 도감 받은 단계            // 받은 수사 수첩 보상
       face: '',           // 프로필 얼굴 (비면 첫 출전 요원)
-      up: { atk: 0, gold: 0, crit: 0 },
+      up: { atk: 0, gold: 0, crit: 0, hp: 0, cdmg: 0 },
       q: { i: 0, p: 0, g: 1 },  // 퀘스트 번호와 진행 (g: 가이드 퀘스트가 있는 저장)
       pulls: { total: 0, relay: 0 },    // 요원 호출 누적(소환 레벨), 특별 채용 릴레이
       tix: CONST.START_TICKETS, tixPart: 0,   // 호출권
@@ -1553,7 +1574,8 @@
   function battleMods(state, now = new Date()) {
     const y = synergy(state), b = statBonus(state);
     const pg = planLeft(state, 'p_month', now) > 0 ? planById('p_month').gold : 0;   // 골드 버프 월정액
-    return { atk: y.atk * (1 + b.atk), hp: y.hp * (1 + b.hp), cd: y.cd, crit: b.crit, cdmg: b.cdmg, boss: 1 + b.boss, gold: (1 + b.gold) * (1 + pg), lines: y.lines };
+    const up = state.up || {}, uh = 1 + 0.1 * (up.hp || 0), uc = 0.02 * (up.cdmg || 0);   // 수사력 방탄 훈련, 약점 분석
+    return { atk: y.atk * (1 + b.atk), hp: y.hp * (1 + b.hp) * uh, cd: y.cd, crit: b.crit, cdmg: b.cdmg + uc, boss: 1 + b.boss, gold: (1 + b.gold) * (1 + pg), lines: y.lines };
   }
 
   /** 저장 문자열 파싱. JSON 오류면 새 상태 */
@@ -1994,7 +2016,7 @@
     WHEEL, WHEEL_FREE, WHEEL_GEMS, wheelLeft, wheelSpin, specStage, specCheck, specClear, specSweep, duelStage, duelCheck, duelResult, HUNTS, huntReset, huntReward, huntClaim, REP_STEP, repLv, repTitle, SEARCHES, searchReward, searchStart, searchClaim, SPECS, SPEC_KEYS, specReq, specKeys, specReward, specRun,
     DUEL_KEYS, DUEL_TIERS, duelTier, duelKeys, duelFoes, duelFight, PETS, PET_RATE, PET_COST, PET_MAX, PET_LV_MAX, petVal, petSnackNeed, petLevelUp, petSummon, petEquip, RELICS, RELIC_RATE, RELIC_COST, RELIC_MAX, relicVal, relicSummon,
     SEALS, sealNeed, sealDrop, sealUp, newSys, sanitizeSys, sysBonus,
-    skillGrow, skillOf, SKILL_GROW, heroLvCap, heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, upCap, upCost, tstepOf, tstepProg, tstepCost, tstepUp, TSTEP, starNeed, STAR_NEED,
+    skillGrow, skillOf, SKILL_GROW, heroDef, defCut, heroDodge, heroRegen, REGEN, heroLvCap, heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, upCap, upCost, tstepOf, tstepProg, tstepCost, tstepUp, TSTEP, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, summonMaxN, addTickets, shopItem, STREAK, streakClaim, GOLD_PACKS, goldPackCount, goldPackBuy, PLANS, planById, planLeft, planBuy, planClaim, levelReward, applySummon, pickupRemainSec, formatRemain,
     newState, cloneState, sanitize, loadFromString, QUESTS, GUIDE, questAt, questAdd, questClaim,
     DUNGEONS, MISSIONS, ATTEND, dayKey, dailyReset, dungeonById, dungeonStage, dungeonReward, towerStage, towerReward,

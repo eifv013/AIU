@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.35.0';
+window.AIU_VER = '0.35.1';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1969,6 +1969,36 @@ button.cx{width:100%;color:#fff;position:relative}button.cx .dot{position:absolu
 #tabs button.tlk .dot{display:none!important}
 #tabs button.tnew .tb{animation:tnew .6s ease-in-out 4}
 @keyframes tnew{50%{filter:drop-shadow(0 0 10px #ffd36a) brightness(1.4)}}
+
+/* 금색 버튼과 금색 탭 위 글씨는 항상 어두운 색 (밝은 글씨가 금색에 묻히지 않게) */
+.btn:not(.ghost):not(:disabled),.btn:not(.ghost):not(:disabled) *,.sx-again,.sx-again *,.hp-b.lv:not(:disabled),.hp-b.lv:not(:disabled) b,.srcw button.on,.pf2-t:not(.none),.gw-up,.gw-up *{color:#1a1405!important;text-shadow:none!important}
+.btn:not(.ghost):not(:disabled) .pill2,.btn:not(.ghost):not(:disabled) .pill2 *{color:#fff!important}
+
+/* ---------- 누아르 B안: 근원체 출현 띠 ---------- */
+#bossin{top:26%!important}
+#bossin .nb{position:relative;height:132px;overflow:visible;background:linear-gradient(90deg,rgba(6,7,10,.96) 0,rgba(10,12,18,.94) 60%,rgba(40,8,12,.9));animation:nbIn .45s cubic-bezier(.2,.9,.3,1)}
+#bossin .nb-l{position:absolute;left:0;right:0;top:0;height:3px;background:repeating-linear-gradient(-45deg,#d8202f 0 10px,#1a0508 10px 16px)}
+#bossin .nb-l.b{top:auto;bottom:0}
+#bossin .nb-tx{position:absolute;left:18px;top:50%;transform:translateY(-50%);display:grid;gap:2px;z-index:2}
+#bossin .nb-tx small{font:700 10px 'IBM Plex Sans KR';letter-spacing:.35em;color:#d8202f}
+#bossin .nb-tx em{font:700 13px 'IBM Plex Sans KR';font-style:normal;color:#e9e4d6}
+#bossin .nb-tx b{font:400 30px "Black Han Sans";color:#fff;letter-spacing:.02em;text-shadow:0 2px 8px #000}
+#bossin .nb-tx span{font:600 12px 'IBM Plex Sans KR';color:#8f99ae}
+#bossin .nb img{position:absolute;right:6px;bottom:2px;height:178px;filter:drop-shadow(0 0 12px rgba(216,32,47,.55)) brightness(.95);animation:bossImg .6s cubic-bezier(.2,.9,.3,1.1)}
+#bossin .nb::after{content:'';position:absolute;inset:3px 0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px);pointer-events:none}
+#bossin.on::before{box-shadow:inset 0 0 90px rgba(216,32,47,.35)!important}
+@keyframes nbIn{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+/* ---------- 누아르 B안: 요원 대사 창 ---------- */
+#talk{padding:0!important;gap:0!important;border:0!important;border-radius:4px!important;background:rgba(8,10,15,.9)!important;box-shadow:0 4px 14px rgba(0,0,0,.6);overflow:hidden}
+#talk img{width:58px!important;height:64px!important;border-radius:0!important;border-right:2px solid var(--tc,#d4ab55)}
+#talk>div{padding:7px 12px 8px;border-left:0;display:grid;gap:2px}
+#talk b{font:700 11px 'IBM Plex Sans KR'!important;letter-spacing:.08em;color:var(--tc,#d4ab55)!important}
+#talk span{font:600 13.5px/1.45 'IBM Plex Sans KR'!important;color:#eceae4}
+#talk::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0}
+/* ---------- 누아르 B안: 창 제목 (장식 띠 대신 글자 + 금색 짧은 선) ---------- */
+.mbox h2{background:none!important;padding:2px 30px 10px!important;margin:-4px -6px 10px!important;position:relative;font:400 20px "Black Han Sans"!important;color:#f1ede2!important;letter-spacing:.02em}
+.mbox h2::after{content:'';position:absolute;left:50%;bottom:2px;width:44px;height:2px;margin-left:-22px;background:#d4ab55}
+.bag-from{margin-top:6px!important;font:600 11.5px/1.45 'IBM Plex Sans KR'!important;color:#d4ab55!important}
 </style>
 </head>
 <body>
@@ -2919,10 +2949,10 @@ function kill(e) {
   if (e.boss && R.chal) chalEnd(true);
   else if (e.boss) {
     const gold = C.bossGold(S.stage, S.up.gold) * (SYN.gold || 1);
-    S.gold += gold; S.gems += C.CONST.BOSS_GEMS; S.exp += C.bossExp(S.stage);
+    S.gold += gold; S.gems += C.CONST.BOSS_GEMS; S.exp += C.bossExp(S.stage); S.med = (S.med || 0) + 1;
     const prevSt = S.stage;
     sfx('boom', 0.9, 0.5); fxPic('fx_fire', e.x, e.y - e.size * 0.5, e.size * 4, e.size * 4, 0.8, { grow: 0.6 }); fxPic('fx_light', e.x, e.y - e.size * 0.5, e.size * 5, e.size * 5, 0.5); setTimeout(() => fxPic('fx_gold', e.x, e.y - e.size * 0.6, e.size * 3.2, e.size * 3.2, 0.9, { grow: 0.5 }), 250); setTimeout(() => sfx('coins', 0.7, 0.3), 350);
-    stageClear({ gold, gems: C.CONST.BOSS_GEMS, exp: C.bossExp(S.stage) });
+    stageClear({ gold, gems: C.CONST.BOSS_GEMS, exp: C.bossExp(S.stage), med: 1 });
     S.stage++; S.kills = 0; R.boss = null; S.farming = false; C.progress(S, 'boss', 1); C.addTickets(S, 0, 1); accXp(20);
     if (Math.random() < 0.35) dropCard(e.x, e.y - e.size * 1.3);   // 근원체를 잡으면 가끔 증거 카드
     addText(e.x, e.y - e.size, '+' + C.formatNum(gold), '#ffd23a', true);
@@ -3077,6 +3107,9 @@ function castSkill(h, atk, r, s, tgt) {
 
 /* ---------- 메인 루프 ---------- */
 let last = performance.now(), uiT = 0, saveT = 0, paused = true;
+// 원형 그라디언트 안전장치: 좌표가 숫자가 아니거나 반지름이 음수면 브라우저가 예외를 던져 전투가 멈춤 → 값을 바로잡아서 그림
+(function () { for (const P of [window.CanvasRenderingContext2D, window.OffscreenCanvasRenderingContext2D]) { if (!P) continue; const o = P.prototype.createRadialGradient;
+  P.prototype.createRadialGradient = function (x0, y0, r0, x1, y1, r1) { const f = v => (Number.isFinite(v) ? v : 0); return o.call(this, f(x0), f(y0), Math.max(0, f(r0)), f(x1), f(y1), Math.max(0.0001, f(r1))); }; } })();
 const modalEl = $('modal');
 function loop(now) {
   // 30프레임 설정: 직전 처리 뒤 30ms가 안 지났으면 이번 화면은 건너뜀
@@ -3085,11 +3118,12 @@ function loop(now) {
   try {
     // 시작 화면이나 팝업이 떠 있는 동안은 전투를 멈춤 (보스 제한 시간 보호)
     // 히트스톱: 치명타, 기술, 처치 순간 화면이 아주 잠깐 멈췄다 풀림 (타격감의 핵심)
-    if (!paused && !storyOn && !modalEl.classList.contains('on')) { if (R.stop > 0) { R.stop -= dt; R.shake = Math.max(0, (R.shake || 0) - dt * 10); } else { update(dt);  } }
+    if (!paused && !storyOn) {   // 방치형: 창이나 메뉴를 열어도 전투는 계속
+    if (R.stop > 0) { R.stop -= dt; R.shake = Math.max(0, (R.shake || 0) - dt * 10); } else { update(dt);  } }
     if (g && !sleeping) { draw(); if (!paused) perfTick(dt); }
     uiT += dt; if (uiT > 0.15) { uiT = 0; updateUI(); }
     saveT += dt; if (saveT > 5) { saveT = 0; writeSave(); }
-  } catch (e) { console.error(e); toast('전투 처리 중 오류: ' + e.message); }
+  } catch (e) { console.error(e); window.__battleErr = (window.__battleErr || 0) + 1; }   // 플레이어에게 영어 오류를 보이지 않음 (검수 스크립트가 이 수를 확인)
   requestAnimationFrame(loop);
 }
 function update(dt) {
@@ -5189,15 +5223,15 @@ modalEl.addEventListener('click', e => {
  * 잠긴 탭은 흐리게, 누르면 열리는 스테이지 안내
  * ============================================================ */
 const SUBS = {
-  bag: [['misc', '잡화'], ['sup', '보급품'], ['medi', '의약품'], ['evi', '증거품', 201]],
+  bag: [['all', '전체'], ['misc', '잡화'], ['sup', '보급품'], ['medi', '의약품'], ['evi', '증거품', 201]],
   train: [['up', '수사력'], ['trait', '특성', 51], ['gear', '장비', 121], ['lab', '연구', 201], ['aid', '후원', 301]],
   run: [['daily', '일일 작전'], ['spec', '특수 작전', 151], ['duel', '모의 대련', 251], ['rift', '균열 심층']],
   mis: [['base', '아지트', 101], ['mis', '임무'], ['hunt', '현상 의뢰', 181], ['search', '수색', 261]],
   summon: [['summon', '호출'], ['shop', '상점'], ['daily', '일일 상점'], ['gems', '재화'], ['month', '정기권']],
 };
-const subSel = { bag: 'misc', train: 'up', run: 'daily', mis: 'mis', summon: 'summon' };
+const subSel = { bag: 'all', train: 'up', run: 'daily', mis: 'mis', summon: 'summon' };
 let sumTop = 'agent', misInPanel = false;
-const SUB_READY = { bag: ['misc', 'sup', 'medi'], train: ['up'], run: ['daily', 'rift'], mis: ['mis'], summon: ['summon', 'shop', 'daily', 'gems', 'month'] };
+const SUB_READY = { bag: ['all', 'misc', 'sup', 'medi'], train: ['up'], run: ['daily', 'rift'], mis: ['mis'], summon: ['summon', 'shop', 'daily', 'gems', 'month'] };
 function subSoon(t) { const it = SUBS[t].find(x => x[0] === subSel[t]); return `<div class="soon"><b>${it[1]}</b><p>준비 중인 기능이에요. 다음 업데이트에서 열려요.</p></div>` + subBar(t); }
 function subBar(t) {
   return `<div class="psub">${SUBS[t].map(([k, n, lock]) => { const lk = lock && S.stage < lock;
@@ -5212,22 +5246,24 @@ $('panel').addEventListener('click', e => {
 
 /* ---------- 가방: 칸으로 (세나 키우기 가방처럼) ---------- */
 const BAG_ITEMS = {
-  misc: () => [['tix', '호출권', S.tix, '요원 호출에 써요. 이상체를 처리하면 쌓여요.', 'summon'], ['ptix', '정예 호출권', S.ptix, '정예 호출과 특별 채용에 써요.', 'summon']],
-  sup: () => Object.keys(C.ITEMS).map(k => [k, C.ITEMS[k].name, S.bag[k] || 0, C.ITEMS[k].sub + '을 바로 받아요.', 'use']),
-  medi: () => [['med', '구급상자', S.med, `팀 체력이 ${S.medHp}% 이하로 떨어지면 자동으로 써서 35% 회복해요.`, 'med']],
+  // [아이디, 이름, 개수, 설명, 쓰는 방법, 얻는 곳]
+  misc: () => [['tix', '호출권', S.tix, '요원 호출에 써요.', 'summon', '이상체 처리, 단서 추적, 임무, 상점'], ['ptix', '정예 호출권', S.ptix, '정예 호출과 특별 채용에 써요.', 'summon', '소환 레벨 보상, 임무, 패스, 상점']],
+  sup: () => Object.keys(C.ITEMS).map(k => [k, C.ITEMS[k].name, S.bag[k] || 0, C.ITEMS[k].sub + '을 바로 받아요.', 'use', '일일 상점, 우편함, 패스, 첫 결제 보상']),
+  medi: () => [['med', '구급상자', S.med, `팀 체력이 ${S.medHp}% 이하로 떨어지면 자동으로 써서 35% 회복해요.`, 'med', '근원체 처치(1개), 일일 상점, 광고 상점, 수사 패스, 주간 임무']],
 };
+BAG_ITEMS.all = () => [...BAG_ITEMS.sup(), ...BAG_ITEMS.medi(), ...BAG_ITEMS.misc()];
 function bagPanelHtml() {
   const k = subSel.bag, L = (BAG_ITEMS[k] || (() => []))().filter(x => x[2] > 0);
-  return `<div class="bagw">${L.length ? `<div class="bagg">${L.map(([id, , n]) => `<button class="bagi" data-bagi="${id}">${icon(id)}<b>${C.formatNum(n)}</b>${k === 'sup' ? '<i class="dot on"></i>' : ''}</button>`).join('')}</div>` : '<p class="empty">가방이 비어 있어요</p>'}</div>` + subBar('bag');
+  return `<div class="bagw">${L.length ? `<div class="bagg">${L.map(([id, , n]) => `<button class="bagi" data-bagi="${id}">${icon(id)}<b>${C.formatNum(n)}</b>${C.ITEMS[id] ? '<i class="dot on"></i>' : ''}</button>`).join('')}</div>` : '<p class="empty">가방이 비어 있어요</p>'}</div>` + subBar('bag');
 }
 $('panel').addEventListener('click', e => {
   const b = e.target.closest('[data-bagi]'); if (!b) return;
   const it = Object.values(BAG_ITEMS).flatMap(f => f()).find(x => x[0] === b.dataset.bagi); if (!it) return;
-  const [id, name, n, desc, kind] = it;
+  const [id, name, n, desc, kind, from] = it;
   const btns = kind === 'use' ? `<button class="btn ghost" data-use="${id}" data-n="1">1개 사용</button><button class="btn" data-use="${id}" data-n="${n}">모두 사용</button>`
     : kind === 'summon' ? `<button class="btn ghost" data-close>닫기</button><button class="btn" data-baggo="summon">호출로 가기</button>`
     : `<button class="btn ghost" data-close>닫기</button><button class="btn" data-baggo="med">자동 사용 설정</button>`;
-  openModal(`<h2>${name}</h2><div class="bagd">${icon(id)}<div><b>보유 ${C.formatNum(n)}</b><p>${desc}</p></div></div><div class="mbtns">${btns}</div>`);
+  openModal(`<h2>${name}</h2><div class="bagd">${icon(id)}<div><b>보유 ${C.formatNum(n)}</b><p>${desc}</p>${from ? `<p class="bag-from">얻는 곳: ${from}</p>` : ''}</div></div><div class="mbtns">${btns}</div>`);
 });
 modalEl.addEventListener('click', e => {
   const g = e.target.closest('[data-baggo]'); if (!g) return;
@@ -5426,7 +5462,7 @@ let clrT = 0;
 function stageClear(rw) {
   if (overlayBlocked()) return;
   const el = $('clear');
-  el.innerHTML = `<i class="cl-ink"></i>${ART.ic_e_boss ? `<img class="cl-skull" src="${ART.ic_e_boss}" alt="">` : ''}<b class="cl-stamp"><small>TARGET DOWN</small>근원체 처치</b><em class="cl-st">${C.stageLabel(S.stage - 1 > 0 ? S.stage - 1 : S.stage)} 봉쇄 완료</em><div>${Object.entries(rw).filter(([, v]) => v).map(([k, v]) => `<span>${icon({ gold: 'gold', gems: 'gem', exp: 'exp', tix: 'tix' }[k])}+${C.formatNum(v)}</span>`).join('')}</div>`;
+  el.innerHTML = `<i class="cl-ink"></i>${ART.ic_e_boss ? `<img class="cl-skull" src="${ART.ic_e_boss}" alt="">` : ''}<b class="cl-stamp"><small>TARGET DOWN</small>근원체 처치</b><em class="cl-st">${C.stageLabel(S.stage - 1 > 0 ? S.stage - 1 : S.stage)} 봉쇄 완료</em><div>${Object.entries(rw).filter(([, v]) => v).map(([k, v]) => `<span>${icon({ gold: 'gold', gems: 'gem', exp: 'exp', tix: 'tix', med: 'med' }[k])}+${C.formatNum(v)}</span>`).join('')}</div>`;
   el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
   clearTimeout(clrT); clrT = setTimeout(() => el.classList.remove('on'), 2300);
   setTimeout(() => { shake(6); flash('#fff', 0.25); }, 180);   // 도장이 찍히는 순간
@@ -5993,7 +6029,8 @@ function bossCutIn() {
   if (overlayBlocked()) return;
   sfx('glitch', 0.7, 0.5); setTimeout(() => sfx('cinehit', 0.85, 0.5), 180);
   const el = $('bossin'), t = theme(), img = ART['spr_boss' + (Math.floor((S.stage - 1) / 10) % 3 + 1)] || ART.spr_boss1;
-  el.innerHTML = `<div class="bt">근원체 출현</div><div class="bb">${img ? `<img src="${img}" alt="">` : ''}<div class="bn"><b>${t.boss}</b><small>${t.name}</small></div></div>`;
+  // 누아르 B안: 붉은 경고선 사이 검은 띠, 왼쪽에 경보 글과 근원체 이름, 오른쪽에 근원체 그림
+  el.innerHTML = `<div class="nb"><i class="nb-l"></i><div class="nb-tx"><small>WARNING</small><em>근원체 출현</em><b>${t.boss}</b><span>${t.name}</span></div>${img ? `<img src="${img}" alt="">` : ''}<i class="nb-l b"></i></div>`;
   el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
   flash('#b48cff', 0.5); setTimeout(() => flash('#fff', 0.35), 140); shake(8);
   setTimeout(() => talk('boss'), 2500);
@@ -6096,6 +6133,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.35.1', '11월 28일', ['메뉴나 창을 열어도 요원들이 계속 사냥해요', '전투 화면이 멈추던 오류를 고쳤어요', '근원체 출현 띠와 요원 대사 창을 누아르 스타일로 바꿨어요', '창 제목 장식 띠를 없애고 깔끔하게 바꿨어요', '금색 버튼 위 글씨를 어둡게 바꿔 잘 읽혀요', '가방에 전체 탭이 생겼고 아이템마다 얻는 곳이 나와요', '보급품을 쓰면 보상이 제대로 들어와요', '근원체를 처치하면 구급상자를 1개 받아요']],
   ['0.35.0', '11월 28일', ['가이드를 따라 상점, 성장, 작전 메뉴가 하나씩 열려요', '요원 정렬에 전투력순이 생겼고 출전 요원끼리도 같은 기준으로 정렬해요', '메뉴, 탭, 버튼, 창 틀을 누아르 스타일로 바꿨어요', '요원 카드 테두리와 띠 색으로 희귀, 영웅, 전설, 각성이 바로 구분돼요', '요원 카드에 새 프로필 그림을 써요', '정예 호출과 특별 채용도 소환 레벨에 쌓여요', '호출 화면 아래 빈칸을 배너 그림이 채워요', '수사력 단계가 생겼어요. 세 가지를 모두 상한까지 올리면 승급하고 보석을 받아요']],
   ['0.34.1', '11월 28일', ['메뉴 창이 요원 창처럼 화면 위까지 크게 열려요', '패스 칸을 촘촘하게 바꿔 한 화면에 더 많이 보여요', '메뉴나 요원 화면을 열면 근원체 출현, 처치 도장, 요원 대사가 뜨지 않아요', '아직 없는 요원도 1레벨 능력치와 호출하러 가기 버튼이 보여요', '근원체가 나올 때 요원 대사가 매번 다르게 나와요']],
   ['0.34.0', '11월 28일', ['패스 창을 새로 만들었어요. 스테이지, 팀 레벨, 호출, 균열, 임무 패스를 탭으로 골라 보고, 위에서 바로 패스를 사거나 모두 받을 수 있어요', '임무 패스 구매 버튼을 목록 위로 올렸어요', '받을 수 있는 패스 보상은 금색으로 빛나요', '일일 작전, 균열에 들어가면 메뉴가 내려가고 전투 화면이 보여요', '창 바깥을 누르면 창이 닫혀요']],

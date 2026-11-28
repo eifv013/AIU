@@ -594,7 +594,10 @@
   function useItem(state, id, n = 1) {
     const it = ITEMS[id]; const k = clampInt(n, 1, 999, 1);
     if (!it || (state.bag[id] || 0) < k) return null;
-    const r = offlineReward(state, 7200), v = Math.floor((r[it.key] || 0) / CONST.OFFLINE_RATE) * k;   // 자리 비움 할인 없이
+    // 보급품: 현재 스테이지에서 2시간 사냥한 만큼 (팀이 약해도 최소 20초에 1마리 기준, 세나 키우기 보급품처럼 스테이지 기준)
+    const rate = Math.max(0.05, Math.min(CONST.MAX_KILLS_PER_SEC, partyDps(state) / enemyHp(state.stage)));
+    const kills = rate * 7200, per = it.key === 'gold' ? killGold(state.stage, state.up.gold) : killExp(state.stage);
+    const v = Math.max(1, Math.floor(kills * per)) * k;
     state.bag[id] -= k; state[it.key] += v;
     return { [it.key]: v };
   }

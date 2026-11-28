@@ -551,3 +551,7 @@ test('수사력 단계: 예전 저장은 현재 강화 레벨에 맞는 단계�
   const s = C.sanitize({ v: 2, up: { atk: 35, gold: 12, crit: 4 } });
   assert.equal(s.tstep, 4); assert.equal(s.up.atk, 35);
 });
+test('보급품: 팀이 약해도 0이 아닌 보상', () => {
+  const s = C.sanitize({ v: 2, stage: 60, bag: { g2: 1, e2: 1 }, heroes: { mage: { owned: true, lv: 1 } }, party: ['mage'] });
+  assert.ok(C.useItem(s, 'g2', 1).gold > 0); assert.ok(C.useItem(s, 'e2', 1).exp > 0);
+});

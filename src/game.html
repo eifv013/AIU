@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.28.0';
+window.AIU_VER = '0.29.0';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1787,6 +1787,44 @@ const theme = () => THEMES[Math.floor((S.stage - 1) / 10) % THEMES.length];
  * card_<id>: 요원 얼굴 카드, key: 시작 화면 그림
  * 그림을 못 불러오면 아래 임시 그림(캔버스로 직접 그린 모습)으로 대신함 */
 const ART = /*ART*/{};
+/* ---------- 효과음 ----------
+ * 첫 터치 때 오디오를 깨우고(브라우저 규칙), 소리는 처음 쓸 때 한 번만 풀어 둠.
+ * 같은 소리가 너무 촘촘하면(총소리 등) gap 초 안에는 다시 안 냄 */
+const SFX_SRC = /*SFX*/{};
+const Snd = (() => {
+  let ctx = null, master = null; const buf = {}, busy = {}, last = {};
+  function wake() {
+    if (ctx) { if (ctx.state === 'suspended') ctx.resume().catch(() => {}); return; }
+    try { ctx = new (window.AudioContext || window.webkitAudioContext)(); master = ctx.createGain(); master.connect(ctx.destination); setVol(); } catch (e) { ctx = null; }
+  }
+  function setVol() { if (master) master.gain.value = GQ.snd === false ? 0 : (GQ.vol ?? 0.7); }
+  function load(k) {
+    if (buf[k] || busy[k] || !SFX_SRC[k] || !ctx) return;
+    busy[k] = true;
+    fetch(SFX_SRC[k]).then(r => r.arrayBuffer()).then(a => ctx.decodeAudioData(a)).then(b => { buf[k] = b; }).catch(() => {}).finally(() => { busy[k] = false; });
+  }
+  /** k: 소리 이름, v: 크기(0~1), gap: 같은 소리 최소 간격(초), rate: 빠르기(살짝 흔들어 단조로움 줄임) */
+  function play(k, v = 1, gap = 0.04, rate = 1) {
+    if (GQ.snd === false || !ctx || document.hidden) return;
+    const now = ctx.currentTime; if (last[k] && now - last[k] < gap) return;
+    const b = buf[k]; if (!b) { load(k); return; }
+    last[k] = now;
+    try { const src = ctx.createBufferSource(), gn = ctx.createGain(); src.buffer = b; src.playbackRate.value = rate; gn.gain.value = v; src.connect(gn).connect(master); src.start(); } catch (e) { /* 소리 실패는 무시 */ }
+  }
+  const first = () => { wake(); for (const k in SFX_SRC) load(k); };
+  addEventListener('pointerdown', first, { capture: true }); addEventListener('keydown', first, { capture: true });
+  document.addEventListener('visibilitychange', () => { if (ctx && !document.hidden) ctx.resume().catch(() => {}); });
+  return { play, setVol, wake };
+})();
+const sfx = (k, v, gap, rate) => Snd.play(k, v, gap, rate);
+/* 버튼 소리: 큰 금색 버튼은 'button', 닫기는 'door', 나머지는 'click' */
+document.addEventListener('click', e => {
+  const b = e.target.closest('button,[data-act],[data-tab]'); if (!b || b.disabled) return;
+  if (b.id === 'bCam') return sfx('shutter', 0.7, 0.1);
+  if (b.matches('[data-close],.mx,.ct-x,.ct-b')) return sfx('door', 0.45, 0.1);
+  if (b.matches('.btn:not(.ghost),.hp-b')) return sfx('button', 0.6, 0.06);
+  sfx('click', 0.55, 0.05);
+}, true);
 const IMG = {};
 for (const [k, src] of Object.entries(ART)) { const im = new Image(); im.decoding = 'async'; im.src = src; IMG[k] = im; }
 const imgOk = k => { const im = IMG[k]; return !!(im && im.complete && im.naturalWidth > 0); };
@@ -2168,7 +2206,7 @@ try { const v = parseFloat(localStorage.getItem('aiu-dpr')); if (v >= 1 && v <= 
 /* 그래픽 설정 (세븐나이츠 키우기의 그래픽 품질, 프레임 설정과 같은 역할)
  * hi: 높음이면 안개, 등불 반사, 윤곽 빛, 몸 휘기, 비 90줄. 낮음이면 모두 끄고 비 30줄, 해상도 1배
  * fps60: 끄면 초당 30번만 그림 (배터리와 발열도 줄어듦) */
-const GQ = { hi: true, fps60: true, auto: true, dmgNum: true, shake: true, autoSleep: 0 };
+const GQ = { hi: true, fps60: true, auto: true, dmgNum: true, shake: true, autoSleep: 0, snd: true, vol: 0.7 };
 try { Object.assign(GQ, JSON.parse(localStorage.getItem('aiu-gfx') || '{}')); } catch (e) { /* 저장 불가 */ }
 function saveGQ() { try { localStorage.setItem('aiu-gfx', JSON.stringify(GQ)); } catch (e) { /* 저장 불가 */ } }
 const perf = { t: 0, n: 0 };
@@ -2272,6 +2310,7 @@ function spawnBoss() {
   keepIn(p, 120);
   R.boss = mkEnemy('boss', p.x, p.y, true); R.boss.home = { ...p }; R.boss.wt = 0;
   R.enemies.push(R.boss); R.bossT = C.CONST.BOSS_TIME;
+  fxPic('fx_dark', p.x, p.y - 40, 260, 260, 1.4, { spin: 2.5, grow: 0.4 }); fxPic('fx_smoke', p.x, p.y - 30, 240, 240, 1.6, { grow: 0.6, a: 0.8 });
   const ch = Math.floor((S.stage - 1) / 10);
   if (!storySeen(ch) && ART.op_nf && ART.op_blaze) playStory(ch, bossCutIn); else bossCutIn();
 }
@@ -2366,17 +2405,20 @@ function damage(e, base) {
   // 밀려남: 요원 팀 쪽에서 바깥으로. 근원체는 거의 안 밀림
   const kx = e.x - R.A.x, ky = e.y - R.A.y, kl = Math.hypot(kx, ky) || 1, kb = (crit ? 150 : 70) * (e.boss ? 0.15 : 1);
   e.vx = (e.vx || 0) + kx / kl * kb; e.vy = (e.vy || 0) + ky / kl * kb * 0.6;
-  if (crit) { hitStop(e.boss ? 0.07 : 0.045); shake(e.boss ? 2 : 1); }
+  if (crit) { hitStop(e.boss ? 0.07 : 0.045); shake(e.boss ? 2 : 1); fxPic('fx_hit', e.x, e.y - e.size * 0.5, e.size * 1.5, e.size * 1.5, 0.22, { rot: Math.random() * 6.28, grow: 0.5 }); sfx('crit', 0.5, 0.09); }
+  else sfx('hit', 0.22, 0.06, 0.9 + Math.random() * 0.2);
   spark(e.x, e.y - e.size * 0.5, crit ? '#ffd23a' : '#e8ecff', crit ? 9 : 5, e.size * (crit ? 0.6 : 0.4));
   addText(e.x + (Math.random() - 0.5) * e.size * 0.7, e.y - e.size * (0.75 + Math.random() * 0.35), C.formatNum(dmg), crit ? '#ffd23a' : '#fff', crit, true);
   if (e.hp <= 0) kill(e);
 }
 function kill(e) {
+  if (!e.boss && Math.random() < 0.7) fxPic('fx_blood', e.x, e.y - e.size * 0.5, e.size * 2.2, e.size * 2.2, 0.45, { rot: Math.random() * 6.28, grow: 0.6, a: 0.9 });
   if (e.boss && R.chal) chalEnd(true);
   else if (e.boss) {
     const gold = C.bossGold(S.stage, S.up.gold);
     S.gold += gold; S.gems += C.CONST.BOSS_GEMS; S.exp += C.bossExp(S.stage);
     const prevSt = S.stage;
+    sfx('boom', 0.9, 0.5); fxPic('fx_fire', e.x, e.y - e.size * 0.5, e.size * 4, e.size * 4, 0.8, { grow: 0.6 }); fxPic('fx_light', e.x, e.y - e.size * 0.5, e.size * 5, e.size * 5, 0.5); setTimeout(() => fxPic('fx_gold', e.x, e.y - e.size * 0.6, e.size * 3.2, e.size * 3.2, 0.9, { grow: 0.5 }), 250); setTimeout(() => sfx('coins', 0.7, 0.3), 350);
     stageClear({ gold, gems: C.CONST.BOSS_GEMS, exp: C.bossExp(S.stage) });
     S.stage++; S.kills = 0; R.boss = null; S.farming = false; C.progress(S, 'boss', 1); C.addTickets(S, 0, 1);
     addText(e.x, e.y - e.size, '+' + C.formatNum(gold), '#ffd23a', true);
@@ -2442,14 +2484,16 @@ function heroAct(h, r, dt) {
   r.at += dt * h.atkSpd;
   if (r.at < 1) return;
   r.at = 0; r.swing = 1;
-  if (h.range === 'melee') { damage(tgt, atk); addFx({ k: 'slash', x: tgt.x, y: tgt.y - tgt.size * 0.5, r: tgt.size * 0.5, face: r.face, life: 0.2, col: h.id === 'dark' ? '#c27bff' : '#fff' }); }
+  if (h.range === 'melee') { fxPic(h.id === 'dark' || h.grade === '전설' ? 'fx_slash' : 'fx_slash_gold', tgt.x, tgt.y - tgt.size * 0.5, tgt.size * 1.7, tgt.size * 1.7, 0.2, { rot: (r.face < 0 ? Math.PI : 0) + (Math.random() - 0.5) * 0.8, grow: 0.25 }); sfx('crit', 0.32, 0.07, 0.9 + Math.random() * 0.2); damage(tgt, atk); addFx({ k: 'slash', x: tgt.x, y: tgt.y - tgt.size * 0.5, r: tgt.size * 0.5, face: r.face, life: 0.2, col: h.id === 'dark' ? '#c27bff' : '#fff' }); }
   else {
     if (h.id === 'archer') addFx({ k: 'muzzle', x: r.x + r.face * s * 0.62, y: r.y - s * 0.86, face: r.face, life: 0.09 });
+    sfx(['single', 'mark', 'execute'].includes(h.skill.kind) ? 'silencer' : 'shot', 0.28, 0.07, 0.92 + Math.random() * 0.16);
     R.proj.push({ k: h.id, x: r.x + r.face * s * 0.2, y: r.y - s * 0.5, tgt, dmg: atk, sp: h.id === 'archer' ? 520 : 340, aoe: h.range === 'aoe' });
   }
 }
 /** 기술 이펙트 그림 한 장 (fx_mark 등). 그림이 들어오기 전에는 기존 고리, 불꽃 효과만 보임 */
-function fxPic(key, x, y, w, h, life) { if (imgOk(key)) addFx({ k: 'img', key, x, y, w, h, life }); }
+/** 이펙트 그림 한 장: 커지면서(grow) 사라짐, rot 회전, spin 초당 회전 */
+function fxPic(key, x, y, w, h, life, o = {}) { if (imgOk(key)) addFx({ k: 'img', key, x, y, w, h, life, l0: life, rot: o.rot || 0, spin: o.spin || 0, grow: o.grow ?? 0.35, a: o.a ?? 1 }); }
 /** 요원 근처에서 체력이 가장 많은 일반 이상체 (근원체는 제외) */
 function strongest(r) {
   let best = null;
@@ -2460,12 +2504,13 @@ function castSkill(h, atk, r, s, tgt) {
   dmgSrc = h.id;
   const sk = h.skill;
   R.skillHit = true; setTimeout(() => { R.skillHit = false; }, 0);
+  sfx('skill', 0.55, 0.12); sfx('whoosh', 0.4, 0.12); fxPic('fx_ring', r.x, r.y - s * 0.5, s * 2.2, s * 2.2, 0.4, { grow: 0.8, a: 0.8 });
   cutIn(h, r); shake(h.id === 'dark' ? 5 : 3); zoomPunch(h.id === 'dark' ? 0.09 : 0.05); hitStop(0.06);
   if (h.id === 'dark') addFx({ k: 'xslash', x: tgt.x, y: tgt.y - tgt.size * 0.5, r: tgt.size * 0.8 + 14, life: 0.25 });
   if (h.id === 'knight') addFx({ k: 'ring', x: tgt.x, y: tgt.y, r: 90, life: 0.4, col: '#7fb2ff' });
   if (h.id === 'mage') for (let i = 0; i < 14; i++) { const a = Math.random() * 6.28, v = 60 + Math.random() * 120; addFx({ k: 'ember', x: tgt.x, y: tgt.y - 10, vx: Math.cos(a) * v, vy: Math.sin(a) * v * 0.5 - 60, r: 2 + Math.random() * 2.5, life: 0.6 + Math.random() * 0.4 }); }
   if (h.id === 'priest') for (const a of alive()) addFx({ k: 'pillar', x: R.heroes[a.id].x, y: R.heroes[a.id].y, life: 0.8 });
-  if (sk.kind === 'single') { damage(tgt, atk * sk.mult); addFx({ k: 'burst', x: tgt.x, y: tgt.y - tgt.size * 0.4, r: tgt.size * 0.9, life: 0.35, col: '#9fd0ff' }); }
+  if (sk.kind === 'single') { fxPic('fx_hit', tgt.x, tgt.y - tgt.size * 0.5, tgt.size * 2.6, tgt.size * 2.6, 0.35, { rot: Math.random() * 6.28, grow: 0.6 }); damage(tgt, atk * sk.mult); addFx({ k: 'burst', x: tgt.x, y: tgt.y - tgt.size * 0.4, r: tgt.size * 0.9, life: 0.35, col: '#9fd0ff' }); }
   else if (sk.kind === 'multi') {
     for (let i = 0; i < sk.hits; i++) setTimeout(() => {
       const live = R.enemies.filter(e => e.hp > 0 && dist(e, r) < ENGAGE * 1.3); if (!live.length) return;
@@ -2480,25 +2525,27 @@ function castSkill(h, atk, r, s, tgt) {
       damage(e, atk * sk.mult); addFx({ k: 'burst', x: e.x, y: e.y - e.size * 0.4, r: e.size * 0.8, life: 0.45, col });
     }
     addFx({ k: 'ring', x: cx.x, y: cx.y, r: rad, life: sk.slow ? 0.7 : 0.45, col });
-    if (sk.stun) fxPic('fx_quake', cx.x, cx.y - 10, rad * 2, rad * 1.3, 0.45);
-    if (sk.slow) fxPic('fx_wave', cx.x, cx.y - 20, rad * 1.6, rad * 1.2, 0.7);
+    if (!sk.slow && !sk.stun) { fxPic(h.id === 'dark' ? 'fx_dark' : 'fx_fire', cx.x, cx.y - 30, rad * 1.7, rad * 1.7, 0.55, { rot: Math.random() * 6.28, grow: 0.5, spin: h.id === 'dark' ? 3 : 0 }); sfx('boom', 0.35, 0.3, 1.25); }
+    if (sk.stun) fxPic('fx_bolt', cx.x, cx.y - 10, rad * 2, rad * 1.3, 0.45);
+    if (sk.slow) fxPic('fx_ice', cx.x, cx.y - 20, rad * 1.6, rad * 1.2, 0.7);
     if (sk.slow) addFx({ k: 'ring', x: cx.x, y: cx.y, r: rad * 0.6, life: 0.55, col });
   } else if (sk.kind === 'mark') {
     // 체력이 가장 많은 적에게 표식: 정해진 시간 동안 받는 피해 증가
     const e = strongest(r) || tgt;
-    e.mark = sk.dur; e.markAmp = sk.amp; fxPic('fx_mark', e.x, e.y - e.size * 0.5, e.size * 1.6, e.size * 1.6, 0.6);
+    e.mark = sk.dur; e.markAmp = sk.amp; fxPic('fx_circle', e.x, e.y - e.size * 0.5, e.size * 1.6, e.size * 1.6, 0.6);
     damage(e, atk * sk.mult);
     addFx({ k: 'ring', x: e.x, y: e.y, r: e.size * 1.1, life: 0.5, col: CI_COL[h.id] });
+    fxPic('fx_circle', e.x, e.y - 2, e.size * 2.2, e.size * 1.1, 0.9, { spin: 1.5, grow: 0.1, a: 0.85 });
   } else if (sk.kind === 'exorcise') {
     // 근원체에게 큰 피해. 일반 이상체는 작은 피해 + 일정 확률로 즉시 처리
     const b = R.boss && R.boss.hp > 0 && dist(R.boss, r) < ENGAGE * 1.8 ? R.boss : null, e = b || tgt;
-    if (imgOk('fx_holy')) fxPic('fx_holy', e.x, e.y - 60, 70, 140, 0.8); else addFx({ k: 'pillar', x: e.x, y: e.y, life: 0.8 });
+    addFx({ k: 'pillar', x: e.x, y: e.y, life: 0.8 }); fxPic('fx_circle', e.x, e.y - 4, e.size * 2.4, e.size * 1.2, 0.8, { spin: 2 }); fxPic('fx_light', e.x, e.y - e.size * 0.6, e.size * 2.6, e.size * 2.6, 0.45);
     if (e.boss) damage(e, atk * sk.mult);
     else if (Math.random() < sk.kill) { addText(e.x, e.y - e.size * 1.2, '정화', CI_COL[h.id], true); damage(e, e.hp + 1); }
     else damage(e, atk * sk.low);
   } else if (sk.kind === 'shield') {
     // 팀 전체 보호막 (최대 체력 비율), 자신은 도발해서 적을 끌어옴
-    for (const a of alive()) { const hr = R.heroes[a.id]; hr.shield = hr.max * sk.mult; hr.shT = sk.dur; fxPic('fx_barrier', hr.x, hr.y - HERO_SIZE * 0.5, HERO_SIZE * 1.3, HERO_SIZE * 1.3, 0.7); }
+    for (const a of alive()) { const hr = R.heroes[a.id]; hr.shield = hr.max * sk.mult; hr.shT = sk.dur; fxPic('fx_shield', hr.x, hr.y - HERO_SIZE * 0.5, HERO_SIZE * 1.3, HERO_SIZE * 1.3, 0.7); }
     R.taunt = { id: h.id, t: sk.dur };
     addFx({ k: 'ring', x: r.x, y: r.y, r: 140, life: 0.6, col: CI_COL[h.id] });
     for (const e of R.enemies) if (e.hp > 0 && dist(e, r) < 260) e.aggro = true;
@@ -2510,16 +2557,17 @@ function castSkill(h, atk, r, s, tgt) {
   } else if (sk.kind === 'execute') {
     // 체력이 가장 낮은 적 셋을 차례로 처형. 체력이 일정 비율 아래면 즉시 처리
     const list = R.enemies.filter(e => e.hp > 0 && dist(e, r) < ENGAGE * 1.8).sort((a, b) => a.hp / a.max - b.hp / b.max).slice(0, sk.hits);
-    r.cloak = 0.6; fxPic('fx_cloak', r.x, r.y - HERO_SIZE * 0.6, HERO_SIZE, HERO_SIZE * 1.5, 0.5);
+    sfx('blade', 0.6, 0.2); r.cloak = 0.6; fxPic('fx_smoke', r.x, r.y - HERO_SIZE * 0.6, HERO_SIZE, HERO_SIZE * 1.5, 0.5);
     list.forEach((e, i) => setTimeout(() => {
       if (e.hp <= 0) return;
-      addFx({ k: 'xslash', x: e.x, y: e.y - e.size * 0.5, r: e.size * 0.7 + 10, life: 0.22 });
+      addFx({ k: 'xslash', x: e.x, y: e.y - e.size * 0.5, r: e.size * 0.7 + 10, life: 0.22 }); fxPic('fx_slash', e.x, e.y - e.size * 0.5, e.size * 2, e.size * 2, 0.22, { rot: Math.random() * 6.28 }); sfx('crit', 0.45, 0.05);
       if (!e.boss && e.hp / e.max < sk.under) damage(e, e.hp + 1); else damage(e, atk * sk.mult);
     }, i * 120));
   } else if (sk.kind === 'buff') {
     R.buff = sk.dur;
     for (const a of alive()) { const hr = R.heroes[a.id], heal = hr.max * sk.heal; hr.hp = Math.min(hr.max, hr.hp + heal); addText(hr.x + s * 0.3, hr.y - s * 0.6, '+' + C.formatNum(heal), '#6dff9a', false); }
     addFx({ k: 'ring', x: r.x, y: r.y, r: 120, life: 0.6, col: '#ffe98a' });
+    for (const a of alive()) { const hr = R.heroes[a.id]; fxPic('fx_heal', hr.x, hr.y - HERO_SIZE * 0.55, HERO_SIZE * 1.4, HERO_SIZE * 1.6, 0.8, { grow: 0.15 }); }
   }
 }
 
@@ -2922,7 +2970,11 @@ function drawCall(f) {
 function drawFx(f) {
   if (f.k === 'call' || f.k === 'edge') return;   // 따로 그림 (말풍선은 맨 위, 가장자리는 화면 고정)
   // 이펙트 그림이 있으면 그것으로, 없으면 아래 코드 그림으로
-  if (f.k === 'img') { fxImg(f.key, f.x, f.y, f.w, f.h, Math.min(1, f.life * 3)); return; }   // 새 요원 기술 이펙트 그림 (그림이 없으면 아무것도 안 그림)
+  if (f.k === 'img') {
+    const t = f.l0 ? 1 - f.life / f.l0 : 0, sc = 0.8 + f.grow * Math.min(1, t * 1.6);
+    const a = (t < 0.15 ? t / 0.15 : Math.min(1, f.life / ((f.l0 || 0.3) * 0.55))) * (f.a ?? 1);
+    fxImg(f.key, f.x, f.y, f.w * sc, f.h * sc, a, (f.rot || 0) + (f.spin || 0) * t * (f.l0 || 0)); return;
+  }   // 새 요원 기술 이펙트 그림 (그림이 없으면 아무것도 안 그림)
   if (f.k === 'xslash' && fxImg('fx_slash', f.x, f.y, f.r * 2.4, f.r * 2.4, f.life * 4, -0.5)) { fxImg('fx_slash', f.x, f.y, f.r * 2.4, f.r * 2.4, f.life * 4, 1.1); return; }
   if (f.k === 'spark' && fxImg('fx_hit', f.x, f.y, f.len * 3, f.len * 3, f.life * 5, f.a0)) return;
   if (f.k === 'burst' && (f.col === '#ff8a2e' || f.col === '#ff9a2e') && fxImg('fx_fire', f.x, f.y, f.r * 2.6, f.r * 2.6, f.life * 3)) return;
@@ -3676,7 +3728,7 @@ function showStarUp(id, before) {
   const h = C.heroById(id), d = S.heroes[id];
   const row = (ic, name, a, b) => `<div class="su-r">${ic}<span>${name}</span><em>${C.formatNum(a)}</em><i>»</i><b>${C.formatNum(b)}</b></div>`;
   const st = n => starHtml(n), awk = d.stars >= 6;
-  if (awk) { flash('#ff3d55', 0.55); setTimeout(() => flash('#ffd27a', 0.4), 160); shake(8); }
+  if (awk) { sfx('boom', 0.9, 0.3); sfx('cinehit', 0.7, 0.3); flash('#ff3d55', 0.55); setTimeout(() => flash('#ffd27a', 0.4), 160); shake(8); }
   showResult('star', awk ? '각성 성공' : '승급 성공', `<img class="rs-face${awk ? ' awk-face' : ''}" src="${ART['card_' + id] || portrait(id)}" alt="" style="border-color:${GRADE_COL[C.heroGrade(S, id)]}">${awk ? '<div class="rs-sub" style="color:#ff8a9a">전설을 넘어 각성했어요</div>' : ''}<div class="rs-nm">${h.name}</div>
     <div class="su-st"><span>${st(before)}</span><i>»</i><span class="nw">${st(d.stars)}</span></div>
     ${row('<svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.7-8 11-8 11z" fill="#e8ecf6"/></svg>', '체력', C.heroHp(id, d.lv, before), C.heroHp(id, d.lv, d.stars))}
@@ -3912,7 +3964,10 @@ function gfxRows() {
   const seg = (key, opts) => `<div class="seg two">${opts.map(([v, l]) => `<button data-gfx="${key}" data-v="${v}" class="${GQ[key] === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
   const tg = (key) => `<button class="tgl ${GQ[key] ? 'on' : ''}" data-tg="${key}" aria-pressed="${!!GQ[key]}"></button>`;
   const sl = [[0, '끔'], [3, '3분'], [10, '10분']].map(([v, l]) => `<button data-gfx="autoSleep" data-v="${v}" class="${(GQ.autoSleep || 0) === v ? 'on' : ''}">${l}</button>`).join('');
-  return `<div class="optg">화면</div><div class="setrow"><div><div class="ut">그래픽</div><div class="uv">낮음으로 두면 빛과 안개가 줄어 가벼워요</div></div>${seg('hi', [[true, '높음'], [false, '낮음']])}</div>
+  const vol = [[0.35, '작게'], [0.7, '보통'], [1, '크게']].map(([v, l]) => `<button data-vol="${v}" class="${Math.abs((GQ.vol ?? 0.7) - v) < 0.01 ? 'on' : ''}">${l}</button>`).join('');
+  return `<div class="optg">소리</div><div class="setrow"><div><div class="ut">효과음</div><div class="uv">총소리, 타격음, 버튼 소리를 내요</div></div>${tg('snd')}</div>
+    <div class="setrow"><div><div class="ut">음량</div><div class="uv">효과음 크기</div></div><div class="seg">${vol}</div></div>
+    <div class="optg">화면</div><div class="setrow"><div><div class="ut">그래픽</div><div class="uv">낮음으로 두면 빛과 안개가 줄어 가벼워요</div></div>${seg('hi', [[true, '높음'], [false, '낮음']])}</div>
     <div class="setrow"><div><div class="ut">프레임</div><div class="uv">30으로 두면 배터리와 발열이 줄어요</div></div>${seg('fps60', [[true, '60'], [false, '30']])}</div>
     <div class="setrow"><div><div class="ut">피해 숫자</div><div class="uv">적에게 준 피해를 숫자로 보여 줘요</div></div>${tg('dmgNum')}</div>
     <div class="setrow"><div><div class="ut">화면 흔들림</div><div class="uv">치명타와 기술 때 화면이 흔들려요</div></div>${tg('shake')}</div>
@@ -3936,7 +3991,9 @@ modalEl.addEventListener('click', e => {
     resize(); R.pat = null; vgKey = ''; $('gfxRows').innerHTML = gfxRows(); return;
   }
   const tb = e.target.closest('[data-tg]');
-  if (tb) { GQ[tb.dataset.tg] = !GQ[tb.dataset.tg]; saveGQ(); $('gfxRows').innerHTML = gfxRows(); return; }
+  if (tb) { GQ[tb.dataset.tg] = !GQ[tb.dataset.tg]; saveGQ(); Snd.setVol(); $('gfxRows').innerHTML = gfxRows(); return; }
+  const vb = e.target.closest('[data-vol]');
+  if (vb) { GQ.vol = +vb.dataset.vol; saveGQ(); Snd.setVol(); sfx('coins', 0.8, 0); $('gfxRows').innerHTML = gfxRows(); return; }
   const b = e.target.closest('[data-set]'); if (!b) return;
   if (b.dataset.set === 'off') { modalEl.classList.remove('on'); showOffline(C.offlineReward(S, 3600)); }
   else if (b.dataset.set === 'reset') { modalEl.classList.remove('on'); confirmReset(); }
@@ -4107,6 +4164,7 @@ const EMB = {
 };
 let resDone = null;
 function showResult(kind, title, body) {
+  sfx(kind === 'gift' ? 'coins' : 'reward', 0.75, 0.3); if (kind === 'gift') setTimeout(() => sfx('reward', 0.6, 0.3), 120);
   const el = $('res');
   el.innerHTML = `<div class="rs"><div class="rs-band">${ART['ic_' + (EMB_IMG[kind] || 'e_gift')] ? `<img class="rs-emb" src="${ART['ic_' + (EMB_IMG[kind] || 'e_gift')]}" alt="">` : (EMB[kind] || EMB.gift)}<b>${title}</b></div><div class="rs-body">${body}</div><div class="rs-tap">터치하여 닫기</div></div>`;
   el.classList.add('on');
@@ -4543,7 +4601,8 @@ function summonFx(ids, isNew, n, kind, msg) {
 function sxFlip(c) {
   if (!c || !c.classList.contains('fd')) return;
   const leg = c.classList.contains('g-l');
-  c.classList.remove('fd'); c.classList.add(leg ? 'charge' : 'flip');
+  c.classList.remove('fd'); c.classList.add(leg ? 'charge' : 'flip'); sfx('card', 0.7, 0.03);
+  if (leg) setTimeout(() => { sfx('cinehit', 0.8, 0.3); }, 600);
   if (leg) setTimeout(() => { c.classList.remove('charge'); c.classList.add('flip'); flash('#ffd27a', 0.45); shake(6); }, 650);
   sxState.left--; if (sxState.left <= 0) $('sfx').classList.add('done');
 }
@@ -4710,8 +4769,11 @@ new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) i
 (function () { const R = document.documentElement.style;
   for (const k of ['window', 'ribbon', 'btn_gold', 'btn_navy', 'tab_on', 'tab_off', 'row', 'side', 'bottom', 'slot', 'card_r', 'card_h', 'card_l'])
     if (ART['ui_' + k]) R.setProperty('--ui-' + k.replace('_', '-'), `url(${ART['ui_' + k]})`); })();
+/* 검수용 (화면 확인 스크립트에서만 씀) */
+window.__aiu = { get R() { return R; }, fxPic, sfx, castSkill };
 /* ---------- 근원체 출현 컷인 ---------- */
 function bossCutIn() {
+  sfx('glitch', 0.7, 0.5); setTimeout(() => sfx('cinehit', 0.85, 0.5), 180);
   const el = $('bossin'), t = theme(), img = ART['spr_boss' + (Math.floor((S.stage - 1) / 10) % 3 + 1)] || ART.spr_boss1;
   el.innerHTML = `<div class="bt">근원체 출현</div><div class="bb">${img ? `<img src="${img}" alt="">` : ''}<div class="bn"><b>${t.boss}</b><small>${t.name}</small></div></div>`;
   el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
@@ -4806,6 +4868,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.29.0', '11월 28일', ['효과음을 넣었어요. 설정에서 끄거나 크기를 바꿀 수 있어요', '기술, 치명타, 처치, 근원체 출현과 처치 이펙트를 새 그림으로 바꿨어요']],
   ['0.28.0', '11월 28일', ['창, 버튼, 탭, 목록, 카드, 메뉴 판을 새 그림 틀로 바꿨어요']],
   ['0.27.0', '11월 28일', ['전설 다음 등급 각성: 전설 요원 ★5에서 조각 10개로 각성해요']],
   ['0.26.0', '11월 28일', ['요원이 50명으로 늘었어요 (희귀 18, 영웅 18, 전설 14)']],

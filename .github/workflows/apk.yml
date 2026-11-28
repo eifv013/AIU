@@ -44,7 +44,7 @@ jobs:
         run: |
           # 전체 화면: 상태 표시줄과 내비게이션 바를 숨기는 MainActivity 로 바꿈
           cp android-src/MainActivity.java android/app/src/main/java/com/loopandlamp/aiu/MainActivity.java
-          VER=$(grep -oP "window.AIU_VER = '\K[^']+" src/game.html)
+          VER=$(grep -oP "window.AIU_VER = '\K[0-9.]+(?=')" src/game.html | head -1)
           echo "VER=$VER" >> $GITHUB_ENV
           sed -i 's/<activity/<activity android:screenOrientation="portrait"/' android/app/src/main/AndroidManifest.xml
           sed -i "s/versionCode [0-9]*/versionCode ${{ github.run_number }}/; s/versionName \"[^\"]*\"/versionName \"$VER\"/" android/app/build.gradle

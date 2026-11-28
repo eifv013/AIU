@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.29.2';
+window.AIU_VER = '0.29.3';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -4869,6 +4869,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.29.3', '11월 28일', ['레벨업, 재화 부족 소리를 원본 음질로 바꿨어요']],
   ['0.29.2', '11월 28일', ['레벨업, 승급 때 도장 소리, 재화가 부족할 때 빈 총 소리를 넣었어요']],
   ['0.29.1', '11월 28일', ['각성 등급 문장을 새 그림으로 바꿨어요']],
   ['0.29.0', '11월 28일', ['효과음을 넣었어요. 설정에서 끄거나 크기를 바꿀 수 있어요', '기술, 치명타, 처치, 근원체 출현과 처치 이펙트를 새 그림으로 바꿨어요']],

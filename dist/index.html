@@ -5060,7 +5060,7 @@ function updateUI() {
   $('gold').textContent = C.formatNum(S.gold);
   // 프로필: 대장(출전 첫 요원) 얼굴, 수사팀 레벨(스테이지), 계급(구역마다), 구역 안 진행 / 전투력
   const lead = S.face && S.heroes[S.face] && S.heroes[S.face].owned ? C.heroById(S.face) : team()[0];
-  if (lead) { const src = ART['id_' + lead.id] || ART['card_' + lead.id] || portrait(lead.id); if ($('pfImg').getAttribute('src') !== src) $('pfImg').src = src; }
+  if (lead) { const src = ART['id_' + lead.id] || portrait(lead.id); if ($('pfImg').getAttribute('src') !== src) $('pfImg').src = src; }
   const chap = Math.floor((S.stage - 1) / 10);
   // 수사팀 레벨과 경험치 막대, 이름, 장착 칭호(없으면 구역 계급)
   const ttl = C.titleById(S.ttEq);
@@ -5163,7 +5163,7 @@ function agentCard(h, pids, act) {
   const d = S.heroes[h.id], inP = pids.includes(h.id);
   const stars = starHtml(d.stars, 'span class="e"').replace('</span class="e">', '</span>');
   return `<div class="ac g-${C.heroGrade(S, h.id)}${d.owned ? '' : ' no'}${inP ? ' inparty' : ''}" data-act="${act}" data-h="${h.id}">
-    <div class="ap"><img src="${ART['card_' + h.id] || portrait(h.id)}" alt="" loading="lazy"><i class="tic t-${h.type}"><svg><use href="#i-t-${h.type}"/></svg></i>
+    <div class="ap"><img src="${portrait(h.id)}" alt="" loading="lazy"><i class="tic t-${h.type}"><svg><use href="#i-t-${h.type}"/></svg></i>
       ${d.owned ? `<b class="alv">Lv.<span class="lv">${d.lv}</span></b>` : '<span class="nob">미보유</span>'}${inP ? '<span class="arib">출전</span>' : ''}
       <span class="anm">${h.name}</span><span class="ast">${stars}</span></div>
     ${d.owned ? '<div class="ash"><i></i><span></span></div>' : ''}</div>`;
@@ -5514,7 +5514,7 @@ function riftMap(target) {
   // 요원 표시 (팀 대장 얼굴)
   // 지도 표시 얼굴: 현재 공격력이 가장 높은 요원 (팀의 에이스)
   const lead = team().slice().sort((a, b) => C.heroAtk(b.id, S.heroes[b.id].lv, S.heroes[b.id].stars, S.up.atk) - C.heroAtk(a.id, S.heroes[a.id].lv, S.heroes[a.id].stars, S.up.atk))[0], tp = P[target];
-  if (lead && tp) nodes += `<div class="rme" id="rfMe" style="left:${tp.x.toFixed(0)}px;top:${tp.y.toFixed(0)}px"><img src="${ART['card_' + lead.id] || portrait(lead.id)}" alt=""></div>`;
+  if (lead && tp) nodes += `<div class="rme" id="rfMe" style="left:${tp.x.toFixed(0)}px;top:${tp.y.toFixed(0)}px"><img src="${portrait(lead.id)}" alt=""></div>`;
   return `<div class="rmap" style="height:${L.H}px"><svg width="${L.W}" height="${L.H}" viewBox="0 0 ${L.W} ${L.H}">${svg}</svg>${nodes}</div>`;
 }
 function renderRift() {
@@ -5634,7 +5634,7 @@ let hpageId = null;
 const GRADE_COL = { 희귀: '#4f8fe0', 영웅: '#b35ee0', 전설: '#f0a531', 각성: '#ff3d55' };
 /** 별 표시: ★1~5, 각성이면 붉은 별 5개 + 각성 */
 const starHtml = (n, sp = 's') => n >= 6 ? `<b class="awk-st">★★★★★</b>` : '★'.repeat(n) + `<${sp}>${'★'.repeat(C.CONST.MAX_STARS - n)}</${sp}>`;
-const bigArt = id => (S.cosEq && S.cosEq[id] && ART['cos_' + S.cosEq[id]]) || ART['big_' + id] || ({ mage: ART.op_blaze, dark: ART.op_nf })[id] || ART['card_' + id] || portrait(id);
+const bigArt = id => (S.cosEq && S.cosEq[id] && ART['cos_' + S.cosEq[id]]) || ART['big_' + id] || ({ mage: ART.op_blaze, dark: ART.op_nf })[id] || portrait(id);
 function openHeroDetail(id) {
   if (!$('app').classList.contains('herofull')) openHeroWin();
   hpageId = id; detId = id;
@@ -5715,7 +5715,7 @@ function showStarUp(id, before) {
   const row = (ic, name, a, b) => `<div class="su-r">${ic}<span>${name}</span><em>${C.formatNum(a)}</em><i>»</i><b>${C.formatNum(b)}</b></div>`;
   const st = n => starHtml(n), awk = d.stars >= 6;
   if (awk) { sfx('boom', 0.9, 0.3); sfx('cinehit', 0.7, 0.3); flash('#ff3d55', 0.55); setTimeout(() => flash('#ffd27a', 0.4), 160); shake(8); }
-  showResult('star', awk ? '각성 성공' : '승급 성공', `<img class="rs-face${awk ? ' awk-face' : ''}" src="${ART['card_' + id] || portrait(id)}" alt="" style="border-color:${GRADE_COL[C.heroGrade(S, id)]}">${awk ? '<div class="rs-sub" style="color:#ff8a9a">전설을 넘어 각성했어요</div>' : ''}<div class="rs-nm">${h.name}</div>
+  showResult('star', awk ? '각성 성공' : '승급 성공', `<img class="rs-face${awk ? ' awk-face' : ''}" src="${portrait(id)}" alt="" style="border-color:${GRADE_COL[C.heroGrade(S, id)]}">${awk ? '<div class="rs-sub" style="color:#ff8a9a">전설을 넘어 각성했어요</div>' : ''}<div class="rs-nm">${h.name}</div>
     <div class="su-st"><span>${st(before)}</span><i>»</i><span class="nw">${st(d.stars)}</span></div>
     ${row('<svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.7-8 11-8 11z" fill="#e8ecf6"/></svg>', '체력', C.heroHp(id, d.lv, before), C.heroHp(id, d.lv, d.stars))}
     ${row(icon('sword'), '공격력', C.heroAtk(id, d.lv, before, S.up.atk), C.heroAtk(id, d.lv, d.stars, S.up.atk))}`);
@@ -5921,7 +5921,7 @@ $('quest').addEventListener('click', () => {
     // 새 요원 합류: 결과 띠 창에 카드 그림, 출전 칸에 바로 들어감
     const h = C.heroById(r.hero);
     partyChanged();
-    showResult('agent', '새 요원 합류', `<img class="rs-face" src="${ART['card_' + h.id] || portrait(h.id)}" alt="" style="border-color:${GRADE_COL[h.grade]}"><div class="rs-nm">${h.name}</div><div class="rs-sub">${r.isNew ? `${h.role} 요원이 빈 출전 칸에 들어갔어요` : '이미 있는 요원이라 조각 1개를 받았어요'}</div>`);
+    showResult('agent', '새 요원 합류', `<img class="rs-face" src="${portrait(h.id)}" alt="" style="border-color:${GRADE_COL[h.grade]}"><div class="rs-nm">${h.name}</div><div class="rs-sub">${r.isNew ? `${h.role} 요원이 빈 출전 칸에 들어갔어요` : '이미 있는 요원이라 조각 1개를 받았어요'}</div>`);
   } else showResult('gift', '보상 획득', rwTiles(r));
   writeSave(); updateUI();
 });
@@ -6172,7 +6172,7 @@ $('res').addEventListener('click', () => { $('res').classList.remove('on'); cons
 function rwTiles(r) {
   const I = { gold: 'gold', exp: 'exp', gems: 'gem', tix: 'tix', ptix: 'ptix', g2: 'g2', e2: 'e2', med: 'med' };
   const t = Object.entries(r).filter(([k, v]) => I[k] && v).map(([k, v], i) => `<div class="rs-it" style="animation-delay:${i * 0.08}s">${icon(I[k])}<span>${C.formatNum(v)}</span></div>`);
-  if (r.shard) t.push(`<div class="rs-it"><img src="${ART['card_' + r.shard] || portrait(r.shard)}" alt=""><span>조각 ${r.n}</span></div>`);
+  if (r.shard) t.push(`<div class="rs-it"><img src="${portrait(r.shard)}" alt=""><span>조각 ${r.n}</span></div>`);
   return `<div class="rs-items">${t.join('')}</div>`;
 }
 
@@ -7227,7 +7227,7 @@ function summonFx(ids, isNew, n, kind, msg) {
   $('sxTitle').textContent = kind === 'pickup' ? '특별 채용' : kind === 'elite' ? '정예 호출' : '요원 호출';
   $('sxMsg').textContent = msg;
   $('sxCards').innerHTML = hs.map((h, i) => `<button class="sx-c g-${({ 희귀: 'r', 영웅: 'h', 전설: 'l' })[h.grade]} fd" style="--i:${i};--gc:${GCOL[h.grade]}" data-i="${i}">
-    <span class="sx-back"></span><span class="sx-front"><img src="${ART['card_' + h.id] || portrait(h.id)}" alt=""><b>${h.name}</b><small>${h.grade}</small>${isNew[i] ? '<em>NEW</em>' : ''}</span></button>`).join('');
+    <span class="sx-back"></span><span class="sx-front"><img src="${portrait(h.id)}" alt=""><b>${h.name}</b><small>${h.grade}</small>${isNew[i] ? '<em>NEW</em>' : ''}</span></button>`).join('');
   sxRain();
   if (top === '전설') setTimeout(() => { flash('#ffd27a', 0.55); shake(8); }, 900);
   else setTimeout(() => flash(GCOL[top], 0.3), 900);

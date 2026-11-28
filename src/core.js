@@ -191,7 +191,9 @@
   ];
   /* 출석: 7일 한 바퀴, 하루 한 번 (연속이 아니어도 다음 칸) */
   const ATTEND = [
+    // 세나 키우기 출석부처럼 14일 (7일째, 14일째가 큰 보상)
     { gems: 100 }, { tix: 30 }, { gems: 150 }, { ptix: 1 }, { tix: 50 }, { gems: 200 }, { ptix: 3 },
+    { gems: 150 }, { tix: 50 }, { gems: 200 }, { ptix: 2 }, { tix: 80 }, { gems: 300 }, { ptix: 5 },
   ];
 
   /* ---------- 2. 유틸 ---------- */
@@ -784,7 +786,7 @@
     if (state.day === k) return false;
     state.day = k;
     for (const d of DUNGEONS) state.keys[d.id] = CONST.DAILY_KEYS;
-    state.daily = { p: {}, got: [], bonus: false };
+    state.daily = { p: {}, got: [], bonus: false, ms: [] };
     return true;
   }
   function dungeonById(id) {
@@ -914,6 +916,12 @@
     return m.gems;
   }
   /** 모두 받았으면 보너스 (정예 호출권) */
+  /* 일일 임무 단계 상자 (세나 키우기 일일 미션 위쪽 상자처럼): 2개, 4개 끝내면 상자. 6개(모두)는 기존 보너스 */
+  const DAILY_MS = [{ n: 2, rw: { gems: 30 } }, { n: 4, rw: { gems: 50 } }];
+  function dailyMsClaim(state, i) {
+    const m = DAILY_MS[i]; if (!m) return null; const d = state.daily; d.ms = d.ms || [];
+    if (d.ms.includes(i) || d.got.length < m.n) return null; d.ms.push(i); return giveReward(state, m.rw);
+  }
   function missionBonus(state) {
     if (state.daily.bonus || state.daily.got.length < MISSIONS.length) return 0;
     state.daily.bonus = true; state.ptix += CONST.MISSION_BONUS_PTIX;
@@ -1167,6 +1175,7 @@
       for (const m of MISSIONS) if (raw.daily.p && isNum(raw.daily.p[m.kind])) s.daily.p[m.kind] = clampInt(raw.daily.p[m.kind], 0, m.need, 0);
       s.daily.got = Array.isArray(raw.daily.got) ? [...new Set(raw.daily.got.filter(i => Number.isInteger(i) && i >= 0 && i < MISSIONS.length))] : [];
       s.daily.bonus = raw.daily.bonus === true && s.daily.got.length === MISSIONS.length;
+      s.daily.ms = Array.isArray(raw.daily.ms) ? raw.daily.ms.filter(i => DAILY_MS[i] && s.daily.got.length >= DAILY_MS[i].n) : [];
     }
     s.cdx = {}; if (raw.cdx && typeof raw.cdx === 'object') for (const h of HEROES) if (isNum(raw.cdx[h.id])) s.cdx[h.id] = clampInt(raw.cdx[h.id], 0, CODEX_TIERS, 0);
     s.med = isNum(raw.med) ? clampInt(raw.med, 0, 1e6, 0) : base.med;
@@ -1240,6 +1249,9 @@
     s.party = Array.isArray(raw.party) ? raw.party.filter(id => typeof id === 'string') : null;
     s.party = partyIds(s);
     s.sys = sanitizeSys(raw.sys);
+    s.fst = clampInt(raw.fst, 0, s.stage, 0);
+    s.retry = raw.retry === true; s.medBoss = raw.medBoss === true;
+    s.frame = ['r', 'h', 'l'].includes(raw.frame) ? raw.frame : '';   // 대표 얼굴 테두리   // 실패 시 자동 재도전, 구급상자는 근원체 전투만   // 스테이지 이동으로 고른 지난 스테이지 (0이면 최고 스테이지)
     return s;
   }
 
@@ -1959,7 +1971,7 @@
   const Core = {
     HEROES, TYPES, STARTER_IDS, partyIds, partySlots, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
-    AWAKE_STAR, AWAKE_NEED, maxStars, heroGrade, gemTotal, spendGems, FIRST_PAY, firstPayStart, firstPayReady, firstPayClaim, WEEKLY, MONTHLY, REPEAT, MPASS, MPASS_PRICE, misReset, misClaim, misReadyCount, repeatReady, mpassClaim, mpassReady, weekKey, monthKey, PASS, PASS_PRICE, passClaim, passReady, PASSES, pxVal, pxClaim, pxReady, pxBuy, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
+    DAILY_MS, dailyMsClaim, AWAKE_STAR, AWAKE_NEED, maxStars, heroGrade, gemTotal, spendGems, FIRST_PAY, firstPayStart, firstPayReady, firstPayClaim, WEEKLY, MONTHLY, REPEAT, MPASS, MPASS_PRICE, misReset, misClaim, misReadyCount, repeatReady, mpassClaim, mpassReady, weekKey, monthKey, PASS, PASS_PRICE, passClaim, passReady, PASSES, pxVal, pxClaim, pxReady, pxBuy, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     SYS_OPEN, sysOpen, corePower, corePowerAt, TRAITS, traitPoints, traitSpent, traitLeft, traitUp, traitReset, GEAR, GEAR_TIER, gearTier, GEAR_GRADES, GEAR_MUL, GEAR_INV_MAX, gearDrop, gearEquipped, gearEquip, gearScrap, gearScrapValue, gearSlotBonus, gearCost, gearUp, gearVal,
     LABS, labTime, labCost, labStart, labTick, labRushCost, labRush, AID, AID_DAY, aidNeed, aidGoldCost, aidLeft, aidGive, FOODS, FOOD_MS, foodOn, foodReady, foodEat,

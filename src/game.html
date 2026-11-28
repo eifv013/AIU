@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.38.1';
+window.AIU_VER = '0.38.2';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -2182,6 +2182,43 @@ html,body{overflow-x:hidden}
 .sy-pi{display:grid;justify-items:center;gap:4px;padding:10px;border-radius:8px;border:2px solid var(--gc);background:#141a2b}.sy-pi>i{width:64px;height:64px;display:grid;place-items:center;border-radius:50%;background:#0c101b}.sy-pi>i .ic{width:40px;height:40px}
 .sy-pi b{font:400 16px "Black Han Sans";color:var(--gc)}.sy-pi p{margin:0;font:600 13px 'IBM Plex Sans KR';color:#e8ecf6}.sy-pi .sy-pv{color:#d4f25a;font-weight:700}.sy-pi .sy-pv i{font-style:normal;color:#8f9ab0}
 .sy-cd>i .sy-art,.sy-pi>i .sy-art{width:100%;height:100%;object-fit:contain}.sy-ic .sy-art{width:100%;height:100%;object-fit:contain}
+.stw-strip i[data-stsel]{cursor:pointer}.stw-strip i.sel{outline:2px solid var(--gold);outline-offset:1px}.stw-strip i.now::after{content:'';position:absolute;left:50%;bottom:-6px;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:#6ff09a}.stw-strip i{position:relative}
+.stw-sk{display:flex;align-items:center;gap:6px;margin:8px 2px 0;font:600 13px 'IBM Plex Sans KR';color:#c9d3ee}.stw-sk input{width:18px;height:18px;accent-color:#e7b54a}
+/* 출석부 14일 (세나 키우기 출석부처럼 그림 띠 + 7칸 두 줄 + 받은 칸 체크) */
+#sideAtt .attg{grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:4px!important}
+#sideAtt .att{padding:4px 1px 5px!important;min-height:0}#sideAtt .att small{font-size:9.5px!important}#sideAtt .att .ic{width:22px!important;height:22px!important}
+#sideAtt .att .ck{position:absolute;inset:0;display:grid;place-items:center;background:rgba(6,9,16,.55);font-size:0}#sideAtt .att .ck svg{width:26px;height:26px}
+#sideAtt .att{position:relative}
+.att-ban{position:relative;height:96px;margin:-4px -4px 10px;border-radius:6px;overflow:hidden;display:grid;align-content:end;justify-items:center;padding-bottom:8px}
+.att-ban img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 30%;filter:brightness(.6)}
+.att-ban b{position:relative;font:400 20px "Black Han Sans";color:#fff;text-shadow:0 2px 6px #000}.att-ban small{position:relative;font:700 11px 'IBM Plex Sans KR';color:#ffd27a;text-shadow:0 1px 3px #000}
+/* 일일 임무 단계 상자 */
+.msb{position:relative;height:66px;margin:6px 18px 10px}
+.msb-bar{position:absolute;left:0;right:0;top:44px;height:8px;border-radius:4px;background:#0a0d16;border:1px solid #2c3757;overflow:hidden}.msb-bar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#2bb3a6,#7ae6d8)}
+.msc{position:absolute;top:0;transform:translateX(-50%);display:grid;justify-items:center;gap:2px;padding:0;border:0;background:none;color:#fff}
+.msc .rdi{width:38px;height:38px;border-radius:6px;background:#1a2036;border:1px solid #3b4870}.msc small{position:absolute;top:44px;width:20px;height:20px;border-radius:50%;background:#1a2036;border:1px solid #3b4870;font:400 11px/18px "Black Han Sans";text-align:center}
+.msc.ready .rdi{border-color:var(--gold);box-shadow:0 0 10px rgba(242,201,76,.6);animation:mscP 1s ease-in-out infinite alternate}.msc.got{opacity:.45}.msc.got .rdi::after{content:'받음';position:absolute;inset:0;display:grid;place-items:center;background:rgba(6,9,16,.6);font:700 10px 'IBM Plex Sans KR'}
+.msc .rdi{position:relative}
+@keyframes mscP{from{transform:scale(1)}to{transform:scale(1.07)}}
+.set-tab{margin:0 0 6px}.vrow{grid-template-columns:90px minmax(0,1fr)!important}.vbar{display:flex;align-items:center;gap:8px}.vbar input{flex:1;accent-color:#e7b54a;height:24px}
+.ai-job .ut i{display:inline-grid;place-items:center;width:18px;height:18px;margin-right:6px;border-radius:50%;background:#2c3757;font:700 11px/1 'IBM Plex Sans KR';font-style:normal}.ai-job.lk{opacity:.5}
+#stAuto{position:absolute;left:14px;bottom:calc(env(safe-area-inset-bottom) + 16px);z-index:3;border:0;background:none;color:#8f9ab0;font:400 15px "Black Han Sans"}#stAuto.on{color:#fff}
+.syn-t{margin-top:8px;padding:6px 8px;border-radius:6px;background:#141a2b;border:1px solid #2c3757}.syn-th{display:flex;align-items:center;gap:6px;margin-bottom:5px}.syn-th b{font:700 13px 'IBM Plex Sans KR';color:#fff}.syn-th small{margin-left:auto;font:600 11px 'IBM Plex Sans KR';color:var(--dim)}
+.syn-g{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}.syn-g i{position:relative;aspect-ratio:1;border:2px solid var(--gc);border-radius:4px;overflow:hidden;opacity:.55}.syn-g i.in{opacity:1}.syn-g i.in::after{content:'출전';position:absolute;left:0;right:0;bottom:0;background:rgba(242,201,76,.9);font:700 9px/13px 'IBM Plex Sans KR';color:#1a1405;text-align:center}.syn-g img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}.syn-no{grid-column:1/-1;color:var(--dim)}
+.pxl{display:grid;gap:8px}.pxb{position:relative;height:86px;padding:0;border:1px solid rgba(210,171,85,.5);border-radius:8px;overflow:hidden;background:#0b0d12;color:#fff;text-align:left}
+.pxb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 35%;filter:brightness(.55)}.pxb span{position:absolute;left:12px;bottom:10px;display:grid}.pxb b{font:400 19px "Black Han Sans";text-shadow:0 2px 6px #000}.pxb small{font:700 11px 'IBM Plex Sans KR';color:#ffd27a;text-shadow:0 1px 3px #000}
+.pxb .px-dot{position:absolute;right:8px;top:8px}
+#phelp{position:absolute;right:10px;z-index:7;width:26px;height:26px;padding:0;border:1.5px solid rgba(210,171,85,.7);border-radius:50%;background:#1a2036;font:400 15px/1 "Black Han Sans";color:#f3e6c4;box-shadow:0 2px 6px rgba(0,0,0,.6)}#phelp[hidden]{display:none}
+.set-tab{display:grid!important;grid-template-columns:1fr 1fr!important;width:100%}.set-tab button{white-space:nowrap}
+.ai-tabs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:4px}.ai-tabs button{white-space:nowrap}
+.att-ban{height:140px!important}.att-ban img{filter:brightness(.75)!important}
+#sideAtt .att.wk{grid-column:auto!important;border-color:rgba(242,201,76,.7)!important}
+#sideAtt .att .rw{display:grid;justify-items:center;gap:0;font:400 11px "Black Han Sans"!important}
+.msb{margin:6px 26px 10px 22px!important}
+.pf-fr{position:relative;display:grid!important;gap:2px;padding:4px!important;border:3px solid var(--fc)!important;border-radius:8px}.pf-fr img{border-radius:4px}.pf-fr small{font:700 10px 'IBM Plex Sans KR';color:var(--fc);text-align:center}.pf-fr.lk{opacity:.4}.pf-fr.on{box-shadow:0 0 10px var(--fc)}
+.pf-face.fr{border-color:var(--fc)!important;box-shadow:0 0 8px var(--fc)}
+#sideAtt .att.today{outline:2px solid var(--gold);outline-offset:-2px}
+.sy-fac{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}.sy-fac button{display:grid;gap:1px;padding:10px 4px;border:1px solid #3b4870;border-radius:8px;background:linear-gradient(#1f2740,#121726);color:#fff}.sy-fac button.on{border-color:var(--gold);box-shadow:inset 0 0 0 1px rgba(242,201,76,.4)}.sy-fac button.lk{opacity:.45}.sy-fac b{font:400 15px "Black Han Sans"}.sy-fac small{font:600 11px 'IBM Plex Sans KR';color:var(--dim)}
 </style>
 </head>
 <body>
@@ -2310,7 +2347,7 @@ html,body{overflow-x:hidden}
   <div id="flashFx"></div>
   <div id="pwup"></div>
   <!-- 구역 근원체 첫 등장 이야기 (세나 키우기 보스 등장 대화처럼) -->
-  <div id="story"><img id="stImg" alt=""><div class="st-box"><b id="stName"></b><p id="stLine"></p><i class="st-next">▼</i></div><button id="stSkip">SKIP ▸▸</button></div>
+  <div id="story"><img id="stImg" alt=""><div class="st-box"><b id="stName"></b><p id="stLine"></p><i class="st-next">▼</i></div><button id="stAuto" class="on">AUTO</button><button id="stSkip">SKIP ▸▸</button></div>
   <!-- 절전 모드: 화면을 검게 끄고 전투는 계속 (세나 키우기처럼 밀어서 해제) -->
   <div id="sleep"><div class="sl-clock" id="slClock"></div><div class="sl-date" id="slDate"></div>
     <div class="sl-logo"><svg viewBox="0 0 24 24"><path d="M12 8.6L8.6 13h2.6l-1.2 3.8 4-4.8h-2.7z" fill="#6b7590"/></svg></div>
@@ -2447,7 +2484,9 @@ const THEMES = [
   { name: '시청 지하 문서고', boss: '지워진 기록관' },
   { name: '균열의 중심',     boss: '오메가' },
 ];
-const theme = () => THEMES[Math.floor((S.stage - 1) / 10) % THEMES.length];
+/** 지금 싸우는 스테이지: 스테이지 이동으로 지난 스테이지를 골랐으면 그 스테이지 (세나 키우기 스테이지 이동처럼) */
+const PS = () => S.fst && S.fst < S.stage ? S.fst : S.stage;
+const theme = () => THEMES[Math.floor((PS() - 1) / 10) % THEMES.length];
 
 /* ---------- 그림 (빌드 때 assets/art 의 webp 가 data URI 로 들어감) ----------
  * spr_<id>: 전신 그림 (요원은 오른쪽, 이상체와 근원체는 왼쪽을 봄, 배경은 투명)
@@ -2464,7 +2503,7 @@ const Snd = (() => {
     if (ctx) { if (ctx.state === 'suspended') ctx.resume().catch(() => {}); return; }
     try { ctx = new (window.AudioContext || window.webkitAudioContext)(); master = ctx.createGain(); master.connect(ctx.destination); setVol(); } catch (e) { ctx = null; }
   }
-  function setVol() { if (master) master.gain.value = GQ.snd === false ? 0 : (GQ.vol ?? 0.7); }
+  function setVol() { if (master) master.gain.value = GQ.snd === false ? 0 : (GQ.volS ?? GQ.vol ?? 0.7); }   // 효과음 크기 (설정의 효과음 막대)
   function load(k) {
     if (buf[k] || busy[k] || !SFX_SRC[k] || !ctx) return;
     busy[k] = true;
@@ -2491,7 +2530,7 @@ const sfx = (k, v, gap, rate) => (typeof sleeping !== 'undefined' && sleeping) ?
 const BGM_SRC = /*BGM*/{};
 const Bgm = (() => {
   let ctx = null; const tr = {};
-  const level = () => GQ.bgm === false ? 0 : (GQ.vol ?? 0.7) * 0.5;
+  const level = () => GQ.bgm === false ? 0 : (GQ.volB ?? GQ.vol ?? 0.7) * 0.5;   // 배경 음악 크기 (설정의 배경 음악 막대)
   function wake() {
     if (ctx) { if (ctx.state === 'suspended') ctx.resume().catch(() => {}); return; }
     try {
@@ -2790,7 +2829,7 @@ function drawHero(g, id, x, y, s, t, swing, hurt, face = 1) {
  * crawler: 관절이 너무 많은 네발 검은 타르 덩어리
  * 근원체: 지역마다 다른 큰 이상체 (우산 쓴 남자, 안개 등대지기, 네온 마네킹) */
 function drawEnemy(g, e, t) {
-  const s = e.size, chap = e.chap != null ? e.chap : Math.floor((S.stage - 1) / 10) % 3;
+  const s = e.size, chap = e.chap != null ? e.chap : Math.floor((PS() - 1) / 10) % 3;
   g.save(); g.translate(e.x, e.y);
   if (e.face > 0) g.scale(-1, 1);
   if (e.hit > 0) { const k = 1 + e.hit * (e.boss ? 0.3 : 0.7); g.scale(k, 2 - k); }   // 맞으면 순간 부풀었다 돌아옴 (필터 대신)
@@ -2887,7 +2926,7 @@ const FIELD = [
 ];
 /** 가로등 빛 색: 네온 유흥가는 분홍, 파랑 번갈아 */
 const lampCol = (F, d) => F.neon ? ((Math.floor(d.x / 7) & 1) ? [255, 70, 170] : [70, 210, 255]) : [255, 190, 90];
-const field = () => FIELD[Math.floor((S.stage - 1) / 10) % FIELD.length];
+const field = () => FIELD[Math.floor((PS() - 1) / 10) % FIELD.length];
 
 /** 시드 난수 (mulberry32) */
 function seeded(seed) {
@@ -2896,11 +2935,11 @@ function seeded(seed) {
 }
 const chunkCache = new Map();
 function chunk(cx, cy) {
-  const chap = Math.floor((S.stage - 1) / 10) % FIELD.length, key = S.stage + ':' + cx + ',' + cy;
+  const chap = Math.floor((PS() - 1) / 10) % FIELD.length, key = PS() + ':' + cx + ',' + cy;
   let c = chunkCache.get(key);
   if (c) return c;
   if (chunkCache.size > 300) chunkCache.clear();   // 메모리 보호
-  const r = seeded((cx * 73856093) ^ (cy * 19349663) ^ (S.stage * 83492791)), F = FIELD[chap];
+  const r = seeded((cx * 73856093) ^ (cy * 19349663) ^ (PS() * 83492791)), F = FIELD[chap];
   const ox = cx * CH, oy = cy * CH, flat = [], tall = [];
   // 바닥 얼룩: 항상 납작한 타원 두세 개를 겹친 자연스러운 모양 (동그란 원반처럼 보이지 않게)
   for (let i = 0; i < 5; i++) {
@@ -2967,7 +3006,7 @@ function keepIn(o, pad) { o.x = clampN(o.x, -MAPW / 2 + pad, MAPW / 2 - pad); o.
 function randPoint(pad) { return { x: (Math.random() - 0.5) * (MAPW - pad * 2), y: (Math.random() - 0.5) * (MAPH - pad * 2) }; }
 /** 새 스테이지 지도: 요원 팀은 아래쪽 입구에서 시작, 무리 몇 개를 미리 흩어 둠 */
 function newMap() {
-  R.mapStage = S.stage; R.enemies = []; R.proj = []; R.boss = null; R.roam = null; R.spawnT = 0;
+  R.mapStage = PS(); R.enemies = []; R.proj = []; R.boss = null; R.roam = null; R.spawnT = 0;
   R.A = { x: 0, y: MAPH / 2 - 220 }; R.cam = { x: 0, y: MAPH / 2 - 260 }; R.heading = -Math.PI / 2;
   for (const h of team()) if (R.heroes[h.id]) Object.assign(R.heroes[h.id], formSlot(h.id));
   for (let i = 0; i < 4; i++) spawnCluster();
@@ -3015,8 +3054,8 @@ const alive = () => team().filter(h => R.heroes[h.id] && R.heroes[h.id].hp > 0);
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
 function mkEnemy(type, x, y, boss) {
-  const hp = boss ? C.bossHp(S.stage) : C.enemyHp(S.stage);
-  return { type, boss, x, y, hp, max: hp, atk: boss ? C.bossAtk(S.stage) : C.enemyAtk(S.stage), at: Math.random(),
+  const hp = boss ? C.bossHp(PS()) : C.enemyHp(PS());
+  return { type, boss, x, y, hp, max: hp, atk: boss ? C.bossAtk(PS()) : C.enemyAtk(PS()), at: Math.random(),
     size: boss ? 110 : type === 'crawler' ? 44 : 48, hit: 0, swing: 0, ph: Math.random() * 6, face: -1, aggro: false };
 }
 /** 지도 어딘가(요원 팀과 떨어진 곳)에 이상체 무리 하나를 배치 */
@@ -3031,13 +3070,14 @@ function spawnCluster() {
 }
 /** 근원체: 요원 팀에서 조금 떨어진 지도 안 어딘가에 등장 */
 function spawnBoss() {
+  if (S.fst) { S.fst = 0; S.kills = 0; writeSave(); newMap(); syncHeroes(true); banner('최고 스테이지로 돌아왔어요'); return; }   // 지난 스테이지에서는 근원체 대신 최고 스테이지로 복귀
   const a = Math.random() * Math.PI * 2, p = { x: R.A.x + Math.cos(a) * 280, y: R.A.y + Math.sin(a) * 280 };
   keepIn(p, 120);
   R.boss = mkEnemy('boss', p.x, p.y, true); R.boss.home = { ...p }; R.boss.wt = 0;
   R.enemies.push(R.boss); R.bossT = C.CONST.BOSS_TIME;
   fxPic('fx_dark', p.x, p.y - 40, 260, 260, 1.4, { spin: 2.5, grow: 0.4 }); fxPic('fx_smoke', p.x, p.y - 30, 240, 240, 1.6, { grow: 0.6, a: 0.8 });
   const ch = Math.floor((S.stage - 1) / 10);
-  if (ch < STORY.length && !storySeen(ch) && ART.op_nf && ART.op_blaze) playStory(ch, bossCutIn); else bossCutIn();   // 이야기는 구역마다 한 번 (준비된 장까지)
+  if (ch < STORY.length && !storySeen(ch) && !storySkip() && ART.op_nf && ART.op_blaze) playStory(ch, bossCutIn); else { if (!storySeen(ch)) try { localStorage.setItem('aiu-bst', ch); } catch (e) {} bossCutIn(); }   // 이야기는 구역마다 한 번 (준비된 장까지)
 }
 
 /* ---------- 출동 (일일 출동, 균열 심층) ----------
@@ -3068,7 +3108,7 @@ function startChal(kind, id, lv) {
 function restoreField() {
   const sv = R.saved; R.saved = null;
   R.proj = []; R.texts = []; R.fx = R.fx.filter(f => f.k === 'flash');
-  if (!sv || R.mapStage !== S.stage) { newMap(); syncHeroes(true); return; }
+  if (!sv || R.mapStage !== PS()) { newMap(); syncHeroes(true); return; }
   R.enemies = sv.enemies; R.A = sv.A; R.cam = sv.cam; R.heading = sv.heading; R.roam = sv.roam; R.spawnT = sv.spawnT; R.boss = null;
   for (const e of R.enemies) e.aggro = false;
   for (const h of team()) { const r = R.heroes[h.id], o = sv.heroes[h.id]; if (r && o) Object.assign(r, o, { swing: 0, hurt: 0 }); }
@@ -3113,6 +3153,7 @@ function zoomPunch(v) { R.zoom = Math.max(R.zoom || 0, v); }
 const CI_COL = { knight: '#7fb2ff', archer: '#8fe3a8', mage: '#ff8a3e', priest: '#ffe28a', dark: '#b98cff',
   scanner: '#5fe8d0', breaker: '#c9d2e6', echo: '#ff8ad8', requiem: '#f2f0e6', ironside: '#ffb02e', blackbox: '#ffc85a', ghost: '#7ff2ff' };
 function cutIn(h, r) {
+  if (GQ.skfx === 'off') return;   // 설정: 기술 연출 끄기
   const col = CI_COL[h.id] || '#fff';
   addFx({ k: 'call', hid: h.id, txt: h.skill.name, col, life: 1.0 });
   addFx({ k: 'edge', col, life: 0.45 });
@@ -3158,7 +3199,7 @@ function kill(e) {
     if (S.stage % 10 === 1) setTimeout(zoneIn, 2500);   // 10스테이지마다 새 구역
     writeSave(); renderPanel(); unlockCheck(prevSt);
   } else {
-    S.gold += C.killGold(S.stage, S.up.gold) * (C.adBuffOn(S, Date.now()) ? 1.1 : 1) * (SYN.gold || 1); S.exp += C.killExp(S.stage); C.progress(S, 'kill', 1); C.addTickets(S, 1); accXp(1);
+    S.gold += C.killGold(PS(), S.up.gold) * (C.adBuffOn(S, Date.now()) ? 1.1 : 1) * (SYN.gold || 1); S.exp += C.killExp(PS()); C.progress(S, 'kill', 1); C.addTickets(S, 1); accXp(1);
     if (!S.farming && S.kills < C.CONST.WAVE_KILLS) S.kills++;
     if (!R.chal) coinFly(e.x, e.y - e.size * 0.4, 2);
   }
@@ -3198,7 +3239,7 @@ function coinFly(x, y, n) {
 function zoneIn(tries = 0) {
   if (overlayBlocked() || $('modal').classList.contains('on')) { if (tries < 30) setTimeout(() => zoneIn(tries + 1), 500); return; }   // 다른 창이 닫히면 보여 줌
   let el = $('zoneIn'); if (!el) { el = document.createElement('div'); el.id = 'zoneIn'; $('cv').parentElement.appendChild(el); }
-  el.innerHTML = `<b>${theme().name}</b><em>${Math.floor((S.stage - 1) / 10) + 1}구역</em>`;   // 세나 키우기: 화면이 어두워지고 가운데에 지역 이름
+  el.innerHTML = `<b>${theme().name}</b><em>${Math.floor((PS() - 1) / 10) + 1}구역</em>`;   // 세나 키우기: 화면이 어두워지고 가운데에 지역 이름
   el.classList.remove('on'); void el.offsetWidth; el.classList.add('on'); sfx('whoosh', 0.5, 0.2);
 }
 /** 전투 중인 요원 머리 위에 레벨 업 표시 (같은 요원은 1초에 한 번) */
@@ -3212,8 +3253,8 @@ function bossFail(reason) {
   if (!R.boss) return;
   if (R.chal) return chalEnd(false, reason);
   R.enemies = R.enemies.filter(en => en !== R.boss); R.boss = null;
-  S.farming = true; S.kills = 0; C.progress(S, 'lose', 1);
-  banner(reason); writeSave();
+  S.farming = !S.retry; S.kills = 0; C.progress(S, 'lose', 1);   // 실패 시 자동 재도전이 켜져 있으면 처치 수를 다시 채운 뒤 또 도전
+  banner(S.retry ? `${reason}. 처치 수를 채우면 다시 도전해요` : reason); writeSave();
 }
 
 /* ---------- 요원 행동 ---------- */
@@ -3267,7 +3308,7 @@ function heroAct(h, r, dt) {
 }
 /** 기술 이펙트 그림 한 장 (fx_mark 등). 그림이 들어오기 전에는 기존 고리, 불꽃 효과만 보임 */
 /** 이펙트 그림 한 장: 커지면서(grow) 사라짐, rot 회전, spin 초당 회전 */
-function fxPic(key, x, y, w, h, life, o = {}) { if (imgOk(key)) addFx({ k: 'img', key, x, y, w, h, life, l0: life, rot: o.rot || 0, spin: o.spin || 0, grow: o.grow ?? 0.35, a: o.a ?? 1 }); }
+function fxPic(key, x, y, w, h, life, o = {}) { if (imgOk(key)) addFx({ k: 'img', key, x, y, w, h, life, l0: life, rot: o.rot || 0, spin: o.spin || 0, grow: o.grow ?? 0.35, a: (o.a ?? 1) * (GQ.skfx === 'half' ? 0.45 : GQ.skfx === 'off' ? 0.25 : 1) }); }   // 설정: 기술 연출 반투명
 /** 요원 근처에서 체력이 가장 많은 일반 이상체 (근원체는 제외) */
 function strongest(r) {
   let best = null;
@@ -3371,7 +3412,7 @@ function update(dt) {
   if (DPS.on) DPS.t += dt; LOG.t += dt;
   R.t += dt;
   R.buff = Math.max(0, R.buff - dt);
-  if (R.mapStage !== S.stage) newMap();   // 스테이지가 바뀌면 새 지도
+  if (R.mapStage !== PS()) newMap();   // 스테이지가 바뀌면 새 지도
   // 전멸: 3초 뒤 그 자리에서 부활, 근처 이상체는 물러남(다시 배치)
   if (R.wipe > 0) {
     R.wipe -= dt;
@@ -3498,7 +3539,7 @@ function draw() {
   const x0 = R.cam.x - vw / 2 - 60, x1 = R.cam.x + vw / 2 + 60, y0 = R.cam.y - vh * cy0 - 80, y1 = R.cam.y + vh * (1 - cy0) + 60;
   // 지도 바닥 (경계 안만) + 장식은 경계 안으로 잘라 그림
   // 바닥 그림(floor1~3)이 있으면 바둑판처럼 반복해 깔기. 한 장이 지도 단위 260 크기
-  const fk = 'floor' + (Math.floor((S.stage - 1) / 10) % FIELD.length + 1);
+  const fk = 'floor' + (Math.floor((PS() - 1) / 10) % FIELD.length + 1);
   const bx0 = x0, by0 = y0, bx1 = x1, by1 = y1;   // 바닥은 화면 전체에 깔기 (축소해도 지도 밖이 검게 보이지 않게)
   if (imgOk(fk)) {
     const px = Math.max(16, Math.round(260 * u * DPR));   // 바닥 한 장의 실제 화면 픽셀 크기
@@ -3864,12 +3905,13 @@ function renderParty() {
 }
 function updateUI() {
   tabLocks();
-  $('stage').textContent = C.stageLabel(S.stage);
+  $('stage').textContent = C.stageLabel(PS());
   $('area').textContent = theme().name;
   $('gold').textContent = C.formatNum(S.gold);
   // 프로필: 대장(출전 첫 요원) 얼굴, 수사팀 레벨(스테이지), 계급(구역마다), 구역 안 진행 / 전투력
   const lead = S.face && S.heroes[S.face] && S.heroes[S.face].owned ? C.heroById(S.face) : team()[0];
   if (lead) { const src = ART['id_' + lead.id] || portrait(lead.id); if ($('pfImg').getAttribute('src') !== src) $('pfImg').src = src; }
+  if (FRAMES) { const fr = FRAMES.find(x => x[0] === (S.frame || '')); $('pfImg').parentElement.style.setProperty('--fc', fr ? fr[2] : '#c9b07a'); $('pfImg').parentElement.classList.toggle('fr', !!S.frame); }
   const chap = Math.floor((S.stage - 1) / 10);
   // 수사팀 레벨과 경험치 막대, 이름, 장착 칭호(없으면 구역 계급)
   const ttl = C.titleById(S.ttEq);
@@ -4035,6 +4077,8 @@ function manageHtml() {
 /** 핵심 버프 자세히 (편성 화면의 버프 칸을 누르면 창으로) */
 function synWinHtml() {
   return `<h2>핵심 버프</h2><div class="syn"><div class="syn-h"><small>같은 유형 요원을 함께 출전시키면 켜져요</small></div>${SYN.lines.map(l => `<div class="syn-r ${l.lv ? 'on' : ''}">${l.type === '전체' ? '<i class="syn-all">4</i>' : `<svg class="ic"><use href="#i-t-${l.type}"/></svg>`}<span>${l.type === '전체' ? '네 유형 모두' : l.type + ' ' + l.n + '명'}</span><em>${l.text}</em><small>${l.next ? (l.type === '전체' ? `${l.n} / 4 유형` : `${l.next}명부터`) : '최대'}</small></div>`).join('')}</div>
+    <div class="optg">유형별 보유 요원</div>${C.TYPES.map(t => { const L = owned().filter(h => h.type === t), pids = C.partyIds(S);
+      return `<div class="syn-t"><div class="syn-th"><svg class="ic"><use href="#i-t-${t}"/></svg><b>${t}</b><small>${L.filter(h => pids.includes(h.id)).length} / ${L.length} 출전</small></div><div class="syn-g">${L.map(h => `<i class="${pids.includes(h.id) ? 'in' : ''}" style="--gc:${GRADE_COL[C.heroGrade(S, h.id)] || '#8f99ae'}"><img src="${portrait(h.id)}" alt=""></i>`).join('') || '<small class="syn-no">보유 요원 없음</small>'}</div></div>`; }).join('')}
     <div class="mbtns"><button class="btn" data-close>닫기</button></div>`;
 }
 function formHtml() {
@@ -4048,14 +4092,24 @@ function formHtml() {
     return i < slots ? `<div class="fspot empty" style="left:${x}%;top:${y}%"></div>`
       : `<div class="fspot lock" data-l="${Math.floor((C.CONST.PARTY_SLOT_AT[i] - 1) / 10) + 1}구역" style="left:${x}%;top:${y}%"></div>`;
   }).join('');
-  const bg = ART['floor' + (Math.floor((S.stage - 1) / 10) % 3 + 1)] || ART.floor1;
+  const bg = ART['floor' + (Math.floor((PS() - 1) / 10) % 3 + 1)] || ART.floor1;
   return `<div class="fstage"><div class="fbg" style="background-image:url(${bg || ''})"></div><div class="ring"></div>${spots}</div>
       <div class="fbar"><span class="fc"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2l8 3v6c0 5-3.5 9-8 11c-4.5-2-8-6-8-11V5z" fill="#c9d3ee"/></svg><b class="${pids.length >= slots ? 'full' : ''}">${pids.length}</b>/${slots}</span>
         <button class="fsyn" data-act="synwin" aria-label="핵심 버프">${SYN.lines.filter(l => l.type !== '전체').map(l => `<i class="${l.lv ? 'on' : ''}"><svg class="ic"><use href="#i-t-${l.type}"/></svg><b>${l.n}</b></i>`).join('')}<span>버프</span></button>
         <button class="btn fauto" data-act="autoform">자동 편성</button></div>
     <div class="agrid">${sortHeroes(owned(), pids).map(h => agentCard(h, pids, 'fpick')).join('')}</div>`;
 }
-function renderPanel() {
+/** 메뉴 칸 오른쪽 위 도움말(?) 단추 (세나 키우기처럼 화면마다 설명). 칸 위쪽 테두리에 붙여 둠 */
+function placeHelp() {
+  let b = $('phelp'); if (!b) { b = document.createElement('button'); b.id = 'phelp'; b.textContent = '?'; b.setAttribute('aria-label', '도움말'); $('app').appendChild(b); b.addEventListener('click', () => { const k = b.dataset.k; if (HELP[k]) showHelp(k); }); }
+  const P = $('panel'), open = !$('app').classList.contains('folded') && !$('app').classList.contains('herofull') && !$('app').classList.contains('hdopen');
+  const k = HELP[tab + '_' + (tab === 'hero' ? hsub : subSel[tab])] ? tab + '_' + (tab === 'hero' ? hsub : subSel[tab]) : tab;
+  b.dataset.k = k; b.hidden = !open || !HELP[k];
+  if (!b.hidden) { const r = P.getBoundingClientRect(), a = $('app').getBoundingClientRect(); b.style.top = (r.top - a.top - 13) + 'px'; }
+}
+function renderPanel() { renderPanel0(); requestAnimationFrame(placeHelp); }
+setInterval(() => { try { placeHelp(); } catch (e) {} }, 400);   // 메뉴를 닫거나 칸 높이가 바뀌면 도움말 단추 자리도 따라감
+function renderPanel0() {
   const P = $('panel');
   $('app').classList.toggle('shopfull', tab === 'summon'); $('app').classList.toggle('bigp', tab === 'summon');   // 화면 위까지 크게 여는 건 상점만. 나머지 메뉴는 원래 높이
   if (SUB_READY[tab] && !SUB_READY[tab].includes(subSel[tab])) { P.innerHTML = subSoon(tab); return updatePanel(); }
@@ -4204,20 +4258,25 @@ function renderRun(P) {
     <p class="hint" style="margin:10px 2px">일일 작전은 하루 ${C.CONST.DAILY_KEYS}번, 매일 0시에 다시 채워져요. 실패하면 횟수가 줄지 않아요. 클리어한 단계는 소탕으로 바로 보상을 받아요. 제한 시간은 ${C.CONST.CHAL_TIME}초예요.</p>` + subBar('run');
 }
 /* 일일 임무, 출석: 전투 화면 왼쪽 아이콘을 누르면 창으로 (세나 키우기 미션, 출석 아이콘과 같은 자리) */
+/** 일일 임무 화면 다시 그리기 (메뉴 칸 또는 창) */
+function misRe() { if (tab === 'mis' && !$('app').classList.contains('folded')) renderPanel(); else if ($('sideMis')) { openSide('mis'); } }
 function misHtml() {
-  return `<div id="sideMis"><h2>임무</h2>${misTabs('d')}` + C.MISSIONS.map((m, i) => `<div class="mrow" data-m="${i}"><div class="mt"><b>${m.text}</b><div class="bar"><i></i></div></div>
+  const dn = S.daily.got.length, N = C.MISSIONS.length, ms = S.daily.ms || [];
+  const chest = (n, rw, got, k) => `<button class="msc ${got ? 'got' : dn >= n ? 'ready' : ''}" ${!got && dn >= n ? k : ''} style="left:${100 * n / N}%">${rdTile(rw)}<small>${n}</small></button>`;
+  const strip = `<div class="msb"><div class="msb-bar"><i style="width:${100 * dn / N}%"></i></div>${C.DAILY_MS.map((m, i) => chest(m.n, m.rw, ms.includes(i), `data-act="mms" data-i="${i}"`)).join('')}${chest(N, { ptix: C.CONST.MISSION_BONUS_PTIX }, S.daily.bonus, 'data-act="mbonus"')}</div>`;
+  return `<div id="sideMis"><h2>임무</h2>${misTabs('d')}${strip}` + C.MISSIONS.map((m, i) => `<div class="mrow" data-m="${i}"><div class="mt"><b>${m.text}</b><div class="bar"><i></i></div></div>
       <span class="mp"></span><span class="rw">${icon('gem')}${m.gems}</span><button class="btn sm" data-act="mget" data-m="${i}">받기</button></div>`).join('') +
     `<div class="mrow bonus"><div class="mt"><b>일일 임무 모두 완료</b><div class="bar"><i></i></div></div><span class="mp"></span><span class="rw">${icon('ptix')}${C.CONST.MISSION_BONUS_PTIX}</span><button class="btn sm rift" data-act="mbonus">받기</button></div>
     <p class="hint" style="margin:10px 2px">일일 임무는 매일 0시에 새로 시작해요.</p><div class="mbtns"><button class="btn ghost" data-close>닫기</button><button class="btn" data-act="mall" id="misAll">모두 받기</button></div></div>`;
 }
 function attHtml() {
   const n = S.att.n % C.ATTEND.length, can = C.canAttend(S, new Date());
-  return `<div id="sideAtt"><h2>출석</h2><div class="attg">${C.ATTEND.map((r, i) => {
+  return `<div id="sideAtt"><div class="att-ban"><img src="${ART.op_key || ''}" alt=""><b>수사팀 출석부</b><small>매일 출석하면 14일째에 정예 호출권 5장</small></div><div class="attg">${C.ATTEND.map((r, i) => {
     const got = i < n, today = i === n && can;
-    return `<div class="att ${got ? 'got' : ''} ${today ? 'today' : ''} ${i === 6 ? 'wk' : ''}"><small>${i + 1}일</small>${rwHtml(r)}${got ? '<i class="ck">받음</i>' : ''}</div>`;
+    return `<div class="att ${got ? 'got' : ''} ${today ? 'today' : ''} ${i % 7 === 6 ? 'wk' : ''}"><small>${i + 1}일차</small>${rwHtml(r)}${got ? '<i class="ck"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#2f7be8" stroke="#fff" stroke-width="2"/><path d="M7 12.5l3.3 3.3L17 9" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></i>' : ''}</div>`;
   }).join('')}</div>
     <button class="btn att-btn" data-act="attend" ${can ? '' : 'disabled'}>${can ? `${n + 1}일째 보상 받기` : '내일 다시 받을 수 있어요'}</button>
-    <p class="hint" style="margin:10px 2px">하루 한 번 받을 수 있어요. 7일째를 받으면 다시 1일부터예요.</p><div class="mbtns"><button class="btn ghost" data-close>닫기</button></div></div>`;
+    <p class="hint" style="margin:10px 2px">하루 한 번 받을 수 있어요. 14일째를 받으면 다시 1일부터예요.</p><div class="mbtns"><button class="btn ghost" data-close>닫기</button></div></div>`;
 }
 function openSide(kind) {
   if (kind === 'mis') { C.misReset(S, new Date()); misTab = 'd'; }
@@ -4694,7 +4753,8 @@ function onAct(e) {
       const t = MIS_GO[k]; if (t === 'boss') return $('bossBtn').click();
       const tb = $('tabs').querySelector(`[data-tab="${t}"]`); if (tb && tab !== t) tb.click();
     } else if (act === 'mget') { const g = C.missionClaim(S, +b.dataset.m); if (g) { toast(`보석 ${g}개를 받았어요`); writeSave(); } }
-    else if (act === 'mbonus') { const n = C.missionBonus(S); if (n) { toast(`정예 호출권 ${n}장을 받았어요`); writeSave(); } }
+    else if (act === 'mbonus') { const n = C.missionBonus(S); if (n) { toast(`정예 호출권 ${n}장을 받았어요`); writeSave(); misRe(); } }
+    else if (act === 'mms') { const r = C.dailyMsClaim(S, +b.dataset.i); if (r) { writeSave(); showResult('gift', '보상 획득', rwTiles(r)); misRe(); } }
     else if (act === 'attend') {
       const r = C.attend(S, new Date());
       if (r) { toast(`출석 ${r.day}일째 보상을 받았어요`); writeSave(); renderPanel(); if ($('sideAtt')) $('modal').querySelector('.mbox').innerHTML = attHtml(); }
@@ -4857,29 +4917,41 @@ $('bossAuto').addEventListener('click', () => {
   void 0;
   writeSave(); updateUI();
 });
+let setTab = 'game';
 function gfxRows() {
   const seg = (key, opts) => `<div class="seg two">${opts.map(([v, l]) => `<button data-gfx="${key}" data-v="${v}" class="${GQ[key] === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
   const tg = (key) => `<button class="tgl ${GQ[key] ? 'on' : ''}" data-tg="${key}" aria-pressed="${!!GQ[key]}"></button>`;
   const sl = [[0, '끔'], [3, '3분'], [10, '10분']].map(([v, l]) => `<button data-gfx="autoSleep" data-v="${v}" class="${(GQ.autoSleep || 0) === v ? 'on' : ''}">${l}</button>`).join('');
-  const vol = [[0.35, '작게'], [0.7, '보통'], [1, '크게']].map(([v, l]) => `<button data-vol="${v}" class="${Math.abs((GQ.vol ?? 0.7) - v) < 0.01 ? 'on' : ''}">${l}</button>`).join('');
-  return `<div class="optg">소리</div><div class="setrow"><div><div class="ut">효과음</div><div class="uv">총소리, 타격음, 버튼 소리를 내요</div></div>${tg('snd')}</div>
-    <div class="setrow"><div><div class="ut">배경 음악</div><div class="uv">순찰과 근원체 전투 음악을 틀어요</div></div>${tg('bgm')}</div>
-    <div class="setrow"><div><div class="ut">음량</div><div class="uv">효과음과 배경 음악 크기</div></div><div class="seg">${vol}</div></div>
+  const fx = [['on', '선명'], ['half', '반투명'], ['off', '끄기']].map(([v, l]) => `<button data-skfx="${v}" class="${(GQ.skfx || 'on') === v ? 'on' : ''}">${l}</button>`).join('');
+  const bar = (k, name) => `<div class="setrow vrow"><div class="ut">${name}</div><div class="vbar">${tg(k === 'volB' ? 'bgm' : 'snd')}<input type="range" min="0" max="100" value="${Math.round((GQ[k] ?? GQ.vol ?? 0.7) * 100)}" data-vk="${k}"></div></div>`;
+  return `<div class="optg">소리</div>${bar('volB', '배경 음악')}${bar('volS', '효과음')}
     <div class="optg">화면</div><div class="setrow"><div><div class="ut">그래픽</div><div class="uv">낮음으로 두면 빛과 안개가 줄어 가벼워요</div></div>${seg('hi', [[true, '높음'], [false, '낮음']])}</div>
     <div class="setrow"><div><div class="ut">프레임</div><div class="uv">30으로 두면 배터리와 발열이 줄어요</div></div>${seg('fps60', [[true, '60'], [false, '30']])}</div>
+    <div class="setrow"><div><div class="ut">기술 연출</div><div class="uv">기술을 쓸 때 나오는 그림과 빛</div></div><div class="seg">${fx}</div></div>
     <div class="setrow"><div><div class="ut">피해 숫자</div><div class="uv">적에게 준 피해를 숫자로 보여 줘요</div></div>${tg('dmgNum')}</div>
     <div class="setrow"><div><div class="ut">화면 흔들림</div><div class="uv">치명타와 기술 때 화면이 흔들려요</div></div>${tg('shake')}</div>
     <div class="optg">절전</div>
     <div class="setrow"><div><div class="ut">자동 절전</div><div class="uv">손대지 않으면 절전 모드로 바뀌어요</div></div><div class="seg">${sl}</div></div>`;
 }
-$('btnSet').addEventListener('click', () => {
-  openModal(`<h2>설정</h2>
-    <div id="gfxRows">${gfxRows()}</div>
+function accRows() {
+  return `<div class="optg">계정 정보</div>
+    <div class="setrow"><div><div class="ut">수사팀 번호</div><div class="uv">${S.uid}</div></div><button class="btn sm ghost" data-set="copy">복사</button></div>
+    <div class="setrow"><div><div class="ut">쿠폰 입력</div><div class="uv">받은 쿠폰 번호를 넣어요</div></div><button class="btn sm ghost" data-set="coupon">입력</button></div>
+    <div class="optg">게임</div>
     <div class="setrow"><div><div class="ut">버전</div><div class="uv">AIU ${APP_VERSION}</div></div><button class="btn sm ghost" data-set="hot">업데이트 확인</button></div>
-    <div class="setrow"><div><div class="ut">자리 비움 보상 시험</div><div class="uv">1시간 자리를 비운 셈 치고 보상 받기</div></div><button class="btn sm ghost" data-set="off">받아 보기</button></div>
     <div class="setrow"><div><div class="ut">오프닝 다시 보기</div><div class="uv">처음 시작할 때 나온 이야기를 다시 봐요</div></div><button class="btn sm ghost" data-set="opening">보기</button></div>
-    <div class="setrow"><div><div class="ut">처음부터 다시</div><div class="uv">저장된 진행을 모두 지워요</div></div><button class="btn sm ghost" data-set="reset">초기화</button></div>
-    <div class="mbtns"><button class="btn" data-close>닫기</button></div>`);
+    <div class="setrow"><div><div class="ut">처음부터 다시</div><div class="uv">저장된 진행을 모두 지워요</div></div><button class="btn sm ghost" data-set="reset">초기화</button></div>`;
+}
+function setHtml() {
+  return `<h2>설정</h2><div class="seg two set-tab"><button data-settab="game" class="${setTab === 'game' ? 'on' : ''}">게임 설정</button><button data-settab="acc" class="${setTab === 'acc' ? 'on' : ''}">계정</button></div>
+    <div id="gfxRows">${setTab === 'game' ? gfxRows() : accRows()}</div><div class="mbtns"><button class="btn" data-close>닫기</button></div>`;
+}
+$('btnSet').addEventListener('click', () => { setTab = 'game'; openModal(setHtml()); });
+modalEl.addEventListener('input', e => { const r = e.target.closest('[data-vk]'); if (!r) return; GQ[r.dataset.vk] = +r.value / 100; saveGQ(); Snd.setVol(); });
+modalEl.addEventListener('change', e => { const r = e.target.closest('[data-vk]'); if (r && r.dataset.vk === 'volS') sfx('coins', 0.8, 0); });
+modalEl.addEventListener('click', e => {
+  const st = e.target.closest('[data-settab]'); if (st) { setTab = st.dataset.settab; openModal(setHtml()); return; }
+  const fx = e.target.closest('[data-skfx]'); if (fx) { GQ.skfx = fx.dataset.skfx; saveGQ(); $('gfxRows').innerHTML = gfxRows(); return; }
 });
 modalEl.addEventListener('click', e => {
   const gb = e.target.closest('[data-gfx]');
@@ -4889,7 +4961,7 @@ modalEl.addEventListener('click', e => {
     resize(); R.pat = null; vgKey = ''; $('gfxRows').innerHTML = gfxRows(); return;
   }
   const tb = e.target.closest('[data-tg]');
-  if (tb) { GQ[tb.dataset.tg] = !GQ[tb.dataset.tg]; saveGQ(); Snd.setVol(); $('gfxRows').innerHTML = gfxRows(); return; }
+  if (tb) { GQ[tb.dataset.tg] = !GQ[tb.dataset.tg]; saveGQ(); Snd.setVol(); $('gfxRows').innerHTML = setTab === 'game' ? gfxRows() : accRows(); return; }
   const vb = e.target.closest('[data-vol]');
   if (vb) { GQ.vol = +vb.dataset.vol; saveGQ(); Snd.setVol(); sfx('coins', 0.8, 0); $('gfxRows').innerHTML = gfxRows(); return; }
   const b = e.target.closest('[data-set]'); if (!b) return;
@@ -4897,11 +4969,13 @@ modalEl.addEventListener('click', e => {
   else if (b.dataset.set === 'reset') { modalEl.classList.remove('on'); confirmReset(); }
   else if (b.dataset.set === 'hot') { modalEl.classList.remove('on'); hotCheck(true); }
   else if (b.dataset.set === 'opening') { modalEl.classList.remove('on'); playOpening(); }
+  else if (b.dataset.set === 'copy') { try { navigator.clipboard.writeText(S.uid); toast('수사팀 번호를 복사했어요'); } catch (x) { toast(S.uid); } }
+  else if (b.dataset.set === 'coupon') { const c = (prompt('쿠폰 번호를 입력해 주세요') || '').trim(); if (c) toast('사용할 수 없는 쿠폰 번호예요'); }
 });
 $('bossOpt').addEventListener('click', () => {
-  openModal(`<h2>근원체 소환 옵션</h2><div class="setrow"><div><div class="ut">근원체 자동 소환</div><div class="uv">처치 수가 다 차면 근원체를 바로 불러요. 끄면 현재 구역을 계속 순찰해요</div></div><button class="tgl ${S.farming ? '' : 'on'}" data-bopt></button></div><div class="mbtns"><button class="btn" data-close>닫기</button></div>`);
+  openModal(`<h2>근원체 소환 옵션</h2><div class="setrow"><div><div class="ut">근원체 자동 소환</div><div class="uv">처치 수가 다 차면 근원체를 바로 불러요. 끄면 현재 구역을 계속 순찰해요</div></div><button class="tgl ${S.farming ? '' : 'on'}" data-bopt></button></div><div class="setrow"><div><div class="ut">실패 시 자동 재도전</div><div class="uv">근원체 봉쇄에 실패하면 처치 수를 다시 채운 뒤 또 도전해요</div></div><button class="tgl ${S.retry ? 'on' : ''}" data-bretry></button></div><div class="mbtns"><button class="btn" data-close>닫기</button></div>`);
 });
-modalEl.addEventListener('click', e => { if (!e.target.closest('[data-bopt]')) return; S.farming = !S.farming; writeSave(); updateUI(); e.target.closest('[data-bopt]').classList.toggle('on', !S.farming); });
+modalEl.addEventListener('click', e => { const rt = e.target.closest('[data-bretry]'); if (rt) { S.retry = !S.retry; writeSave(); rt.classList.toggle('on', S.retry); return; } if (!e.target.closest('[data-bopt]')) return; S.farming = !S.farming; writeSave(); updateUI(); e.target.closest('[data-bopt]').classList.toggle('on', !S.farming); });
 $('bossSum').addEventListener('click', () => { if (S.farming) $('bossBtn').click(); else if (S.kills < C.CONST.WAVE_KILLS) toast(`이상체를 ${C.CONST.WAVE_KILLS}마리 처치하면 근원체가 나와요`); });
 $('bossBtn').addEventListener('click', () => { S.farming = false; S.kills = C.CONST.WAVE_KILLS; R.enemies = []; R.boss = null; updateUI(); });
 
@@ -5153,10 +5227,12 @@ function stNext() {
   const L = stQ.shift(); if (!L) return stEnd();
   const img = ART[L[0]]; if ($('stImg').getAttribute('src') !== img) { $('stImg').src = img; $('stImg').style.animation = 'none'; void $('stImg').offsetWidth; $('stImg').style.animation = ''; }
   $('stName').textContent = L[1]; $('stLine').textContent = L[2];
-  stT = setTimeout(stNext, 3800);   // 자동 넘김
+  if (stAuto) stT = setTimeout(stNext, 3800);   // 자동 넘김 (AUTO를 끄면 눌러야 넘어감)
 }
 function stEnd() { clearTimeout(stT); storyOn = false; $('story').classList.remove('on'); const d = stDone; stDone = null; d && d(); }
-$('story').addEventListener('click', e => { if (e.target.id === 'stSkip') stEnd(); else stNext(); });
+let stAuto = (() => { try { return localStorage.getItem('aiu-stauto') !== '0'; } catch (e) { return true; } })();
+$('stAuto').classList.toggle('on', stAuto);
+$('story').addEventListener('click', e => { if (e.target.id === 'stSkip') stEnd(); else if (e.target.id === 'stAuto') { stAuto = !stAuto; e.target.classList.toggle('on', stAuto); try { localStorage.setItem('aiu-stauto', stAuto ? '1' : '0'); } catch (x) {} clearTimeout(stT); if (stAuto) stT = setTimeout(stNext, 3800); } else stNext(); });
 
 
 
@@ -5279,9 +5355,17 @@ function profHtml() {
 }
 function openProfile() { openModal(profHtml()); }
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }
+let faceTab = 'face';
+var FRAMES = [['', '기본', '#c9b07a', null], ['r', '희귀', '#5f97e0', '희귀'], ['h', '영웅', '#b06cf0', '영웅'], ['l', '전설', '#e9b23c', '전설']];
 function faceHtml() {
   const own = C.HEROES.filter(h => S.heroes[h.id].owned), cur = S.face || (team()[0] || {}).id;
-  return `<h2>대표 얼굴 변경</h2><div class="pfw-g">${own.map(h => `<button data-face="${h.id}" class="${h.id === cur ? 'on' : ''}" aria-label="${h.name}"><img src="${ART['id_' + h.id] || portrait(h.id)}" alt=""></button>`).join('')}</div><div class="mbtns"><button class="btn" data-pf="back">확인</button></div>`;
+  const tabs = `<div class="seg two set-tab"><button data-ftab="face" class="${faceTab === 'face' ? 'on' : ''}">대표 얼굴</button><button data-ftab="frame" class="${faceTab === 'frame' ? 'on' : ''}">테두리</button></div>`;
+  if (faceTab === 'frame') {   // 세나 키우기 초상화 변경의 테두리 탭처럼: 그 등급 요원을 가지고 있으면 열림
+    const img = ART['id_' + cur] || portrait(cur);
+    return `<h2>대표 얼굴 변경</h2>${tabs}<div class="pfw-g">${FRAMES.map(([k, n, col, g]) => { const ok = !g || own.some(h => h.grade === g);
+      return `<button ${ok ? `data-frame="${k}"` : 'disabled'} class="pf-fr ${(S.frame || '') === k ? 'on' : ''} ${ok ? '' : 'lk'}" style="--fc:${col}"><img src="${img}" alt=""><small>${ok ? n : `${g} 요원 필요`}</small></button>`; }).join('')}</div><div class="mbtns"><button class="btn" data-pf="back">확인</button></div>`;
+  }
+  return `<h2>대표 얼굴 변경</h2>${tabs}<div class="pfw-g">${own.map(h => `<button data-face="${h.id}" class="${h.id === cur ? 'on' : ''}" aria-label="${h.name}"><img src="${ART['id_' + h.id] || portrait(h.id)}" alt=""></button>`).join('')}</div><div class="mbtns"><button class="btn" data-pf="back">확인</button></div>`;
 }
 function nameHtml(err) {
   return `<h2>수사팀 이름 변경</h2><div class="nmw"><input id="tnIn" maxlength="8" value="${esc(S.tname)}" autocomplete="off" spellcheck="false"><p class="nm-e">${err || ''}</p>
@@ -5289,15 +5373,17 @@ function nameHtml(err) {
     <div class="mbtns"><button class="btn ghost" data-pf="back">취소</button><button class="btn" data-pf="rename">변경</button></div>`;
 }
 function srcHtml() {
-  return `<h2>능력치 보기</h2><div class="srcw">${['전체', '칭호', '도감', '증거 카드', '복장', '고유 능력', '수사력'].map(k => `<button class="${pfSrc === k ? 'on' : ''}" data-pfsrc="${k}">${k}</button>`).join('')}</div><div class="mbtns"><button class="btn ghost" data-pf="back">닫기</button></div>`;
+  return `<h2>능력치 보기</h2><div class="srcw">${['전체', '칭호', '도감', '증거 카드', '복장', '고유 능력', '수사력', '특성', '장비', '연구', '후원', '아지트', '평판', '파트너', '유물', '봉인 파편'].map(k => `<button class="${pfSrc === k ? 'on' : ''}" data-pfsrc="${k}">${k}</button>`).join('')}</div><div class="mbtns"><button class="btn ghost" data-pf="back">닫기</button></div>`;
 }
 modalEl.addEventListener('click', e => {
   const f = e.target.closest('[data-face]'); if (f) { S.face = f.dataset.face; writeSave(); updateUI(); openModal(faceHtml()); return; }
+  const ft = e.target.closest('[data-ftab]'); if (ft) { faceTab = ft.dataset.ftab; openModal(faceHtml()); return; }
+  const fr = e.target.closest('[data-frame]'); if (fr) { S.frame = fr.dataset.frame; writeSave(); updateUI(); openModal(faceHtml()); return; }
   const sr = e.target.closest('[data-pfsrc]'); if (sr) { pfSrc = sr.dataset.pfsrc; openProfile(); return; }
   const b = e.target.closest('[data-pf]'); if (!b) return;
   const k = b.dataset.pf;
   if (k === 'back') openProfile();
-  else if (k === 'face') openModal(faceHtml());
+  else if (k === 'face') { faceTab = 'face'; openModal(faceHtml()); }
   else if (k === 'name') openModal(nameHtml());
   else if (k === 'src') openModal(srcHtml());
   else if (k === 'title') openTitles();
@@ -5769,6 +5855,11 @@ function pxInfo(id) {
 }
 function pxWinHtml() {
   C.misReset(S, new Date());
+  if (!pxTab) {   // 세나 키우기 패스 창처럼: 패스마다 그림 띠 하나씩, 누르면 그 패스로
+    const art = ['op_key', 'banner_call', 'op_boss', 'op_nf', 'op_blaze'];
+    return `<h2>패스</h2><div class="pxl">${PX_TABS.map(([k, n], i) => { const I = pxInfo(k); return `<button class="pxb" data-pxt="${k}"><img src="${ART[art[i % art.length]] || ''}" alt=""><span><b>${I.name}</b><small>현재 ${I.unit} ${I.v.toLocaleString()}${I.paid ? '  구매함' : ''}</small></span>${I.ready ? '<i class="px-dot"></i>' : ''}</button>`; }).join('')}</div>
+      <div class="mbtns"><button class="btn" data-close>닫기</button></div>`;
+  }
   const I = pxInfo(pxTab);
   const tabs = `<div class="seg px-tabs">${PX_TABS.map(([k, n]) => { const r = pxInfo(k).ready; return `<button data-pxt="${k}" class="${pxTab === k ? 'on' : ''}">${n}${r ? '<i class="px-dot"></i>' : ''}</button>`; }).join('')}</div>`;
   const act = I.paid ? `<button class="btn sm" data-pxall ${I.ready ? '' : 'disabled'}>모두 받기</button>` : `<button class="btn sm" data-pxbuy>패스 구매 ₩${I.price.toLocaleString()}</button>`;
@@ -5777,7 +5868,7 @@ function pxWinHtml() {
     return `<div class="ps-r"><span class="ps-st ${ok ? 'on' : ''}">${r.v.toLocaleString()}</span>${cell('free', r.free, I.f.includes(i), ok)}${cell('paid', r.paid, I.p.includes(i), ok && I.paid)}</div>`; };
   return `<h2>패스</h2>${tabs}<div class="mpt px-top"><span class="px-n">${I.name} <b>${I.v.toLocaleString()}</b><small class="px-u">${I.unit}</small></span>${act}<small class="px-d">${I.desc}${I.paid ? '' : ' 패스를 사면 오른쪽 줄 보상도 받아요.'}</small></div>
     <div class="ps-h"><span>${I.unit}</span><span>무료</span><span>패스</span></div><div class="ps">${I.steps.map(row).join('')}</div>
-    <div class="mbtns"><button class="btn ghost" data-close>닫기</button></div>`;
+    <div class="mbtns"><button class="btn ghost" data-pxt="">목록</button><button class="btn ghost" data-close>닫기</button></div>`;
 }
 modalEl.addEventListener('click', async e => {
   const t = e.target.closest('[data-pxt]'); if (t) { pxTab = t.dataset.pxt; return openModal(pxWinHtml()); }
@@ -5823,19 +5914,28 @@ function stageWin(ch) {
   const cur = Math.floor((S.stage - 1) / 10), maxCh = cur;
   stwCh = Math.max(0, Math.min(ch, maxCh + 1));
   const t = THEMES[stwCh % THEMES.length], lock = stwCh > cur, base = stwCh * 10;
-  const strip = Array.from({ length: 10 }, (_, i) => { const st = base + i + 1; return `<i class="${st < S.stage ? 'clr' : st === S.stage ? 'cur' : ''} ${i === 9 ? 'boss' : ''}">${i + 1}</i>`; }).join('');
+  if (!stwSel || Math.floor((stwSel - 1) / 10) !== stwCh) stwSel = Math.min(S.stage, Math.max(base + 1, PS() > base && PS() <= base + 10 ? PS() : base + 1));
+  const strip = Array.from({ length: 10 }, (_, i) => { const st = base + i + 1, ok = st <= S.stage; return `<i class="${st < S.stage ? 'clr' : st === S.stage ? 'cur' : ''} ${i === 9 ? 'boss' : ''} ${st === stwSel && ok ? 'sel' : ''} ${st === PS() ? 'now' : ''}" ${ok ? `data-stsel="${st}"` : ''}>${i + 1}</i>`; }).join('');
   const mob = (k, n, bs) => ART[k] ? `<figure class="${bs ? 'bs' : ''}"><img src="${ART[k]}" alt=""><figcaption>${n}</figcaption></figure>` : '';
   openModal(`<div class="stw"><div class="stw-h"><button data-stw="-1" ${stwCh <= 0 ? 'disabled' : ''}>◀</button><div><b>${stwCh + 1}구역 ${t.name}</b><small>스테이지 ${base + 1} ~ ${base + 10}</small></div><button data-stw="1" ${stwCh > maxCh ? 'disabled' : ''}>▶</button></div>
     <div class="stw-img ${lock ? 'lock' : ''}"><img src="${ART['spr_boss' + (stwCh % 3 + 1)] ? ART.op_key : ''}" alt="">${lock ? `<span>스테이지 ${base + 1} 달성 시 열려요</span>` : ''}</div>
     <div class="stw-strip">${strip}</div>
     <div class="optg">등장 이상체</div><div class="stw-mob">${mob('spr_shade', '그림자')}${mob('spr_crawler', '기어오는 것')}${mob('spr_boss' + (stwCh % 3 + 1), t.boss, 1)}</div>
     <div class="setrow"><div><div class="ut">근원체 자동 추적</div><div class="uv">처치 수가 다 차면 근원체를 추적해요</div></div><button class="tgl ${S.farming ? '' : 'on'}" data-stauto></button></div>
-    <div class="mbtns"><button class="btn" data-close>닫기</button></div></div>`);
+    <label class="stw-sk"><input type="checkbox" data-stskip ${storySkip() ? 'checked' : ''}> 이야기 건너뛰기</label>
+    <div class="mbtns"><button class="btn ghost" data-sttop ${PS() === S.stage ? 'disabled' : ''}>최고 스테이지</button><button class="btn" data-stgo ${lock || stwSel === PS() ? 'disabled' : ''}>${C.stageLabel(stwSel)} 이동</button></div>
+    <p class="hint">지난 스테이지로 옮기면 그곳에서 사냥해요. 근원체를 소환하면 최고 스테이지로 돌아와요.</p></div>`);
 }
+let stwSel = 0;
+const storySkip = () => { try { return localStorage.getItem('aiu-stskip') === '1'; } catch (e) { return false; } };
 $('stageBox').addEventListener('click', () => stageWin(Math.floor((S.stage - 1) / 10)));
 modalEl.addEventListener('click', e => {
   const n = e.target.closest('[data-stw]'); if (n) return stageWin(stwCh + +n.dataset.stw);
   if (e.target.closest('[data-stauto]')) { S.farming = !S.farming; writeSave(); updateUI(); stageWin(stwCh); }
+  const sl = e.target.closest('[data-stsel]'); if (sl) { stwSel = +sl.dataset.stsel; return stageWin(stwCh); }
+  const sk = e.target.closest('[data-stskip]'); if (sk) { try { localStorage.setItem('aiu-stskip', sk.checked ? '1' : '0'); } catch (x) {} return; }
+  const go = e.target.closest('[data-stgo]'), top = e.target.closest('[data-sttop]');
+  if (go || top) { S.fst = go && stwSel < S.stage ? stwSel : 0; S.kills = 0; S.farming = !!S.fst; R.boss = null; R.chal = null; writeSave(); modalEl.classList.remove('on'); newMap(); syncHeroes(true); updateUI(); banner(S.fst ? `${C.stageLabel(S.fst)}로 이동했어요` : '최고 스테이지로 돌아왔어요'); }
 });
 
 /* ---------- 우편함 ---------- */
@@ -5904,7 +6004,7 @@ function questGo(q) {
 /* ---------- 구급상자: 요원 체력이 설정한 % 아래로 내려가면 자동으로 팀 회복 ---------- */
 let medCd = 0;
 function medTick(dt) {
-  medCd -= dt; if (medCd > 0 || !S.medOn || S.med <= 0) return;
+  medCd -= dt; if (medCd > 0 || !S.medOn || S.med <= 0 || (S.medBoss && !R.boss)) return;   // 근원체 전투만 사용
   const hurt = alive().some(h => { const r = R.heroes[h.id]; return r && r.hp > 0 && r.hp / r.max < S.medHp / 100; });
   if (!hurt) return;
   useMed();
@@ -5920,12 +6020,13 @@ $('medBtn').addEventListener('click', useMed);
 $('medSet').addEventListener('click', () => {
   openModal(`<h2>구급상자</h2><p class="hint">팀 전원의 체력을 35% 회복해요. 보유 ${S.med}개</p>
     <div class="setrow"><div><div class="ut">자동 사용</div><div class="uv">요원 체력이 설정한 % 아래로 떨어지면 자동으로 써요</div></div><button class="tgl ${S.medOn ? 'on' : ''}" data-med="on"></button></div>
+    <div class="setrow"><div><div class="ut">근원체 전투에서만 사용</div><div class="uv">켜면 일반 사냥 중에는 쓰지 않고 아껴 둬요</div></div><button class="tgl ${S.medBoss ? 'on' : ''}" data-med="boss"></button></div>
     <div class="setrow"><div><div class="ut">사용할 체력</div></div><div class="seg">${[30, 50, 70].map(v => `<button data-med="${v}" class="${S.medHp === v ? 'on' : ''}">${v}%</button>`).join('')}</div></div>
     <div class="mbtns"><button class="btn" data-close>닫기</button></div>`);
 });
 modalEl.addEventListener('click', e => {
   const b = e.target.closest('[data-med]'); if (!b) return;
-  if (b.dataset.med === 'on') S.medOn = !S.medOn; else S.medHp = +b.dataset.med;
+  if (b.dataset.med === 'on') S.medOn = !S.medOn; else if (b.dataset.med === 'boss') S.medBoss = !S.medBoss; else S.medHp = +b.dataset.med;
   writeSave(); $('medSet').click();
 });
 
@@ -6092,7 +6193,7 @@ function passHtml() {
     <div class="ps-h"><span>스테이지</span><span>무료</span><span>패스</span></div><div class="ps">${C.PASS.map(row).join('')}</div>
     <div class="mbtns"><button class="btn ghost" data-close>닫기</button>${S.pass.paid ? `<button class="btn" data-passall ${C.passReady(S).length ? '' : 'disabled'}>모두 받기</button>` : `<button class="btn" data-passbuy>패스 구매 ${C.PASS_PRICE.toLocaleString()}원</button>`}</div>`;
 }
-$('passBtn').addEventListener('click', () => { pxTab = 'stage'; openModal(pxWinHtml()); });
+$('passBtn').addEventListener('click', () => { pxTab = ''; openModal(pxWinHtml()); });
 $('panel').addEventListener('click', e => { const b = e.target.closest('[data-mopen]'); if (!b) return; if (b.dataset.mopen === 'pass') openModal(passHtml()); else misOpen('p'); });
 modalEl.addEventListener('click', async e => {
   const one = e.target.closest('[data-pass]'), all = e.target.closest('[data-passall]'), buy = e.target.closest('[data-passbuy]');
@@ -6267,8 +6368,9 @@ const saveAi = () => { try { localStorage.setItem('aiu-ai', JSON.stringify(AI));
 function aiNote(t) { const d = new Date(), z = n => String(n).padStart(2, '0'); aiLog.unshift(`${z(d.getHours())}:${z(d.getMinutes())}  ${t}`); if (aiLog.length > 40) aiLog.pop(); }
 function aiTick() {
   if (!AI.on || !AI.lv || paused || storyOn || modalEl.classList.contains('on') || $('sfx').classList.contains('on') || R.chal) return;
-  const now = new Date(), done = []; const pw0 = teamPower();
+  const now = new Date(), done = []; const pw0 = teamPower(); const ok = k => !(AI.off || {})[k];   // 순서 탭에서 끈 일은 건너뜀
   // 1단계: 받을 보상
+  if (ok('reward')) {
   const qi1 = S.q.i; let r = C.questClaim(S); if (r) { if (r.hero) partyChanged(); done.push('가이드 보상'); tabLocks(); if (qi1 !== S.q.i) setTimeout(() => tabUnlockShow(qi1), 0); }
   C.MISSIONS.forEach((m, i) => { if (C.missionClaim(S, i)) done.push(`일일 임무: ${m.text}`); }); if (C.missionBonus(S)) done.push('일일 임무 보너스');
   for (const per of ['w', 'm', 'r']) ({ w: C.WEEKLY, m: C.MONTHLY, r: C.REPEAT })[per].forEach((m, i) => { if (C.misClaim(S, per, i)) done.push(`${({ w: '주간', m: '월간', r: '반복' })[per]} 임무: ${m.text}`); });
@@ -6279,30 +6381,33 @@ function aiTick() {
   for (const [i, tr] of C.passReady(S)) if (C.passClaim(S, i, tr)) done.push('수사 패스 보상');
   for (const [i, tr] of C.mpassReady(S)) if (C.mpassClaim(S, i, tr)) done.push('임무 패스 보상');
   if (C.firstPayClaim(S, now)) done.push('첫 결제 보너스');
+  }
   // 2단계: 작전 소탕
-  if (AI.lv >= 2) for (const d of C.DUNGEONS) while (S.keys[d.id] > 0 && S.dbest[d.id] > 0) { C.sweepDungeon(S, d.id); done.push(`${d.name} 소탕`); }
+  if (AI.lv >= 2 && ok('sweep')) for (const d of C.DUNGEONS) while (S.keys[d.id] > 0 && S.dbest[d.id] > 0) { C.sweepDungeon(S, d.id); done.push(`${d.name} 소탕`); }
   // 3단계: 성장
   if (AI.lv >= 3) {
-    for (const h of owned()) { const d = S.heroes[h.id]; let need; while ((need = C.starNeed(d.stars, h.grade)) !== Infinity && d.shards >= need) { d.shards -= need; d.stars++; C.progress(S, 'star', 1); done.push(`${h.name} 승급`); } }
-    let n = 0; for (let k = 0; k < 200; k++) { const t = team().filter(h => S.heroes[h.id].lv < C.heroLvCap(S.heroes[h.id].stars)).map(h => [h, C.heroLvCost(S.heroes[h.id].lv)]).sort((a, b) => a[1] - b[1])[0]; if (!t || t[1] > S.exp) break; S.exp -= t[1]; S.heroes[t[0].id].lv++; C.progress(S, 'lvup', 1); n++; lvPop(t[0].id); }
+    if (ok('star')) for (const h of owned()) { const d = S.heroes[h.id]; let need; while ((need = C.starNeed(d.stars, h.grade)) !== Infinity && d.shards >= need) { d.shards -= need; d.stars++; C.progress(S, 'star', 1); done.push(`${h.name} 승급`); } }
+    let n = 0; if (ok('lvup')) for (let k = 0; k < 200; k++) { const t = team().filter(h => S.heroes[h.id].lv < C.heroLvCap(S.heroes[h.id].stars)).map(h => [h, C.heroLvCost(S.heroes[h.id].lv)]).sort((a, b) => a[1] - b[1])[0]; if (!t || t[1] > S.exp) break; S.exp -= t[1]; S.heroes[t[0].id].lv++; C.progress(S, 'lvup', 1); n++; lvPop(t[0].id); }
     if (n) done.push(`요원 레벨업 ${n}회`);
-    let u = 0; for (let k = 0; k < 200; k++) { const c = C.UPGRADES.map(x => [x.id, C.upCost(S, x.id, S.up[x.id])]).sort((a, b) => a[1] - b[1])[0]; if (c[1] > S.gold) break; S.gold -= c[1]; S.up[c[0]]++; C.progress(S, 'train', 1); u++; }
+    let u = 0; if (ok('train')) for (let k = 0; k < 200; k++) { const c = C.UPGRADES.map(x => [x.id, C.upCost(S, x.id, S.up[x.id])]).sort((a, b) => a[1] - b[1])[0]; if (c[1] > S.gold) break; S.gold -= c[1]; S.up[c[0]]++; C.progress(S, 'train', 1); u++; }
     if (u) done.push(`수사력 강화 ${u}회`);
-    for (const k of Object.keys(C.ITEMS)) if (S.bag[k] > 0) { C.useItem(S, k, S.bag[k]); done.push(`${C.ITEMS[k].name} 사용`); }
+    if (ok('item')) for (const k of Object.keys(C.ITEMS)) if (S.bag[k] > 0) { C.useItem(S, k, S.bag[k]); done.push(`${C.ITEMS[k].name} 사용`); }
   }
   // 4단계: 호출
-  if (AI.lv >= 4) while (S.tix >= 10 * C.CONST.CALL_COST) { try { const res = C.doSummon(S, 10, 'call', Math.random); S = res.state; C.progress(S, 'summon', 10); done.push('요원 호출 10회'); } catch (e) { break; } }
+  if (AI.lv >= 4 && ok('summon')) while (S.tix >= 10 * C.CONST.CALL_COST) { try { const res = C.doSummon(S, 10, 'call', Math.random); S = res.state; C.progress(S, 'summon', 10); done.push('요원 호출 10회'); } catch (e) { break; } }
   if (!done.length) return;
   syncHeroes(false); writeSave(); renderPanel(); updateUI();
   const uniq = [...new Set(done)]; uniq.forEach(aiNote);
   if (AI.pw) pwUp(pw0, true);   // 세나 키우기처럼 알림 창 없이 기록 탭에만 남기고, 전투력 상승만 위쪽 띠로
 }
 setInterval(aiTick, 6000);
-let aiTab = 'set';
+let aiTab = 'ord';
+const AI_JOBS = [['reward', '보상 받기 (가이드, 임무, 우편, 출석, 패스)', 1], ['sweep', '작전 소탕', 2], ['star', '요원 승급', 3], ['lvup', '요원 레벨업', 3], ['train', '수사력 강화', 3], ['item', '보급품 사용', 3], ['summon', '요원 호출', 4]];
 function aiHtml() {
-  const tabs = [['set', '설정'], ['day', '일정'], ['log', '기록']].map(([k, n]) => `<button data-aitab="${k}" class="${aiTab === k ? 'on' : ''}">${n}</button>`).join('');
+  const tabs = [['ord', '순서'], ['set', '설정'], ['day', '일정'], ['log', '기록']].map(([k, n]) => `<button data-aitab="${k}" class="${aiTab === k ? 'on' : ''}">${n}</button>`).join('');
   let body = '';
-  if (aiTab === 'set') body = `<div class="optg">AI 단계</div>${AI_LV.map(([n, d], i) => `<button class="ai-lv ${AI.lv === i + 1 ? 'on' : ''}" data-ailv="${i + 1}"><i>${i + 1}</i><span><b>${n}${i === 2 ? ' <em>추천</em>' : ''}</b><small>${d}</small></span></button>`).join('')}
+  if (aiTab === 'ord') body = `<div class="optg">AI가 하는 일 (위에서부터 차례로)</div>${AI_JOBS.map(([k, n, lv], i) => `<div class="setrow ai-job ${AI.lv >= lv ? '' : 'lk'}"><div><div class="ut"><i>${i + 1}</i>${n}</div><div class="uv">${AI.lv >= lv ? '' : `AI ${lv}단계부터`}</div></div><button class="tgl ${(AI.off || {})[k] ? '' : 'on'}" data-aijob="${k}"></button></div>`).join('')}<p class="hint">끄면 AI 모드가 그 일만 건너뛰어요.</p>`;
+  else if (aiTab === 'set') body = `<div class="optg">AI 단계</div>${AI_LV.map(([n, d], i) => `<button class="ai-lv ${AI.lv === i + 1 ? 'on' : ''}" data-ailv="${i + 1}"><i>${i + 1}</i><span><b>${n}${i === 2 ? ' <em>추천</em>' : ''}</b><small>${d}</small></span></button>`).join('')}
     <div class="setrow"><div><div class="ut">전투력 상승 표시</div><div class="uv">AI 모드로 성장하면 전투력 변화를 보여 줘요</div></div><button class="tgl ${AI.pw ? 'on' : ''}" data-aipw></button></div>
     <p class="hint">위 단계를 고르면 그 단계까지 모두 처리해요. 사용한 재화는 되돌릴 수 없어요.</p>`;
   else if (aiTab === 'day') { const d = new Date(), wd = (8 - d.getDay()) % 7 || 7; body = `<div class="ai-day"><div><b>매일 0시</b><span>일일 임무, 일일 작전 입장, 상점 초기화</span></div><div><b>${wd}일 뒤 월요일 0시</b><span>주간 임무 초기화</span></div><div><b>다음 달 1일 0시</b><span>월간 임무, 임무 패스 초기화</span></div></div>`; }
@@ -6315,6 +6420,7 @@ modalEl.addEventListener('click', e => {
   const t = e.target.closest('[data-aitab]'); if (t) { aiTab = t.dataset.aitab; return openModal(aiHtml()); }
   if (e.target.closest('[data-aion]')) { if (!AI.lv) { toast('AI 단계를 먼저 골라 주세요'); return; } AI.on = !AI.on; saveAi(); $('bAi').setAttribute('aria-pressed', AI.on); aiNote(AI.on ? 'AI 모드 켬' : 'AI 모드 끔'); return openModal(aiHtml()); }
   if (e.target.closest('[data-aipw]')) { AI.pw = !AI.pw; saveAi(); return openModal(aiHtml()); }
+  const jb = e.target.closest('[data-aijob]'); if (jb) { AI.off = AI.off || {}; AI.off[jb.dataset.aijob] = !AI.off[jb.dataset.aijob]; saveAi(); return openModal(aiHtml()); }
   const lv = e.target.closest('[data-ailv]');
   if (lv) {
     const n = +lv.dataset.ailv;
@@ -6376,7 +6482,7 @@ function overlayBlocked() { const a = $('app'); return a.classList.contains('hdo
 function bossCutIn() {
   if (overlayBlocked()) return;
   sfx('glitch', 0.7, 0.5); setTimeout(() => sfx('cinehit', 0.85, 0.5), 180);
-  const el = $('bossin'), t = theme(), img = ART['spr_boss' + (Math.floor((S.stage - 1) / 10) % 3 + 1)] || ART.spr_boss1;
+  const el = $('bossin'), t = theme(), img = ART['spr_boss' + (Math.floor((PS() - 1) / 10) % 3 + 1)] || ART.spr_boss1;
   // 누아르 B안: 붉은 경고선 사이 검은 띠, 왼쪽에 경보 글과 근원체 이름, 오른쪽에 근원체 그림
   el.innerHTML = `<div class="nb"><i class="nb-l"></i><div class="nb-tx"><small>WARNING</small><em>근원체 출현</em><b>${t.boss}</b><span>${t.name}</span></div>${img ? `<img src="${img}" alt="">` : ''}<i class="nb-l b"></i></div>`;
   el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
@@ -6422,6 +6528,20 @@ function talk() {
 
 /* ---------- 처음 들어가는 메뉴마다 도움말 (한 번만, 오른쪽 위 ? 로 다시 보기) ---------- */
 const HELP = {
+  train_trait: ['특성', ['스테이지 51부터 2스테이지를 넘을 때마다 <b>특성 포인트</b>를 1개 받아요.', '포인트를 원하는 능력치에 찍어요. 각 특성은 최대 100레벨이에요.', '보석 100개로 초기화하면 쓴 포인트를 모두 돌려받아요.']],
+  train_gear: ['장비', ['근원체를 봉쇄하면 25% 확률로 <b>장비</b>를 얻어요.', '등급이 높을수록 강화 효과 배율이 크고, 추가 옵션이 하나 붙어요.', '강화 레벨은 칸에 남아서 장비를 바꿔 껴도 그대로예요.', '쓰지 않는 장비는 보관함에서 <b>분해</b>해 골드로 바꿔요.']],
+  train_lab: ['연구', ['골드를 내고 시간이 지나면 연구가 끝나요. 한 번에 하나씩 진행해요.', '남은 시간은 보석으로 바로 끝낼 수 있어요.']],
+  train_aid: ['후원', ['하루 세 번 후원할 수 있어요. 매일 0시에 다시 채워져요.', '후원 경험치가 차면 후원 레벨이 오르고, 레벨마다 팀 공격력과 체력이 2%씩 올라요.']],
+  run_spec: ['특수 작전', ['권장 전투력을 보고 도전해요. 이기면 다음 단계가 열려요.', '<b>기밀 회수</b>는 요원 조각, <b>정예 소탕</b>은 정예 호출권을 줘요.', '한 번 깬 단계는 <b>소탕</b>으로 바로 보상을 받아요. 하루 두 번씩 들어갈 수 있어요.']],
+  run_duel: ['모의 대련', ['전투력이 비슷한 가상 훈련 팀과 실제로 싸워요.', '이기면 점수와 보석을 받고, 지면 점수가 8점 깎여요.', '점수로 브론즈부터 마스터까지 등급이 정해져요. 하루 다섯 번 할 수 있어요.']],
+  run_rift: ['균열 심층', ['한 층씩 내려가며 강한 이상체와 싸워요.', '층을 돌파할 때마다 증거 카드를 얻어요.']],
+  mis_base: ['아지트 심야 식당', ['야식 하나를 골라 먹으면 8시간 동안 효과가 이어져요.', '효과는 한 번에 하나만 받아요. 광고를 보면 다시 고를 수 있어요.']],
+  mis_hunt: ['현상 의뢰', ['매일 의뢰 다섯 개가 들어와요.', '조건을 채우고 받으면 보상, 간식, 평판을 받아요.', '평판 레벨마다 골드 획득과 공격력이 1%씩 올라요.']],
+  mis_search: ['수색', ['출전하지 않은 요원을 1, 4, 8시간 수색에 보내요.', '시간이 지나면 보상과 간식을 가져와요. 등급이 높은 요원일수록 보상이 커요.']],
+  mis_mis: ['임무', ['일일, 주간, 월간, 반복 임무를 끝내고 보상을 받아요.', '일일 임무를 2개, 4개, 모두 끝내면 위쪽 상자를 열 수 있어요.']],
+  hero_pet: ['파트너', ['데리고 다니는 파트너는 효과를 모두 주고, 나머지 보유 파트너는 효과의 10%를 줘요.', '간식으로 레벨을, 같은 파트너를 또 만나면 별을 올려요.']],
+  hero_team: ['수사팀', ['<b>평판</b>, <b>봉인 파편</b>, <b>증거 카드</b>로 팀 전체 능력치를 올려요.']],
+  bag_all: ['가방', ['보급품을 누르면 개수를 골라 쓸 수 있어요.', '증거품 탭에서 모은 증거 카드를 볼 수 있어요.']],
   hero: ['요원', ['<b>요원 관리</b>: 요원을 누르면 상세 화면이 열려요. 레벨업에는 경험치, 승급에는 조각을 써요.', '<b>편성</b>: 요원을 눌러 출전시키거나 빼요. 출전 칸은 구역이 오를수록 늘어나요.', '<b>도감</b>: 모은 요원을 한눈에 봐요.', '카드 아래 막대가 가득 차면 <b>승급</b>할 수 있어요. 일괄 승급을 누르면 한꺼번에 승급해요.', '<b>각성</b>: 전설 요원이 ★5가 된 뒤 조각 10개를 모으면 각성해요. 각성하면 능력치가 크게 오르고 카드와 별이 붉게 바뀌어요.']],
   train: ['수사력', ['골드로 수사팀 전체를 강화해요. 출전한 요원 모두에게 적용돼요.', '<b>사격 훈련</b>은 공격력, <b>현상금 협상</b>은 골드 획득, <b>급소 노리기</b>는 치명타 확률을 올려요.', '×1, ×10, ×100을 고르면 한 번에 여러 레벨을 올려요.']],
   run: ['작전', ['하루 3번씩 들어갈 수 있는 <b>일일 작전</b>이에요. 매일 0시에 다시 채워져요.', '<b>현상수배</b>는 골드, <b>단서 추적</b>은 호출권, <b>모의 훈련</b>은 경험치를 크게 줘요.', '클리어한 단계는 <b>소탕</b>으로 바로 보상을 받아요.', '<b>균열 심층</b>은 한 층씩 내려가며 보석을 모으는 도전이에요.']],
@@ -6481,6 +6601,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.38.2', '11월 29일', ['스테이지 창에서 지난 스테이지로 옮겨 사냥할 수 있어요. 최고 스테이지 단추로 돌아와요', '스테이지 창에 이야기 건너뛰기가 생겼어요', '근원체 소환 옵션에 실패 시 자동 재도전이 생겼어요', '구급상자를 근원체 전투에서만 쓰게 할 수 있어요', '출석부가 14일로 늘었어요', '일일 임무를 2개, 4개, 모두 끝내면 위쪽 상자를 열어요', '설정이 게임 설정과 계정 탭으로 나뉘고, 배경 음악과 효과음 크기를 따로 맞춰요. 기술 연출을 선명, 반투명, 끄기 중에 고를 수 있어요', 'AI 모드에 순서 탭이 생겨 하는 일을 하나씩 끄고 켤 수 있어요', '이야기 장면에 AUTO 단추가 생겼어요', '핵심 버프 창에서 유형별 보유 요원을 볼 수 있어요', '패스 창이 패스 목록부터 보여 줘요', '메뉴마다 도움말(?) 단추가 생겼어요', '대표 얼굴 테두리를 고를 수 있어요', '아지트 위쪽에 시설 줄이 생겼어요']],
   ['0.38.1', '11월 29일', ['특수 작전과 모의 대련이 실제 전투로 바뀌었어요. 특수 작전은 한 번 깨면 소탕할 수 있어요', '장비를 근원체에게서 얻어요. 일반부터 전설까지 등급과 추가 옵션이 있고, 보관함에서 바꿔 끼거나 분해할 수 있어요', '파트너를 간식으로 레벨업하고, 같은 파트너로 별을 올려요. 함께하지 않는 파트너도 보유 효과를 줘요', '간식은 현상 의뢰와 수색에서 받아요', '하루가 지나도 후원, 특수 작전, 대련 횟수가 채워지지 않던 문제를 고쳤어요']],
   ['0.38.0', '11월 28일', ['준비 중이던 메뉴가 모두 열렸어요', '수사력: 특성(스테이지 51), 장비(121), 연구(201), 후원(301)', '작전: 특수 작전(151), 모의 대련(251)', '임무: 아지트 심야 식당(101), 현상 의뢰(181), 수색(261)', '호출: 파트너(401), 유물(301). 요원 창 파트너 탭도 열려요', '수사팀: 평판, 봉인 파편(301)', '가방: 증거품', '구역이 12개로 늘고, 구역마다 이야기가 새로 생겼어요', '아주 큰 숫자도 짧은 단위(aa, ab...)로 보여요']],
   ['0.37.5', '11월 28일', ['기술, 일반 공격, 고유 능력을 누르면 요원 그림 위에 설명 칸이 떠요. 아무 데나 누르면 닫혀요', '기술 설명에 기절, 둔화, 표식 같은 효과 풀이가 함께 나와요', '요원 이름 아래에 누구를 먼저 노리는지 나와요', '전투력이 오르면 화면 위쪽 띠로 알려 줘요 (전투 화면을 가리지 않아요)', 'AI 모드 알림 창을 없앴어요. 한 일은 AI 모드 기록 탭에서 볼 수 있어요', '전설 요원이 나오면 큰 그림으로 합류를 보여 줘요', '새 구역에 들어가면 화면 가운데에 구역 이름이 나와요', '이상체를 처치하면 골드가 골드 칸으로 날아가요', '가방 보급품을 쓸 때 개수를 고를 수 있어요', '보상, 레벨업, 동전, 실패 효과음을 바꿨어요']],
@@ -6580,7 +6701,7 @@ function slTick() {
   const d = new Date(), z = n => String(n).padStart(2, '0');
   $('slClock').textContent = `${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`;
   $('slDate').textContent = `${d.getMonth() + 1}월 ${d.getDate()}일 ${'일월화수목금토'[d.getDay()]}요일`;
-  $('slSt').textContent = `${C.stageLabel ? C.stageLabel(S.stage) : S.stage + ' 단계'}  ${theme().name}`;
+  $('slSt').textContent = `${C.stageLabel ? C.stageLabel(PS()) : PS() + ' 단계'}  ${theme().name}`;
   $('slGain').innerHTML = `<span>${icon('gold')}+${C.formatNum(Math.max(0, S.gold - slBase.gold))}</span><span>${icon('exp')}+${C.formatNum(Math.max(0, S.exp - slBase.exp))}</span><span>${icon('gem')}+${C.formatNum(Math.max(0, C.gemTotal(S) - slBase.gems))}</span>`;
   setTimeout(slTick, 1000);
 }
@@ -6686,7 +6807,9 @@ function baseHtml() {
   if (!C.sysOpen(S, 'base')) return syLock('base');
   const now = Date.now(), on = C.foodOn(S, now);
   const top = on ? `<div class="sy-cur"><b>${on.name}</b><span>${on.text}  남은 시간 <i id="foodLeft">${tLeft(S.sys.food.end - now)}</i></span><button class="btn sm" data-sy="foodad">광고 보고 다시 고르기</button></div>` : '';
-  return syHead('아지트 심야 식당', '', '야식 하나를 골라 먹으면 8시간 동안 효과가 이어져요. 효과는 한 번에 하나만 받아요.') + top
+  // 세나 키우기 비밀 지하실처럼 아지트 시설 줄: 심야 식당, 사건 기록(서재), 파트너 쉼터
+  const fac = `<div class="sy-fac"><button class="on"><b>심야 식당</b><small>${on ? '먹는 중' : '오늘의 야식'}</small></button><button data-sy="basebook"><b>사건 기록</b><small>지난 이야기</small></button><button ${C.sysOpen(S, 'pet') ? 'data-sy="basepet"' : 'class="lk"'}><b>파트너 쉼터</b><small>${C.sysOpen(S, 'pet') ? '파트너 보기' : `스테이지 ${C.SYS_OPEN.pet}`}</small></button></div>`;
+  return fac + syHead('아지트 심야 식당', '', '야식 하나를 골라 먹으면 8시간 동안 효과가 이어져요. 효과는 한 번에 하나만 받아요.') + top
     + `<div class="sy-l">${C.FOODS.map(f => syRow(stIc(f.stat), f.name, '8시간', f.text, syBtn('food', on && on.id === f.id ? '먹는 중' : '먹기', '', !!on && !S.sys.food.ad, `data-id="${f.id}"`), on && on.id === f.id ? 'on' : '')).join('')}</div>`;
 }
 /* ---------- 임무: 현상 의뢰 ---------- */
@@ -6767,6 +6890,8 @@ function syDo(b) {
     if (a === 'trait') { const pw0 = teamPower(); C.traitUp(S, id, +b.dataset.n); sfx('levelup', 0.4, 0.1); pwUp(pw0, true); }
     else if (a === 'traitreset') { if (!confirm('보석 100개로 특성을 초기화할까요? 쓴 포인트는 모두 돌려받아요.')) return; C.traitReset(S); }
     else if (a === 'gear') { const pw0 = teamPower(); C.gearUp(S, id); sfx('levelup', 0.4, 0.1); pwUp(pw0, true); }
+    else if (a === 'basebook') { return openModal(bookHtml()); }
+    else if (a === 'basepet') { $('tabs').querySelector('[data-tab=summon]').click(); sumTop = 'pet'; return renderPanel(); }
     else if (a === 'gview') { gearView = b.dataset.v; }
     else if (a === 'gequip') { const pw0 = teamPower(); C.gearEquip(S, +b.dataset.u); sfx('button', 0.5, 0.1); pwUp(pw0, true); }
     else if (a === 'gscrap') { const r = C.gearScrap(S, +b.dataset.g); sfx('coins', 0.6, 0.1); toast(`장비 ${r.n}개를 분해해서 골드 ${C.formatNum(r.gold)}을 받았어요`); }

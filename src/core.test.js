@@ -267,10 +267,10 @@ test('일일 임무: 다 차야 받고, 두 번 못 받고, 모두 받으면 정
   assert.equal(C.missionBonus(s), 1); assert.equal(C.missionBonus(s), 0); assert.equal(s.ptix, 1);
   assert.equal(C.missionAdd(s, 'nope', 1), false);
 });
-test('출석: 하루 한 번, 7일째 정예 호출권 3장, 8일째 다시 1일', () => {
+test('출석: 하루 한 번, 14일 출석부, 15일째 다시 1일', () => {
   const s = C.newState(0);
-  for (let d = 0; d < 7; d++) { const r = C.attend(s, new Date(2026, 10, 27 + d)); assert.equal(r.day, d + 1); assert.equal(C.attend(s, new Date(2026, 10, 27 + d)), null); }
-  assert.equal(s.ptix, 4); assert.equal(C.attend(s, new Date(2026, 11, 10)).day, 1);
+  for (let d = 0; d < 14; d++) { const r = C.attend(s, new Date(2026, 10, 1 + d)); assert.equal(r.day, d + 1); assert.equal(C.attend(s, new Date(2026, 10, 1 + d)), null); }
+  assert.equal(s.ptix, 1 + 3 + 2 + 5); assert.equal(C.attend(s, new Date(2026, 11, 10)).day, 1);
 });
 test('저장: 출동 값이 이상하면 바로잡음', () => {
   const s = C.sanitize({ v: 2, keys: { bounty: 99, evidence: -3 }, dbest: { bounty: 'x' }, tower: 5.7, daily: { p: { kill: 9999 }, got: [0, 0, 99, 'a'], bonus: true }, att: { n: -1, last: 5 } }, 0);

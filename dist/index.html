@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.21.2';
+window.AIU_VER = '0.22.3';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1327,6 +1327,93 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 #quest.done{overflow:hidden}
 #quest.done::after{content:'';position:absolute;top:0;bottom:0;width:30%;left:-30%;background:linear-gradient(100deg,transparent,rgba(255,240,180,.35),transparent);animation:sweep 1.6s ease-in-out infinite;pointer-events:none}
 @media (prefers-reduced-motion:reduce){.mbox::before,.mbox h2,.rs-band::after,.rs-it::after,.cl-stamp,#flashFx.on,#quest.done::after{animation:none!important}}
+
+/* ---------- 요원 호출 연출 ---------- */
+#sfx{position:fixed;inset:0;z-index:66;display:none;background:radial-gradient(ellipse at 50% 42%,#1a1430,#05060b 70%);overflow:hidden}
+#sfx.on{display:block;animation:resIn .3s}
+#sfxC{position:absolute;inset:0;width:100%;height:100%}
+.sx-rift{position:absolute;left:50%;top:42%;width:10px;height:10px;transform:translate(-50%,-50%)}
+.sx-rift i{position:absolute;left:50%;top:50%;border-radius:50%;transform:translate(-50%,-50%) scale(0);border:2px solid var(--gc);box-shadow:0 0 30px var(--gc),inset 0 0 30px var(--gc);animation:riftOpen 1.2s cubic-bezier(.2,.8,.3,1) forwards}
+.sx-rift i:nth-child(1){width:260px;height:260px;animation-delay:.1s}
+.sx-rift i:nth-child(2){width:180px;height:180px;animation-delay:.25s;border-style:dashed;animation-name:riftOpen,riftSpin;animation-duration:1.2s,6s;animation-iteration-count:1,infinite;animation-timing-function:cubic-bezier(.2,.8,.3,1),linear}
+.sx-rift i:nth-child(3){width:90px;height:90px;animation-delay:.4s;background:radial-gradient(circle,#fff,var(--gc) 40%,transparent 70%)}
+@keyframes riftOpen{0%{transform:translate(-50%,-50%) scale(0);opacity:0}60%{opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:.55}}
+@keyframes riftSpin{to{transform:translate(-50%,-50%) scale(1) rotate(360deg)}}
+#sfx.g-l .sx-rift i{border-width:3px}
+.sx-title{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 28px);text-align:center;font:400 24px "Black Han Sans";letter-spacing:.12em;color:#f3e6c4;text-shadow:0 0 14px var(--gc),0 2px 0 #000;animation:ribIn .5s ease-out .2s both}
+.sx-cards{position:absolute;left:12px;right:12px;top:calc(env(safe-area-inset-top) + 86px);display:grid;grid-template-columns:repeat(5,1fr);gap:8px;perspective:600px}
+#sfx.one .sx-cards{grid-template-columns:150px;justify-content:center;top:22%}
+.sx-c{position:relative;aspect-ratio:3/4.2;padding:0;border:0;background:none;transform-style:preserve-3d;
+  animation:cardFly .55s cubic-bezier(.2,.9,.3,1.1) both;animation-delay:calc(.9s + var(--i) * .08s)}
+@keyframes cardFly{from{transform:translateY(32vh) scale(.15) rotate(25deg);opacity:0}}
+.sx-back,.sx-front{position:absolute;inset:0;border-radius:6px;backface-visibility:hidden;overflow:hidden}
+.sx-back{border:2px solid #9aa6c2;background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27s%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23f4f6fb%27/%3E%3Cstop%20offset%3D%27.5%27%20stop-color%3D%27%239aa3b8%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%234a5269%27/%3E%3C/linearGradient%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23fff0b8%27/%3E%3Cstop%20offset%3D%27.5%27%20stop-color%3D%27%23e2b44a%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%238a6214%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath%20d%3D%27M32%203l11%206%2012-1-1%2013%207%2011-7%2011%201%2013-12-1-11%206-11-6-12%201%201-13-7-11%207-11-1-13%2012%201z%27%20fill%3D%27url%28%23s%29%27%20stroke%3D%27%2311141d%27%20stroke-width%3D%272%27/%3E%3Cpath%20d%3D%27M32%2012l8%204%208%200-1%209%205%207-5%207%201%209-8%200-8%204-8-4-8%200%201-9-5-7%205-7-1-9%208%200z%27%20fill%3D%27%23151b2b%27/%3E%3Cpath%20d%3D%27M32%2019l3.6%207.4%208.1%201.2-5.9%205.7%201.4%208.1L32%2037.6l-7.2%203.8%201.4-8.1-5.9-5.7%208.1-1.2z%27%20fill%3D%27url%28%23g%29%27%20stroke%3D%27%233a2a08%27%20stroke-width%3D%271%27/%3E%3C/svg%3E") center/56% no-repeat,repeating-linear-gradient(45deg,#1b2440 0 6px,#212c4e 6px 12px);box-shadow:0 0 10px var(--gc),inset 0 0 0 3px #0c111f}
+.sx-c.g-l .sx-back,.sx-c.g-h .sx-back{box-shadow:0 0 16px var(--gc),0 0 4px var(--gc),inset 0 0 0 3px #0c111f}
+.sx-front{transform:rotateY(180deg);border:2px solid var(--gc);background:#0c111f;box-shadow:0 0 14px var(--gc)}
+.sx-front img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.sx-front b{position:absolute;left:0;right:0;bottom:12px;font:400 12px "Black Han Sans";text-shadow:0 0 3px #000,0 0 3px #000}
+.sx-front small{position:absolute;left:0;right:0;bottom:1px;font:700 9px 'IBM Plex Sans KR';color:var(--gc);text-shadow:0 0 3px #000}
+.sx-front em{position:absolute;top:3px;right:3px;padding:0 4px;border-radius:3px;background:#e8261c;font:400 10px "Black Han Sans";font-style:normal;transform:rotate(8deg)}
+.sx-c.flip{animation:cardFlip .5s cubic-bezier(.3,1.4,.5,1) forwards}
+.sx-c.flip,.sx-c.charge{transform:none}
+@keyframes cardFlip{from{transform:rotateY(0)}to{transform:rotateY(180deg)}}
+.sx-c.flip .sx-back{opacity:0;transition:opacity .01s .25s}
+
+.sx-c.charge{animation:charge .65s ease-in forwards}
+@keyframes charge{0%{filter:brightness(1)}100%{filter:brightness(2.4) drop-shadow(0 0 20px #ffd27a);transform:scale(1.1)}}
+.sx-c.g-l.flip::after{content:'';position:absolute;left:50%;top:50%;width:10px;height:10px;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 60px 40px rgba(255,210,122,.5);animation:legBurst .8s ease-out forwards;pointer-events:none}
+@keyframes legBurst{to{box-shadow:0 0 0 0 rgba(255,210,122,0)}}
+.sx-msg{position:absolute;left:20px;right:20px;bottom:calc(env(safe-area-inset-bottom) + 92px);text-align:center;font:700 13px 'IBM Plex Sans KR';color:#c9d3ee;opacity:0;transition:opacity .4s}
+.sx-btns{position:absolute;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom) + 26px);display:flex;gap:8px;justify-content:center}
+.sx-btns .btn{flex:1;max-width:150px}
+#sxAgain,#sxOk{display:none}
+#sfx.done #sxAll{display:none}#sfx.done #sxAgain,#sfx.done #sxOk{display:flex}#sfx.done .sx-msg{opacity:1}
+#sfx.one #sxAll{display:none}
+#sxSkip{position:absolute;right:14px;top:calc(env(safe-area-inset-top) + 30px);border:0;background:none;color:#8a93ab;font:400 13px "Black Han Sans"}
+#sfx.done #sxSkip{display:none}
+
+/* ---------- 요원 상세 화면 (누아르 마감) ---------- */
+#hpage::after{content:'';position:absolute;left:0;right:0;bottom:0;height:300px;background:linear-gradient(transparent,rgba(8,10,18,.7) 35%,rgba(8,10,18,.96) 70%);pointer-events:none;z-index:0}
+#hpage>*:not(.hp-bg){z-index:1}
+.hp-tags .tic{background:radial-gradient(circle at 50% 35%,#2a3558,#10162a)!important;border:2px solid transparent!important;background-clip:padding-box;box-shadow:0 0 0 2px #8a93ab,0 2px 6px rgba(0,0,0,.6)}
+.hp-tags span{font:400 15px "Black Han Sans"!important;letter-spacing:.03em}
+.hp-nav{background:radial-gradient(circle at 50% 35%,#2a3558,#10162a)!important;border:2px solid #9aa6c2!important;box-shadow:0 2px 8px rgba(0,0,0,.6)}
+.hp-sd::before{background:radial-gradient(ellipse,var(--gc,rgba(120,180,255,.8)),transparent 70%)!important;opacity:.7;animation:platGlow 2.4s ease-in-out infinite}
+@keyframes platGlow{50%{opacity:.35}}
+.hp-skill{position:relative;min-width:150px!important;padding:6px 18px 7px!important;border:0!important;border-radius:4px!important;
+  background:linear-gradient(#202a46,#0e1322) padding-box,linear-gradient(90deg,var(--gc),#fff8,var(--gc)) border-box!important;border:2px solid transparent!important;
+  box-shadow:0 0 16px color-mix(in srgb,var(--gc) 55%,transparent),inset 0 1px 0 rgba(255,255,255,.1)!important;clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 50%,calc(100% - 8px) 100%,8px 100%,0 50%)}
+.hp-skill span{font-size:16px!important;color:#fff;text-shadow:0 0 8px var(--gc)}
+.hp-skill small{color:#c9d3ee!important}
+.hp-stars{font-size:24px!important;filter:drop-shadow(0 0 4px rgba(242,201,76,.6))}
+.hp-name{width:min(80%,300px)!important;border:2px solid transparent!important;border-radius:4px!important;
+  background:linear-gradient(#1d2540,#0c111f) padding-box,var(--frame) border-box!important;box-shadow:0 6px 18px rgba(0,0,0,.7),inset 0 0 0 1px rgba(210,171,85,.2)!important}
+.hp-name b{padding:6px 0!important;font-size:22px!important;color:#f3e6c4;letter-spacing:.06em;text-shadow:0 2px 0 #000;border-bottom:1px solid rgba(210,171,85,.45)!important;background:linear-gradient(90deg,transparent,rgba(210,171,85,.14),transparent)}
+.hp-name div{padding:5px 14px 6px!important}
+.hp-desc{background:linear-gradient(90deg,transparent,rgba(20,26,44,.9) 15%,rgba(20,26,44,.9) 85%,transparent)!important;border-top:1px solid rgba(210,171,85,.35);border-bottom:1px solid rgba(210,171,85,.35);color:#e8ecf6}
+.hp-stats span{border:1px solid rgba(150,166,204,.35)!important;border-radius:5px!important;background:linear-gradient(#232c46,#121827)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 2px 4px rgba(0,0,0,.4)}
+.hp-b{border-radius:6px!important;border:1px solid rgba(150,166,204,.45)!important;background:linear-gradient(#3c4766,#1e263c)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 2px 0 #0a0d16,0 3px 8px rgba(0,0,0,.45)!important}
+.hp-b.lv:not(:disabled){background:linear-gradient(#fff0b0,#f2c14a 42%,#c8901c)!important;border-color:#fff2b0!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -2px 0 rgba(120,80,10,.7),0 2px 0 #2a1e06,0 3px 8px rgba(0,0,0,.45)!important}
+.hp-b.star:not(:disabled){background:linear-gradient(#9a7ff0,#5a3fb0 50%,#34206e)!important;border-color:#d9c8ff!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 0 #140a2e,0 0 12px rgba(160,120,255,.45)!important;animation:starRdy 1.6s ease-in-out infinite}
+@keyframes starRdy{50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 0 #140a2e,0 0 22px rgba(160,120,255,.8)}}
+.hp-b.sm.on{border-color:var(--gilt)!important;color:#f3e6c4!important;background:linear-gradient(#4a3c1c,#231c0c)!important}
+.hp-b:disabled{opacity:.6;filter:saturate(.5)}
+/* 요원 목록 카드 */
+.ac .ap{box-shadow:inset 0 0 0 1px rgba(0,0,0,.6)}
+
+/* 아래 메뉴 아이콘 통일: 은색 금속 + 금 포인트. 고른 칸은 금빛 */
+#tabs button.on .tb svg{filter:sepia(1) saturate(3.2) hue-rotate(-8deg) brightness(1.15) drop-shadow(0 0 4px rgba(242,201,76,.7))!important}
+/* 오른쪽 메뉴 아이콘: 세나처럼 흰 단색 */
+#side .sd-list svg{filter:grayscale(1) brightness(1.5) contrast(1.05) drop-shadow(0 1px 1px rgba(0,0,0,.7))!important}
+
+/* 상점 칸 정리: 이름 한 줄, 그림 가운데, 칸 높이 같게 */
+.sh-it{grid-template-rows:auto 1fr auto auto;min-height:150px;align-items:center}
+.sh-n{min-height:0!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.rd-more{position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:var(--gold);color:#1d1606;font:900 12px/16px sans-serif;text-align:center}
+#adBtn{top:calc(env(safe-area-inset-top) + 150px)!important}
+#adBtn .ad-ev{top:-10px!important}
+#side:not(.fold) #attBtn,#side:not(.fold) #passBtn{display:none!important}
+#tabs .ct .ct-b{display:none}#app.hdopen #tabs .ct .ct-b{display:block!important}#app.hdopen #tabs .ct .ct-x{display:none!important}
 </style>
 </head>
 <body>
@@ -1354,6 +1441,9 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   <symbol id="i-exp" viewBox="0 0 24 24"><path d="M12 3l8 4.6v9.2L12 21.4l-8-4.6V7.6z" fill="#06402c" transform="translate(0 1)"/><path d="M12 2l8 4.6v9.2L12 20.4l-8-4.6V6.6z" fill="url(#cX1)" stroke="#06402c" stroke-width="1.2" stroke-linejoin="round"/><path d="M12 2v9.2l8-4.6M12 11.2L4 6.6" fill="none" stroke="#dcfff3" stroke-width=".7" opacity=".55"/><path d="M8 12.6l4-3.6 4 3.6M8 16.2l4-3.6 4 3.6" fill="none" stroke="#06402c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 12.6l4-3.6 4 3.6M8 16.2l4-3.6 4 3.6" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-tix" viewBox="0 0 24 24"><path d="M2.5 6.5h19v3.2a2.3 2.3 0 0 0 0 4.6v3.2h-19v-3.2a2.3 2.3 0 0 0 0-4.6z" fill="#6b4a0c" transform="translate(0 1.2)"/><path d="M2.5 6.5h19v3.2a2.3 2.3 0 0 0 0 4.6v3.2h-19v-3.2a2.3 2.3 0 0 0 0-4.6z" fill="url(#cT1)" stroke="#6b4a0c" stroke-width="1.2" stroke-linejoin="round"/><path d="M15.5 7v10" stroke="#8a6212" stroke-width="1.1" stroke-dasharray="1.5 1.4"/><circle cx="9" cy="12" r="3.3" fill="#fff4c9" stroke="#a6730f" stroke-width=".9"/><path d="M9 10.2l.6 1.2 1.3.2-1 .9.3 1.3L9 13.2l-1.2.6.3-1.3-1-.9 1.3-.2z" fill="#c4860f"/><path d="M4 8h9" stroke="#fffbe6" stroke-width="1" stroke-linecap="round" opacity=".9"/></symbol>
   <symbol id="i-ptix" viewBox="0 0 24 24"><path d="M2.5 6.5h19v3.2a2.3 2.3 0 0 0 0 4.6v3.2h-19v-3.2a2.3 2.3 0 0 0 0-4.6z" fill="#2a1666" transform="translate(0 1.2)"/><path d="M2.5 6.5h19v3.2a2.3 2.3 0 0 0 0 4.6v3.2h-19v-3.2a2.3 2.3 0 0 0 0-4.6z" fill="url(#cP1)" stroke="#2a1666" stroke-width="1.2" stroke-linejoin="round"/><path d="M15.5 7v10" stroke="#3c2290" stroke-width="1.1" stroke-dasharray="1.5 1.4"/><circle cx="9" cy="12" r="3.4" fill="#2a1666"/><path d="M9 9.4l.8 1.7 1.9.3-1.4 1.3.3 1.9L9 13.7l-1.7.9.3-1.9-1.4-1.3 1.9-.3z" fill="#ffe27a"/><path d="M4 8h9" stroke="#f6efff" stroke-width="1" stroke-linecap="round" opacity=".9"/><path d="M19.4 3.3l.5 1.1 1.1.5-1.1.5-.5 1.1-.5-1.1-1.1-.5 1.1-.5z" fill="#fff"/></symbol>
+  <symbol id="i-g2" viewBox="0 0 24 24"><path d="M3 9l9-4 9 4v10l-9 4-9-4z" fill="#8a5a2b" stroke="#0e121c" stroke-width="1.1" stroke-linejoin="round"/><path d="M3 9l9 4 9-4M12 13v10" fill="none" stroke="#0e121c" stroke-width="1.1"/><path d="M3 9l9-4 9 4-9 4z" fill="#b67a3c" stroke="#0e121c" stroke-width="1.1" stroke-linejoin="round"/><circle cx="12" cy="9" r="3.2" fill="url(#cG1)" stroke="#5a3504" stroke-width=".8"/><path d="M6 13.5l3 1.3" stroke="#e0b070" stroke-width="1.2" stroke-linecap="round"/></symbol>
+  <symbol id="i-e2" viewBox="0 0 24 24"><path d="M3 9l9-4 9 4v10l-9 4-9-4z" fill="#1f5a48" stroke="#0e121c" stroke-width="1.1" stroke-linejoin="round"/><path d="M3 9l9 4 9-4M12 13v10" fill="none" stroke="#0e121c" stroke-width="1.1"/><path d="M3 9l9-4 9 4-9 4z" fill="#2e8a6c" stroke="#0e121c" stroke-width="1.1" stroke-linejoin="round"/><path d="M8.6 10.4L12 7.2l3.4 3.2" fill="none" stroke="#eafff8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-med" viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="14" rx="2.5" fill="#eef2fb" stroke="#0e121c" stroke-width="1.1" stroke-linejoin="round"/><path d="M8.5 7V5a1.5 1.5 0 0 1 1.5-1.5h4A1.5 1.5 0 0 1 15.5 5v2" fill="none" stroke="#0e121c" stroke-width="1.6"/><rect x="2.5" y="7" width="19" height="3" fill="#c9d3ee"/><path d="M12 11v8M8 15h8" stroke="#e8261c" stroke-width="3.2" stroke-linecap="round"/></symbol>
   <symbol id="i-auto" viewBox="0 0 24 24"><path d="M19 8a8 8 0 0 0-14 1M5 16a8 8 0 0 0 14-1" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M19 3v5h-5M5 21v-5h5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-fast" viewBox="0 0 24 24"><path d="M3 5l9 7-9 7zM12 5l9 7-9 7z" fill="currentColor"/></symbol>
   <symbol id="i-gear" viewBox="0 0 24 24"><path d="M10.3 2.5h3.4l.5 2.6 2 .9 2.2-1.5 2.4 2.4-1.5 2.2.9 2 2.6.5v3.4l-2.6.5-.9 2 1.5 2.2-2.4 2.4-2.2-1.5-2 .9-.5 2.6h-3.4l-.5-2.6-2-.9-2.2 1.5-2.4-2.4 1.5-2.2-.9-2-2.6-.5v-3.4l2.6-.5.9-2-1.5-2.2 2.4-2.4 2.2 1.5 2-.9z" fill="#8F9AB0"/><circle cx="12" cy="12" r="3.4" fill="#0F1422"/></symbol>
@@ -1427,18 +1517,21 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
       <span class="pill"><svg class="ic"><use href="#i-gem"/></svg><span id="gems">0</span><button id="gemPlus" aria-label="보석 충전">+</button></span>
       </div>
     <nav id="tabs">
-      <button data-tab="hero"><span class="tb"><svg viewBox="0 0 32 32"><path d="M4.5 30c.8-7.5 5.2-11.5 11.5-11.5S26.7 22.5 27.5 30z" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M11.6 19.3L16 26l4.4-6.7" fill="#eef2fb" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M16 22.4l-1.4 3.2 1.4 3 1.4-3z" fill="#e0503e"/><circle cx="16" cy="12" r="6" fill="url(#mSkin)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M9.8 12.2c-.4-4.6 2.4-7.2 6.2-7.2s6.6 2.6 6.2 7.2c-1-2-3.3-2.9-6.2-2.9s-5.2.9-6.2 2.9z" fill="#2b2333" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M20.5 22.3l3.6.9v2.6c0 1.6-1.6 2.8-3.6 3.4-2-.6-3.6-1.8-3.6-3.4v-2.6z" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/></svg></span><span class="tl">요원</span><i class="dot" id="dotHero"></i></button>
-      <button data-tab="train"><span class="tb"><svg viewBox="0 0 32 32"><rect x="4" y="21" width="7" height="8" rx="1" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><rect x="12.5" y="17" width="7" height="12" rx="1" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><rect x="21" y="13" width="7" height="16" rx="1" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M16 2.5l9 9.5h-5v6h-8v-6H7z" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M16 5.6l-5.4 5.6" stroke="#fffbe6" stroke-width="1.3" stroke-linecap="round"/><path d="M5 6.5l.7 1.6 1.6.7-1.6.7L5 11.1l-.7-1.6-1.6-.7 1.6-.7zM27 3.5l.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5z" fill="#fff6cf"/></svg></span><span class="tl">성장</span><i class="dot" id="dotTrain"></i></button>
-      <button data-tab="summon"><span class="tb"><svg viewBox="0 0 32 32"><rect x="4" y="7" width="13" height="19" rx="2" transform="rotate(-14 10.5 16.5)" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><rect x="15" y="7" width="13" height="19" rx="2" transform="rotate(14 21.5 16.5)" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><rect x="9.5" y="5" width="13" height="21" rx="2" fill="url(#mPur)" stroke="#141a2b" stroke-width="1.3"/><rect x="11" y="6.5" width="10" height="18" rx="1.2" fill="none" stroke="url(#mGold)" stroke-width="1.3"/><path d="M16 9.5l1.7 3.5 3.8.5-2.8 2.7.7 3.8L16 18.2 12.6 20l.7-3.8-2.8-2.7 3.8-.5z" fill="url(#mGold)" stroke="#5a3504" stroke-width=".8" stroke-linejoin="round"/><path d="M27.5 3.5l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6z" fill="#fff"/></svg></span><span class="tl">호출</span></button>
-      <button data-tab="home" class="ct" aria-label="닫기"><span class="ctb"><svg class="ct-e" viewBox="0 0 40 40"><path d="M20 2l4 12 12 6-12 6-4 12-4-12-12-6 12-6z" fill="url(#mSteel)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M20 9l2 9 9 2-9 2-2 9-2-9-9-2 9-2z" fill="#26304c"/><circle cx="20" cy="20" r="2.6" fill="url(#mGold)"/></svg><svg class="ct-x" viewBox="0 0 40 40"><path d="M20 2L38 20 20 38 2 20z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M14 14l12 12M26 14L14 26" stroke="#fff4e0" stroke-width="3.2" stroke-linecap="round"/></svg></span></button>
-      <button data-tab="run"><span class="tb"><svg viewBox="0 0 32 32"><path d="M16 3v4M5 7.5l2.8 2.8M27 7.5l-2.8 2.8M2.5 17h3.5M26 17h3.5" stroke="#ffd23f" stroke-width="2.4" stroke-linecap="round"/><path d="M8.5 23v-6.5a7.5 7.5 0 0 1 15 0V23z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M12 16.5a4 4 0 0 1 3.4-4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".9"/><rect x="5.5" y="22.5" width="21" height="6" rx="1.5" fill="url(#mSteel)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M9 25.5h14" stroke="#525d7a" stroke-width="1.2"/></svg></span><span class="tl">작전</span><i class="dot" id="dotRun"></i></button>
-      <button data-tab="mis"><span class="tb"><svg viewBox="1 1 22 22"><rect x="4.5" y="4" width="15" height="18" rx="2" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><rect x="6.5" y="6.5" width="11" height="13.5" rx="1" fill="#eef2fb"/><rect x="8.5" y="2.5" width="7" height="4" rx="1" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8 11l1.5 1.5 2.6-2.8M8 16l1.5 1.5 2.6-2.8" fill="none" stroke="#1fa868" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.8 11.3h2.2M13.8 16.3h2.2" stroke="#7c87a6" stroke-width="1.5" stroke-linecap="round"/></svg></span><span class="tl">임무</span><i class="dot" id="dotMis"></i></button>
-      <button data-tab="bag"><span class="tb"><svg viewBox="1 1 22 22"><path d="M8 7V5.5a4 4 0 0 1 8 0V7" fill="none" stroke="#141a2b" stroke-width="2.6"/><path d="M8 7V5.5a4 4 0 0 1 8 0V7" fill="none" stroke="#c9a46a" stroke-width="1.4"/><rect x="3.5" y="7" width="17" height="14" rx="3" fill="#8a5a2b" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M3.5 12h17" stroke="#141a2b" stroke-width="1.1"/><rect x="10" y="10.5" width="4" height="3.5" rx=".8" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/></svg></span><span class="tl">가방</span><i class="dot" id="dotBag"></i></button>
+      <button data-tab="hero"><span class="tb"><svg viewBox="0 0 32 32"><path d="M6 29c.6-6.6 4.6-10 10-10s9.4 3.4 10 10z" fill="url(#mSteel)" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/><path d="M12.2 19.4L16 25l3.8-5.6" fill="#1b2236" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/><circle cx="16" cy="12.6" r="4.6" fill="url(#mSteel)" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/><path d="M7.5 10.6c3-.8 14-.8 17 0l-2.3-.9c-.6-3.6-2.8-5.4-6.2-5.4s-5.6 1.8-6.2 5.4z" fill="#1b2236" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/><path d="M20 22.5l3 .8v2.2c0 1.4-1.3 2.4-3 2.9-1.7-.5-3-1.5-3-2.9v-2.2z" fill="url(#mGold)" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/></svg></span><span class="tl">요원</span><i class="dot" id="dotHero"></i></button>
+      <button data-tab="train"><span class="tb"><svg viewBox="0 0 32 32"><path d="M6 27l10-6 10 6v-4l-10-6-10 6z" fill="url(#mSteel)" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/><path d="M6 20l10-6 10 6v-4l-10-6-10 6z" fill="url(#mSteel)" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/><path d="M6 13l10-6 10 6V9L16 3 6 9z" fill="url(#mGold)" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/></svg></span><span class="tl">성장</span><i class="dot" id="dotTrain"></i></button>
+      <button data-tab="summon"><span class="tb"><svg viewBox="0 0 32 32"><rect x="5" y="7" width="13" height="19" rx="1.5" transform="rotate(-12 11.5 16.5)" fill="#1b2236" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/><rect x="10" y="4" width="15" height="22" rx="1.5" fill="url(#mSteel)" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/><rect x="13" y="7" width="9" height="2" fill="#1b2236"/><path d="M17.5 12l1.6 3.3 3.6.5-2.6 2.5.6 3.6-3.2-1.7-3.2 1.7.6-3.6-2.6-2.5 3.6-.5z" fill="url(#mGold)" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/></svg></span><span class="tl">호출</span></button>
+      <button data-tab="home" class="ct" aria-label="닫기"><span class="ctb"><svg class="ct-e" viewBox="0 0 40 40"><path d="M20 2l4 12 12 6-12 6-4 12-4-12-12-6 12-6z" fill="url(#mSteel)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M20 9l2 9 9 2-9 2-2 9-2-9-9-2 9-2z" fill="#26304c"/><circle cx="20" cy="20" r="2.6" fill="url(#mGold)"/></svg><svg class="ct-b" viewBox="0 0 40 40"><path d="M20 2L38 20 20 38 2 20z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M15 13l-4.5 4.5L15 22" fill="none" stroke="#fff4e0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 17.5h10a5 5 0 0 1 0 10h-3" fill="none" stroke="#fff4e0" stroke-width="3" stroke-linecap="round"/></svg><svg class="ct-x" viewBox="0 0 40 40"><path d="M20 2L38 20 20 38 2 20z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M14 14l12 12M26 14L14 26" stroke="#fff4e0" stroke-width="3.2" stroke-linecap="round"/></svg></span></button>
+      <button data-tab="run"><span class="tb"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="10.5" fill="none" stroke="#0e121c" stroke-width="5"/><circle cx="16" cy="16" r="10.5" fill="none" stroke="url(#mSteel)" stroke-width="3"/><circle cx="16" cy="16" r="5" fill="none" stroke="#0e121c" stroke-width="4"/><circle cx="16" cy="16" r="5" fill="none" stroke="url(#mSteel)" stroke-width="2"/><path d="M16 1.5v8M16 22.5v8M1.5 16h8M22.5 16h8" stroke="#0e121c" stroke-width="4" stroke-linecap="round"/><path d="M16 2v7M16 23v7M2 16h7M23 16h7" stroke="url(#mSteel)" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="16" r="2" fill="url(#mRed)"/></svg></span><span class="tl">작전</span><i class="dot" id="dotRun"></i></button>
+      <button data-tab="mis"><span class="tb"><svg viewBox="0 0 32 32"><rect x="6" y="5" width="20" height="24" rx="2" fill="url(#mSteel)" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/><rect x="9" y="9" width="14" height="17" rx="1" fill="#1b2236"/><rect x="11.5" y="3" width="9" height="5" rx="1" fill="url(#mGold)" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/><path d="M11 15l2 2 3.4-3.6M11 21.5l2 2 3.4-3.6" fill="none" stroke="#e8ecf6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 15.5H21M18.5 22H21" stroke="#9aa6c2" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="tl">임무</span><i class="dot" id="dotMis"></i></button>
+      <button data-tab="bag"><span class="tb"><svg viewBox="0 0 32 32"><path d="M11.5 10V7.5a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2V10" fill="none" stroke="#0e121c" stroke-width="4"/><path d="M11.5 10V7.5a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2V10" fill="none" stroke="url(#mSteel)" stroke-width="2"/><rect x="4" y="10" width="24" height="17" rx="2.5" fill="url(#mSteel)" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/><path d="M4 16.5h24" stroke="#0e121c" stroke-width="1.4"/><rect x="13.5" y="14.5" width="5" height="4.5" rx="1" fill="url(#mGold)" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/></svg></span><span class="tl">가방</span><i class="dot" id="dotBag"></i></button>
     </nav>
   </div>
   <div id="modal"></div>
   <!-- 결과 띠 창: 보상 획득, 승급 성공, 새 요원 합류 (세나 키우기처럼 가운데 넓은 띠 + 문장 + 터치하여 닫기) -->
   <div id="res"></div>
+  <!-- 요원 호출 연출: 어둠 속 균열이 열리고 요원 기록 파일이 날아와 뒤집힘 -->
+  <div id="sfx"><canvas id="sfxC"></canvas><div class="sx-rift"><i></i><i></i><i></i></div><div class="sx-title" id="sxTitle"></div><div class="sx-cards" id="sxCards"></div><div class="sx-msg" id="sxMsg"></div>
+    <div class="sx-btns"><button class="btn ghost" id="sxAll">모두 열기</button><button class="btn" id="sxAgain"></button><button class="btn" id="sxOk">확인</button></div><button id="sxSkip">SKIP ▸▸</button></div>
   <div id="adTest"></div>
   <div id="clear"></div>
   <div id="flashFx"></div>
@@ -2173,7 +2266,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   /** 소탕: 깬 최고 단계 보상을 싸우지 않고 바로 받음 (입장 1회) */
   function sweepDungeon(state, id) {
     const best = state.dbest[id] || 0;
-    if (best < 1) throw new RangeError('한 번 깬 단계부터 소탕할 수 있어요');
+    if (best < 1) throw new RangeError('첫 클리어 후 소탕할 수 있어요');
     return clearDungeon(state, id, best);
   }
   /** 균열 심층 다음 층 돌파 */
@@ -3909,7 +4002,7 @@ function renderPanel() {
         <div class="bar"><i style="width:${nextNeed ? (100 * (S.pulls.total - K.SUMMON_LV_PULLS[lv - 1]) / (nextNeed - K.SUMMON_LV_PULLS[lv - 1])).toFixed(1) : 100}%"></i></div>
         ${nextNeed ? `<div class="slv-r">레벨 ${lv + 1} 보상 ${icon('gem')}${C.levelReward(lv + 1).gems} ${icon('ptix')}${C.levelReward(lv + 1).ptix}</div>` : ''}</div>
       <table class="rtable"><thead><tr><th>요원</th><th>요원 호출</th><th>정예 호출</th><th>특별 채용</th></tr></thead><tbody>${rows}</tbody></table>
-      <p class="hint" style="margin:10px 2px">요원 호출은 전투에서 쌓이는 호출권으로 뽑아요. 이상체 10마리마다 1장, 근원체를 봉쇄하면 ${K.BOSS_TICKETS}장이에요. 요원 호출을 할수록 소환 레벨이 오르고, 오를 때마다 보석과 정예 호출권을 받아요. 전설은 요원 호출에서 소환 레벨 5부터 나와요. 정예 호출과 특별 채용은 보석 ${K.PREMIUM_COST}개(또는 정예 호출권 1장)로 뽑고 희귀 요원은 나오지 않아요. 한정 전설 ${pk.name}은 특별 채용에서만 나오고, 요원 호출과 정예 호출의 전설은 상시 전설 ${pool('전설').length}명 중에서 나와요. 특별 채용은 2주마다 목요일 오전 9시에 바뀌고, 누적 ${K.RELAY}회째에 ${pk.name}이 확정으로 나와요.</p>`;
+      <p class="hint" style="margin:10px 2px">요원 호출은 전투에서 쌓이는 호출권으로 뽑아요. 이상체 10마리마다 1장, 근원체 봉쇄마다 ${K.BOSS_TICKETS}장을 받아요. 요원 호출을 할수록 소환 레벨이 오르고, 오를 때마다 보석과 정예 호출권을 받아요. 전설은 요원 호출에서 소환 레벨 5부터 나와요. 정예 호출과 특별 채용은 보석 ${K.PREMIUM_COST}개(또는 정예 호출권 1장)로 뽑고 희귀 요원은 나오지 않아요. 한정 전설 ${pk.name}은 특별 채용에서만 나오고, 요원 호출과 정예 호출의 전설은 상시 전설 ${pool('전설').length}명 중에서 나와요. 특별 채용은 2주마다 목요일 오전 9시에 바뀌고, 누적 ${K.RELAY}회째에 ${pk.name}이 확정으로 나와요.</p>`;
     drawSummonBanner();
   }
   updatePanel();
@@ -3954,7 +4047,7 @@ function updatePanel() {
     if (hpageId) fillHeroDetail();
   } else if (tab === 'train') {
     const tot = C.UPGRADES.reduce((a, u) => a + S.up[u.id], 0);
-    $('gwLv').textContent = `수사 훈련 ${Math.floor(tot / 10) + 1}단계`; $('gwBar').style.width = (tot % 10) * 10 + '%'; $('gwN').textContent = `${tot % 10} / 10`;
+    $('gwLv').textContent = `수사력 ${Math.floor(tot / 10) + 1}단계`; $('gwBar').style.width = (tot % 10) * 10 + '%'; $('gwN').textContent = `${tot % 10} / 10`;
     for (const row of P.querySelectorAll('.gw-c[data-u]')) {
       const id = row.dataset.u, lv = S.up[id], { n, cost } = upPlan(id);
       const val = L => id === 'crit' ? Math.round(C.critChance(L) * 100) + '%' : '+' + L * 10 + '%';
@@ -3991,7 +4084,7 @@ const dsel = {};   // 일일 출동마다 고른 단계
 const BOSS_ART = { bounty: 'spr_boss1', evidence: 'spr_boss2', training: 'spr_shade', tower: 'spr_boss3' };
 /** 보상 묶음을 아이콘과 숫자로 */
 function rwHtml(r) {
-  return [['gold', r.gold], ['exp', r.exp], ['gem', r.gems], ['tix', r.tix], ['ptix', r.ptix]].filter(x => x[1]).map(([ic, v]) => `<span class="rw">${icon(ic)}${C.formatNum(v)}</span>`).join('');
+  return [['gold', r.gold], ['exp', r.exp], ['gem', r.gems], ['tix', r.tix], ['ptix', r.ptix], ['g2', r.g2], ['e2', r.e2], ['med', r.med]].filter(x => x[1]).map(([ic, v]) => `<span class="rw">${icon(ic)}${C.formatNum(v)}</span>`).join('');
 }
 /** 난이도 표시: 기술을 빼고 30초 동안 낼 수 있는 피해가 근원체 체력의 몇 배인지 */
 function diffTag(eq) {
@@ -4011,14 +4104,14 @@ function renderRun(P) {
       <span class="dtn">균열 심층</span><span class="dtk">${z.no}구역 ${z.name}</span>
       <span class="dtr">다음 ${f}층 ${rwHtml(C.towerReward(f))}</span><span class="dtb">돌파 ${S.tower}층</span></button>
     <button class="btn wide" data-act="dsweepall" style="width:100%;margin-top:8px" ${runAlert() ? '' : 'disabled'}>일괄 소탕</button>
-    <p class="hint" style="margin:10px 2px">일일 작전은 하루 ${C.CONST.DAILY_KEYS}번, 매일 0시에 다시 채워져요. 실패하면 횟수가 줄지 않아요. 한 번 깬 단계는 소탕으로 싸우지 않고 바로 보상을 받아요. 제한 시간은 ${C.CONST.CHAL_TIME}초예요.</p>`;
+    <p class="hint" style="margin:10px 2px">일일 작전은 하루 ${C.CONST.DAILY_KEYS}번, 매일 0시에 다시 채워져요. 실패하면 횟수가 줄지 않아요. 클리어한 단계는 소탕으로 바로 보상을 받아요. 제한 시간은 ${C.CONST.CHAL_TIME}초예요.</p>`;
 }
 /* 일일 임무, 출석: 전투 화면 왼쪽 아이콘을 누르면 창으로 (세나 키우기 미션, 출석 아이콘과 같은 자리) */
 function misHtml() {
   return `<div id="sideMis"><h2>일일 임무</h2>` + C.MISSIONS.map((m, i) => `<div class="mrow" data-m="${i}"><div class="mt"><b>${m.text}</b><div class="bar"><i></i></div></div>
       <span class="mp"></span><span class="rw">${icon('gem')}${m.gems}</span><button class="btn sm" data-act="mget" data-m="${i}">받기</button></div>`).join('') +
     `<div class="mrow bonus"><div class="mt"><b>일일 임무 모두 완료</b><div class="bar"><i></i></div></div><span class="mp"></span><span class="rw">${icon('ptix')}${C.CONST.MISSION_BONUS_PTIX}</span><button class="btn sm rift" data-act="mbonus">받기</button></div>
-    <p class="hint" style="margin:10px 2px">일일 임무는 매일 0시에 새로 시작해요.</p><div class="mbtns"><button class="btn ghost" data-close>닫기</button></div></div>`;
+    <p class="hint" style="margin:10px 2px">일일 임무는 매일 0시에 새로 시작해요.</p><div class="mbtns"><button class="btn ghost" data-close>닫기</button><button class="btn" data-act="mall" id="misAll">모두 받기</button></div></div>`;
 }
 function attHtml() {
   const n = S.att.n % C.ATTEND.length, can = C.canAttend(S, new Date());
@@ -4043,7 +4136,7 @@ function openDungeonSheet(id) {
     <div class="dstep"><button class="btn sm ghost" data-act="dlv" data-d="${id}" data-v="-1" id="dsM">◀</button><b id="dsLv"></b><button class="btn sm ghost" data-act="dlv" data-d="${id}" data-v="1" id="dsP">▶</button><span id="dsDf"></span></div>
     <div class="drw" id="dsRw"></div>
     <div class="hd-btns"><button class="btn ghost" data-act="dsweep" data-d="${id}" id="dsSw">소탕</button><button class="btn" data-act="dgo" data-d="${id}" id="dsGo">도전</button></div>
-    <p class="hint">하루 ${C.CONST.DAILY_KEYS}번, 매일 0시에 채워져요. 실패하면 횟수가 줄지 않아요. 소탕은 깬 최고 단계 보상을 바로 받아요.</p>
+    <p class="hint">하루 ${C.CONST.DAILY_KEYS}번, 매일 0시에 채워져요. 실패하면 횟수가 줄지 않아요. 소탕하면 최고 단계 보상을 바로 받아요.</p>
     <div class="mbtns"><button class="btn ghost" data-close>닫기</button></div></div>`, () => { sheetId = null; });
   fillDungeonSheet();
 }
@@ -4069,6 +4162,7 @@ function updateRun(P) {
     b.disabled = got || (p < m.need && !go); b.textContent = got ? '완료' : go ? '이동' : '받기'; b.classList.toggle('ghost', !!go); b.dataset.act = go ? 'mgo' : 'mget';
     r.classList.toggle('done', got);
   }
+  const ma = P.querySelector('#misAll'); if (ma) ma.disabled = !misAlert();
   const bn = P.querySelector('.mrow.bonus');
   if (bn) {
     const n = S.daily.got.length, N = C.MISSIONS.length;
@@ -4264,6 +4358,7 @@ function renderHeroPage() {
   const list = hsub === 'manage' && !ownOnly ? sortHeroes(C.HEROES.filter(x => hfil === '전체' || x.type === hfil), C.partyIds(S)) : sortHeroes(owned(), C.partyIds(S));
   const i = list.findIndex(x => x.id === id);
   const sp = ART['spr_' + id];
+  $('hpage').style.setProperty('--gc', col);
   $('hpage').innerHTML = `<img class="hp-bg" src="${bigArt(id)}" alt="">
     <div class="hp-tags"><span><i class="tic t-${h.type}"><svg><use href="#i-t-${h.type}"/></svg></i>${h.type}형</span><span><i class="tic" style="color:${col}"><svg><use href="#i-t-${h.type}"/></svg></i>${h.role}</span></div>
     <div class="hp-grade" style="--gc:${col}"><svg viewBox="0 0 60 60"><path d="M30 3l9 14 16 3-11 12 3 17-17-8-17 8 3-17L5 20l16-3z" fill="none" stroke="var(--gc)" stroke-width="2.5"/><path d="M30 14l11 6v13l-11 6-11-6V20z" fill="var(--gc)" opacity=".85"/></svg><b>${h.grade}</b>${h.limited ? '<small>한정</small>' : ''}</div>
@@ -4383,6 +4478,12 @@ function onAct(e) {
       for (const d of C.DUNGEONS) while (S.keys[d.id] > 0 && S.dbest[d.id] > 0) { const r = C.sweepDungeon(S, d.id); for (const k of ['gold', 'tix', 'exp']) if (r[k]) got[k] = (got[k] || 0) + r[k]; }
       writeSave(); renderPanel();
       if (Object.keys(got).length) showResult('gift', '일괄 소탕 완료', rwTiles(got));
+    } else if (act === 'mall') {
+      // 임무 모두 받기: 끝난 임무 보석 + 모두 끝났으면 보너스 정예 호출권
+      let g = 0; C.MISSIONS.forEach((m, i) => { g += C.missionClaim(S, i) || 0; });
+      const p = C.missionBonus(S) || 0;
+      if (!g && !p) return toast('받을 보상이 없어요');
+      writeSave(); modalEl.classList.remove('on'); showResult('gift', '보상 획득', rwTiles({ gems: g, ptix: p }));
     } else if (act === 'mgo') {
       // 임무 바로가기: 해당 메뉴로 이동
       const k = C.MISSIONS[+b.dataset.m].kind; modalEl.classList.remove('on');
@@ -4484,6 +4585,7 @@ $('tabs').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   if (b.dataset.tab === 'mis') return openSide('mis');
   if (b.dataset.tab === 'bag') return openModal(bagHtml());
+  if (b.dataset.tab === 'home' && $('app').classList.contains('hdopen')) return closeHeroPage();
   if (b.dataset.tab === 'home') { if ($('app').classList.contains('herofull')) { closeHeroPage(); closeHeroWin(); } $('app').classList.add('folded'); for (const x of $('tabs').children) x.classList.remove('on'); return; }
   if ($('app').classList.contains('herofull')) { closeHeroPage(); closeHeroWin(); if (b.dataset.tab === 'hero') return; $('app').classList.add('folded'); }
   if (b.dataset.tab === 'hero') return openHeroWin();
@@ -4528,15 +4630,15 @@ $('party').addEventListener('click', e => {
 // 자동 추적: 켜면 처치가 다 차는 대로 근원체가 나옴, 끄면 계속 순찰만. 봉쇄에 실패하면 저절로 꺼짐 (세나 키우기 자동소환과 같음)
 $('bossAuto').addEventListener('click', () => {
   S.farming = !S.farming;
-  toast(S.farming ? '자동 추적을 껐어요. 이 구역에서 계속 순찰해요' : '자동 추적을 켰어요. 처치가 다 차면 근원체를 쫓아가요');
+  toast(S.farming ? '자동 추적을 껐어요. 현재 구역을 계속 순찰해요' : '자동 추적을 켰어요. 처치 수가 다 차면 근원체를 추적해요');
   writeSave(); updateUI();
 });
 function gfxRows() {
   const seg = (key, opts) => `<div class="seg two">${opts.map(([v, l]) => `<button data-gfx="${key}" data-v="${v}" class="${GQ[key] === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
   const tg = (key) => `<button class="tgl ${GQ[key] ? 'on' : ''}" data-tg="${key}" aria-pressed="${!!GQ[key]}"></button>`;
   const sl = [[0, '끔'], [3, '3분'], [10, '10분']].map(([v, l]) => `<button data-gfx="autoSleep" data-v="${v}" class="${(GQ.autoSleep || 0) === v ? 'on' : ''}">${l}</button>`).join('');
-  return `<div class="optg">화면</div><div class="setrow"><div><div class="ut">그래픽</div><div class="uv">낮음은 빛과 안개를 줄여 가볍게</div></div>${seg('hi', [[true, '높음'], [false, '낮음']])}</div>
-    <div class="setrow"><div><div class="ut">프레임</div><div class="uv">30은 배터리와 발열이 줄어요</div></div>${seg('fps60', [[true, '60'], [false, '30']])}</div>
+  return `<div class="optg">화면</div><div class="setrow"><div><div class="ut">그래픽</div><div class="uv">낮음으로 두면 빛과 안개가 줄어 가벼워요</div></div>${seg('hi', [[true, '높음'], [false, '낮음']])}</div>
+    <div class="setrow"><div><div class="ut">프레임</div><div class="uv">30으로 두면 배터리와 발열이 줄어요</div></div>${seg('fps60', [[true, '60'], [false, '30']])}</div>
     <div class="setrow"><div><div class="ut">피해 숫자</div><div class="uv">적에게 준 피해를 숫자로 보여 줘요</div></div>${tg('dmgNum')}</div>
     <div class="setrow"><div><div class="ut">화면 흔들림</div><div class="uv">치명타와 기술 때 화면이 흔들려요</div></div>${tg('shake')}</div>
     <div class="optg">절전</div>
@@ -4546,7 +4648,7 @@ $('btnSet').addEventListener('click', () => {
   openModal(`<h2>설정</h2>
     <div id="gfxRows">${gfxRows()}</div>
     <div class="setrow"><div><div class="ut">버전</div><div class="uv">AIU ${APP_VERSION}</div></div><button class="btn sm ghost" data-set="hot">업데이트 확인</button></div>
-    <div class="setrow"><div><div class="ut">자리 비움 보상 시험</div><div class="uv">1시간 비운 것처럼 받아 보기</div></div><button class="btn sm ghost" data-set="off">받아 보기</button></div>
+    <div class="setrow"><div><div class="ut">자리 비움 보상 시험</div><div class="uv">1시간 자리를 비운 셈 치고 보상 받기</div></div><button class="btn sm ghost" data-set="off">받아 보기</button></div>
     <div class="setrow"><div><div class="ut">오프닝 다시 보기</div><div class="uv">처음 시작할 때 나온 이야기를 다시 봐요</div></div><button class="btn sm ghost" data-set="opening">보기</button></div>
     <div class="setrow"><div><div class="ut">처음부터 다시</div><div class="uv">저장된 진행을 모두 지워요</div></div><button class="btn sm ghost" data-set="reset">초기화</button></div>
     <div class="mbtns"><button class="btn" data-close>닫기</button></div>`);
@@ -4567,7 +4669,7 @@ modalEl.addEventListener('click', e => {
   else if (b.dataset.set === 'opening') { modalEl.classList.remove('on'); playOpening(); }
 });
 $('bossOpt').addEventListener('click', () => {
-  openModal(`<h2>근원체 소환 옵션</h2><div class="setrow"><div><div class="ut">근원체 자동 소환</div><div class="uv">처치가 다 차면 근원체를 바로 불러요. 끄면 이 구역을 계속 순찰해요</div></div><button class="tgl ${S.farming ? '' : 'on'}" data-bopt></button></div><div class="mbtns"><button class="btn" data-close>닫기</button></div>`);
+  openModal(`<h2>근원체 소환 옵션</h2><div class="setrow"><div><div class="ut">근원체 자동 소환</div><div class="uv">처치 수가 다 차면 근원체를 바로 불러요. 끄면 현재 구역을 계속 순찰해요</div></div><button class="tgl ${S.farming ? '' : 'on'}" data-bopt></button></div><div class="mbtns"><button class="btn" data-close>닫기</button></div>`);
 });
 modalEl.addEventListener('click', e => { if (!e.target.closest('[data-bopt]')) return; S.farming = !S.farming; writeSave(); updateUI(); e.target.closest('[data-bopt]').classList.toggle('on', !S.farming); });
 $('bossSum').addEventListener('click', () => { if (S.farming) $('bossBtn').click(); else if (S.kills < C.CONST.WAVE_KILLS) toast(`이상체를 ${C.CONST.WAVE_KILLS}마리 처치하면 근원체가 나와요`); });
@@ -4583,10 +4685,7 @@ function doSummon(n, kind) {
   S = res.state; C.progress(S, 'summon', n);
   const lvMsg = res.lvUps.length ? `소환 레벨 ${res.lvUps[res.lvUps.length - 1]} 달성! 보석 ${res.lvUps.reduce((a, L) => a + C.levelReward(L).gems, 0)}개, 정예 호출권 ${res.lvUps.reduce((a, L) => a + C.levelReward(L).ptix, 0)}장` : '';
   syncHeroes(false); writeSave();
-  openModal(`<h2>${pickup ? '채용 결과' : kind === 'elite' ? '정예 호출 결과' : '호출 결과'}</h2><div class="res ${n === 1 ? 'one' : ''}">${ids.map((id, i) => {
-    const h = C.heroById(id);
-    return `<div class="rc ${h.grade === '전설' ? 'leg' : ''} ${n > 1 ? 'fd' : ''}" style="animation-delay:${i * 0.07}s"><img src="${portrait(id)}" alt=""><small>${h.name}</small>${res.isNew[i] ? '<span class="new">NEW</span>' : ''}</div>`;
-  }).join('')}</div><p>${res.relayHit ? `누적 ${C.CONST.RELAY}회 달성, ${C.heroById('dark').name} 확정 합류` : lvMsg ? lvMsg : res.isNew.some(Boolean) ? '새 요원이 AIU에 합류했어요' : '조각은 요원 탭에서 승급에 써요'}</p><div class="mbtns">${n > 1 ? '<button class="btn ghost" data-flipall>모두 열기</button>' : ''}<button class="btn" data-close>확인</button></div>`);
+  summonFx(ids, res.isNew, n, kind, res.relayHit ? `누적 ${C.CONST.RELAY}회 달성, ${C.heroById('dark').name} 확정 합류` : lvMsg ? lvMsg : res.isNew.some(Boolean) ? '새 요원이 AIU에 합류했어요' : '같은 요원은 조각으로 쌓여요');
   renderPanel();
 }
 
@@ -4739,7 +4838,7 @@ function showResult(kind, title, body) {
 $('res').addEventListener('click', () => { $('res').classList.remove('on'); const d = resDone; resDone = null; d && d(); });
 /** 보상 칸 여러 개 (아이콘 + 수량) */
 function rwTiles(r) {
-  const I = { gold: 'gold', exp: 'exp', gems: 'gem', tix: 'tix', ptix: 'ptix' };
+  const I = { gold: 'gold', exp: 'exp', gems: 'gem', tix: 'tix', ptix: 'ptix', g2: 'g2', e2: 'e2', med: 'med' };
   const t = Object.entries(r).filter(([k, v]) => I[k] && v).map(([k, v], i) => `<div class="rs-it" style="animation-delay:${i * 0.08}s">${icon(I[k])}<span>${C.formatNum(v)}</span></div>`);
   if (r.shard) t.push(`<div class="rs-it"><img src="${ART['card_' + r.shard] || portrait(r.shard)}" alt=""><span>조각 ${r.n}</span></div>`);
   return `<div class="rs-items">${t.join('')}</div>`;
@@ -4767,7 +4866,7 @@ modalEl.addEventListener('click', e => {
 /* ---------- 수사 수첩 (구역 돌파 보상, 열리는 콘텐츠) ---------- */
 function rdTile(rw) {
   const [k, v] = Object.entries(rw)[0];
-  return `${icon({ gems: 'gem', tix: 'tix', ptix: 'ptix', gold: 'gold' }[k])}<span>${C.formatNum(v)}</span>`;
+  return `${icon({ gems: 'gem', tix: 'tix', ptix: 'ptix', gold: 'gold', exp: 'exp', g2: 'g2', e2: 'e2', med: 'med' }[k])}<span>${C.formatNum(v)}</span>${Object.keys(rw).length > 1 ? '<b class="rd-more">+</b>' : ''}`;
 }
 function roadHtml() {
   const ready = C.roadReady(S).length;
@@ -4888,7 +4987,7 @@ function stageWin(ch) {
     <div class="stw-img ${lock ? 'lock' : ''}"><img src="${ART['spr_boss' + (stwCh % 3 + 1)] ? ART.op_key : ''}" alt="">${lock ? `<span>스테이지 ${base + 1} 달성 시 열려요</span>` : ''}</div>
     <div class="stw-strip">${strip}</div>
     <div class="optg">등장 이상체</div><div class="stw-mob">${mob('spr_shade', '그림자')}${mob('spr_crawler', '기어오는 것')}${mob('spr_boss' + (stwCh % 3 + 1), t.boss, 1)}</div>
-    <div class="setrow"><div><div class="ut">근원체 자동 추적</div><div class="uv">처치가 다 차면 근원체를 쫓아가요</div></div><button class="tgl ${S.farming ? '' : 'on'}" data-stauto></button></div>
+    <div class="setrow"><div><div class="ut">근원체 자동 추적</div><div class="uv">처치 수가 다 차면 근원체를 추적해요</div></div><button class="tgl ${S.farming ? '' : 'on'}" data-stauto></button></div>
     <div class="mbtns"><button class="btn" data-close>닫기</button></div></div>`);
 }
 $('stageBox').addEventListener('click', () => stageWin(Math.floor((S.stage - 1) / 10)));
@@ -4931,9 +5030,9 @@ function upPlan(id) {
 function bagHtml() {
   const ids = Object.keys(C.ITEMS);
   const has = ids.filter(k => S.bag[k] > 0);
-  return `<h2>가방</h2><div class="mlist">${has.length ? has.map(k => { const it = C.ITEMS[k]; return `<div class="ml"><div class="rd-r">${icon(it.key === 'gold' ? 'gold' : 'exp')}<span>${S.bag[k]}</span></div><div><b>${it.name}</b><small>${it.sub}</small></div>
+  return `<h2>가방</h2><div class="mlist">${has.length ? has.map(k => { const it = C.ITEMS[k]; return `<div class="ml"><div class="rd-r">${icon(k)}<span>${S.bag[k]}</span></div><div><b>${it.name}</b><small>${it.sub}</small></div>
     <span class="bag-b"><button class="btn sm ghost" data-use="${k}" data-n="1">1개 사용</button><button class="btn sm" data-use="${k}" data-n="${S.bag[k]}">모두 사용</button></span></div>`; }).join('') : '<p class="empty">가방이 비어 있어요</p>'}</div>
-    <p class="hint">보급품은 우편함과 수사 수첩에서 받아요.</p><div class="mbtns"><button class="btn" data-close>닫기</button></div>`;
+    <p class="hint">보급품은 우편함과 상점에서 받아요.</p><div class="mbtns"><button class="btn" data-close>닫기</button></div>`;
 }
 modalEl.addEventListener('click', e => {
   const b = e.target.closest('[data-use]'); if (!b) return;
@@ -4975,8 +5074,8 @@ function useMed() {
 }
 $('medBtn').addEventListener('click', useMed);
 $('medSet').addEventListener('click', () => {
-  openModal(`<h2>구급상자</h2><p class="hint">팀 전원의 체력을 최대 체력의 35%만큼 회복해요. 남은 개수 ${S.med}개</p>
-    <div class="setrow"><div><div class="ut">자동 사용</div><div class="uv">요원 체력이 아래 % 밑으로 내려가면 써요</div></div><button class="tgl ${S.medOn ? 'on' : ''}" data-med="on"></button></div>
+  openModal(`<h2>구급상자</h2><p class="hint">팀 전원의 체력을 35% 회복해요. 보유 ${S.med}개</p>
+    <div class="setrow"><div><div class="ut">자동 사용</div><div class="uv">요원 체력이 설정한 % 아래로 떨어지면 자동으로 써요</div></div><button class="tgl ${S.medOn ? 'on' : ''}" data-med="on"></button></div>
     <div class="setrow"><div><div class="ut">사용할 체력</div></div><div class="seg">${[30, 50, 70].map(v => `<button data-med="${v}" class="${S.medHp === v ? 'on' : ''}">${v}%</button>`).join('')}</div></div>
     <div class="mbtns"><button class="btn" data-close>닫기</button></div>`);
 });
@@ -5114,7 +5213,7 @@ function hwHtml() {
   if (!hwSel) hwSel = Object.fromEntries(C.DUNGEONS.map(d => [d.id, true]));
   const rows = C.DUNGEONS.map(d => {
     const can = S.keys[d.id] > 0 && S.dbest[d.id] > 0;
-    return `<div class="hw ${can ? '' : 'no'}"><button class="hw-ck ${hwSel[d.id] ? 'on' : ''}" data-hw="${d.id}"></button><img src="${ART[BOSS_ART[d.id]] || ''}" alt=""><span><b>${d.name}</b><small>${S.dbest[d.id] ? `${S.dbest[d.id]}단계 소탕` : '한 번 깨야 소탕할 수 있어요'}</small></span><em>${can ? `${S.keys[d.id]}회` : '진행 불가'}</em></div>`;
+    return `<div class="hw ${can ? '' : 'no'}"><button class="hw-ck ${hwSel[d.id] ? 'on' : ''}" data-hw="${d.id}"></button><img src="${ART[BOSS_ART[d.id]] || ''}" alt=""><span><b>${d.name}</b><small>${S.dbest[d.id] ? `${S.dbest[d.id]}단계 소탕` : '첫 클리어 후 소탕 가능'}</small></span><em>${can ? `${S.keys[d.id]}회` : '진행 불가'}</em></div>`;
   }).join('');
   const all = C.DUNGEONS.every(d => hwSel[d.id]);
   return `<h2>숙제 도우미</h2><div class="hws">${rows}</div><label class="hw-all"><button class="hw-ck ${all ? 'on' : ''}" data-hw="all"></button>전체 선택</label>
@@ -5140,6 +5239,62 @@ $('panel').addEventListener('click', e => {
 function flash(col, a) {
   const el = $('flashFx'); el.style.background = col; el.style.setProperty('--fa', a);
   el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+}
+
+/* ---------- 요원 호출 연출 ----------
+ * 1) 화면이 어두워지고 비 속에서 균열(호출 문)이 열림. 가장 높은 등급 색으로 빛남 (전설은 금빛 번개)
+ * 2) 요원 기록 파일이 가운데서 날아와 자리 잡음 (뒷면: AIU 배지)
+ * 3) 누르거나 모두 열기로 뒤집음. 전설은 뒤집기 전에 금빛이 차오르고 화면이 흔들림. 새 요원은 NEW 도장 */
+const GCOL = { 희귀: '#6fa8ff', 영웅: '#c07bff', 전설: '#ffcf5a' };
+let sxState = null;
+function summonFx(ids, isNew, n, kind, msg) {
+  const el = $('sfx'), hs = ids.map(id => C.heroById(id));
+  const top = hs.some(h => h.grade === '전설') ? '전설' : hs.some(h => h.grade === '영웅') ? '영웅' : '희귀';
+  sxState = { n, kind, left: ids.length };
+  el.style.setProperty('--gc', GCOL[top]);
+  el.className = 'on g-' + ({ 희귀: 'r', 영웅: 'h', 전설: 'l' })[top] + (n === 1 ? ' one' : '');
+  $('sxTitle').textContent = kind === 'pickup' ? '특별 채용' : kind === 'elite' ? '정예 호출' : '요원 호출';
+  $('sxMsg').textContent = msg;
+  $('sxAgain').textContent = `다시 ${n}회`;
+  $('sxCards').innerHTML = hs.map((h, i) => `<button class="sx-c g-${({ 희귀: 'r', 영웅: 'h', 전설: 'l' })[h.grade]} fd" style="--i:${i};--gc:${GCOL[h.grade]}" data-i="${i}">
+    <span class="sx-back"></span><span class="sx-front"><img src="${ART['card_' + h.id] || portrait(h.id)}" alt=""><b>${h.name}</b><small>${h.grade}</small>${isNew[i] ? '<em>NEW</em>' : ''}</span></button>`).join('');
+  sxRain();
+  if (top === '전설') setTimeout(() => { flash('#ffd27a', 0.55); shake(8); }, 900);
+  else setTimeout(() => flash(GCOL[top], 0.3), 900);
+  if (n === 1) setTimeout(() => sxFlip($('sxCards').firstElementChild), 1700);
+}
+function sxFlip(c) {
+  if (!c || !c.classList.contains('fd')) return;
+  const leg = c.classList.contains('g-l');
+  c.classList.remove('fd'); c.classList.add(leg ? 'charge' : 'flip');
+  if (leg) setTimeout(() => { c.classList.remove('charge'); c.classList.add('flip'); flash('#ffd27a', 0.45); shake(6); }, 650);
+  sxState.left--; if (sxState.left <= 0) $('sfx').classList.add('done');
+}
+$('sxCards').addEventListener('click', e => sxFlip(e.target.closest('.sx-c')));
+$('sxAll').addEventListener('click', () => [...$('sxCards').querySelectorAll('.sx-c.fd')].forEach((c, i) => setTimeout(() => sxFlip(c), i * 90)));
+$('sxSkip').addEventListener('click', () => { $('sxCards').querySelectorAll('.sx-c.fd').forEach(c => { c.classList.remove('fd'); c.classList.add('flip'); }); sxState.left = 0; $('sfx').classList.add('done'); });
+function sxClose() { $('sfx').className = ''; cancelAnimationFrame(sxRaf); renderPanel(); }
+$('sxOk').addEventListener('click', sxClose);
+$('sxAgain').addEventListener('click', () => { const { n, kind } = sxState; sxClose(); doSummon(n, kind); });
+// 배경: 비와 떠다니는 빛 가루
+let sxRaf = 0;
+function sxRain() {
+  const c = $('sfxC'), q = c.getContext('2d'), W2 = c.width = innerWidth, H2 = c.height = innerHeight;
+  const drops = Array.from({ length: 90 }, () => ({ x: Math.random() * W2, y: Math.random() * H2, v: 500 + Math.random() * 400 }));
+  const motes = Array.from({ length: 40 }, () => ({ x: W2 / 2, y: H2 * 0.42, a: Math.random() * 6.28, v: 20 + Math.random() * 90, r: 1 + Math.random() * 2 }));
+  let last = performance.now();
+  const col = getComputedStyle($('sfx')).getPropertyValue('--gc').trim() || '#6fa8ff';
+  const tick = now => {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    q.clearRect(0, 0, W2, H2);
+    q.strokeStyle = 'rgba(170,190,230,.25)'; q.lineWidth = 1;
+    for (const d of drops) { d.y += d.v * dt; d.x -= d.v * dt * 0.15; if (d.y > H2) { d.y = -20; d.x = Math.random() * W2 * 1.2; } q.beginPath(); q.moveTo(d.x, d.y); q.lineTo(d.x + 3, d.y - 16); q.stroke(); }
+    q.fillStyle = col;
+    for (const m of motes) { m.x += Math.cos(m.a) * m.v * dt; m.y += Math.sin(m.a) * m.v * dt - 10 * dt; if (Math.hypot(m.x - W2 / 2, m.y - H2 * 0.42) > W2 * 0.6) { m.x = W2 / 2; m.y = H2 * 0.42; } q.globalAlpha = 0.6; q.beginPath(); q.arc(m.x, m.y, m.r, 0, 7); q.fill(); }
+    q.globalAlpha = 1;
+    sxRaf = requestAnimationFrame(tick);
+  };
+  cancelAnimationFrame(sxRaf); sxRaf = requestAnimationFrame(tick);
 }
 /* ---------- 근원체 출현 컷인 ---------- */
 function bossCutIn() {
@@ -5177,9 +5332,9 @@ function talk() {
 
 /* ---------- 처음 들어가는 메뉴마다 도움말 (한 번만, 오른쪽 위 ? 로 다시 보기) ---------- */
 const HELP = {
-  hero: ['요원', ['<b>요원 관리</b>: 요원을 누르면 상세 화면에서 레벨업과 승급을 해요. 레벨업은 경험치, 승급은 조각을 써요.', '<b>편성</b>: 요원을 눌러 출전시키거나 빼요. 출전 칸은 구역이 오를수록 늘어나요.', '<b>도감</b>: 모은 요원을 한눈에 봐요.', '카드 아래 막대가 가득 차면 <b>승급</b>할 수 있어요. 일괄 승급으로 한 번에 해요.']],
-  train: ['성장', ['골드로 수사팀 전체를 강화해요. 출전한 요원 모두에게 적용돼요.', '<b>사격 훈련</b>은 공격력, <b>현상금 협상</b>은 골드 획득, <b>급소 노리기</b>는 치명타 확률을 올려요.', '×1, ×10, 최대로 여러 번 한꺼번에 올릴 수 있어요.']],
-  run: ['작전', ['하루 3번씩 들어갈 수 있는 <b>일일 작전</b>이에요. 매일 0시에 다시 채워져요.', '<b>현상수배</b>는 골드, <b>단서 추적</b>은 호출권, <b>모의 훈련</b>은 경험치를 크게 줘요.', '한 번 깬 단계는 <b>소탕</b>으로 싸우지 않고 바로 보상을 받아요.', '<b>균열 심층</b>은 한 층씩 내려가며 보석을 모으는 도전이에요.']],
+  hero: ['요원', ['<b>요원 관리</b>: 요원을 누르면 상세 화면이 열려요. 레벨업에는 경험치, 승급에는 조각을 써요.', '<b>편성</b>: 요원을 눌러 출전시키거나 빼요. 출전 칸은 구역이 오를수록 늘어나요.', '<b>도감</b>: 모은 요원을 한눈에 봐요.', '카드 아래 막대가 가득 차면 <b>승급</b>할 수 있어요. 일괄 승급을 누르면 한꺼번에 승급해요.']],
+  train: ['성장', ['골드로 수사팀 전체를 강화해요. 출전한 요원 모두에게 적용돼요.', '<b>사격 훈련</b>은 공격력, <b>현상금 협상</b>은 골드 획득, <b>급소 노리기</b>는 치명타 확률을 올려요.', '×1, ×10, ×100을 고르면 한 번에 여러 레벨을 올려요.']],
+  run: ['작전', ['하루 3번씩 들어갈 수 있는 <b>일일 작전</b>이에요. 매일 0시에 다시 채워져요.', '<b>현상수배</b>는 골드, <b>단서 추적</b>은 호출권, <b>모의 훈련</b>은 경험치를 크게 줘요.', '클리어한 단계는 <b>소탕</b>으로 바로 보상을 받아요.', '<b>균열 심층</b>은 한 층씩 내려가며 보석을 모으는 도전이에요.']],
   summon: ['호출', ['<b>요원 호출</b>은 호출권으로 뽑아요. 많이 뽑을수록 호출 레벨이 올라 좋은 요원이 잘 나와요.', '<b>정예 호출</b>은 영웅 이상만 나와요.', '<b>특별 채용</b>에서는 한정 요원을 만날 수 있어요.']],
 };
 function helpOnce(key) {
@@ -5235,6 +5390,9 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.22.3', '11월 28일', ['임무 모두 받기', '요원 상세에서는 가운데 버튼이 뒤로 가기예요', '아래 메뉴 아이콘을 한 가지 모양으로 맞췄어요', '보급품과 구급상자 그림이 상점과 우편에 나와요', '성장 단계 이름을 수사력으로 바꿨어요']],
+  ['0.22.2', '11월 28일', ['요원 상세 화면을 새로 다듬었어요', '어색한 안내 문장을 고쳤어요']],
+  ['0.22.0', '11월 28일', ['요원 호출 연출을 새로 만들었어요: 균열이 열리고 요원 기록 파일이 날아와 뒤집혀요. 전설은 금빛 번개']],
   ['0.21.2', '11월 28일', ['근원체를 잡으면 근원체 처치 도장이 찍혀요']],
   ['0.21.1', '11월 28일', ['창과 메뉴 디자인을 새로 했어요: 금속 테두리, 경찰 배지 문장, 리본 제목, 빨간 닫기', '근원체가 나올 때 번개 섬광과 붉은 맥박', '보상 창에 빛이 쓸고 지나가요']],
   ['0.21.0', '11월 28일', ['상점: 일일 상점, 추천 패키지, 보석 충전 (현재 시험 결제)', '수사 패스', '광고 보상 자리: 골드 +10% 8시간 (현재 시험 광고)', '가이드 위 나침반(수사 수첩), 숙제 도우미(일일 작전 한꺼번에) 버튼']],

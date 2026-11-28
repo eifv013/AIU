@@ -642,7 +642,7 @@
   /** 소탕: 깬 최고 단계 보상을 싸우지 않고 바로 받음 (입장 1회) */
   function sweepDungeon(state, id) {
     const best = state.dbest[id] || 0;
-    if (best < 1) throw new RangeError('한 번 깬 단계부터 소탕할 수 있어요');
+    if (best < 1) throw new RangeError('첫 클리어 후 소탕할 수 있어요');
     return clearDungeon(state, id, best);
   }
   /** 균열 심층 다음 층 돌파 */

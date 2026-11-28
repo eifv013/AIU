@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.21.0';
+window.AIU_VER = '0.21.1';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1228,6 +1228,105 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 .hw-ck{flex:none;width:22px;height:22px;padding:0;border:2px solid #8a93ab;border-radius:4px;background:#0c111f}
 .hw-ck.on{background:var(--gold) center/14px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12l4 4 10-10' fill='none' stroke='%231d1606' stroke-width='3.5'/%3E%3C/svg%3E");border-color:var(--gold)}
 .hw-all{display:flex;align-items:center;justify-content:center;gap:8px;font:700 13px 'IBM Plex Sans KR'}
+
+/* =========================================================
+ * 누아르 메뉴 디자인 (0.21.1): 세나 키우기의 '장식 틀 + 리본 제목 + 문장 + 빨간 마름모 닫기' 구조를
+ * 비 오는 밤 수사물 느낌으로: 건메탈 테두리, 금색 선, 경찰 배지 문장, 사건 파일 모서리
+ * ========================================================= */
+:root{--frame:linear-gradient(160deg,#e4e8f0,#7c859b 22%,#2a3046 48%,#7a6a44 74%,#e0c88e);--gilt:#d2ab55;--body:#121826}
+#modal{background:radial-gradient(ellipse at 50% 40%,rgba(10,12,20,.6),rgba(3,4,8,.9))!important;backdrop-filter:blur(2px)}
+.mbox{position:relative;max-width:368px!important;padding:34px 16px 16px!important;border-radius:6px!important;border:2px solid transparent!important;
+  background:
+    linear-gradient(var(--gilt),var(--gilt)) 8px 8px/14px 1.5px no-repeat,linear-gradient(var(--gilt),var(--gilt)) 8px 8px/1.5px 14px no-repeat,
+    linear-gradient(var(--gilt),var(--gilt)) calc(100% - 8px) calc(100% - 8px)/14px 1.5px no-repeat,linear-gradient(var(--gilt),var(--gilt)) calc(100% - 8px) calc(100% - 8px)/1.5px 14px no-repeat,
+    repeating-linear-gradient(104deg,rgba(255,255,255,.018) 0 1px,transparent 1px 7px),
+    radial-gradient(ellipse at 50% 0%,#253050,var(--body) 62%) padding-box,
+    var(--frame) border-box!important;
+  box-shadow:0 18px 50px rgba(0,0,0,.85),inset 0 0 0 1px rgba(210,171,85,.18),inset 0 0 40px rgba(0,0,0,.5)!important;animation:mbIn .22s cubic-bezier(.2,.9,.3,1.15)}
+@keyframes mbIn{from{transform:scale(.92);opacity:0}}
+.mbox::before{content:'';position:absolute;left:50%;top:-28px;width:56px;height:56px;transform:translateX(-50%);background:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27s%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23f4f6fb%27/%3E%3Cstop%20offset%3D%27.5%27%20stop-color%3D%27%239aa3b8%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%234a5269%27/%3E%3C/linearGradient%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23fff0b8%27/%3E%3Cstop%20offset%3D%27.5%27%20stop-color%3D%27%23e2b44a%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%238a6214%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath%20d%3D%27M32%203l11%206%2012-1-1%2013%207%2011-7%2011%201%2013-12-1-11%206-11-6-12%201%201-13-7-11%207-11-1-13%2012%201z%27%20fill%3D%27url%28%23s%29%27%20stroke%3D%27%2311141d%27%20stroke-width%3D%272%27/%3E%3Cpath%20d%3D%27M32%2012l8%204%208%200-1%209%205%207-5%207%201%209-8%200-8%204-8-4-8%200%201-9-5-7%205-7-1-9%208%200z%27%20fill%3D%27%23151b2b%27/%3E%3Cpath%20d%3D%27M32%2019l3.6%207.4%208.1%201.2-5.9%205.7%201.4%208.1L32%2037.6l-7.2%203.8%201.4-8.1-5.9-5.7%208.1-1.2z%27%20fill%3D%27url%28%23g%29%27%20stroke%3D%27%233a2a08%27%20stroke-width%3D%271%27/%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(0 3px 6px rgba(0,0,0,.7))}
+.mbox .mx{position:absolute;right:-14px;top:-14px;z-index:3;width:38px;height:38px;padding:0;border:0;background:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.7))}
+.mbox .mx svg{width:100%;height:100%}
+.mbox h2{position:relative;margin:0 -16px 10px!important;padding:7px 40px;font:400 21px "Black Han Sans"!important;color:#f3e6c4!important;letter-spacing:.04em;text-shadow:0 2px 0 #000,0 0 12px rgba(210,171,85,.35);
+  background:linear-gradient(90deg,transparent,rgba(210,171,85,.14) 20%,rgba(210,171,85,.2) 50%,rgba(210,171,85,.14) 80%,transparent);border-top:1px solid rgba(210,171,85,.45);border-bottom:1px solid rgba(210,171,85,.45)}
+.mbox h2::before,.mbox h2::after{content:'◆ ◇';position:absolute;top:50%;transform:translateY(-50%);font-size:9px;letter-spacing:2px;color:var(--gilt)}
+.mbox h2::before{left:14px}.mbox h2::after{right:14px;content:'◇ ◆'}
+.mbox .hint,.mbox p{color:#9aa3b8}
+/* 칸(행)들: 금속 테 + 안쪽 빛 */
+.mrow,.rd,.ml,.hw,.cx,.setrow,.sh-it,.sh-gem,.att,.ps-st,.ps-c,.urow,.gw-c,.syn,.bk,.adbox,.pfw-s div{
+  background:linear-gradient(#232c46,#151b2c)!important;border:1px solid rgba(150,166,204,.3)!important;border-radius:6px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 -1px 0 rgba(0,0,0,.5),0 2px 4px rgba(0,0,0,.35)!important}
+.setrow{padding:10px 12px!important;margin-bottom:6px;border-top:1px solid rgba(150,166,204,.3)!important}
+.mrow.done,.rd.done,.ml.got,.cx.off{filter:grayscale(.6) brightness(.8)}
+.rd.ready,.mrow:has(button:not([disabled]):not(.ghost)),.ps-c.ready{border-color:rgba(242,201,76,.7)!important;box-shadow:inset 0 0 12px rgba(242,201,76,.18),0 2px 4px rgba(0,0,0,.35)!important}
+/* 제목 줄 (구역 제목): 가운데 정렬 + 양옆 금선 */
+.optg{display:flex;align-items:center;gap:8px;margin:14px 0 8px!important;font:400 14px "Black Han Sans"!important;color:#f3e6c4!important;letter-spacing:.05em}
+.optg::before,.optg::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(210,171,85,.6))}
+.optg::after{background:linear-gradient(90deg,rgba(210,171,85,.6),transparent)}
+/* 버튼: 금색은 도금 느낌, 보조는 건메탈 */
+.btn{border-radius:6px!important;background:linear-gradient(#fff0b0,#f2c14a 42%,#c8901c 100%)!important;color:#1d1606!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -2px 0 rgba(120,80,10,.7),0 2px 0 #2a1e06,0 3px 8px rgba(0,0,0,.45)!important;text-shadow:0 1px 0 rgba(255,255,255,.35)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn:disabled{background:linear-gradient(#4a5066,#2c3246)!important;color:#7c859b!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 2px 0 #0c0f18!important;text-shadow:none}
+.btn.ghost,.btn.blue{background:linear-gradient(#3c4766,#222a42)!important;color:#dfe5f3!important;box-shadow:inset 0 0 0 1px rgba(150,166,204,.45),inset 0 1px 0 rgba(255,255,255,.1),0 2px 0 #0c0f18!important;text-shadow:none}
+/* 탭 (세그먼트): 알약 모양, 고른 것은 금테 */
+.seg{border:1px solid rgba(150,166,204,.3)!important;border-radius:20px!important;background:rgba(8,11,20,.7);padding:3px;gap:3px;display:grid!important}
+.seg button{border:0!important;border-radius:16px!important;background:none!important;color:#8a93ab!important;height:30px!important}
+.seg button.on{background:linear-gradient(#26365e,#141c34)!important;color:#fff!important;box-shadow:inset 0 0 0 1.5px var(--gilt),0 0 8px rgba(210,171,85,.3)!important}
+/* 아래에서 올라오는 메뉴 창: 위쪽 장식 띠 + 배지 */
+#app:not(.folded):not(.herofull) #panel{border-top:0!important;border-radius:10px 10px 0 0!important;padding-top:22px!important;
+  background:repeating-linear-gradient(104deg,rgba(255,255,255,.015) 0 1px,transparent 1px 7px),radial-gradient(ellipse at 50% 0%,#222c48,#0f141f 60%)!important;
+  box-shadow:0 -2px 0 #7c859b,0 -3px 0 #1a1f2e,0 -4px 0 rgba(210,171,85,.7),0 -14px 30px rgba(0,0,0,.6)!important}
+#app:not(.folded):not(.herofull) #panel::before{content:'';position:sticky;display:block;top:-22px;margin:-22px auto 8px;width:120px;height:14px;
+  background:linear-gradient(90deg,transparent,var(--gilt) 30%,var(--gilt) 70%,transparent) center 6px/100% 1.5px no-repeat,url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27s%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23f4f6fb%27/%3E%3Cstop%20offset%3D%27.5%27%20stop-color%3D%27%239aa3b8%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%234a5269%27/%3E%3C/linearGradient%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%23fff0b8%27/%3E%3Cstop%20offset%3D%27.5%27%20stop-color%3D%27%23e2b44a%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%238a6214%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath%20d%3D%27M32%203l11%206%2012-1-1%2013%207%2011-7%2011%201%2013-12-1-11%206-11-6-12%201%201-13-7-11%207-11-1-13%2012%201z%27%20fill%3D%27url%28%23s%29%27%20stroke%3D%27%2311141d%27%20stroke-width%3D%272%27/%3E%3Cpath%20d%3D%27M32%2012l8%204%208%200-1%209%205%207-5%207%201%209-8%200-8%204-8-4-8%200%201-9-5-7%205-7-1-9%208%200z%27%20fill%3D%27%23151b2b%27/%3E%3Cpath%20d%3D%27M32%2019l3.6%207.4%208.1%201.2-5.9%205.7%201.4%208.1L32%2037.6l-7.2%203.8%201.4-8.1-5.9-5.7%208.1-1.2z%27%20fill%3D%27url%28%23g%29%27%20stroke%3D%27%233a2a08%27%20stroke-width%3D%271%27/%3E%3C/svg%3E") center/14px no-repeat}
+/* 보상 칸: 사건 증거물 태그 느낌의 테 */
+.rs-it,.rd-r{border-color:#b9c4de!important;background:radial-gradient(circle at 50% 30%,#3a4e86,#18213e 75%)!important;box-shadow:inset 0 0 0 1px rgba(0,0,0,.6),0 0 10px rgba(120,160,255,.35)!important}
+
+/* =========== 연출 (0.21.1) =========== */
+/* 창 문장: 위에서 쿵 찍힘 */
+.mbox::before{animation:badgeIn .45s cubic-bezier(.3,1.7,.5,1) .05s both}
+@keyframes badgeIn{from{transform:translateX(-50%) scale(1.9) rotate(-25deg);opacity:0}}
+.mbox h2{animation:ribIn .4s ease-out .1s both}
+@keyframes ribIn{from{clip-path:inset(0 50% 0 50%)}to{clip-path:inset(0 0 0 0)}}
+/* 보상 띠: 빛이 한 번 쓸고 지나감, 보상 칸은 반짝 */
+.rs-band{overflow:hidden}
+.rs-band::after{content:'';position:absolute;top:0;bottom:0;width:40%;left:-40%;background:linear-gradient(100deg,transparent,rgba(255,246,216,.45),transparent);animation:sweep 1.1s ease-out .25s}
+@keyframes sweep{to{left:120%}}
+.rs-it{overflow:hidden}
+.rs-it::after{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%) -100% 0/250% 100% no-repeat;animation:tileShine 1.4s ease-out .5s both}
+@keyframes tileShine{to{background-position:200% 0}}
+#res.on .rs-band{animation:bandIn .35s cubic-bezier(.2,.9,.3,1.1)}
+@keyframes bandIn{from{transform:scaleY(0)}}
+/* 사건 종결 도장 */
+#clear{top:30%!important}
+#clear.on{animation:clIn 2.3s ease forwards!important}
+@keyframes clIn{0%{opacity:0}6%{opacity:1}85%{opacity:1}100%{opacity:0}}
+.cl-stamp{display:inline-grid!important;justify-items:center;padding:6px 22px 8px!important;border:4px double #e8352a;border-radius:6px;color:#ff4a3a!important;font:400 40px/1 "Black Han Sans"!important;letter-spacing:.08em;
+  text-shadow:none!important;transform:rotate(-8deg);background:rgba(14,4,4,.82);box-shadow:0 0 0 2px rgba(232,53,42,.25),0 0 30px rgba(232,53,42,.35);animation:stampIn .38s cubic-bezier(.25,1.6,.5,1) both}
+.cl-stamp small{font:700 11px 'Nanum Gothic Coding',monospace;letter-spacing:.35em;margin-bottom:2px;color:#ff8a7a}
+@keyframes stampIn{0%{transform:rotate(-8deg) scale(2.6);opacity:0}70%{transform:rotate(-8deg) scale(.94);opacity:1}100%{transform:rotate(-8deg) scale(1)}}
+.cl-ink{position:absolute;left:50%;top:30px;width:220px;height:110px;transform:translate(-50%,-30%);background:radial-gradient(circle at 30% 40%,rgba(232,53,42,.25) 0 6px,transparent 7px),radial-gradient(circle at 78% 62%,rgba(232,53,42,.22) 0 4px,transparent 5px),radial-gradient(circle at 62% 20%,rgba(232,53,42,.2) 0 3px,transparent 4px);animation:inkIn .3s ease-out .25s both;pointer-events:none}
+@keyframes inkIn{from{opacity:0;transform:translate(-50%,-30%) scale(.4)}}
+.cl-st{display:block;margin-top:14px;font:700 13px 'IBM Plex Sans KR';font-style:normal;color:#e8ecf6;letter-spacing:.1em;text-shadow:0 1px 3px #000;animation:ribIn .4s ease-out .35s both}
+#clear div{animation:ribIn .45s ease-out .45s both}
+/* 화면 섬광 */
+#flashFx{position:fixed;inset:0;z-index:8;pointer-events:none;opacity:0;mix-blend-mode:screen}
+#flashFx.on{animation:flashA .35s ease-out}
+@keyframes flashA{0%{opacity:var(--fa,.4)}100%{opacity:0}}
+/* 근원체 출현: 붉은 테두리 맥박 */
+#bossin.on::before{content:'';position:fixed;inset:0;pointer-events:none;box-shadow:inset 0 0 120px rgba(255,30,30,.55);animation:redPulse 2.6s ease forwards}
+@keyframes redPulse{0%{opacity:0}10%{opacity:1}30%{opacity:.4}45%{opacity:.9}100%{opacity:0}}
+#bossin .bb::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px);pointer-events:none}
+/* 메뉴 창이 열릴 때 빛줄 */
+#app:not(.folded):not(.herofull) #panel{animation:sheetUp .25s cubic-bezier(.2,.9,.3,1.05)!important}
+/* 아래 메뉴: 누르면 통 튐 */
+#tabs button:active .tb{transform:scale(.9)}
+#tabs button.on .tb{animation:tabPop .3s cubic-bezier(.3,1.7,.5,1)}
+@keyframes tabPop{from{transform:scale(.8)}}
+/* 가이드 완료: 금빛이 쓸고 지나감 */
+#quest.done{overflow:hidden}
+#quest.done::after{content:'';position:absolute;top:0;bottom:0;width:30%;left:-30%;background:linear-gradient(100deg,transparent,rgba(255,240,180,.35),transparent);animation:sweep 1.6s ease-in-out infinite;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.mbox::before,.mbox h2,.rs-band::after,.rs-it::after,.cl-stamp,#flashFx.on,#quest.done::after{animation:none!important}}
 </style>
 </head>
 <body>
@@ -1342,6 +1441,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   <div id="res"></div>
   <div id="adTest"></div>
   <div id="clear"></div>
+  <div id="flashFx"></div>
   <div id="pwup"></div>
   <!-- 구역 근원체 첫 등장 이야기 (세나 키우기 보스 등장 대화처럼) -->
   <div id="story"><img id="stImg" alt=""><div class="st-box"><b id="stName"></b><p id="stLine"></p><i class="st-next">▼</i></div><button id="stSkip">SKIP ▸▸</button></div>
@@ -3592,7 +3692,7 @@ function doSummon(n, kind) {
 
 /* ---------- 모달 ---------- */
 function openModal(html, onClose) {
-  const m = $('modal'); m.innerHTML = `<div class="mbox">${html}</div>`; m.classList.add('on');
+  const m = $('modal'); m.innerHTML = `<div class="mbox"><button class="mx" data-close aria-label="닫기"><svg viewBox="0 0 40 40"><path d="M20 2L38 20 20 38 2 20z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.5" stroke-linejoin="round"/><path d="M14 14l12 12M26 14L14 26" stroke="#fff4e0" stroke-width="3.4" stroke-linecap="round"/></svg></button>${html}</div>`; m.classList.add('on');
   m.onclick = e => { const b = e.target.closest('[data-close]'); if (!b) return; m.classList.remove('on'); if (onClose) onClose(b.dataset.close); };
 }
 function showOffline(r) {
@@ -3860,9 +3960,10 @@ modalEl.addEventListener('click', e => {
 let clrT = 0;
 function stageClear(rw) {
   const el = $('clear');
-  el.innerHTML = `<b>스테이지 클리어</b><div>${Object.entries(rw).filter(([, v]) => v).map(([k, v]) => `<span>${icon({ gold: 'gold', gems: 'gem', exp: 'exp', tix: 'tix' }[k])}+${C.formatNum(v)}</span>`).join('')}</div>`;
+  el.innerHTML = `<i class="cl-ink"></i><b class="cl-stamp"><small>CASE CLOSED</small>사건 종결</b><em class="cl-st">${C.stageLabel(S.stage - 1 > 0 ? S.stage - 1 : S.stage)} 봉쇄 완료</em><div>${Object.entries(rw).filter(([, v]) => v).map(([k, v]) => `<span>${icon({ gold: 'gold', gems: 'gem', exp: 'exp', tix: 'tix' }[k])}+${C.formatNum(v)}</span>`).join('')}</div>`;
   el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
-  clearTimeout(clrT); clrT = setTimeout(() => el.classList.remove('on'), 2000);
+  clearTimeout(clrT); clrT = setTimeout(() => el.classList.remove('on'), 2300);
+  setTimeout(() => { shake(6); flash('#fff', 0.25); }, 180);   // 도장이 찍히는 순간
 }
 /** 수첩 항목이 막 열렸으면 알림 (세나 키우기 신규 컨텐츠 해금처럼) */
 function unlockCheck(prev) {
@@ -4134,11 +4235,18 @@ $('panel').addEventListener('click', e => {
   const ss = e.target.closest('[data-ss]'); if (ss) { sumSub = ss.dataset.ss; renderPanel(); $('panel').scrollTop = 0; return; }
   const b = e.target.closest('[data-shop],[data-pack],[data-gem]'); if (b && !b.disabled) shopAct(b);
 });
+
+/* ---------- 화면 섬광 (번개, 도장) ---------- */
+function flash(col, a) {
+  const el = $('flashFx'); el.style.background = col; el.style.setProperty('--fa', a);
+  el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+}
 /* ---------- 근원체 출현 컷인 ---------- */
 function bossCutIn() {
   const el = $('bossin'), t = theme(), img = ART['spr_boss' + (Math.floor((S.stage - 1) / 10) % 3 + 1)] || ART.spr_boss1;
   el.innerHTML = `<div class="bt">근원체 출현</div><div class="bb">${img ? `<img src="${img}" alt="">` : ''}<div class="bn"><b>${t.boss}</b><small>${t.name}</small></div></div>`;
   el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+  flash('#b48cff', 0.5); setTimeout(() => flash('#fff', 0.35), 140); shake(8);
   setTimeout(() => talk('boss'), 2500);
 }
 
@@ -4227,6 +4335,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.21.1', '11월 28일', ['창과 메뉴 디자인을 새로 했어요: 금속 테두리, 경찰 배지 문장, 리본 제목, 빨간 닫기', '근원체를 잡으면 사건 종결 도장이 찍혀요', '근원체가 나올 때 번개 섬광과 붉은 맥박', '보상 창에 빛이 쓸고 지나가요']],
   ['0.21.0', '11월 28일', ['상점: 일일 상점, 추천 패키지, 보석 충전 (현재 시험 결제)', '수사 패스', '광고 보상 자리: 골드 +10% 8시간 (현재 시험 광고)', '가이드 위 나침반(수사 수첩), 숙제 도우미(일일 작전 한꺼번에) 버튼']],
   ['0.20.1', '11월 28일', ['가이드를 누르면 해야 할 곳으로 바로 가요', '구급상자: 체력이 낮아지면 자동으로 팀을 회복해요 (설정 가능)', '편성 프리셋 3개 (오른쪽 아래 1, 2, 3)', '카메라: 화면이 따라갈 요원을 고를 수 있어요', '출석은 메뉴 버튼 아래에 따로 있어요', '알림 느낌표가 잘리던 것을 고쳤어요']],
   ['0.20.0', '11월 28일', ['아래 메뉴를 세나 키우기처럼 7칸으로: 요원, 성장, 호출, 가운데, 작전, 임무, 가방', '메뉴를 열면 가운데가 닫기 버튼으로 바뀌어요', '빈 출전 칸과 잠긴 칸이 방패 모양이에요', '배속 버튼을 없앴어요']],

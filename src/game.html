@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.37.4';
+window.AIU_VER = '0.37.5';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -2090,6 +2090,65 @@ html,body{overflow-x:hidden}
 .skr.on{background:linear-gradient(90deg,rgba(242,201,76,.22),rgba(242,201,76,.06));box-shadow:inset 0 0 0 1px rgba(242,201,76,.6)}
 .skr.lk{opacity:.5}
 .hp-desc em{font-style:normal;font-weight:700;color:#ffd27a}
+
+/* 보상 손맛 */
+.cfly{position:fixed;left:0;top:0;z-index:40;width:18px;height:18px;margin:-9px 0 0 -9px;pointer-events:none;filter:drop-shadow(0 0 4px rgba(255,210,90,.8))}.cfly .ic{width:18px;height:18px}
+.pill.bump{animation:gbump .22s ease-out}
+@keyframes gbump{0%{transform:scale(1)}40%{transform:scale(1.12);box-shadow:0 0 10px rgba(255,210,90,.6)}100%{transform:scale(1)}}
+#zoneIn{position:absolute;left:0;right:0;top:34%;z-index:6;pointer-events:none;display:grid;justify-items:center;gap:2px;padding:10px 0;opacity:0;background:linear-gradient(90deg,transparent,rgba(6,8,14,.82) 20%,rgba(6,8,14,.82) 80%,transparent);border-top:1px solid rgba(210,171,85,.45);border-bottom:1px solid rgba(210,171,85,.45)}
+#zoneIn em{font:400 15px "Black Han Sans";font-style:normal;color:var(--gold)}#zoneIn b{font:400 28px "Black Han Sans";color:#fff;text-shadow:0 2px 8px #000}
+#zoneIn.on{animation:zin 2.6s ease forwards}
+@keyframes zin{0%{opacity:0;transform:scaleY(.2)}12%{opacity:1;transform:scaleY(1)}80%{opacity:1}100%{opacity:0}}
+
+/* 세나 키우기처럼: 전투력 상승은 위쪽 얇은 띠 (전투 화면 가운데를 가리지 않게) */
+#pwup{top:calc(env(safe-area-inset-top) + 118px)!important;left:0!important;right:0!important;transform:none!important;padding:5px 0!important;border-radius:0!important;border:0!important;
+  background:linear-gradient(90deg,transparent,rgba(6,9,16,.86) 18%,rgba(6,9,16,.86) 82%,transparent)!important;text-align:center;font:400 14px "Black Han Sans"!important;color:#fff}
+#pwup em{color:#6ff09a!important;margin-left:2px!important}
+#pwup.hi{top:calc(env(safe-area-inset-top) + 46px)!important}
+@keyframes pwIn{0%{opacity:0}10%{opacity:1}80%{opacity:1}100%{opacity:0}}
+
+/* 세나 키우기 기술 설명 칸: 요원 그림 위 반투명, 아무 데나 누르면 닫힘 */
+#skTip{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:0 14px 140px}
+#skTip.on{display:flex;animation:tipIn .14s ease-out}
+@keyframes tipIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.skt{width:100%;max-width:440px;padding:12px 14px 14px;border:1px solid rgba(160,176,210,.55);background:rgba(24,29,42,.93);box-shadow:0 6px 24px rgba(0,0,0,.6);text-align:left}
+.skt-h{display:flex;align-items:center;gap:10px}
+.skt-ic{flex:none;width:46px;height:46px;display:grid;place-items:center;border:1px solid rgba(200,210,235,.5);background:#0d111b;overflow:hidden}
+.skt-ic img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}.skt-ic .ic{width:30px;height:30px}
+.skt-h div{flex:1;min-width:0}.skt-h small{display:block;font:600 12px 'IBM Plex Sans KR';color:#c9d3ee}.skt-h b{display:block;font:700 17px 'IBM Plex Sans KR';color:#fff}
+.skt-h span{display:flex;align-items:center;gap:4px;font:700 15px 'IBM Plex Sans KR';color:#e8ecf6;white-space:nowrap}.skt-h span .ic{width:18px;height:18px}.skt-h span b.on{color:#6ff09a}
+.skt p{margin:10px 0 0;font:600 13.5px/1.65 'IBM Plex Sans KR';color:#e8ecf6}
+.skt p em,.hp-desc em{font-style:normal;font-weight:700;color:#d4f25a}
+.skt p u,.hp-desc u{text-decoration:none;font-weight:700;color:#5fe08a}
+.skt hr{margin:12px 0 10px;border:0;border-top:2px dotted rgba(170,184,214,.35)}
+.skt-d{display:flex;align-items:center;gap:10px;margin-top:8px}.skt-d>.ic{flex:none;width:34px;height:34px}
+.skt-d b{display:block;font:700 14px 'IBM Plex Sans KR';color:#fff}.skt-d small{display:block;font:600 12px 'IBM Plex Sans KR';color:#c9d3ee}
+.skt-lk{color:#ffb07a!important}
+
+/* 아이템 개수 고르기 (세나 키우기 사용 창처럼) */
+.qty{display:flex;align-items:center;gap:8px;margin:14px 0 4px}
+.qty button{flex:none;width:34px;height:34px;border:1px solid #3b4870;border-radius:6px;background:#1a2036;font:700 20px/1 'IBM Plex Sans KR';color:#fff}
+.qty input{flex:1;accent-color:#7ae6d8;height:24px}
+.qty-n{margin:0;text-align:center;font:700 13px 'IBM Plex Sans KR';color:var(--dim)}.qty-n b{font:400 17px "Black Han Sans";color:#fff}
+
+/* 전설 합류 연출 */
+#legRv{position:fixed;inset:0;z-index:69;display:none;overflow:hidden}
+#legRv.on{display:block;animation:lrIn .35s ease-out}
+@keyframes lrIn{from{opacity:0}to{opacity:1}}
+#legRv .lr-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(233,178,60,.35),rgba(10,8,4,.96) 70%)}
+#legRv .lr-art{position:absolute;left:50%;top:46%;width:auto;max-width:100%;height:78%;object-fit:contain;transform:translate(-50%,-50%);animation:lrArt 1s cubic-bezier(.2,.9,.3,1) both;filter:drop-shadow(0 0 24px rgba(255,210,122,.5))}
+@keyframes lrArt{from{opacity:0;transform:translate(-50%,-46%) scale(1.08)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+#legRv .lr-t{position:absolute;left:0;right:0;top:calc(env(safe-area-inset-top) + 40px);display:grid;justify-items:center;text-shadow:0 2px 8px #000}
+#legRv .lr-t em{font:400 18px "Black Han Sans";font-style:normal;color:#ff6a5a}#legRv .lr-t b{font:400 38px "Black Han Sans";color:#ffd27a}#legRv .lr-t small{font:700 13px 'IBM Plex Sans KR';color:#f3e6c4}
+#legRv .lr-h{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 28px);margin:0;text-align:center;font:600 13px 'IBM Plex Sans KR';color:#c9d3ee}
+
+#zoneIn{top:0!important;bottom:0;align-content:center;border:0!important;padding:0!important;background:radial-gradient(ellipse at 50% 45%,rgba(4,6,12,.55),rgba(4,6,12,.9) 75%)!important}
+#zoneIn b{font-size:34px!important;color:#eaf2ff!important;text-shadow:0 0 18px rgba(140,180,255,.8),0 2px 6px #000!important}
+#zoneIn em{font:600 14px 'IBM Plex Sans KR'!important;color:#c9d3ee!important}
+
+#legRv .lr-bg{background:radial-gradient(ellipse at 50% 45%,#2a1d08,#070604 72%)!important}
+#legRv .lr-art{width:100%!important;height:auto!important;max-height:74%;-webkit-mask-image:linear-gradient(transparent,#000 12%,#000 88%,transparent);mask-image:linear-gradient(transparent,#000 12%,#000 88%,transparent)}
+.sx-c.g-h .sx-front small{background:#7438b8!important}.sx-c.g-r .sx-front small{background:#2d5fae!important}
 </style>
 </head>
 <body>
@@ -3048,10 +3107,13 @@ function kill(e) {
     S.stage++; S.kills = 0; R.boss = null; S.farming = false; C.progress(S, 'boss', 1); C.addTickets(S, 0, 1); accXp(20);
     if (Math.random() < 0.35) dropCard(e.x, e.y - e.size * 1.3);   // 근원체를 잡으면 가끔 증거 카드
     addText(e.x, e.y - e.size, '+' + C.formatNum(gold), '#ffd23a', true);
+    coinFly(e.x, e.y - e.size * 0.5, 12);
+    if (S.stage % 10 === 1) setTimeout(zoneIn, 2500);   // 10스테이지마다 새 구역
     writeSave(); renderPanel(); unlockCheck(prevSt);
   } else {
     S.gold += C.killGold(S.stage, S.up.gold) * (C.adBuffOn(S, Date.now()) ? 1.1 : 1) * (SYN.gold || 1); S.exp += C.killExp(S.stage); C.progress(S, 'kill', 1); C.addTickets(S, 1); accXp(1);
     if (!S.farming && S.kills < C.CONST.WAVE_KILLS) S.kills++;
+    if (!R.chal) coinFly(e.x, e.y - e.size * 0.4, 2);
   }
   for (let i = 0; i < (e.boss ? 26 : 9); i++) { const a = Math.random() * 6.28, v = 20 + Math.random() * (e.boss ? 90 : 50);
     addFx({ k: 'mote', x: e.x + (Math.random() - 0.5) * e.size * 0.4, y: e.y - Math.random() * e.size * 0.9, vx: Math.cos(a) * v, vy: -30 - Math.random() * 60, r: 1.5 + Math.random() * (e.boss ? 4 : 2.5), life: 0.7 + Math.random() * 0.5 }); }
@@ -3059,6 +3121,45 @@ function kill(e) {
   addFx({ k: 'vanish', x: e.x, y: e.y, h: e.size * (e.boss ? 2.2 : 1.5), life: 0.7 });
   if (e.boss) { shake(9); addFx({ k: 'flash', life: 0.35 }); hitStop(0.22); } else hitStop(0.03);
   for (let i = 0; i < (e.boss ? 14 : 4); i++) addFx({ k: 'coin', x: e.x, y: e.y - e.size * 0.4, vx: (Math.random() - 0.5) * 120, vy: -110 - Math.random() * 100, floor: e.y, life: 0.9 });
+}
+/* ---------- 보상 손맛: 동전이 골드 칸으로 날아가고, 골드 칸이 튕기고, 새 구역에 들어가면 구역 이름 카드 ---------- */
+/** 지도 좌표 → 화면 좌표 (전투 캔버스 기준, 흔들림 제외) */
+function w2s(x, y) {
+  const rc = $('cv').getBoundingClientRect(), cy0 = R.boss ? 0.64 : 0.58, k = u * camZ * (1 + (R.zoom || 0));
+  return { x: rc.left + W / 2 + (x - R.cam.x) * k, y: rc.top + H * cy0 + (y - R.cam.y) * k };
+}
+let bumpT = 0;
+/** 골드 칸 살짝 튕김 (너무 자주면 떨려 보여서 0.12초에 한 번) */
+function goldBump() {
+  const now = performance.now(); if (now - bumpT < 120) return; bumpT = now;
+  const el = $('gold').parentElement; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
+}
+/** 동전 n개가 (x, y) 지도 위치에서 골드 칸으로 날아감 */
+function coinFly(x, y, n) {
+  if (sleeping || document.hidden) return;
+  const tgt = $('gold').parentElement.getBoundingClientRect(); if (!tgt.width) return;
+  const a = w2s(x, y), tx = tgt.left + 14, ty = tgt.top + tgt.height / 2;
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('i'); c.className = 'cfly'; c.innerHTML = icon('gold'); document.body.appendChild(c);
+    const sx = a.x + (Math.random() - 0.5) * 50, sy = a.y + (Math.random() - 0.5) * 30, mx = sx + (Math.random() - 0.5) * 120, my = sy - 40 - Math.random() * 60;
+    const an = c.animate([{ transform: `translate(${sx}px,${sy}px) scale(.6)`, opacity: 0 }, { transform: `translate(${mx}px,${my}px) scale(1.1)`, opacity: 1, offset: 0.3 },
+      { transform: `translate(${tx}px,${ty}px) scale(.7)`, opacity: 1 }], { duration: 650 + i * 45, delay: 200 + i * 35, easing: 'cubic-bezier(.5,0,.6,1)', fill: 'both' });
+    an.onfinish = () => { c.remove(); goldBump(); if (i % 3 === 0) sfx('coins', 0.18, 0.05, 1.1 + Math.random() * 0.2); };
+  }
+}
+/** 새 구역 진입 카드: 구역 번호와 이름 */
+function zoneIn(tries = 0) {
+  if (overlayBlocked() || $('modal').classList.contains('on')) { if (tries < 30) setTimeout(() => zoneIn(tries + 1), 500); return; }   // 다른 창이 닫히면 보여 줌
+  let el = $('zoneIn'); if (!el) { el = document.createElement('div'); el.id = 'zoneIn'; $('cv').parentElement.appendChild(el); }
+  el.innerHTML = `<b>${theme().name}</b><em>${Math.floor((S.stage - 1) / 10) + 1}구역</em>`;   // 세나 키우기: 화면이 어두워지고 가운데에 지역 이름
+  el.classList.remove('on'); void el.offsetWidth; el.classList.add('on'); sfx('whoosh', 0.5, 0.2);
+}
+/** 전투 중인 요원 머리 위에 레벨 업 표시 (같은 요원은 1초에 한 번) */
+const lvPopT = {};
+function lvPop(id) {
+  const r = R.heroes && R.heroes[id], now = performance.now(); if (!r || now - (lvPopT[id] || 0) < 1000) return; lvPopT[id] = now;
+  addText(r.x, r.y - HERO_SIZE * 1.25, 'LEVEL UP', '#7ae6d8', true);
+  addFx({ k: 'pillar', x: r.x, y: r.y, life: 0.7 }); sfx('levelup', 0.35, 0.6);
 }
 function bossFail(reason) {
   if (!R.boss) return;
@@ -3804,47 +3905,60 @@ const ICMAP = { sword: 's_atk', target: 's_crit', auto: 'b_auto', gear: 'side_se
 const icon = n => { const k = 'ic_' + (ICMAP[n] || n); return ART[k] ? `<img class="ic" src="${ART[k]}" alt="">` : `<svg class="ic"><use href="#i-${n}"/></svg>`; };
 /** 보상 글자: '보석 100', '경험치 300' 처럼 */
 function rwText(r) { const L = { gold: '골드', exp: '경험치', gems: '보석', tix: '호출권', ptix: '정예 호출권' }; return Object.entries(r).filter(([k, v]) => L[k] && v).map(([k, v]) => `${L[k]} ${C.formatNum(v)}`).join(', '); }
-/** 현재 별 기준 기술 재사용 시간 */
-const skCd = h => C.skillOf(h, (S.heroes[h.id] || {}).stars).cd;
-/** 기술 설명 (상세 창). k = 별을 반영한 기술 수치. 숫자는 강조색 */
+/** 기술 설명. k = 별을 반영한 기술 수치. 숫자는 연두색, 상태 이름은 초록색 (세나 키우기 기술 설명처럼) */
 function skillText(h, k) {
   k = k || h.skill;
-  const n = v => `<em>${v}</em>`, x = v => n(v + '배'), pc = v => n(Math.round(v * 100) + '%'), sec = v => n(v + '초');
+  const n = v => `<em>${v}</em>`, w = v => `<u>${v}</u>`, x = v => n(v + '배'), pc = v => n(Math.round(v * 100) + '%'), sec = v => n(v + '초');
   return {
     single: `적 하나에게 공격력의 ${x(k.mult)} 피해를 줘요.`,
     multi: `가까운 적을 ${n(k.hits + '번')} 연속으로 공격해요. 한 번에 공격력의 ${x(k.mult)} 피해를 줘요.`,
-    aoe: k.slow ? `주변의 모든 적에게 공격력의 ${x(k.mult)} 피해를 주고, ${sec(k.slow)} 동안 느리게 만들어요.`
-      : `목표와 그 주변 적에게 공격력의 ${x(k.mult)} 피해를 ${k.stun ? `주고, ${sec(k.stun)} 동안 기절시켜요.` : '줘요.'}`,
-    buff: `${sec(k.dur)} 동안 팀 공격력이 ${n('1.5배')}가 되고, 팀 체력을 최대 체력의 ${pc(k.heal)}만큼 회복해요.`,
-    mark: `체력이 가장 많은 적에게 공격력의 ${x(k.mult)} 피해를 주고 표식을 남겨요. ${sec(k.dur)} 동안 그 적이 받는 피해가 ${pc(k.amp)} 늘어나요.`,
-    exorcise: `근원체에게 공격력의 ${x(k.mult)} 피해를 줘요. 이상체에게는 ${x(k.low)} 피해를 주고, ${pc(k.kill)} 확률로 바로 처치해요.`,
-    shield: `적을 자기 쪽으로 끌어오고, 팀 전체에 ${sec(k.dur)} 동안 최대 체력의 ${pc(k.mult)}만큼 보호막을 씌워요.`,
-    cage: `가장 강한 적을 ${sec(k.dur)} 동안 가둬 움직이지 못하게 해요. 풀려날 때 공격력의 ${x(k.mult)} 피해를 줘요.`,
-    execute: `체력이 가장 낮은 적 ${n(k.hits + '명')}을 차례로 공격해 공격력의 ${x(k.mult)} 피해를 줘요. 체력이 ${pc(k.under)} 아래인 적은 바로 처치해요.`,
+    aoe: k.slow ? `주변의 모든 적에게 공격력의 ${x(k.mult)} 피해를 주고, ${sec(k.slow)} 동안 ${w('둔화')}를 걸어요.`
+      : `목표와 그 주변 적에게 공격력의 ${x(k.mult)} 피해를 ${k.stun ? `주고, ${sec(k.stun)} 동안 ${w('기절')}시켜요.` : '줘요.'}`,
+    buff: `${sec(k.dur)} 동안 팀에게 ${w('사기 진작')}을 걸고, 팀 체력을 최대 체력의 ${pc(k.heal)}만큼 회복해요.`,
+    mark: `체력이 가장 많은 적에게 공격력의 ${x(k.mult)} 피해를 주고, ${sec(k.dur)} 동안 ${w('표식')}을 남겨요.`,
+    exorcise: `근원체에게 공격력의 ${x(k.mult)} 피해를 줘요. 이상체에게는 ${x(k.low)} 피해를 주고, ${pc(k.kill)} 확률로 ${w('즉시 처치')}해요.`,
+    shield: `적을 자기 쪽으로 ${w('도발')}하고, 팀 전체에 ${sec(k.dur)} 동안 최대 체력의 ${pc(k.mult)}만큼 ${w('보호막')}을 씌워요.`,
+    cage: `가장 강한 적을 ${sec(k.dur)} 동안 ${w('격리')}해요. 풀려날 때 공격력의 ${x(k.mult)} 피해를 줘요.`,
+    execute: `체력이 가장 낮은 적 ${n(k.hits + '명')}을 차례로 공격해 공격력의 ${x(k.mult)} 피해를 줘요. 체력이 ${pc(k.under)} 아래인 적은 ${w('즉시 처치')}해요.`,
   }[k.kind] || '';
 }
-/** 기술 대상과 유형 (상세 창 칸) */
-const SK_TGT = { single: '적 하나', multi: '가까운 적', aoe: '범위', buff: '팀 전체', mark: '가장 강한 적', exorcise: '근원체 우선', shield: '팀 전체', cage: '가장 강한 적', execute: '약한 적' };
-const SK_TYPE = { single: '공격', multi: '공격', aoe: '공격', buff: '강화', mark: '약화', exorcise: '공격', shield: '보호', cage: '제어', execute: '공격' };
-/** 별 단계마다 커지는 대표 수치 한 줄 */
-function skillKey(k) {
-  if (k.kind === 'buff') return `회복 ${Math.round(k.heal * 100)}%`;
-  if (k.kind === 'shield') return `보호막 ${Math.round(k.mult * 100)}%`;
-  return `피해 ${k.mult}배`;
+/** 설명에 나온 상태 효과 풀이 (세나 키우기 기술 창 아래쪽 칸) */
+function skillDefs(k) {
+  const D = [];
+  if (k.stun) D.push(['s_cd', '기절', '움직이거나 공격할 수 없어요.']);
+  if (k.slow) D.push(['s_cd', '둔화', '이동 속도가 크게 줄어요.']);
+  if (k.kind === 'buff') D.push(['s_atk', '사기 진작', '팀 공격력 1.5배']);
+  if (k.kind === 'mark') D.push(['s_crit', '표식', `받는 피해 ${Math.round(k.amp * 100)}% 증가`]);
+  if (k.kind === 'shield') D.push(['s_hp', '보호막', '받는 피해를 먼저 막아 줘요.'], ['s_hp', '도발', '적이 이 요원을 먼저 노려요.']);
+  if (k.kind === 'cage') D.push(['s_cd', '격리', '움직이거나 공격할 수 없어요.']);
+  if (k.kind === 'exorcise' || k.kind === 'execute') D.push(['s_crit', '즉시 처치', '근원체에게는 걸리지 않아요.']);
+  return D;
 }
-/** 기술 상세 창 (세나 키우기 기술 정보처럼: 대상, 유형, 재사용, 현재 효과, 별 단계별 효과) */
+/** 별을 반영한 기술 재사용 시간 */
+const skCd = h => C.skillOf(h, (S.heroes[h.id] || {}).stars).cd;
+/** 세나 키우기 기술 정보처럼 요원 그림 위에 뜨는 반투명 설명 칸. 아무 데나 누르면 닫힘 */
+function tipOpen(html) {
+  let el = $('skTip'); if (!el) { el = document.createElement('div'); el.id = 'skTip'; document.body.appendChild(el); el.addEventListener('click', () => el.classList.remove('on')); }
+  el.innerHTML = `<div class="skt">${html}</div>`; el.classList.add('on'); sfx('ui', 0.4, 0.05);
+}
+function tipHead(ic, type, name, side) { return `<div class="skt-h"><i class="skt-ic">${ic}</i><div><small>${type}</small><b>${name}</b></div><span>${side}</span></div>`; }
+function tipDefs(D) { return D.length ? `<hr>${D.map(([ic, t, v]) => `<div class="skt-d">${icon(ic)}<div><b>${t}</b><small>${v}</small></div></div>`).join('')}` : ''; }
+/** 요원 화면 이름 아래 한 줄: 누구를 먼저 노리는지 (세나 키우기 '[방어형] 키워드를 가진 대상을 우선 공격합니다'처럼) */
+function hpAim(h) {
+  const k = h.skill.kind;
+  if (k === 'exorcise') return '<u>근원체</u>를 우선 공격해요.';
+  if (k === 'execute') return '<u>체력이 낮은</u> 적을 우선 공격해요.';
+  if (k === 'mark' || k === 'cage') return '<u>체력이 많은</u> 적을 우선 노려요.';
+  if (h.range === 'aoe') return '적이 <u>많이 모인 곳</u>을 우선 공격해요.';
+  return h.range === 'melee' ? '<u>가장 가까운</u> 적에게 다가가 공격해요.' : '사거리 안의 <u>가장 가까운</u> 적을 공격해요.';
+}
+/** 기술 설명 칸 */
 function skillWin(h) {
-  const d = S.heroes[h.id] || {}, cur = d.owned ? d.stars || 1 : 1, k = C.skillOf(h, cur), top = C.maxStars(h.grade);
-  const atk = d.owned ? C.heroAtk(h.id, d.lv, d.stars, S.up.atk) : 0;
-  const rows = Array.from({ length: top }, (_, i) => i + 1).map(st => { const kk = C.skillOf(h, st);
-    return `<div class="skr${st === cur && d.owned ? ' on' : ''}${st > cur || !d.owned ? ' lk' : ''}"><span>${st >= C.AWAKE_STAR ? '각성' : '★' + st}</span><b>${skillKey(kk)}</b><small>${kk.cd !== h.skill.cd ? `재사용 ${kk.cd}초` : ''}</small></div>`; }).join('');
-  const est = d.owned && !['buff', 'shield'].includes(k.kind) ? `<div class="sk-est">현재 예상 피해 <b>${C.formatNum(atk * k.mult * (k.hits || 1))}</b></div>` : '';
-  return `<div class="sktip skw"><div class="sk-h"><img src="${ART['id_' + h.id] || portrait(h.id)}" alt=""><div><small>기술</small><b>${h.skill.name}</b></div></div>
-    <div class="sk-tags"><span><small>대상</small><b>${SK_TGT[k.kind] || '적'}</b></span><span><small>유형</small><b>${SK_TYPE[k.kind] || '공격'}</b></span><span><small>재사용</small><b>${k.cd}초</b></span></div>
-    <p>${skillText(h, k)}</p>${est}
-    <h4 class="sk-st">승급 효과</h4><div class="sk-rows">${rows}</div>
-    <p class="hint">별이 오를수록 기술이 강해져요${top >= C.AWAKE_STAR ? '. 각성하면 재사용 시간이 1초 줄어요' : ''}.</p>
-    <div class="mbtns"><button class="btn" data-close>확인</button></div></div>`;
+  const d = S.heroes[h.id] || {}, st = d.owned ? d.stars || 1 : 1, k = C.skillOf(h, st), awk = st >= C.AWAKE_STAR;
+  const g = C.skillGrow(st), next = st < C.maxStars(h.grade) ? C.skillGrow(st + 1) : 0;
+  const D = skillDefs(k);
+  D.push(['s_power', '승급 효과', `현재 ${awk ? '각성' : '★' + st} 기술 수치 ${Math.round(g * 100)}%${next ? `, 다음 단계 ${Math.round(next * 100)}%` : ''}`]);
+  return tipHead(`<img src="${ART['id_' + h.id] || portrait(h.id)}" alt="">`, '액티브 기술', h.skill.name, `${icon('s_cd')}<b>${k.cd}초</b>`) + `<p>${skillText(h, k)}</p>` + tipDefs(D);
 }
 const starStr = n => starHtml(n);
 
@@ -4391,7 +4505,7 @@ function renderHeroPage() {
       <div class="hp-stars">${starHtml(hpAwk && h.grade === '전설' ? C.AWAKE_STAR : d.stars, 'span')}</div>
       <div class="hp-name"><b>${h.name}</b><div><span>Lv.<i id="hpLv"></i></span><span class="pw">${icon('s_power')}<i id="hpPw"></i></span></div></div>
     </div>
-    <div class="hp-desc">${skillText(h, C.skillOf(h, (S.heroes[id] || {}).stars))}</div>
+    <div class="hp-desc">${hpAim(h)}</div>
     ${d.owned ? `<div class="hp-stats"><span data-act="hpstat" data-k="atk">${icon('s_atk')}<b id="hpAtk"></b></span><span data-act="hpstat" data-k="hp">${icon('s_hp')}<b id="hpHp"></b></span><span data-act="hpstat" data-k="cd">${icon('s_cd')}<b>${skCd(h)}초</b></span></div>
     <div class="hp-btns">
       <button class="hp-b sm" data-act="${C.partyIds(S).includes(id) ? 'party' : 'hpjoin'}" data-h="${id}" id="hpParty"></button>
@@ -4465,7 +4579,7 @@ function onAct(e) {
     else if (act === 'hfilc') { const L = ['전체', ...C.TYPES]; hfil = L[(L.indexOf(hfil) + 1) % L.length]; renderPanel(); }   // 분류 버튼: 누를 때마다 다음 분류
     else if (act === 'hpnav') { hpageId = detId = b.dataset.h; hpAwk = false; renderHeroPage(); }
     else if (act === 'hpgo') { closeHeroPage(); closeHeroWin(); sumSub = subSel.summon = 'summon'; sumTop = 'agent'; sumBan = null; $('tabs').querySelector('[data-tab="summon"]').click(); }
-    else if (act === 'hpskill') openModal(skillWin(C.heroById(hpageId)));
+    else if (act === 'hpskill') tipOpen(skillWin(C.heroById(hpageId)));
     else if (act === 'hpbulk') { bulk = bulk === 1 ? 10 : bulk === 10 ? 0 : 1; fillHeroDetail(); }
     else if (act === 'hpjoin') {
       const id = b.dataset.h, r = C.toggleParty(S, id);
@@ -4989,10 +5103,11 @@ $('story').addEventListener('click', e => { if (e.target.id === 'stSkip') stEnd(
 
 /* ---------- 전투력 변화 표시 (레벨업, 승급) ---------- */
 let pwT = 0;
-function pwUp(before) {
-  sfx('levelup', 0.7, 0.2);
+function pwUp(before, quiet) {
+  if (!quiet) sfx('levelup', 0.7, 0.2);
   const now = teamPower(), d = now - before; if (d <= 0) return;
-  const el = $('pwup'); el.innerHTML = `전투력 ${C.formatNum(now)}<em>▲${C.formatNum(d)}</em>`;
+  const el = $('pwup'); el.innerHTML = `팀 전투력 ${C.formatNum(now)} <em>(▲${C.formatNum(d)})</em>`;
+  el.classList.toggle('hi', $('app').classList.contains('herofull') || $('app').classList.contains('hdopen'));
   el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
   clearTimeout(pwT); pwT = setTimeout(() => el.classList.remove('on'), 1700);
 }
@@ -5348,8 +5463,8 @@ function hpAct(act, b) {
   const id = hpageId, h = C.heroById(id), d = S.heroes[id];
   if (act === 'hpstats') openModal(`<h2>${h.name} 능력치</h2><div class="hstw">${statRowsHtml(id)}</div><p class="hint">항목을 누르면 설명을 볼 수 있어요.</p><div class="mbtns"><button class="btn" data-close>닫기</button></div>`);
   else if (act === 'hpstat') { const k = b.dataset.k; openModal(`<div class="sktip"><div class="sk-h">${C.STATS[k] ? stIc(k) : ''}<div><small>능력치</small><b>${(C.STATS[k] || {}).name || STAT_NAME[k]}</b></div></div><p>${STAT_DESC[k]}</p><div class="mbtns"><button class="btn" data-close>확인</button></div></div>`); }
-  else if (act === 'hpatk') openModal(`<div class="sktip"><div class="sk-h"><img src="${ART['id_' + id] || portrait(id)}" alt=""><div><small>일반 공격</small><b>${h.range === 'melee' ? '근접 공격' : '사격'}</b></div><span>${h.atkSpd.toFixed(1)}회/초</span></div><p>${h.range === 'melee' ? '가장 가까운 적에게 다가가 공격력의 100% 피해를 줘요.' : '사거리 안의 가장 가까운 적을 공격력의 100% 피해로 공격해요.'}</p><div class="mbtns"><button class="btn" data-close>확인</button></div></div>`);
-  else if (act === 'hppas') { const p = C.passiveOf(S, id); openModal(`<div class="sktip"><div class="sk-h">${stIc(p.stat)}<div><small>고유 능력</small><b>${p.name}</b></div><span>${p.on ? '열림' : '잠김'}</span></div><p>출전하면 팀 전체 ${C.STATS[p.stat].name} +${pct(p.v)}. 등급이 높을수록 효과가 커져요.</p>${p.on ? '' : `<p class="hint">스테이지 ${p.open} 달성 시 열려요</p>`}<div class="mbtns"><button class="btn" data-close>확인</button></div></div>`); }
+  else if (act === 'hpatk') tipOpen(tipHead(`<img src="${ART['id_' + id] || portrait(id)}" alt="">`, '일반 공격', h.range === 'melee' ? '근접 공격' : '사격', `${icon('s_atk')}<b>${h.atkSpd.toFixed(1)}회/초</b>`) + `<p>${h.range === 'melee' ? '가장 가까운 적에게 다가가 공격력의 <em>100%</em> 피해를 줘요.' : '사거리 안의 가장 가까운 적에게 공격력의 <em>100%</em> 피해를 줘요.'} 공격이 <u>치명타</u>로 들어가면 피해가 <em>2배</em>가 돼요.</p>` + tipDefs([['s_crit', '치명타', `현재 확률 ${Math.round(Math.min(0.75, C.critChance(S.up.crit)) * 100)}%`]]));
+  else if (act === 'hppas') { const p = C.passiveOf(S, id); tipOpen(tipHead(stIc(p.stat), '고유 능력', p.name, p.on ? '<b class="on">열림</b>' : '<b>잠김</b>') + `<p>출전하면 팀 전체 ${C.STATS[p.stat].name} <em>+${pct(p.v)}</em>. 등급이 높을수록 효과가 커져요.</p>` + (p.on ? '' : `<p class="skt-lk">스테이지 ${p.open} 달성 시 열려요.</p>`)); }
   else if (act === 'hplore') {
     const read = S.lore.includes(id);
     openModal(`<div class="lore"><div class="lore-h"><img src="${ART['id_' + id] || portrait(id)}" alt=""><div><small>${C.squadOf(id).name}</small><b>${h.name}</b></div></div><div class="lore-p">${(LORE[id] || '').split('\n\n').map(x => `<p>${x}</p>`).join('')}</div></div>
@@ -5414,10 +5529,14 @@ $('panel').addEventListener('click', e => {
   const b = e.target.closest('[data-bagi]'); if (!b) return;
   const it = Object.values(BAG_ITEMS).flatMap(f => f()).find(x => x[0] === b.dataset.bagi); if (!it) return;
   const [id, name, n, desc, kind, from] = it;
-  const btns = kind === 'use' ? `<button class="btn ghost" data-use="${id}" data-n="1">1개 사용</button><button class="btn" data-use="${id}" data-n="${n}">모두 사용</button>`
+  // 세나 키우기처럼 쓸 개수를 − 막대 + 로 고르고 '사용하기'
+  const btns = kind === 'use' ? `<button class="btn wide" data-use="${id}" data-n="${n}" id="useGo">사용하기</button>`
     : kind === 'summon' ? `<button class="btn ghost" data-close>닫기</button><button class="btn" data-baggo="summon">호출로 가기</button>`
     : `<button class="btn ghost" data-close>닫기</button><button class="btn" data-baggo="med">자동 사용 설정</button>`;
-  openModal(`<h2>${name}</h2><div class="bagd">${icon(id)}<div><b>보유 ${C.formatNum(n)}</b><p>${desc}</p>${from ? `<p class="bag-from">얻는 곳: ${from}</p>` : ''}</div></div><div class="mbtns">${btns}</div>`);
+  const qty = kind === 'use' && n > 0 ? `<div class="qty"><button data-qd="-1" aria-label="하나 빼기">−</button><input type="range" id="useN" min="1" max="${n}" value="${n}"><button data-qd="1" aria-label="하나 더하기">+</button></div><p class="qty-n"><b id="useV">${n}</b> / ${C.formatNum(n)}</p>` : '';
+  openModal(`<h2>${name}</h2><div class="bagd">${icon(id)}<div><b>보유 ${C.formatNum(n)}</b><p>${desc}</p>${from ? `<p class="bag-from">얻는 곳: ${from}</p>` : ''}</div></div>${qty}<div class="mbtns">${btns}</div>`);
+  const r = $('useN'); if (r) { const set = v => { v = Math.max(1, Math.min(n, v)); r.value = v; $('useV').textContent = v; $('useGo').dataset.n = v; }; r.addEventListener('input', () => set(+r.value));
+    modalEl.querySelectorAll('[data-qd]').forEach(q => q.addEventListener('click', () => set(+r.value + +q.dataset.qd))); }
 });
 modalEl.addEventListener('click', e => {
   const g = e.target.closest('[data-baggo]'); if (!g) return;
@@ -5964,7 +6083,7 @@ let sxState = null;
 function summonFx(ids, isNew, n, kind, msg) {
   const el = $('sfx'), hs = ids.map(id => C.heroById(id));
   const top = hs.some(h => h.grade === '전설') ? '전설' : hs.some(h => h.grade === '영웅') ? '영웅' : '희귀';
-  sxState = { n, kind, left: ids.length };
+  sxState = { n, kind, left: ids.length, ids, isNew };
   el.style.setProperty('--gc', GCOL[top]);
   // many: 30장은 5칸 6줄로 작게. fast: 연출 스킵이면 바로 앞면
   el.className = 'on g-' + ({ 희귀: 'r', 영웅: 'h', 전설: 'l' })[top] + (n === 1 ? ' one' : '') + (ids.length > 10 ? ' many' : '') + (sumSkip ? ' fast' : '') + (autoSum ? ' auto' : '');
@@ -5977,9 +6096,19 @@ function summonFx(ids, isNew, n, kind, msg) {
   sxRain();
   if (top === '전설') setTimeout(() => { flash('#ffd27a', 0.55); shake(8); }, 900);
   else setTimeout(() => flash(GCOL[top], 0.3), 900);
-  if (sumSkip) { $('sxCards').querySelectorAll('.sx-c.fd').forEach(c => { c.classList.remove('fd'); c.classList.add('flip'); }); sxState.left = 0; sxDone(); }
+  if (sumSkip) { $('sxCards').querySelectorAll('.sx-c.fd').forEach(c => { c.classList.remove('fd'); c.classList.add('flip'); }); sxState.left = 0; sxDone(); const li = hs.findIndex(h => h.grade === '전설'); if (li >= 0) setTimeout(() => legReveal(ids[li], isNew[li]), 500); }
   else if (n === 1) setTimeout(() => sxFlip($('sxCards').firstElementChild), 1100);
   else if (autoSum) setTimeout(() => { if (autoSum) $('sxAll').click(); }, 700 + ids.length * 20);   // 자동 호출: 깔리자마자 모두 열기
+}
+/** 전설 합류 연출: 세나 키우기처럼 큰 그림과 이름이 화면 가득 (자동 호출 중에는 생략). 누르거나 4초 뒤 닫힘 */
+let legT = 0;
+function legReveal(id, isNew) {
+  if (autoSum || !id) return;
+  const h = C.heroById(id); let el = $('legRv');
+  if (!el) { el = document.createElement('div'); el.id = 'legRv'; document.body.appendChild(el); el.addEventListener('click', () => { el.classList.remove('on'); clearTimeout(legT); }); }
+  el.innerHTML = `<div class="lr-bg"></div><img class="lr-art" src="${bigArt(id)}" alt=""><div class="lr-t">${isNew ? '<em>NEW!</em>' : ''}<b>${h.name}</b><small>전설 ${h.role}</small></div><p class="lr-h">터치하여 계속</p>`;
+  el.classList.remove('on'); void el.offsetWidth; el.classList.add('on'); sfx('reward', 0.8, 0.2);
+  clearTimeout(legT); legT = setTimeout(() => el.classList.remove('on'), 4000);
 }
 /** 다 열렸을 때: 아래 10회 / 닫기 / 30회. 자동 호출이 켜져 있으면 잠깐 보여 주고 같은 횟수로 다시 */
 let autoT = 0;
@@ -5996,7 +6125,7 @@ function sxFlip(c) {
   const leg = c.classList.contains('g-l');
   c.classList.remove('fd'); c.classList.add(leg ? 'charge' : 'flip'); sfx('card', 0.7, 0.03);
   if (leg) setTimeout(() => { sfx('cinehit', 0.8, 0.3); }, 600);
-  if (leg) setTimeout(() => { c.classList.remove('charge'); c.classList.add('flip'); flash('#ffd27a', 0.45); shake(6); }, 650);
+  if (leg) setTimeout(() => { c.classList.remove('charge'); c.classList.add('flip'); flash('#ffd27a', 0.45); shake(6); const i = +c.dataset.i; legReveal(sxState.ids[i], sxState.isNew[i]); }, 650);
   sxState.left--; if (sxState.left <= 0) sxDone();
 }
 $('sxCards').addEventListener('click', e => sxFlip(e.target.closest('.sx-c')));
@@ -6090,7 +6219,7 @@ function aiTick() {
   // 3단계: 성장
   if (AI.lv >= 3) {
     for (const h of owned()) { const d = S.heroes[h.id]; let need; while ((need = C.starNeed(d.stars, h.grade)) !== Infinity && d.shards >= need) { d.shards -= need; d.stars++; C.progress(S, 'star', 1); done.push(`${h.name} 승급`); } }
-    let n = 0; for (let k = 0; k < 200; k++) { const t = team().filter(h => S.heroes[h.id].lv < C.heroLvCap(S.heroes[h.id].stars)).map(h => [h, C.heroLvCost(S.heroes[h.id].lv)]).sort((a, b) => a[1] - b[1])[0]; if (!t || t[1] > S.exp) break; S.exp -= t[1]; S.heroes[t[0].id].lv++; C.progress(S, 'lvup', 1); n++; }
+    let n = 0; for (let k = 0; k < 200; k++) { const t = team().filter(h => S.heroes[h.id].lv < C.heroLvCap(S.heroes[h.id].stars)).map(h => [h, C.heroLvCost(S.heroes[h.id].lv)]).sort((a, b) => a[1] - b[1])[0]; if (!t || t[1] > S.exp) break; S.exp -= t[1]; S.heroes[t[0].id].lv++; C.progress(S, 'lvup', 1); n++; lvPop(t[0].id); }
     if (n) done.push(`요원 레벨업 ${n}회`);
     let u = 0; for (let k = 0; k < 200; k++) { const c = C.UPGRADES.map(x => [x.id, C.upCost(S, x.id, S.up[x.id])]).sort((a, b) => a[1] - b[1])[0]; if (c[1] > S.gold) break; S.gold -= c[1]; S.up[c[0]]++; C.progress(S, 'train', 1); u++; }
     if (u) done.push(`수사력 강화 ${u}회`);
@@ -6101,8 +6230,7 @@ function aiTick() {
   if (!done.length) return;
   syncHeroes(false); writeSave(); renderPanel(); updateUI();
   const uniq = [...new Set(done)]; uniq.forEach(aiNote);
-  toast(`AI 모드: ${uniq[0]}${uniq.length > 1 ? ` 외 ${uniq.length - 1}건` : ''}`);
-  if (AI.pw) pwUp(pw0);
+  if (AI.pw) pwUp(pw0, true);   // 세나 키우기처럼 알림 창 없이 기록 탭에만 남기고, 전투력 상승만 위쪽 띠로
 }
 setInterval(aiTick, 6000);
 let aiTab = 'set';
@@ -6288,6 +6416,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.37.5', '11월 28일', ['기술, 일반 공격, 고유 능력을 누르면 요원 그림 위에 설명 칸이 떠요. 아무 데나 누르면 닫혀요', '기술 설명에 기절, 둔화, 표식 같은 효과 풀이가 함께 나와요', '요원 이름 아래에 누구를 먼저 노리는지 나와요', '전투력이 오르면 화면 위쪽 띠로 알려 줘요 (전투 화면을 가리지 않아요)', 'AI 모드 알림 창을 없앴어요. 한 일은 AI 모드 기록 탭에서 볼 수 있어요', '전설 요원이 나오면 큰 그림으로 합류를 보여 줘요', '새 구역에 들어가면 화면 가운데에 구역 이름이 나와요', '이상체를 처치하면 골드가 골드 칸으로 날아가요', '가방 보급품을 쓸 때 개수를 고를 수 있어요', '보상, 레벨업, 동전, 실패 효과음을 바꿨어요']],
   ['0.37.4', '11월 28일', ['성장 곡선을 다시 맞췄어요. 후반에도 스테이지가 막히지 않고 꾸준히 넘어가요', '기술을 누르면 대상, 유형, 재사용, 현재 예상 피해와 별 단계별 효과가 나와요', '별이 오를수록 기술 피해가 커져요 (★5 1.7배, 각성 2배)', '호출 결과 카드의 이름과 등급이 잘 보이게 바꿨어요', '알림 느낌표가 칸이나 글자에 가려지지 않게 옮겼어요']],
   ['0.37.3', '11월 28일', ['요원 레벨 고정 상한을 없앴어요. 후반 스테이지가 막히지 않게 레벨은 계속 올릴 수 있어요']],
   ['0.37.2', '11월 28일', ['요원 레벨 상한을 ★1 Lv.100부터 별마다 50씩으로 바꿨어요 (Lv.20은 너무 낮았어요)', '메뉴를 새로 열면 항상 첫 화면부터 보여요', '카메라를 축소해도 지도 바깥 검은 곳이 보이지 않아요', '가방 창이 내용만큼만 열려요', '그림이 아직 없는 요원은 임시 얼굴 대신 어두운 실루엣으로 나와요', '호출 결과 카드의 이름이 잘 보이게 바꿨어요']],

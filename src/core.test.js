@@ -610,3 +610,18 @@ test('새 콘텐츠: 특수 작전은 전투력이 닿는 단계까지 한 번�
 test('숫자 표기: 아주 큰 수도 단위로 짧게', () => {
   assert.equal(C.formatNum(1.2e15), '1.20aa'); assert.ok(C.formatNum(1e60).length <= 7);
 });
+test('새 콘텐츠: 하루가 지나면 후원, 특수 작전, 대련 횟수가 다시 채워짐 (숫자 시각도)', () => {
+  const t0 = new Date(2026, 10, 28, 12).getTime(), t1 = new Date(2026, 10, 29, 12).getTime(), s = C.newState(t0); s.stage = 400; s.gold = 1e40;
+  C.aidGive(s, 'gold', t0); C.aidGive(s, 'gold', t0); C.aidGive(s, 'gold', t0);
+  assert.throws(() => C.aidGive(s, 'gold', t0), /모두/);
+  assert.equal(C.aidLeft(s, t1), 3);
+  C.duelKeys(s, t0); s.sys.duel.keys = 0; assert.equal(C.duelKeys(s, t1), 5);
+});
+test('장비: 근원체에서 떨어지고, 더 좋은 등급은 바로 장착, 분해하면 골드', () => {
+  const s = C.newState(Date.now()); s.stage = 500; let r = 0; const rng = () => (r = (r * 9301 + 49297) % 233280) / 233280;
+  for (let i = 0; i < 30; i++) C.gearDrop(s, rng);
+  assert.ok(Object.keys(s.sys.gearEq).length > 0);
+  for (const g of C.GEAR) { const e = s.sys.gearEq[g.id]; if (e) assert.ok(s.sys.gearInv.filter(x => x.slot === g.id).every(x => x.grade <= e.grade)); }
+  const g0 = s.gold, got = C.gearScrap(s, 4); assert.ok(got.n > 0 && s.gold > g0 && s.sys.gearInv.length === 0);
+  const back = C.loadFromString(JSON.stringify(s)).state; assert.deepEqual(back.sys.gearEq, s.sys.gearEq);
+});

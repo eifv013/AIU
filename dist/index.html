@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.38.0';
+window.AIU_VER = '0.38.1';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -2178,6 +2178,10 @@ html,body{overflow-x:hidden}
 .sy-top{margin-bottom:6px}
 .sy-pick{grid-template-columns:repeat(4,minmax(0,1fr))!important}
 .sy-pk{display:grid;justify-items:center;gap:2px;padding:4px;border:2px solid var(--gc);border-radius:6px;background:#141a2b;color:#fff}.sy-pk img{width:100%;aspect-ratio:1;object-fit:cover;object-position:50% 20%;border-radius:4px}.sy-pk b{font:700 11px 'IBM Plex Sans KR'}.sy-pk small{font:600 9px 'IBM Plex Sans KR';color:var(--gc)}
+.sy-seg{display:grid!important;grid-template-columns:1fr 1fr;margin-bottom:8px}
+.sy-pi{display:grid;justify-items:center;gap:4px;padding:10px;border-radius:8px;border:2px solid var(--gc);background:#141a2b}.sy-pi>i{width:64px;height:64px;display:grid;place-items:center;border-radius:50%;background:#0c101b}.sy-pi>i .ic{width:40px;height:40px}
+.sy-pi b{font:400 16px "Black Han Sans";color:var(--gc)}.sy-pi p{margin:0;font:600 13px 'IBM Plex Sans KR';color:#e8ecf6}.sy-pi .sy-pv{color:#d4f25a;font-weight:700}.sy-pi .sy-pv i{font-style:normal;color:#8f9ab0}
+.sy-cd>i .sy-art,.sy-pi>i .sy-art{width:100%;height:100%;object-fit:contain}.sy-ic .sy-art{width:100%;height:100%;object-fit:contain}
 </style>
 </head>
 <body>
@@ -2200,6 +2204,7 @@ html,body{overflow-x:hidden}
     <linearGradient id="gX" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6ff0c8"/><stop offset="1" stop-color="#14a07a"/></linearGradient>
     <linearGradient id="gM" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bff4ff"/><stop offset=".5" stop-color="#46b6ff"/><stop offset="1" stop-color="#2346c9"/></linearGradient>
   </defs>
+  <symbol id="i-snack" viewBox="0 0 24 24"><path d="M6.5 8.2a2.6 2.6 0 1 1 3.4-3.1l4.2 4.2a2.6 2.6 0 1 1 3.1 3.4 2.6 2.6 0 1 1-3.4 3.1L9.6 11.6a2.6 2.6 0 1 1-3.1-3.4z" transform="rotate(10 12 12)" fill="#f1dcae" stroke="#8a6a32" stroke-width="1.2" stroke-linejoin="round"/><path d="M8 6.6a1.4 1.4 0 0 1 1.6-.4" stroke="#fff" stroke-width="1.1" fill="none" stroke-linecap="round"/></symbol>
   <symbol id="i-gold" viewBox="0 0 24 24"><circle cx="12" cy="13.3" r="9.6" fill="#7a4806"/><circle cx="12" cy="12" r="9.6" fill="url(#cG1)" stroke="#5a3504" stroke-width="1.1"/><circle cx="12" cy="12" r="6.9" fill="url(#cG2)" stroke="#a8690b" stroke-width="1.1"/><path d="M12 7.6l1.3 2.7 3 .4-2.2 2.1.5 3-2.6-1.4-2.6 1.4.5-3-2.2-2.1 3-.4z" fill="#fff6cf" stroke="#b37510" stroke-width=".7" stroke-linejoin="round"/><path d="M5.3 9.2A7.6 7.6 0 0 1 10.6 4.6" fill="none" stroke="#fffbe8" stroke-width="1.5" stroke-linecap="round"/></symbol>
   <symbol id="i-gem" viewBox="0 0 24 24"><path d="M7 3.5h10L21.6 9 12 21.6 2.4 9z" fill="#0c1a4a" transform="translate(0 .9)"/><path d="M7 3.5L9 9H2.4z" fill="#58c0ff"/><path d="M7 3.5h10L15 9H9z" fill="#c9f6ff"/><path d="M17 3.5L21.6 9H15z" fill="#2f82ea"/><path d="M2.4 9H9l3 12.6z" fill="#2a6fe0"/><path d="M9 9h6l-3 12.6z" fill="#6fb8ff"/><path d="M15 9h6.6L12 21.6z" fill="#1844b5"/><path d="M7 3.5h10L21.6 9 12 21.6 2.4 9z" fill="none" stroke="#0c1a4a" stroke-width="1.2" stroke-linejoin="round"/><path d="M5.6 4.2l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6z" fill="#fff"/></symbol>
   <symbol id="i-exp" viewBox="0 0 24 24"><path d="M12 3l8 4.6v9.2L12 21.4l-8-4.6V7.6z" fill="#06402c" transform="translate(0 1)"/><path d="M12 2l8 4.6v9.2L12 20.4l-8-4.6V6.6z" fill="url(#cX1)" stroke="#06402c" stroke-width="1.2" stroke-linejoin="round"/><path d="M12 2v9.2l8-4.6M12 11.2L4 6.6" fill="none" stroke="#dcfff3" stroke-width=".7" opacity=".55"/><path d="M8 12.6l4-3.6 4 3.6M8 16.2l4-3.6 4 3.6" fill="none" stroke="#06402c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 12.6l4-3.6 4 3.6M8 16.2l4-3.6 4 3.6" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -3264,6 +3269,7 @@ html,body{overflow-x:hidden}
     for (const k of Object.keys(ITEMS)) if (r[k]) state.bag[k] = (state.bag[k] || 0) + r[k];
     if (r.med) state.med = (state.med || 0) + clampInt(r.med, 0, 1e6, 0);   // 구급상자
     if (r.shard && state.heroes[r.shard]) state.heroes[r.shard].shards += clampInt(r.n, 0, 1e6, 0);   // 요원 조각
+    if (r.snack && state.sys) state.sys.snack += clampInt(r.snack, 0, 1e6, 0);   // 파트너 간식
     return r;
   }
   /** 일일 출동 성공 (입장 1회 씀, 처음 깬 단계면 최고 단계 올림). 상태를 직접 바꾸고 보상 반환 */
@@ -3951,6 +3957,8 @@ html,body{overflow-x:hidden}
    *  - 호출: 파트너, 유물 / 수사팀: 평판, 봉인 파편
    * 모든 상태는 state.sys 아래에 모아 두고, 능력치는 statBonus 출처로 합산
    * ===================================================================== */
+  /** 시스템 함수는 시각을 Date나 숫자(ms)로 받음 */
+  const toDate = n => n instanceof Date ? n : new Date(isNum(n) ? n : Date.now());
   const SYS_OPEN = { trait: 51, gear: 121, lab: 201, aid: 301, spec: 151, duel: 251, base: 101, hunt: 181, search: 261, pet: 401, relic: 301, rep: 1, seal: 301 };
   function sysOpen(state, k) { return (state.stage || 1) >= (SYS_OPEN[k] || 1); }
   /** 팀 전투력 (화면과 같은 공식) */
@@ -3998,8 +4006,41 @@ html,body{overflow-x:hidden}
     const c = gearCost(state, id); if (state.gold < c) throw new RangeError('골드가 부족해요');
     state.gold -= c; state.sys.gear[id] = (state.sys.gear[id] || 0) + 1; return c;
   }
-  /** 장비 효과: 레벨당 효과 + 등급마다 2배씩 (일반 1, 고급 2 ...) */
-  function gearVal(id, lv) { const g = GEAR.find(x => x.id === id); return g.per * lv * (1 + Math.floor(lv / 50)); }
+  /** 강화 효과 (칸 레벨). 장착한 장비 등급 배율은 gearBonus에서 곱함 */
+  function gearVal(id, lv) { const g = GEAR.find(x => x.id === id); return g.per * lv; }
+  /* 장비 아이템 (세븐나이츠 키우기 장비처럼): 근원체를 잡으면 가끔 떨어짐. 등급이 높을수록 강화 효과 배율과 추가 옵션이 큼
+   * 강화 레벨은 칸에 남아서 장비를 바꿔 껴도 그대로 */
+  const GEAR_GRADES = ['일반', '고급', '희귀', '영웅', '전설'], GEAR_MUL = [1, 1.5, 2.2, 3.2, 4.5], GEAR_OPT = ['atk', 'hp', 'crit', 'cdmg', 'boss', 'gold'];
+  const GEAR_OPT_V = { atk: 0.02, hp: 0.02, crit: 0.004, cdmg: 0.04, boss: 0.03, gold: 0.03 }, GEAR_INV_MAX = 40;
+  /** 떨어질 장비 등급: 스테이지가 높을수록 좋은 등급이 잘 나옴 */
+  function gearRollGrade(stage, rng) { const r = rng(), up = Math.min(0.5, stage / 2000); return r < 0.02 + up * 0.1 ? 4 : r < 0.08 + up * 0.3 ? 3 : r < 0.25 + up * 0.4 ? 2 : r < 0.6 ? 1 : 0; }
+  function gearDrop(state, rng = Math.random) {
+    if (!sysOpen(state, 'gear')) return null;
+    const slot = GEAR[Math.floor(rng() * GEAR.length)].id, grade = gearRollGrade(state.stage, rng), stat = GEAR_OPT[Math.floor(rng() * GEAR_OPT.length)];
+    const it = { u: (state.sys.gearN = (state.sys.gearN || 0) + 1), slot, grade, opt: stat, ov: Math.round(GEAR_OPT_V[stat] * (grade + 1) * (0.8 + rng() * 0.4) * 1000) / 1000 };
+    // 빈 칸이거나 더 좋은 등급이면 바로 장착 (예전 장비는 보관함으로)
+    const cur = gearEquipped(state, slot);
+    if (!cur || cur.grade < grade) { if (cur) state.sys.gearInv.push(cur); state.sys.gearEq[slot] = it; }
+    else state.sys.gearInv.push(it);
+    if (state.sys.gearInv.length > GEAR_INV_MAX) { const worst = state.sys.gearInv.sort((a, b) => a.grade - b.grade || a.ov - b.ov).shift(); gearScrapGold(state, worst); }
+    return it;
+  }
+  function gearEquipped(state, slot) { return state.sys.gearEq[slot] || null; }
+  function gearEquip(state, u) {
+    const i = state.sys.gearInv.findIndex(x => x.u === u); if (i < 0) throw new RangeError('보관함에 없는 장비예요');
+    const it = state.sys.gearInv.splice(i, 1)[0], cur = state.sys.gearEq[it.slot]; if (cur) state.sys.gearInv.push(cur); state.sys.gearEq[it.slot] = it; return it;
+  }
+  function gearScrapValue(state, it) { return Math.floor(killGold(state.stage, 0) * 30 * (it.grade + 1)); }
+  function gearScrapGold(state, it) { const g = gearScrapValue(state, it); state.gold += g; return g; }
+  /** 분해: 보관함 장비를 골드로 (등급 이하 모두) */
+  function gearScrap(state, maxGrade) { const keep = [], got = { n: 0, gold: 0 }; for (const it of state.sys.gearInv) { if (it.grade <= maxGrade) { got.gold += gearScrapGold(state, it); got.n++; } else keep.push(it); } state.sys.gearInv = keep; return got; }
+  /** 장비 칸 하나의 효과 (강화 × 등급 배율 + 추가 옵션) */
+  function gearSlotBonus(state, slot) {
+    const g = GEAR.find(x => x.id === slot), it = gearEquipped(state, slot), lv = state.sys.gear[slot] || 0, o = {};
+    o[g.stat] = it ? gearVal(slot, lv + 5) * GEAR_MUL[it.grade] : gearVal(slot, lv);   // 장비를 끼면 기본 효과(강화 5레벨만큼)가 붙고 등급 배율
+    if (it) o[it.opt] = (o[it.opt] || 0) + it.ov;
+    return o;
+  }
 
   /* ---------- 연구: 골드를 내고 정해진 시간이 지나면 완료 (한 번에 하나) ---------- */
   const LABS = [
@@ -4037,7 +4078,7 @@ html,body{overflow-x:hidden}
   const AID_DAY = 3;
   function aidNeed(lv) { return 100 + lv * 20; }
   function aidGoldCost(state) { return Math.floor(killGold(state.stage, 0) * 200); }
-  function aidLeft(state, now) { const k = dayKey(now); if (state.sys.aid.day !== k) { state.sys.aid.day = k; state.sys.aid.n = 0; } return AID_DAY - state.sys.aid.n; }
+  function aidLeft(state, now) { const k = dayKey(toDate(now)); if (state.sys.aid.day !== k) { state.sys.aid.day = k; state.sys.aid.n = 0; } return AID_DAY - state.sys.aid.n; }
   function aidGive(state, id, now) {
     const a = AID.find(x => x.id === id); if (!a) throw new Error('알 수 없는 후원');
     if (!sysOpen(state, 'aid')) throw new RangeError(`스테이지 ${SYS_OPEN.aid} 달성 시 열려요`);
@@ -4077,13 +4118,13 @@ html,body{overflow-x:hidden}
     { kind: 'dungeon', text: '일일 작전 {n}번 완료', n: 3,    rw: { gems: 30 }, rep: 15 },
   ];
   function huntReset(state, now) {
-    const k = dayKey(now); if (state.sys.hunt.day === k) return false;
+    const k = dayKey(toDate(now)); if (state.sys.hunt.day === k) return false;
     // 날짜로 고르는 다섯 개 (매일 바뀌지만 같은 날은 같음)
     let seed = [...k].reduce((a, c) => a * 31 + c.charCodeAt(0), 7) >>> 0; const pick = HUNTS.map((h, i) => [i, (seed = (seed * 1103515245 + 12345) >>> 0) % 1000]).sort((a, b) => a[1] - b[1]).slice(0, 5).map(x => x[0]).sort((a, b) => a - b);
     state.sys.hunt = { day: k, ids: pick, p: {}, got: [] }; return true;
   }
   function huntAdd(state, kind, n) { const H = state.sys && state.sys.hunt; if (!H || !H.ids) return; if (H.ids.some(i => HUNTS[i].kind === kind)) H.p[kind] = (H.p[kind] || 0) + n; }
-  function huntReward(state, i) { const h = HUNTS[i], r = { ...h.rw }; if ('exp' in r) r.exp = Math.floor(killExp(state.stage) * 600); if ('gold' in r) r.gold = Math.floor(killGold(state.stage, state.up.gold) * 600); return r; }
+  function huntReward(state, i) { const h = HUNTS[i], r = { ...h.rw, snack: 5 }; if ('exp' in r) r.exp = Math.floor(killExp(state.stage) * 600); if ('gold' in r) r.gold = Math.floor(killGold(state.stage, state.up.gold) * 600); return r; }
   function huntClaim(state, i, now) {
     huntReset(state, now); const H = state.sys.hunt, h = HUNTS[i];
     if (!h || !H.ids.includes(i)) throw new Error('알 수 없는 의뢰');
@@ -4107,9 +4148,10 @@ html,body{overflow-x:hidden}
   ];
   function searchReward(state, id, heroId) {
     const s = SEARCHES.find(x => x.id === id), g = { 희귀: 1, 영웅: 1.5, 전설: 2.2 }[heroById(heroId).grade] || 1;
-    if (s.rw === 'gold') return { gold: Math.floor(killGold(state.stage, state.up.gold) * 1200 * s.hours * g) };
-    if (s.rw === 'exp') return { exp: Math.floor(killExp(state.stage) * 900 * s.hours * g) };
-    return { gems: Math.floor(3 * s.hours * g), ptix: s.hours >= 8 ? 1 : 0 };
+    const sn = s.hours * 2;
+    if (s.rw === 'gold') return { gold: Math.floor(killGold(state.stage, state.up.gold) * 1200 * s.hours * g), snack: sn };
+    if (s.rw === 'exp') return { exp: Math.floor(killExp(state.stage) * 900 * s.hours * g), snack: sn };
+    return { gems: Math.floor(3 * s.hours * g), ptix: s.hours >= 8 ? 1 : 0, snack: sn };
   }
   function searchStart(state, id, heroId, now) {
     const s = SEARCHES.find(x => x.id === id); if (!s) throw new Error('알 수 없는 수색');
@@ -4135,12 +4177,31 @@ html,body{overflow-x:hidden}
   function specReq(state, lv) { return Math.floor(corePowerAt(lv * 5)); }   // n단계 = 스테이지 5n 근원체를 잡을 만한 전투력
   /** 스테이지 기준 표준 전투력 (적 체력에 맞춘 값) */
   function corePowerAt(stage) { return Math.floor(enemyHp(stage) * 3); }
-  function specKeys(state, now) { const k = dayKey(now); if (state.sys.spec.day !== k) { state.sys.spec.day = k; state.sys.spec.keys = { shard: SPEC_KEYS, elite: SPEC_KEYS }; } return state.sys.spec.keys; }
+  function specKeys(state, now) { const k = dayKey(toDate(now)); if (state.sys.spec.day !== k) { state.sys.spec.day = k; state.sys.spec.keys = { shard: SPEC_KEYS, elite: SPEC_KEYS }; } return state.sys.spec.keys; }
   function specReward(state, id, lv) {
     if (id === 'elite') return { ptix: 1 + Math.floor(lv / 25) };   // 정예 호출권은 과금 재화와 바로 이어져서 적게
     const owned = HEROES.filter(h => state.heroes[h.id] && state.heroes[h.id].owned);
     const pick = owned.length ? owned[(lv * 7 + state.stage) % owned.length].id : HEROES[0].id;
     return { shard: pick, n: 1 + Math.floor(lv / 20) };
+  }
+  /** 특수 작전 n단계 = 스테이지 5n+10 근원체 (실제 전투) */
+  function specStage(lv) { return 10 + 5 * clampInt(lv, 1, 1e5, 1); }
+  function specCheck(state, id, now) {
+    if (!SPECS.find(x => x.id === id)) throw new Error('알 수 없는 작전');
+    if (!sysOpen(state, 'spec')) throw new RangeError(`스테이지 ${SYS_OPEN.spec} 달성 시 열려요`);
+    if (specKeys(state, now)[id] <= 0) throw new RangeError('오늘 입장 횟수를 다 썼어요');
+  }
+  /** 전투에서 이겼을 때: 입장 1회 쓰고 그 단계 보상 */
+  function specClear(state, id, lv, now) {
+    specCheck(state, id, now); const L = clampInt(lv, 1, 1e5, 1);
+    if (L > (state.sys.spec.best[id] || 0) + 1) throw new RangeError('아직 열리지 않은 단계예요');
+    state.sys.spec.keys[id]--; state.sys.spec.best[id] = Math.max(state.sys.spec.best[id] || 0, L);
+    return giveReward(state, specReward(state, id, L));
+  }
+  /** 소탕: 깬 최고 단계 보상을 바로 (입장 1회) */
+  function specSweep(state, id, now) {
+    specCheck(state, id, now); const b = state.sys.spec.best[id] || 0; if (!b) throw new RangeError('한 번 깨야 소탕할 수 있어요');
+    state.sys.spec.keys[id]--; return giveReward(state, specReward(state, id, b));
   }
   function specRun(state, id, now) {
     if (!SPECS.find(x => x.id === id)) throw new Error('알 수 없는 작전');
@@ -4161,9 +4222,19 @@ html,body{overflow-x:hidden}
   const DUEL_KEYS = 5, DUEL_TIERS = [[0, '브론즈'], [1100, '실버'], [1300, '골드'], [1500, '플래티넘'], [1800, '다이아'], [2200, '마스터']];
   const DUEL_TEAMS = ['훈련 팀 알파', '훈련 팀 브라보', '훈련 팀 찰리', '훈련 팀 델타', '훈련 팀 에코'];
   function duelTier(score) { let t = DUEL_TIERS[0][1]; for (const [s, n] of DUEL_TIERS) if (score >= s) t = n; return t; }
-  function duelKeys(state, now) { const k = dayKey(now); if (state.sys.duel.day !== k) { state.sys.duel.day = k; state.sys.duel.keys = DUEL_KEYS; } return state.sys.duel.keys; }
+  function duelKeys(state, now) { const k = dayKey(toDate(now)); if (state.sys.duel.day !== k) { state.sys.duel.day = k; state.sys.duel.keys = DUEL_KEYS; } return state.sys.duel.keys; }
   /** 상대 세 팀: 내 전투력의 85%, 100%, 120% */
   function duelFoes(state) { const p = Math.max(1, corePower(state)), s = state.sys.duel.score; return [0.85, 1, 1.2].map((m, i) => ({ i, name: DUEL_TEAMS[(Math.floor(s / 50) + i) % DUEL_TEAMS.length], pw: Math.floor(p * m), pts: [10, 20, 35][i] })); }
+  /** 대련 상대의 전투력 → 같은 세기의 스테이지 (실제 전투에 씀) */
+  function duelStage(state, i) { const m = [0.85, 1, 1.2][i] || 1; return Math.max(1, (state.stage || 1) - 1 + Math.round(Math.log(m) / Math.log(1.1))); }   // 내가 깬 스테이지 기준으로 상대 세기
+  function duelCheck(state, now) { if (!sysOpen(state, 'duel')) throw new RangeError(`스테이지 ${SYS_OPEN.duel} 달성 시 열려요`); if (duelKeys(state, now) <= 0) throw new RangeError('오늘 대련 횟수를 다 썼어요'); }
+  /** 대련 결과 반영 (실제 전투 결과) */
+  function duelResult(state, i, win, now) {
+    duelCheck(state, now); const f = duelFoes(state)[i]; if (!f) throw new Error('알 수 없는 상대');
+    state.sys.duel.keys--; const d = state.sys.duel;
+    if (win) { d.score += f.pts; d.win++; } else d.score = Math.max(0, d.score - 8);
+    return { win, pts: win ? f.pts : -8, rw: win ? giveReward(state, { gems: 10 + i * 5 }) : null };
+  }
   function duelFight(state, i, now, rng = Math.random) {
     if (!sysOpen(state, 'duel')) throw new RangeError(`스테이지 ${SYS_OPEN.duel} 달성 시 열려요`);
     if (duelKeys(state, now) <= 0) throw new RangeError('오늘 대련 횟수를 다 썼어요');
@@ -4183,13 +4254,24 @@ html,body{overflow-x:hidden}
     { id: 'fox',   name: '은여우 미스트',   grade: '전설', stat: 'atk',  v: 0.20 },
     { id: 'wolf',  name: '늑대 하울',       grade: '전설', stat: 'boss', v: 0.25 },
   ];
-  const PET_RATE = { 희귀: 0.7, 영웅: 0.26, 전설: 0.04 }, PET_COST = 300, PET_MAX = 10;
-  function petVal(id, lv) { const p = PETS.find(x => x.id === id); return p.v * (1 + 0.15 * (lv - 1)); }
+  /* 세나 키우기 펫처럼: 간식으로 레벨(최대 100), 같은 파트너를 또 만나면 별(최대 5). 데리고 다니는 파트너는 전체 효과,
+   * 나머지 보유 파트너는 효과의 10%를 보유 효과로 */
+  const PET_RATE = { 희귀: 0.7, 영웅: 0.26, 전설: 0.04 }, PET_COST = 300, PET_MAX = 5, PET_LV_MAX = 100;
+  function petVal(id, st, lv = 1) { const p = PETS.find(x => x.id === id); return p.v * (1 + 0.25 * (st - 1)) * (1 + 0.02 * (lv - 1)); }
+  function petSnackNeed(lv) { return 5 + lv * 2; }
+  function petLevelUp(state, id, n = 1) {
+    const o = state.sys.pet.own[id]; if (!o) throw new RangeError('아직 없는 파트너예요');
+    let k = 0; while (k < n && o.plv < PET_LV_MAX && state.sys.snack >= petSnackNeed(o.plv)) { state.sys.snack -= petSnackNeed(o.plv); o.plv++; k++; }
+    if (!k) throw new RangeError(o.plv >= PET_LV_MAX ? '최대 레벨이에요' : '간식이 부족해요'); return k;
+  }
   function rollFrom(list, rate, rng) { const r = rng(); let acc = 0, g = '희귀'; for (const [k, v] of Object.entries(rate)) { acc += v; if (r < acc) { g = k; break; } } const pool = list.filter(x => x.grade === g); return pool[Math.floor(rng() * pool.length)]; }
   function petSummon(state, n, rng = Math.random) {
     if (!sysOpen(state, 'pet')) throw new RangeError(`스테이지 ${SYS_OPEN.pet} 달성 시 열려요`);
     if (!spendGems(state, PET_COST * n)) throw new RangeError('보석이 부족해요');
-    const out = []; for (let i = 0; i < n; i++) { const p = rollFrom(PETS, PET_RATE, rng), o = state.sys.pet.own[p.id]; if (o) o.lv = Math.min(PET_MAX, o.lv + 1); else state.sys.pet.own[p.id] = { lv: 1 }; out.push(p.id); if (!state.sys.pet.eq) state.sys.pet.eq = p.id; }
+    const out = []; for (let i = 0; i < n; i++) { const p = rollFrom(PETS, PET_RATE, rng), o = state.sys.pet.own[p.id];
+      if (o) { if (o.lv < PET_MAX) o.lv++; else state.sys.snack += 30; }   // 별이 다 차면 간식으로
+      else state.sys.pet.own[p.id] = { lv: 1, plv: 1 };
+      out.push(p.id); if (!state.sys.pet.eq) state.sys.pet.eq = p.id; }
     return out;
   }
   function petEquip(state, id) { if (!state.sys.pet.own[id]) throw new RangeError('아직 없는 파트너예요'); state.sys.pet.eq = id; }
@@ -4230,7 +4312,7 @@ html,body{overflow-x:hidden}
   }
 
   /** 새 상태 / 저장 불러오기 */
-  function newSys() { return { trait: {}, gear: {}, lab: { lv: {}, cur: null, end: 0 }, aid: { lv: 0, xp: 0, day: '', n: 0 }, food: { id: null, end: 0, ad: false },
+  function newSys() { return { snack: 0, gearInv: [], gearEq: {}, gearN: 0, trait: {}, gear: {}, lab: { lv: {}, cur: null, end: 0 }, aid: { lv: 0, xp: 0, day: '', n: 0 }, food: { id: null, end: 0, ad: false },
     hunt: { day: '', ids: [], p: {}, got: [] }, rep: 0, search: {}, spec: { day: '', keys: { shard: SPEC_KEYS, elite: SPEC_KEYS }, best: {} },
     duel: { day: '', keys: DUEL_KEYS, score: 1000, win: 0 }, pet: { own: {}, eq: null }, relic: {}, seal: {}, sealP: 0 }; }
   function sanitizeSys(raw) {
@@ -4246,8 +4328,14 @@ html,body{overflow-x:hidden}
     if (raw.search && typeof raw.search === 'object') for (const x of SEARCHES) { const v = raw.search[x.id]; if (v && HEROES.some(h => h.id === v.hero) && isNum(v.end)) s.search[x.id] = { hero: v.hero, end: v.end }; }
     if (raw.spec) { s.spec.day = String(raw.spec.day || ''); for (const x of SPECS) { if (raw.spec.keys && isNum(raw.spec.keys[x.id])) s.spec.keys[x.id] = clampInt(raw.spec.keys[x.id], 0, SPEC_KEYS, SPEC_KEYS); if (raw.spec.best && isNum(raw.spec.best[x.id])) s.spec.best[x.id] = clampInt(raw.spec.best[x.id], 0, 1e5, 0); } }
     if (raw.duel) s.duel = { day: String(raw.duel.day || ''), keys: clampInt(raw.duel.keys, 0, DUEL_KEYS, DUEL_KEYS), score: clampInt(raw.duel.score, 0, 1e6, 1000), win: clampInt(raw.duel.win, 0, 1e6, 0) };
-    if (raw.pet && raw.pet.own) { for (const p of PETS) { const o = raw.pet.own[p.id]; if (o && isNum(o.lv)) s.pet.own[p.id] = { lv: clampInt(o.lv, 1, PET_MAX, 1) }; } s.pet.eq = s.pet.own[raw.pet.eq] ? raw.pet.eq : null; }
+    if (raw.pet && raw.pet.own) { for (const p of PETS) { const o = raw.pet.own[p.id]; if (o && isNum(o.lv)) s.pet.own[p.id] = { lv: clampInt(o.lv, 1, PET_MAX, 1), plv: clampInt(o.plv, 1, PET_LV_MAX, 1) }; } s.pet.eq = s.pet.own[raw.pet.eq] ? raw.pet.eq : null; }
+    s.snack = clampInt(raw.snack, 0, 1e9, 0);
     s.sealP = clampInt(raw.sealP, 0, 1e9, 0);
+    const okIt = x => x && GEAR.some(g => g.id === x.slot) && isNum(x.grade) && GEAR_OPT.includes(x.opt) && isNum(x.ov) && isNum(x.u);
+    const fixIt = x => ({ u: clampInt(x.u, 1, 1e9, 1), slot: x.slot, grade: clampInt(x.grade, 0, 4, 0), opt: x.opt, ov: Math.min(1, Math.max(0, x.ov)) });
+    s.gearInv = Array.isArray(raw.gearInv) ? raw.gearInv.filter(okIt).map(fixIt).slice(0, GEAR_INV_MAX) : [];
+    if (raw.gearEq && typeof raw.gearEq === 'object') for (const g of GEAR) if (okIt(raw.gearEq[g.id]) && raw.gearEq[g.id].slot === g.id) s.gearEq[g.id] = fixIt(raw.gearEq[g.id]);
+    s.gearN = clampInt(raw.gearN, 0, 1e9, 0);
     return s;
   }
   /** 새 콘텐츠가 주는 능력치 (statBonus 출처) */
@@ -4255,12 +4343,12 @@ html,body{overflow-x:hidden}
     const o = { 특성: {}, 장비: {}, 연구: {}, 후원: {}, 아지트: {}, 평판: {}, 파트너: {}, 유물: {}, '봉인 파편': {} }, Y = state.sys; if (!Y) return o;
     const add = (g, k, v) => { if (v) g[k] = (g[k] || 0) + v; };
     for (const t of TRAITS) add(o.특성, t.stat, t.per * (Y.trait[t.id] || 0));
-    for (const g of GEAR) add(o.장비, g.stat, gearVal(g.id, Y.gear[g.id] || 0));
+    for (const g of GEAR) { const b = gearSlotBonus(state, g.id); for (const k in b) add(o.장비, k, b[k]); }
     for (const l of LABS) add(o.연구, l.stat, l.per * (Y.lab.lv[l.id] || 0));
     add(o.후원, 'atk', 0.02 * Y.aid.lv); add(o.후원, 'hp', 0.02 * Y.aid.lv);
     const f = foodOn(state, now); if (f) add(o.아지트, f.stat, f.v);
     add(o.평판, 'gold', 0.01 * repLv(state)); add(o.평판, 'atk', 0.01 * repLv(state));
-    if (Y.pet.eq && Y.pet.own[Y.pet.eq]) { const p = PETS.find(x => x.id === Y.pet.eq); add(o.파트너, p.stat, petVal(p.id, Y.pet.own[p.id].lv)); }
+    for (const p of PETS) { const w = Y.pet.own[p.id]; if (w) add(o.파트너, p.stat, petVal(p.id, w.lv, w.plv) * (Y.pet.eq === p.id ? 1 : 0.1)); }
     for (const r of RELICS) if (Y.relic[r.id]) add(o.유물, r.stat, relicVal(r.id, Y.relic[r.id]));
     for (const s of SEALS) add(o['봉인 파편'], s.stat, s.per * (Y.seal[s.id] || 0));
     return o;
@@ -4271,10 +4359,10 @@ html,body{overflow-x:hidden}
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
     AWAKE_STAR, AWAKE_NEED, maxStars, heroGrade, gemTotal, spendGems, FIRST_PAY, firstPayStart, firstPayReady, firstPayClaim, WEEKLY, MONTHLY, REPEAT, MPASS, MPASS_PRICE, misReset, misClaim, misReadyCount, repeatReady, mpassClaim, mpassReady, weekKey, monthKey, PASS, PASS_PRICE, passClaim, passReady, PASSES, pxVal, pxClaim, pxReady, pxBuy, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
-    SYS_OPEN, sysOpen, corePower, corePowerAt, TRAITS, traitPoints, traitSpent, traitLeft, traitUp, traitReset, GEAR, GEAR_TIER, gearTier, gearCost, gearUp, gearVal,
+    SYS_OPEN, sysOpen, corePower, corePowerAt, TRAITS, traitPoints, traitSpent, traitLeft, traitUp, traitReset, GEAR, GEAR_TIER, gearTier, GEAR_GRADES, GEAR_MUL, GEAR_INV_MAX, gearDrop, gearEquipped, gearEquip, gearScrap, gearScrapValue, gearSlotBonus, gearCost, gearUp, gearVal,
     LABS, labTime, labCost, labStart, labTick, labRushCost, labRush, AID, AID_DAY, aidNeed, aidGoldCost, aidLeft, aidGive, FOODS, FOOD_MS, foodOn, foodReady, foodEat,
-    HUNTS, huntReset, huntReward, huntClaim, REP_STEP, repLv, repTitle, SEARCHES, searchReward, searchStart, searchClaim, SPECS, SPEC_KEYS, specReq, specKeys, specReward, specRun,
-    DUEL_KEYS, DUEL_TIERS, duelTier, duelKeys, duelFoes, duelFight, PETS, PET_RATE, PET_COST, PET_MAX, petVal, petSummon, petEquip, RELICS, RELIC_RATE, RELIC_COST, RELIC_MAX, relicVal, relicSummon,
+    specStage, specCheck, specClear, specSweep, duelStage, duelCheck, duelResult, HUNTS, huntReset, huntReward, huntClaim, REP_STEP, repLv, repTitle, SEARCHES, searchReward, searchStart, searchClaim, SPECS, SPEC_KEYS, specReq, specKeys, specReward, specRun,
+    DUEL_KEYS, DUEL_TIERS, duelTier, duelKeys, duelFoes, duelFight, PETS, PET_RATE, PET_COST, PET_MAX, PET_LV_MAX, petVal, petSnackNeed, petLevelUp, petSummon, petEquip, RELICS, RELIC_RATE, RELIC_COST, RELIC_MAX, relicVal, relicSummon,
     SEALS, sealNeed, sealDrop, sealUp, newSys, sanitizeSys, sysBonus,
     skillGrow, skillOf, SKILL_GROW, heroLvCap, heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, upCap, upCost, tstepOf, tstepProg, tstepCost, tstepUp, TSTEP, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, summonMaxN, addTickets, shopItem, STREAK, streakClaim, GOLD_PACKS, goldPackCount, goldPackBuy, PLANS, planById, planLeft, planBuy, planClaim, levelReward, applySummon, pickupRemainSec, formatRemain,
@@ -4941,8 +5029,8 @@ function startChal(kind, id, lv) {
   if (R.chal) return toast('이미 작전 중이에요');
   if (R.boss) return toast('근원체 봉쇄가 끝난 뒤 작전을 시작할 수 있어요');
   if (!alive().length) return toast('요원이 회복한 뒤 작전을 시작할 수 있어요');
-  const eq = kind === 'tower' ? C.towerStage(lv) : C.dungeonStage(id, lv);
-  const name = kind === 'tower' ? `균열 심층 ${lv}층` : `${C.dungeonById(id).name} ${lv}단계`;
+  const eq = kind === 'tower' ? C.towerStage(lv) : kind === 'spec' ? C.specStage(lv) : kind === 'duel' ? C.duelStage(S, id) : C.dungeonStage(id, lv);
+  const name = kind === 'tower' ? `균열 심층 ${lv}층` : kind === 'spec' ? `${C.SPECS.find(x => x.id === id).name} ${lv}단계` : kind === 'duel' ? `모의 대련: ${C.duelFoes(S)[id].name}` : `${C.dungeonById(id).name} ${lv}단계`;
   R.chal = { kind, id, lv, eq, name };
   // 작전에 들어가면 메뉴 창을 내리고 전투 화면을 보여 줌 (세나 키우기처럼)
   $('app').classList.add('folded'); for (const x of $('tabs').children) x.classList.remove('on');
@@ -4954,7 +5042,7 @@ function startChal(kind, id, lv) {
   const a = R.heading, p = { x: R.A.x + Math.cos(a) * 200, y: R.A.y + Math.sin(a) * 200 }; keepIn(p, 120);
   const b = mkEnemy('boss', p.x, p.y, true);
   b.hp = b.max = C.chalHp(eq); b.atk = C.chalAtk(eq); b.home = { ...p }; b.wt = 0; b.aggro = true;
-  b.chap = kind === 'tower' ? 2 : id === 'bounty' ? 0 : id === 'training' ? 2 : 1; b.label = name;
+  b.chap = kind === 'tower' || kind === 'duel' ? 2 : kind === 'spec' ? 1 : id === 'bounty' ? 0 : id === 'training' ? 2 : 1; b.label = name;
   R.boss = b; R.enemies.push(b); R.bossT = C.CONST.CHAL_TIME;
   banner(name); updateUI();
 }
@@ -4976,15 +5064,17 @@ function chalEnd(win, reason) {
   R.enemies = R.enemies.filter(en => en !== R.boss); R.boss = null;
   let rw = null;
   try {
-    if (win) rw = ch.kind === 'tower' ? C.clearTower(S) : C.clearDungeon(S, ch.id, ch.lv);
+    if (ch.kind === 'duel') { const r = C.duelResult(S, ch.id, win, new Date()); rw = r.rw; ch.name = `${ch.name} ${win ? '승리' : '패배'} (${r.pts > 0 ? '+' : ''}${r.pts}점)`; }
+    else if (win) rw = ch.kind === 'tower' ? C.clearTower(S) : ch.kind === 'spec' ? C.specClear(S, ch.id, ch.lv, new Date()) : C.clearDungeon(S, ch.id, ch.lv);
+    if (rw && rw.shard) { toast(`${C.heroById(rw.shard).name} 조각 +${rw.n}`); rw = null; }
     if (win && ch.kind === 'tower') dropCard();   // 균열 심층 한 층 돌파마다 증거 카드 1장
-    if (win && ch.kind !== 'tower') dsel[ch.id] = S.dbest[ch.id] + 1;   // 깨면 다음 단계를 골라 둠
+    if (win && ch.kind !== 'tower' && ch.kind !== 'spec' && ch.kind !== 'duel') dsel[ch.id] = S.dbest[ch.id] + 1;   // 깨면 다음 단계를 골라 둠
   } catch (e) { toast(e.message); }
   // 결과 창 없이: 가운데 알림과 위쪽 보상 알림만 띄우고 잠깐 뒤 원래 스테이지로 (세나 키우기 던전처럼 흐름을 끊지 않음)
   const lbl = { gold: '골드', exp: '경험치', gems: '보석', tix: '호출권', ptix: '정예 호출권' };
   const got = rw ? Object.entries(rw).filter(([, v]) => v) : [];
   banner(win ? `${ch.name} 완료` : (reason || '작전 실패'));
-  toast(win ? `${ch.name} 완료  ${got.map(([k, v]) => `${lbl[k]} +${C.formatNum(v)}`).join('  ')}` : `${ch.name} 실패${ch.kind === 'tower' ? '' : '. 입장 횟수는 그대로예요'}`);
+  toast(ch.kind === 'duel' ? ch.name : win ? `${ch.name} 완료  ${got.map(([k, v]) => `${lbl[k]} +${C.formatNum(v)}`).join('  ')}` : `${ch.name} 실패${ch.kind === 'tower' ? '' : '. 입장 횟수는 그대로예요'}`);
   writeSave(); renderPanel();
   setTimeout(() => {
     R.chal = null; R.wipe = 0; restoreField(); renderPanel(); updateUI();
@@ -5042,7 +5132,8 @@ function kill(e) {
     const prevSt = S.stage;
     sfx('boom', 0.9, 0.5); fxPic('fx_fire', e.x, e.y - e.size * 0.5, e.size * 4, e.size * 4, 0.8, { grow: 0.6 }); fxPic('fx_light', e.x, e.y - e.size * 0.5, e.size * 5, e.size * 5, 0.5); setTimeout(() => fxPic('fx_gold', e.x, e.y - e.size * 0.6, e.size * 3.2, e.size * 3.2, 0.9, { grow: 0.5 }), 250); setTimeout(() => sfx('coins', 0.7, 0.3), 350);
     stageClear({ gold, gems: C.CONST.BOSS_GEMS, exp: C.bossExp(S.stage), med: 1 });
-    S.stage++; S.kills = 0; R.boss = null; S.farming = false; C.progress(S, 'boss', 1); C.sealDrop(S); C.addTickets(S, 0, 1); accXp(20);
+    S.stage++; S.kills = 0; R.boss = null; S.farming = false; C.progress(S, 'boss', 1); C.sealDrop(S);
+    if (Math.random() < 0.25) { const it = C.gearDrop(S); if (it) addText(e.x, e.y - e.size * 1.6, `${C.GEAR_GRADES[it.grade]} ${C.GEAR.find(x => x.id === it.slot).name}`, GG_COL[it.grade], true); }   // 장비 획득 C.addTickets(S, 0, 1); accXp(20);
     if (Math.random() < 0.35) dropCard(e.x, e.y - e.size * 1.3);   // 근원체를 잡으면 가끔 증거 카드
     addText(e.x, e.y - e.size, '+' + C.formatNum(gold), '#ffd23a', true);
     coinFly(e.x, e.y - e.size * 0.5, 12);
@@ -5842,7 +5933,7 @@ const APP_VERSION = window.AIU_VER;   // 버전은 로딩 화면이 아니라 �
 const ICMAP = { sword: 's_atk', target: 's_crit', auto: 'b_auto', gear: 'side_set', heart: 's_hp' };
 const icon = n => { const k = 'ic_' + (ICMAP[n] || n); return ART[k] ? `<img class="ic" src="${ART[k]}" alt="">` : `<svg class="ic"><use href="#i-${n}"/></svg>`; };
 /** 보상 글자: '보석 100', '경험치 300' 처럼 */
-function rwText(r) { const L = { gold: '골드', exp: '경험치', gems: '보석', tix: '호출권', ptix: '정예 호출권' }; return Object.entries(r).filter(([k, v]) => L[k] && v).map(([k, v]) => `${L[k]} ${C.formatNum(v)}`).join(', '); }
+function rwText(r) { const L = { gold: '골드', exp: '경험치', gems: '보석', tix: '호출권', ptix: '정예 호출권', snack: '간식' }; return Object.entries(r).filter(([k, v]) => L[k] && v).map(([k, v]) => `${L[k]} ${C.formatNum(v)}`).join(', '); }
 /** 기술 설명. k = 별을 반영한 기술 수치. 숫자는 연두색, 상태 이름은 초록색 (세나 키우기 기술 설명처럼) */
 function skillText(h, k) {
   k = k || h.skill;
@@ -6968,7 +7059,7 @@ function showResult(kind, title, body) {
 $('res').addEventListener('click', () => { $('res').classList.remove('on'); const d = resDone; resDone = null; d && d(); });
 /** 보상 칸 여러 개 (아이콘 + 수량) */
 function rwTiles(r) {
-  const I = { gold: 'gold', exp: 'exp', gems: 'gem', tix: 'tix', ptix: 'ptix', g2: 'g2', e2: 'e2', med: 'med' };
+  const I = { gold: 'gold', exp: 'exp', gems: 'gem', tix: 'tix', ptix: 'ptix', g2: 'g2', e2: 'e2', med: 'med', snack: 'snack' };
   const t = Object.entries(r).filter(([k, v]) => I[k] && v).map(([k, v], i) => `<div class="rs-it" style="animation-delay:${i * 0.08}s">${icon(I[k])}<span>${C.formatNum(v)}</span></div>`);
   if (r.shard) t.push(`<div class="rs-it"><img src="${portrait(r.shard)}" alt=""><span>조각 ${r.n}</span></div>`);
   return `<div class="rs-items">${t.join('')}</div>`;
@@ -8260,7 +8351,7 @@ new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) i
   };
   for (const k in NOIR) R.setProperty('--ui-' + k.replace('_', '-'), NOIR[k]); })();
 /* 검수용 (화면 확인 스크립트에서만 씀) */
-window.__aiu = { get R() { return R; }, fxPic, sfx, castSkill };
+window.__aiu = { get R() { return R; }, get S() { return S; }, C, fxPic, sfx, castSkill };
 /* ---------- 근원체 출현 컷인 ---------- */
 // 메뉴 창이나 요원 화면이 열려 있으면 전투 연출(출현, 처치 도장, 대사)을 그 위에 띄우지 않음
 function overlayBlocked() { const a = $('app'); return a.classList.contains('hdopen') || !a.classList.contains('folded'); }
@@ -8372,6 +8463,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.38.1', '11월 29일', ['특수 작전과 모의 대련이 실제 전투로 바뀌었어요. 특수 작전은 한 번 깨면 소탕할 수 있어요', '장비를 근원체에게서 얻어요. 일반부터 전설까지 등급과 추가 옵션이 있고, 보관함에서 바꿔 끼거나 분해할 수 있어요', '파트너를 간식으로 레벨업하고, 같은 파트너로 별을 올려요. 함께하지 않는 파트너도 보유 효과를 줘요', '간식은 현상 의뢰와 수색에서 받아요', '하루가 지나도 후원, 특수 작전, 대련 횟수가 채워지지 않던 문제를 고쳤어요']],
   ['0.38.0', '11월 28일', ['준비 중이던 메뉴가 모두 열렸어요', '수사력: 특성(스테이지 51), 장비(121), 연구(201), 후원(301)', '작전: 특수 작전(151), 모의 대련(251)', '임무: 아지트 심야 식당(101), 현상 의뢰(181), 수색(261)', '호출: 파트너(401), 유물(301). 요원 창 파트너 탭도 열려요', '수사팀: 평판, 봉인 파편(301)', '가방: 증거품', '구역이 12개로 늘고, 구역마다 이야기가 새로 생겼어요', '아주 큰 숫자도 짧은 단위(aa, ab...)로 보여요']],
   ['0.37.5', '11월 28일', ['기술, 일반 공격, 고유 능력을 누르면 요원 그림 위에 설명 칸이 떠요. 아무 데나 누르면 닫혀요', '기술 설명에 기절, 둔화, 표식 같은 효과 풀이가 함께 나와요', '요원 이름 아래에 누구를 먼저 노리는지 나와요', '전투력이 오르면 화면 위쪽 띠로 알려 줘요 (전투 화면을 가리지 않아요)', 'AI 모드 알림 창을 없앴어요. 한 일은 AI 모드 기록 탭에서 볼 수 있어요', '전설 요원이 나오면 큰 그림으로 합류를 보여 줘요', '새 구역에 들어가면 화면 가운데에 구역 이름이 나와요', '이상체를 처치하면 골드가 골드 칸으로 날아가요', '가방 보급품을 쓸 때 개수를 고를 수 있어요', '보상, 레벨업, 동전, 실패 효과음을 바꿨어요']],
   ['0.37.4', '11월 28일', ['성장 곡선을 다시 맞췄어요. 후반에도 스테이지가 막히지 않고 꾸준히 넘어가요', '기술을 누르면 대상, 유형, 재사용, 현재 예상 피해와 별 단계별 효과가 나와요', '별이 오를수록 기술 피해가 커져요 (★5 1.7배, 각성 2배)', '호출 결과 카드의 이름과 등급이 잘 보이게 바꿨어요', '알림 느낌표가 칸이나 글자에 가려지지 않게 옮겼어요']],
@@ -8493,6 +8585,8 @@ setInterval(() => { if (sleeping || !GQ.autoSleep || paused) return; idleT += 5;
  * ===================================================================== */
 const SYS_STAT = { atk: '공격력', hp: '체력', crit: '치명타 확률', cdmg: '치명타 피해', boss: '근원체 피해', gold: '골드 획득' };
 const sPct = v => pct(v);
+/** 그림이 들어오면 그림, 없으면 능력치 아이콘 (pet_crow.png, relic_umb.png, gear_wpn.png 처럼 이름만 맞추면 바로 바뀜) */
+const artIc = (key, stat) => ART[key] ? `<img class="ic sy-art" src="${ART[key]}" alt="">` : stIc(stat);
 const SY_GC = { 희귀: '#5f97e0', 영웅: '#b06cf0', 전설: '#e9b23c' };
 /** 줄 하나 */
 function syRow(ic, name, sub, eff, btn, cls = '') { return `<div class="sy-r ${cls}"><i class="sy-ic">${ic}</i><div class="sy-t"><b>${name}</b>${sub ? `<small>${sub}</small>` : ''}${eff ? `<em>${eff}</em>` : ''}</div>${btn || ''}</div>`; }
@@ -8511,12 +8605,24 @@ function traitHtml() {
         `<span class="sy-bs">${syBtn('trait', '+1', '', left <= 0 || lv >= t.max, `data-id="${t.id}" data-n="1"`)}${syBtn('trait', '+10', '', left <= 0 || lv >= t.max, `data-id="${t.id}" data-n="10"`)}</span>`); }).join('')}</div>
     <div class="sy-f"><button class="btn ghost" data-sy="traitreset" ${C.traitSpent(S) ? '' : 'disabled'}>초기화 <span class="cost">${icon('gem')}100</span></button></div>`;
 }
-/* ---------- 수사력: 장비 ---------- */
+/* ---------- 수사력: 장비 (세나 키우기 장비처럼: 근원체에게서 얻고, 등급과 추가 옵션이 있음) ---------- */
+const GG_COL = ['#9aa6c2', '#5bd08a', '#4aa3ff', '#b07cff', '#ffcf4a'];
+let gearView = 'eq';
+function gearItem(it) { const g = C.GEAR.find(x => x.id === it.slot); return `<i class="sy-tier" style="background:${GG_COL[it.grade]}">${C.GEAR_GRADES[it.grade]}</i>${g.name}`; }
 function gearHtml() {
   if (!C.sysOpen(S, 'gear')) return syLock('gear');
-  return syHead('장비', '', '팀 전체가 함께 쓰는 장비예요. 골드로 강화하고, 50레벨마다 등급이 올라 효과가 커져요.')
-    + `<div class="sy-l">${C.GEAR.map(g => { const lv = S.sys.gear[g.id] || 0, c = C.gearCost(S, g.id), tier = C.gearTier(lv);
-      return syRow(stIc(g.stat), `<i class="sy-tier t-${tier}">${tier}</i>${g.name}`, `Lv.${lv}`, `${SYS_STAT[g.stat]} +${sPct(C.gearVal(g.id, lv))} <i>» +${sPct(C.gearVal(g.id, lv + 1))}</i>`,
+  const inv = S.sys.gearInv;
+  const seg = `<div class="seg sy-seg"><button data-sy="gview" data-v="eq" class="${gearView === 'eq' ? 'on' : ''}">장착</button><button data-sy="gview" data-v="inv" class="${gearView === 'inv' ? 'on' : ''}">보관함 ${inv.length} / ${C.GEAR_INV_MAX}</button></div>`;
+  if (gearView === 'inv') {
+    const L = inv.slice().sort((a, b) => b.grade - a.grade || a.slot.localeCompare(b.slot));
+    return syHead('장비 보관함', '', '장착하면 지금 낀 장비는 보관함으로 들어가요. 강화 레벨은 칸에 남아서 그대로 이어져요.') + seg
+      + (L.length ? `<div class="sy-l">${L.map(it => { const cur = C.gearEquipped(S, it.slot), better = !cur || it.grade > cur.grade;
+        return syRow(artIc('gear_' + it.slot, C.GEAR.find(x => x.id === it.slot).stat), gearItem(it), `강화 효과 ×${C.GEAR_MUL[it.grade]}`, `추가 옵션 ${SYS_STAT[it.opt]} +${sPct(it.ov)}`, syBtn('gequip', '장착', '', false, `data-u="${it.u}"`), better ? 'ready' : ''); }).join('')}</div>` : '<p class="empty">보관함이 비어 있어요</p>')
+      + `<div class="sy-f two"><button class="btn ghost" data-sy="gscrap" data-g="1" ${inv.some(x => x.grade <= 1) ? '' : 'disabled'}>고급 이하 분해</button><button class="btn ghost" data-sy="gscrap" data-g="4" ${inv.length ? '' : 'disabled'}>모두 분해</button></div>`;
+  }
+  return syHead('장비', '', '근원체를 봉쇄하면 가끔 장비를 얻어요. 등급이 높을수록 강화 효과가 커지고 추가 옵션이 붙어요. 강화는 골드로 해요.') + seg
+    + `<div class="sy-l">${C.GEAR.map(g => { const lv = S.sys.gear[g.id] || 0, c = C.gearCost(S, g.id), it = C.gearEquipped(S, g.id), m = it ? C.GEAR_MUL[it.grade] : 1;
+      return syRow(artIc('gear_' + g.id, g.stat), it ? gearItem(it) : `<i class="sy-tier">없음</i>${g.name}`, `강화 Lv.${lv}${it ? `  추가 옵션 ${SYS_STAT[it.opt]} +${sPct(it.ov)}` : ''}`, `${SYS_STAT[g.stat]} +${sPct(C.gearVal(g.id, lv + (it ? 5 : 0)) * m)} <i>» +${sPct(C.gearVal(g.id, lv + (it ? 6 : 1)) * m)}</i>`,
         syBtn('gear', '강화', `${icon('gold')}${C.formatNum(c)}`, S.gold < c, `data-id="${g.id}"`)); }).join('')}</div>`;
 }
 /* ---------- 수사력: 연구 ---------- */
@@ -8545,8 +8651,8 @@ function specHtml() {
   return syHead('특수 작전', `현재 전투력 <b class="sy-pt">${C.formatNum(pw)}</b>`, '권장 전투력을 넘으면 다음 단계로 돌파해요. 넘지 못하면 지난 단계 보상을 받아요. 하루 두 번씩 들어갈 수 있어요.')
     + `<div class="sy-l">${C.SPECS.map(x => { const b = S.sys.spec.best[x.id] || 0, req = C.specReq(S, b + 1), rw = C.specReward(S, x.id, b + 1), ok = pw >= req;
       const rwt = rw.shard ? `${icon('shard')}조각 ${rw.n}` : `${icon('ptix')}${rw.ptix}`;
-      return syRow(rw.shard ? icon('shard') : icon('ptix'), `${x.name} <i class="sy-st">${b + 1}단계</i>`, `권장 전투력 <b class="${ok ? 'ok' : 'no'}">${C.formatNum(req)}</b>`, `${x.text}  보상 ${rwt}`,
-        syBtn('spec', '도전', `입장 ${keys[x.id]} / ${C.SPEC_KEYS}`, keys[x.id] <= 0, `data-id="${x.id}"`)); }).join('')}</div>`;
+      return syRow(rw.shard ? icon('shard') : icon('ptix'), `${x.name} <i class="sy-st">${b + 1}단계</i>`, `권장 전투력 <b class="${ok ? 'ok' : 'no'}">${C.formatNum(req)}</b>  입장 ${keys[x.id]} / ${C.SPEC_KEYS}`, `${x.text}  보상 ${rwt}`,
+        `<span class="sy-bs">${syBtn('specsw', '소탕', '', keys[x.id] <= 0 || !b, `data-id="${x.id}"`)}${syBtn('spec', '도전', '', keys[x.id] <= 0, `data-id="${x.id}"`)}</span>`); }).join('')}</div>`;
 }
 /* ---------- 작전: 모의 대련 ---------- */
 function duelHtml() {
@@ -8601,15 +8707,24 @@ function eviHtml() {
 function petBoxHtml() {
   if (!C.sysOpen(S, 'pet')) return syLock('pet');
   const P = S.sys.pet;
-  return syHead('파트너', `데리고 다니는 파트너 <b class="sy-pt">${P.eq ? C.PETS.find(x => x.id === P.eq).name : '없음'}</b>`, '파트너 하나를 데리고 다니면 효과를 받아요. 같은 파트너를 또 만나면 레벨이 올라요 (최대 10).')
-    + `<div class="sy-g">${C.PETS.map(p => { const o = P.own[p.id]; return `<button class="sy-cd ${o ? '' : 'off'} ${P.eq === p.id ? 'eq' : ''}" data-sy="petq" data-id="${p.id}" style="--gc:${SY_GC[p.grade]}"><i>${stIc(p.stat)}</i><b>${p.name}</b><small>${o ? `Lv.${o.lv}  ${SYS_STAT[p.stat]} +${sPct(C.petVal(p.id, o.lv))}` : `${p.grade}  미보유`}</small>${P.eq === p.id ? '<em>함께하는 중</em>' : ''}</button>`; }).join('')}</div>`
+  return syHead('파트너', `간식 <b class="sy-pt">${C.formatNum(S.sys.snack)}</b>`, '데리고 다니는 파트너는 효과를 모두 주고, 나머지 보유 파트너는 효과의 10%를 줘요. 간식으로 레벨을, 같은 파트너로 별을 올려요. 간식은 현상 의뢰와 수색에서 받아요.')
+    + `<div class="sy-g">${C.PETS.map(p => { const o = P.own[p.id]; return `<button class="sy-cd ${o ? '' : 'off'} ${P.eq === p.id ? 'eq' : ''}" data-sy="petinfo" data-id="${p.id}" style="--gc:${SY_GC[p.grade]}"><i>${artIc('pet_' + p.id, p.stat)}</i><b>${p.name}</b><small>${o ? `${'★'.repeat(o.lv)} Lv.${o.plv}<br>${SYS_STAT[p.stat]} +${sPct(C.petVal(p.id, o.lv, o.plv) * (P.eq === p.id ? 1 : 0.1))}` : `${p.grade}  미보유`}</small>${P.eq === p.id ? '<em>함께하는 중</em>' : ''}</button>`; }).join('')}</div>`
     + `<div class="sy-f two"><button class="btn" data-sy="petsum" data-n="1">1회 <span class="cost">${icon('gem')}${C.PET_COST}</span></button><button class="btn" data-sy="petsum" data-n="10">10회 <span class="cost">${icon('gem')}${C.formatNum(C.PET_COST * 10)}</span></button></div>
     <p class="hint">확률: 전설 ${pct(C.PET_RATE.전설)}, 영웅 ${pct(C.PET_RATE.영웅)}, 희귀 ${pct(C.PET_RATE.희귀)}</p>`;
+}
+/** 파트너 상세 (세나 키우기 펫 정보처럼: 레벨업, 함께하기) */
+function petInfoHtml(id) {
+  const p = C.PETS.find(x => x.id === id), o = S.sys.pet.own[id], eq = S.sys.pet.eq === id;
+  if (!o) return `<h2>${p.name}</h2><div class="sy-pi" style="--gc:${SY_GC[p.grade]}"><i>${artIc('pet_' + p.id, p.stat)}</i><b>${p.grade}</b><p>파트너 호출에서 만날 수 있어요.</p><p>데리고 다니면 ${SYS_STAT[p.stat]} +${sPct(p.v)}</p></div><div class="mbtns"><button class="btn" data-close>닫기</button></div>`;
+  const need = C.petSnackNeed(o.plv), now = C.petVal(id, o.lv, o.plv), nx = C.petVal(id, o.lv, o.plv + 1);
+  return `<h2>${p.name}</h2><div class="sy-pi" style="--gc:${SY_GC[p.grade]}"><i>${artIc('pet_' + p.id, p.stat)}</i><b>${p.grade}  ${'★'.repeat(o.lv)}${'☆'.repeat(C.PET_MAX - o.lv)}</b>
+    <p>Lv.${o.plv} / ${C.PET_LV_MAX}</p><p class="sy-pv">${SYS_STAT[p.stat]} +${sPct(now)}${o.plv < C.PET_LV_MAX ? ` <i>» +${sPct(nx)}</i>` : ''}</p><p class="hint">함께하지 않을 때는 이 효과의 10%만 받아요.</p></div>
+    <div class="mbtns"><button class="btn ghost" data-sy="petq" data-id="${id}" ${eq ? 'disabled' : ''}>${eq ? '함께하는 중' : '함께하기'}</button><button class="btn" data-sy="petlv" data-id="${id}" ${S.sys.snack >= need && o.plv < C.PET_LV_MAX ? '' : 'disabled'}>레벨업 <span class="cost">${icon('snack')}${need}</span></button></div>`;
 }
 function relicBoxHtml() {
   if (!C.sysOpen(S, 'relic')) return syLock('relic');
   return syHead('유물', '', '사건 현장에서 회수한 유물이에요. 모은 유물의 효과가 모두 쌓이고, 같은 유물을 또 얻으면 강해져요 (최대 10).')
-    + `<div class="sy-g">${C.RELICS.map(r => { const lv = S.sys.relic[r.id] || 0; return `<div class="sy-cd ${lv ? '' : 'off'}" style="--gc:${SY_GC[r.grade]}"><i>${stIc(r.stat)}</i><b>${r.name}</b><small>${lv ? `Lv.${lv}  ${SYS_STAT[r.stat]} +${sPct(C.relicVal(r.id, lv))}` : `${r.grade}  미보유`}</small></div>`; }).join('')}</div>`
+    + `<div class="sy-g">${C.RELICS.map(r => { const lv = S.sys.relic[r.id] || 0; return `<div class="sy-cd ${lv ? '' : 'off'}" style="--gc:${SY_GC[r.grade]}"><i>${artIc('relic_' + r.id, r.stat)}</i><b>${r.name}</b><small>${lv ? `Lv.${lv}  ${SYS_STAT[r.stat]} +${sPct(C.relicVal(r.id, lv))}` : `${r.grade}  미보유`}</small></div>`; }).join('')}</div>`
     + `<div class="sy-f two"><button class="btn" data-sy="relicsum" data-n="1">1회 <span class="cost">${icon('gem')}${C.RELIC_COST}</span></button><button class="btn" data-sy="relicsum" data-n="10">10회 <span class="cost">${icon('gem')}${C.formatNum(C.RELIC_COST * 10)}</span></button></div>
     <p class="hint">확률: 전설 ${pct(C.RELIC_RATE.전설)}, 영웅 ${pct(C.RELIC_RATE.영웅)}, 희귀 ${pct(C.RELIC_RATE.희귀)}</p>`;
 }
@@ -8634,6 +8749,9 @@ function syDo(b) {
     if (a === 'trait') { const pw0 = teamPower(); C.traitUp(S, id, +b.dataset.n); sfx('levelup', 0.4, 0.1); pwUp(pw0, true); }
     else if (a === 'traitreset') { if (!confirm('보석 100개로 특성을 초기화할까요? 쓴 포인트는 모두 돌려받아요.')) return; C.traitReset(S); }
     else if (a === 'gear') { const pw0 = teamPower(); C.gearUp(S, id); sfx('levelup', 0.4, 0.1); pwUp(pw0, true); }
+    else if (a === 'gview') { gearView = b.dataset.v; }
+    else if (a === 'gequip') { const pw0 = teamPower(); C.gearEquip(S, +b.dataset.u); sfx('button', 0.5, 0.1); pwUp(pw0, true); }
+    else if (a === 'gscrap') { const r = C.gearScrap(S, +b.dataset.g); sfx('coins', 0.6, 0.1); toast(`장비 ${r.n}개를 분해해서 골드 ${C.formatNum(r.gold)}을 받았어요`); }
     else if (a === 'lab') { C.labStart(S, id, now); sfx('button', 0.5, 0.1); }
     else if (a === 'labrush') { const pw0 = teamPower(); C.labRush(S, now); sfx('levelup', 0.6, 0.1); pwUp(pw0, true); }
     else if (a === 'aid') { const r = C.aidGive(S, id, now); sfx(r.up ? 'levelup' : 'coins', 0.6, 0.1); if (r.up) toast(`후원 레벨이 올랐어요 (Lv.${S.sys.aid.lv})`); }
@@ -8643,12 +8761,13 @@ function syDo(b) {
     else if (a === 'searchgo') { return openModal(searchPickHtml(id)); }
     else if (a === 'searchsend') { C.searchStart(S, id, b.dataset.h, now); modalEl.classList.remove('on'); sfx('whoosh', 0.5, 0.1); }
     else if (a === 'searchget') { const r = C.searchClaim(S, id, now); writeSave(); renderPanel(); return showResult('gift', '수색 보상', rwTiles(r)); }
-    else if (a === 'spec') { const r = C.specRun(S, id, now); writeSave(); renderPanel(); syncHeroes(false);
-      if (r.win) { sfx('reward', 0.6, 0.2); return r.rw.shard ? toast(`${r.lv}단계 돌파! ${C.heroById(r.rw.shard).name} 조각 ${r.rw.n}개`) : showResult('gift', `${r.lv}단계 돌파`, rwTiles(r.rw)); }
-      sfx('error', 0.5, 0.2); return toast(r.rw ? `전투력이 모자라 ${r.lv - 1}단계 보상을 받았어요` : `권장 전투력 ${C.formatNum(r.req)}이 필요해요`); }
-    else if (a === 'duel') { const r = C.duelFight(S, +b.dataset.i, now); writeSave(); renderPanel(); sfx(r.win ? 'reward' : 'error', 0.6, 0.2); return toast(r.win ? `승리! +${r.pts}점, 보석 ${r.rw.gems}` : `패배 ${r.pts}점`); }
+    else if (a === 'spec') { C.specCheck(S, id, new Date()); return startChal('spec', id, (S.sys.spec.best[id] || 0) + 1); }   // 실제 전투 (세나 키우기 특수 던전처럼)
+    else if (a === 'specsw') { const r = C.specSweep(S, id, new Date()); writeSave(); renderPanel(); syncHeroes(false); sfx('reward', 0.6, 0.2); return r.shard ? toast(`소탕 완료! ${C.heroById(r.shard).name} 조각 ${r.n}개`) : showResult('gift', '소탕 완료', rwTiles(r)); }
+    else if (a === 'duel') { C.duelCheck(S, new Date()); return startChal('duel', +b.dataset.i, 1); }   // 실제 전투
     else if (a === 'petsum') { const out = C.petSummon(S, +b.dataset.n); writeSave(); renderPanel(); sfx('reward', 0.6, 0.2); return toast(`${out.map(i => C.PETS.find(x => x.id === i).name).slice(0, 3).join(', ')}${out.length > 3 ? ` 외 ${out.length - 3}` : ''}`); }
-    else if (a === 'petq') { if (!S.sys.pet.own[id]) return; const pw0 = teamPower(); C.petEquip(S, id); pwUp(pw0, true); }
+    else if (a === 'petinfo') { return openModal(petInfoHtml(id)); }
+    else if (a === 'petq') { if (!S.sys.pet.own[id]) return; const pw0 = teamPower(); C.petEquip(S, id); pwUp(pw0, true); writeSave(); openModal(petInfoHtml(id)); }
+    else if (a === 'petlv') { const pw0 = teamPower(); C.petLevelUp(S, id, 1); sfx('levelup', 0.5, 0.1); pwUp(pw0, true); writeSave(); openModal(petInfoHtml(id)); }
     else if (a === 'relicsum') { const out = C.relicSummon(S, +b.dataset.n); writeSave(); renderPanel(); sfx('reward', 0.6, 0.2); return toast(`${out.map(i => C.RELICS.find(x => x.id === i).name).slice(0, 3).join(', ')}${out.length > 3 ? ` 외 ${out.length - 3}` : ''}`); }
     else if (a === 'seal') { const pw0 = teamPower(); C.sealUp(S, id); sfx('levelup', 0.5, 0.1); pwUp(pw0, true); }
     else if (a === 'tmback') { teamView = ''; }

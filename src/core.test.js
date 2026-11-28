@@ -500,3 +500,24 @@ test('대량 호출: 30회, 최대 호출, 범위 검사', () => {
   const g = C.newState(0); g.ptix = 0; g.gems = 950; assert.equal(C.summonMaxN(g, 'elite'), Math.floor(C.gemTotal(g) / 30));
   g.ptix = 7; assert.equal(C.summonMaxN(g, 'elite'), 7);
 });
+
+test('상점: 누적 구매일, 골드 충전, 정기권', () => {
+  const s = C.newState(0); s.gems = 5000;
+  const d1 = new Date('2026-11-28T10:00:00'), d2 = new Date('2026-11-29T10:00:00');
+  C.shopBuy(s, 'd_tix', d1); C.shopBuy(s, 'd_gold', d1); assert.equal(s.sk.n, 1);      // 같은 날 두 번 사도 1일
+  C.shopBuy(s, 'ad1', d2); assert.equal(s.sk.n, 1);                                   // 광고 상점은 세지 않음
+  C.shopBuy(s, 'd_tix', d2); assert.equal(s.sk.n, 2);
+  assert.ok(C.streakClaim(s, 0)); assert.equal(C.streakClaim(s, 0), null); assert.equal(C.streakClaim(s, 2), null);
+  const g0 = s.gold; C.goldPackBuy(s, 'mg0', d1); assert.equal(s.gold, g0 + 100000);
+  assert.throws(() => C.goldPackBuy(s, 'mg0', d2), RangeError);
+  assert.doesNotThrow(() => C.goldPackBuy(s, 'mg0', new Date('2026-12-01T10:00:00')));   // 다음 달 다시
+  assert.equal(C.planLeft(s, 'p_month', d1), 0); assert.equal(C.battleMods(s, d1).gold > 0, true);
+  const gold0 = C.battleMods(s, d1).gold;
+  C.planBuy(s, 'p_month', d1); assert.equal(C.planLeft(s, 'p_month', d1), 28);
+  assert.ok(Math.abs(C.battleMods(s, d1).gold - gold0 * 1.3) < 1e-9);
+  C.planBuy(s, 'p_month', d1); assert.equal(C.planLeft(s, 'p_month', d1), 56);          // 기간 합산
+  assert.ok(C.planClaim(s, 'p_month', d1)); assert.equal(C.planClaim(s, 'p_month', d1), null); assert.ok(C.planClaim(s, 'p_month', d2));
+  assert.equal(C.planClaim(s, 'w_sum', d1), null);
+  const back = C.loadFromString(JSON.stringify(s), 0).state;
+  assert.deepEqual(back.plans, s.plans); assert.deepEqual(back.sk, s.sk); assert.deepEqual(back.shopM, s.shopM);
+});

@@ -412,19 +412,37 @@
   const ITEMS = { g2: { name: '골드 보급품', sub: '2시간 사냥 골드', key: 'gold' }, e2: { name: '경험치 보급품', sub: '2시간 사냥 경험치', key: 'exp' } };
   /* ---------- 상점과 광고 자리 (결제, 광고는 출시 전에 실제 연결. 지금은 무료 상품과 광고 보상만 동작) ---------- */
   const SHOP = {
+    // 일일 상점 (세나 키우기 일일 상점): 9칸, 매일 0시 초기화. tag는 칸 왼쪽 위 띠
     daily: [
-      { id: 'free1', name: '일일 무료 보급', rw: { tix: 5 }, pay: 'free', lim: 1 },
-      { id: 'ad1', name: '광고 보고 보석', rw: { gems: 30 }, pay: 'ad', lim: 3 },
-      { id: 'ad2', name: '광고 보고 호출권', rw: { tix: 10 }, pay: 'ad', lim: 2 },
-      { id: 'gem1', name: '보급품 꾸러미', rw: { g2: 2, e2: 2 }, pay: 'gems', cost: 100, lim: 3 },
-      { id: 'gem2', name: '정예 호출권', rw: { ptix: 1 }, pay: 'gems', cost: 300, lim: 2 },
-      { id: 'gem3', name: '구급상자 묶음', rw: { med: 20 }, pay: 'gems', cost: 80, lim: 3 },
+      { id: 'free1', name: '일일 무료 패키지', rw: { tix: 5, gems: 20 }, pay: 'ad', lim: 1, tag: 'Event' },
+      { id: 'gem2', name: '일일 정예 호출권', rw: { ptix: 1 }, pay: 'gems', cost: 300, lim: 2, tag: 'Hot' },
+      { id: 'gem1', name: '일일 보급품 꾸러미', rw: { g2: 2, e2: 2 }, pay: 'gems', cost: 100, lim: 3, tag: 'Hot' },
+      { id: 'd_tix', name: '일일 호출권 상자', rw: { tix: 30 }, pay: 'gems', cost: 60, lim: 5 },
+      { id: 'd_gold', name: '일일 골드 주머니', rw: { gold: 50000 }, pay: 'gems', cost: 50, lim: 5 },
+      { id: 'd_exp', name: '일일 경험치 꾸러미', rw: { exp: 20000 }, pay: 'gems', cost: 50, lim: 5 },
+      { id: 'gem3', name: '일일 구급상자 묶음', rw: { med: 20 }, pay: 'gems', cost: 80, lim: 3 },
+      { id: 'd_g2', name: '일일 수사 장비', rw: { g2: 5 }, pay: 'gems', cost: 120, lim: 1 },
+      { id: 'd_e2', name: '일일 분석 키트', rw: { e2: 5 }, pay: 'gems', cost: 120, lim: 1 },
+    ],
+    // 상점 탭 일일 광고 상점: 광고 한 편에 한 번
+    ad: [
+      { id: 'ad1', name: '보석 30개', rw: { gems: 30 }, pay: 'ad', lim: 3 },
+      { id: 'ad2', name: '호출권 10장', rw: { tix: 10 }, pay: 'ad', lim: 2 },
+      { id: 'ad3', name: '구급상자 10개', rw: { med: 10 }, pay: 'ad', lim: 2 },
+      { id: 'ad4', name: '골드 3만', rw: { gold: 30000 }, pay: 'ad', lim: 2 },
+      { id: 'ad5', name: '경험치 1만', rw: { exp: 10000 }, pay: 'ad', lim: 2 },
+      { id: 'ad6', name: '수사 장비 2개', rw: { g2: 2 }, pay: 'ad', lim: 2 },
+    ],
+    // 상점 탭 보석 상점: 보석으로 사는 묶음 (매일 초기화)
+    gshop: [
+      { id: 'gs_tix', name: '호출권 100장', rw: { tix: 100 }, pay: 'gems', cost: 180, lim: 5, tag: 'Hot' },
+      { id: 'gs_ptix', name: '정예 호출권 10장', rw: { ptix: 10 }, pay: 'gems', cost: 2700, lim: 1 },
+      { id: 'gs_med', name: '구급상자 50개', rw: { med: 50 }, pay: 'gems', cost: 180, lim: 5 },
     ],
     packs: [
       { id: 'p_new', name: '신입 수사관 환영 패키지', sub: '한 번만 살 수 있어요', rw: { gems: 1000, ptix: 5, tix: 50 }, price: 1100, tag: '추천' },
       { id: 'p_lv', name: '호출 레벨 지원 패키지', sub: '호출권을 넉넉하게', rw: { tix: 300, gems: 500 }, price: 9900, tag: '인기' },
-      { id: 'p_month', name: '월정액 보급', sub: '30일 동안 매일 보석 100', rw: { gems: 300 }, price: 5500, tag: '월정액' },
-      { id: 'p_noad', name: '광고 제거', sub: '광고 없이 바로 보상', rw: {}, price: 7500, tag: '광고 제거' },
+      { id: 'p_ptix', name: '정예 호출 지원 패키지', sub: '정예 호출권을 한 번에', rw: { ptix: 30, gems: 1000 }, price: 14900, tag: 'Hot' },
     ],
     gems: [[60, 1200], [300, 5900], [650, 12000], [1350, 25000], [2800, 49000], [6000, 99000]],
   };
@@ -453,12 +471,58 @@
   function firstPayClaim(state, now) { const i = firstPayReady(state, now); if (i < 0) return null; state.fp.got.push(i); giveReward(state, FIRST_PAY[i]); return FIRST_PAY[i]; }
 
   /** 무료, 광고, 보석 상품 사기. 실제 돈 결제(packs, gems)는 여기서 하지 않음 */
+  const shopItem = id => SHOP.daily.find(x => x.id === id) || SHOP.ad.find(x => x.id === id) || SHOP.gshop.find(x => x.id === id);
   function shopBuy(state, id, now) {
-    const it = SHOP.daily.find(x => x.id === id); if (!it) throw new RangeError('살 수 없는 상품이에요');
+    const it = shopItem(id); if (!it) throw new RangeError('살 수 없는 상품이에요');
     if (shopCount(state, id, now) >= it.lim) throw new RangeError('오늘은 다 샀어요');
     if (it.pay === 'gems') spendGems(state, it.cost);
     state.shop.n[id] = (state.shop.n[id] || 0) + 1;
+    // 일일 상점에서 산 날은 누적 구매일 1일 (하루에 한 번만, 최대 7일)
+    if (SHOP.daily.includes(it)) { const k = dayKey(now); if (state.sk.day !== k && state.sk.n < STREAK.length) { state.sk.day = k; state.sk.n++; } }
     giveReward(state, it.rw); return it.rw;
+  }
+  /* ---------- 일일 상점 누적 구매일 보상 (세나 키우기 누적 구매일 1일차 ~ 7일차) ---------- */
+  const STREAK = [{ tix: 30 }, { gems: 200 }, { gems: 300 }, { ptix: 1 }, { gems: 400 }, { gems: 500 }, { ptix: 3 }];
+  /** i일차 보상 받기. 누적 구매일이 모자라거나 이미 받았으면 null */
+  function streakClaim(state, i) {
+    if (!Number.isInteger(i) || i < 0 || i >= STREAK.length || i >= state.sk.n || state.sk.got.includes(i)) return null;
+    state.sk.got.push(i); giveReward(state, STREAK[i]);
+    if (state.sk.got.length >= STREAK.length) state.sk = { n: 0, day: state.sk.day, got: [] };   // 7일차까지 받으면 처음부터
+    return STREAK[i];
+  }
+  /* ---------- 재화 탭 골드 충전: 보석으로 사는 월간 한정 골드 (한 달에 한 번씩) ---------- */
+  const GOLD_PACKS = [[100000, 15], [440000, 44], [990000, 99], [2900000, 290], [4900000, 490], [9900000, 990]].map(([gold, cost], i) => ({ id: 'mg' + i, gold, cost }));
+  function goldPackCount(state, id, now) { const m = monthKey(now); if (state.shopM.m !== m) state.shopM = { m, n: {} }; return state.shopM.n[id] || 0; }
+  function goldPackBuy(state, id, now) {
+    const pk = GOLD_PACKS.find(x => x.id === id); if (!pk) throw new RangeError('살 수 없는 상품이에요');
+    if (goldPackCount(state, id, now) >= 1) throw new RangeError('이번 달에는 다 샀어요');
+    spendGems(state, pk.cost); state.shopM.n[id] = 1; state.gold += pk.gold; return { gold: pk.gold };
+  }
+  /* ---------- 정기권 (세나 키우기 주간 정액, 월정액): 사면 바로 보상, 기간 동안 매일 보상. 다시 사면 기간이 더해짐 ---------- */
+  const PLANS = [
+    { id: 'w_sum', kind: 'week', name: '매일 호출권 주간 혜택', price: 25000, days: 7, now: { gems: 2500 }, daily: { tix: 100, ptix: 3 },
+      perks: ['7일간 매일 호출권 100장, 모두 700장', '7일간 매일 정예 호출권 3장, 모두 21장', '사자마자 보석 2,500개'] },
+    { id: 'p_noad', kind: 'month', name: '광고 제거 월정액', price: 7500, days: 28, now: { gems: 750 }, daily: { gems: 100 },
+      perks: ['28일간 광고를 보지 않고 모든 광고 보상', '28일간 접속하면 매일 보석 100개', '사자마자 보석 750개'] },
+    { id: 'p_month', kind: 'month', name: '골드 버프 월정액', price: 7500, days: 28, now: { gems: 750 }, daily: { gems: 100 }, gold: 0.3,
+      perks: ['28일간 골드 획득 30% 증가', '28일간 접속하면 매일 보석 100개', '사자마자 보석 750개'] },
+  ];
+  const planById = id => PLANS.find(p => p.id === id);
+  const dayNum = k => Math.round(new Date(k + 'T00:00:00') / 864e5);
+  /** 남은 날 (오늘 포함). 없으면 0 */
+  function planLeft(state, id, now) { const e = state.plans[id] && state.plans[id].end; return e ? Math.max(0, dayNum(e) - dayNum(dayKey(now)) + 1) : 0; }
+  /** 결제가 끝난 뒤 호출: 기간 더하고 바로 보상 */
+  function planBuy(state, id, now) {
+    const pl = planById(id); if (!pl) throw new RangeError('살 수 없는 상품이에요');
+    const left = planLeft(state, id, now), base = dayNum(dayKey(now)) + left;
+    const end = new Date((base + pl.days - 1) * 864e5); const ek = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`;
+    state.plans[id] = { end: ek, got: (state.plans[id] && state.plans[id].got) || '' };
+    giveReward(state, pl.now); return pl.now;
+  }
+  /** 오늘 몫 받기. 기간이 아니거나 오늘 받았으면 null */
+  function planClaim(state, id, now) {
+    const pl = planById(id), k = dayKey(now); if (!pl || planLeft(state, id, now) <= 0 || state.plans[id].got === k) return null;
+    state.plans[id].got = k; giveReward(state, pl.daily); return pl.daily;
   }
   /** 광고 보상 골드 버프: 8시간 동안 골드 +10% (만료 시각 ms) */
   const AD_BUFF_MS = 8 * 3600e3;
@@ -953,6 +1017,9 @@
       pass: { paid: false, f: [], p: [] },   // 수사 패스
       owned: [],          // 산 패키지 (한 번만)
       shop: { day: '', n: {} },   // 상점 오늘 산 횟수
+      sk: { n: 0, day: '', got: [] },   // 일일 상점 누적 구매일, 마지막으로 센 날, 받은 일차
+      shopM: { m: '', n: {} },          // 골드 충전 이번 달 산 것
+      plans: {},                        // 정기권 { id: { end: 마지막 날, got: 마지막으로 받은 날 } }
       adBuff: 0,          // 광고 골드 버프 끝나는 시각
       med: 20,            // 구급상자 (자동 회복)
       medOn: true, medHp: 50,   // 자동 사용, 체력 % 이하일 때
@@ -1034,7 +1101,12 @@
     s.pre = [0, 1, 2].map(i => Array.isArray(raw.pre) && Array.isArray(raw.pre[i]) ? raw.pre[i].filter(id => HEROES.some(h => h.id === id)).slice(0, CONST.PARTY_MAX) : null);
     s.preI = clampInt(raw.preI, 0, 2, 0);
     s.shop = { day: raw.shop && typeof raw.shop.day === 'string' ? raw.shop.day.slice(0, 10) : '', n: {} };
-    if (raw.shop && raw.shop.n && typeof raw.shop.n === 'object') for (const it of SHOP.daily) if (isNum(raw.shop.n[it.id])) s.shop.n[it.id] = clampInt(raw.shop.n[it.id], 0, 99, 0);
+    s.sk = { n: 0, day: '', got: [] };
+    if (raw.sk && typeof raw.sk === 'object') s.sk = { n: clampInt(raw.sk.n, 0, STREAK.length, 0), day: typeof raw.sk.day === 'string' ? raw.sk.day.slice(0, 10) : '', got: Array.isArray(raw.sk.got) ? [...new Set(raw.sk.got.filter(i => Number.isInteger(i) && i >= 0 && i < STREAK.length))] : [] };
+    s.shopM = { m: raw.shopM && typeof raw.shopM.m === 'string' ? raw.shopM.m.slice(0, 7) : '', n: {} };
+    if (raw.shopM && raw.shopM.n && typeof raw.shopM.n === 'object') for (const g of GOLD_PACKS) if (raw.shopM.n[g.id]) s.shopM.n[g.id] = 1;
+    s.plans = {}; if (raw.plans && typeof raw.plans === 'object') for (const pl of PLANS) { const r = raw.plans[pl.id]; if (r && typeof r.end === 'string' && /^\d{4}-\d\d-\d\d$/.test(r.end)) s.plans[pl.id] = { end: r.end, got: typeof r.got === 'string' ? r.got.slice(0, 10) : '' }; }
+    if (raw.shop && raw.shop.n && typeof raw.shop.n === 'object') for (const it of [...SHOP.daily, ...SHOP.ad, ...SHOP.gshop]) if (isNum(raw.shop.n[it.id])) s.shop.n[it.id] = clampInt(raw.shop.n[it.id], 0, 99, 0);
     s.adBuff = isNum(raw.adBuff) ? raw.adBuff : 0;
     const okIdx = a => Array.isArray(a) ? [...new Set(a.filter(i => Number.isInteger(i) && i >= 0 && i < PASS.length))] : [];
     s.pass = { paid: !!(raw.pass && raw.pass.paid === true), f: okIdx(raw.pass && raw.pass.f), p: okIdx(raw.pass && raw.pass.p) };
@@ -1385,9 +1457,10 @@
   }
 
   /** 전투 배율 한 번에: 편성 핵심 버프 × 수집 보너스 */
-  function battleMods(state) {
+  function battleMods(state, now = new Date()) {
     const y = synergy(state), b = statBonus(state);
-    return { atk: y.atk * (1 + b.atk), hp: y.hp * (1 + b.hp), cd: y.cd, crit: b.crit, cdmg: b.cdmg, boss: 1 + b.boss, gold: 1 + b.gold, lines: y.lines };
+    const pg = planLeft(state, 'p_month', now) > 0 ? planById('p_month').gold : 0;   // 골드 버프 월정액
+    return { atk: y.atk * (1 + b.atk), hp: y.hp * (1 + b.hp), cd: y.cd, crit: b.crit, cdmg: b.cdmg, boss: 1 + b.boss, gold: (1 + b.gold) * (1 + pg), lines: y.lines };
   }
 
   /** 저장 문자열 파싱. JSON 오류면 새 상태 */
@@ -1403,7 +1476,7 @@
     AWAKE_STAR, AWAKE_NEED, maxStars, heroGrade, gemTotal, spendGems, FIRST_PAY, firstPayStart, firstPayReady, firstPayClaim, WEEKLY, MONTHLY, REPEAT, MPASS, MPASS_PRICE, misReset, misClaim, misReadyCount, repeatReady, mpassClaim, mpassReady, weekKey, monthKey, PASS, PASS_PRICE, passClaim, passReady, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
-    partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, summonMaxN, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,
+    partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, summonMaxN, addTickets, shopItem, STREAK, streakClaim, GOLD_PACKS, goldPackCount, goldPackBuy, PLANS, planById, planLeft, planBuy, planClaim, levelReward, applySummon, pickupRemainSec, formatRemain,
     newState, cloneState, sanitize, loadFromString, QUESTS, GUIDE, questAt, questAdd, questClaim,
     DUNGEONS, MISSIONS, ATTEND, dayKey, dailyReset, dungeonById, dungeonStage, dungeonReward, towerStage, towerReward,
     STATS, SQUADS, squadOf, CODEX_STAT, CODEX_VAL, CODEX_STAR_VAL, CODEX_TIERS, CODEX_STEP, codexStat, codexStarNext, codexStarClaim,

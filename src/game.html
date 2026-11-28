@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.38.5';
+window.AIU_VER = '0.38.6';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -2229,6 +2229,9 @@ html,body{overflow-x:hidden}
 .wh-b{white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:6px}.wh-b small{font:700 11px 'IBM Plex Sans KR'}.fcam{min-width:40px;padding:0 8px!important}.cam-all{display:grid;place-items:center;aspect-ratio:1}.cam-all b{font:400 14px "Black Han Sans";color:#fff}
 .fc-box{margin:10px 0;padding:10px;border:1px solid #3a4560;background:#0c1220;font:600 13px "IBM Plex Sans KR";color:#e8ecf6;word-break:break-all;text-align:center}.fc-in{width:100%;box-sizing:border-box;padding:10px;background:#0c1220;border:1px solid #3a4560;color:#fff;font:14px "IBM Plex Sans KR";margin-bottom:6px}
 #app.herofull #talk,#app.hdopen #talk{display:none!important}
+#bbar{margin-bottom:12px!important}   /* 가운데 큰 단추 끝이 재화 띠에 걸리지 않게 띄움 */
+.vnum{min-width:28px;text-align:left;font:700 14px "IBM Plex Sans KR";color:#e8ecf6}
+.vrow{grid-template-columns:78px minmax(0,1fr)!important;column-gap:10px!important;justify-content:stretch!important}.vrow .vbar{width:100%;min-width:0;justify-self:stretch}.vrow .vbar input[type=range]{flex:1 1 auto!important;width:100%!important;min-width:60px;max-width:none!important}
 </style>
 </head>
 <body>
@@ -2514,7 +2517,7 @@ const Snd = (() => {
     if (ctx) { if (ctx.state === 'suspended') ctx.resume().catch(() => {}); return; }
     try { ctx = new (window.AudioContext || window.webkitAudioContext)(); master = ctx.createGain(); master.connect(ctx.destination); setVol(); } catch (e) { ctx = null; }
   }
-  function setVol() { if (master) master.gain.value = GQ.snd === false ? 0 : (GQ.volS ?? GQ.vol ?? 0.7); }   // 효과음 크기 (설정의 효과음 막대)
+  function setVol() { if (master) master.gain.value = GQ.snd === false ? 0 : volOf('S') / 50 * (0.7 / 1.5); }   // 막대 50 = 예전 기본 크기의 1/1.5   // 효과음 크기 (설정의 효과음 막대)
   function load(k) {
     if (buf[k] || busy[k] || !SFX_SRC[k] || !ctx) return;
     busy[k] = true;
@@ -2541,7 +2544,7 @@ const sfx = (k, v, gap, rate) => (typeof sleeping !== 'undefined' && sleeping) ?
 const BGM_SRC = /*BGM*/{};
 const Bgm = (() => {
   let ctx = null; const tr = {};
-  const level = () => GQ.bgm === false ? 0 : (GQ.volB ?? GQ.vol ?? 0.7) * 0.5;   // 배경 음악 크기 (설정의 배경 음악 막대)
+  const level = () => GQ.bgm === false ? 0 : volOf('B') / 50 * (0.7 * 0.5 * 1.5);   // 막대 50 = 예전 기본 크기의 1.5배   // 배경 음악 크기 (설정의 배경 음악 막대)
   function wake() {
     if (ctx) { if (ctx.state === 'suspended') ctx.resume().catch(() => {}); return; }
     try {
@@ -2981,6 +2984,8 @@ try { const v = parseFloat(localStorage.getItem('aiu-dpr')); if (v >= 1 && v <= 
 /* 그래픽 설정 (세븐나이츠 키우기의 그래픽 품질, 프레임 설정과 같은 역할)
  * hi: 높음이면 안개, 등불 반사, 윤곽 빛, 몸 휘기, 비 90줄. 낮음이면 모두 끄고 비 30줄, 해상도 1배
  * fps60: 끄면 초당 30번만 그림 (배터리와 발열도 줄어듦) */
+/** 소리 막대 값 (0~100, 10 단위, 기본 50). k: 'S' 효과음, 'B' 배경 음악 */
+function volOf(k) { const v = GQ['vol' + k + '2']; return Number.isFinite(v) ? Math.max(0, Math.min(100, Math.round(v / 10) * 10)) : 50; }
 const GQ = { hi: true, fps60: true, auto: true, dmgNum: true, shake: true, autoSleep: 0, snd: true, bgm: true, vol: 0.7 };
 try { Object.assign(GQ, JSON.parse(localStorage.getItem('aiu-gfx') || '{}')); } catch (e) { /* 저장 불가 */ }
 function saveGQ() { try { localStorage.setItem('aiu-gfx', JSON.stringify(GQ)); } catch (e) { /* 저장 불가 */ } }
@@ -4955,7 +4960,7 @@ function gfxRows() {
   const tg = (key) => `<button class="tgl ${GQ[key] ? 'on' : ''}" data-tg="${key}" aria-pressed="${!!GQ[key]}"></button>`;
   const sl = [[0, '끔'], [3, '3분'], [10, '10분']].map(([v, l]) => `<button data-gfx="autoSleep" data-v="${v}" class="${(GQ.autoSleep || 0) === v ? 'on' : ''}">${l}</button>`).join('');
   const fx = [['on', '선명'], ['half', '반투명'], ['off', '끄기']].map(([v, l]) => `<button data-skfx="${v}" class="${(GQ.skfx || 'on') === v ? 'on' : ''}">${l}</button>`).join('');
-  const bar = (k, name) => `<div class="setrow vrow"><div class="ut">${name}</div><div class="vbar">${tg(k === 'volB' ? 'bgm' : 'snd')}<input type="range" min="0" max="100" value="${Math.round((GQ[k] ?? GQ.vol ?? 0.7) * 100)}" data-vk="${k}"></div></div>`;
+  const bar = (k, name) => `<div class="setrow vrow"><div class="ut">${name}</div><div class="vbar">${tg(k === 'volB' ? 'bgm' : 'snd')}<input type="range" min="0" max="100" step="10" value="${volOf(k.slice(3))}" data-vk="${k}"><b class="vnum" data-vn="${k}">${volOf(k.slice(3))}</b></div></div>`;
   return `<div class="optg">소리</div>${bar('volB', '배경 음악')}${bar('volS', '효과음')}
     <div class="optg">화면</div><div class="setrow"><div><div class="ut">그래픽</div><div class="uv">낮음으로 두면 빛과 안개가 줄어 가벼워요</div></div>${seg('hi', [[true, '높음'], [false, '낮음']])}</div>
     <div class="setrow"><div><div class="ut">프레임</div><div class="uv">30으로 두면 배터리와 발열이 줄어요</div></div>${seg('fps60', [[true, '60'], [false, '30']])}</div>
@@ -4979,7 +4984,7 @@ function setHtml() {
     <div id="gfxRows">${setTab === 'game' ? gfxRows() : accRows()}</div><div class="mbtns"><button class="btn" data-close>닫기</button></div>`;
 }
 $('btnSet').addEventListener('click', () => { setTab = 'game'; openModal(setHtml()); });
-modalEl.addEventListener('input', e => { const r = e.target.closest('[data-vk]'); if (!r) return; GQ[r.dataset.vk] = +r.value / 100; saveGQ(); Snd.setVol(); });
+modalEl.addEventListener('input', e => { const r = e.target.closest('[data-vk]'); if (!r) return; const v = Math.max(0, Math.min(100, Math.round(+r.value / 10) * 10)); GQ[r.dataset.vk + '2'] = v; const n = modalEl.querySelector(`[data-vn=${r.dataset.vk}]`); if (n) n.textContent = v; saveGQ(); Snd.setVol(); });
 modalEl.addEventListener('change', e => { const r = e.target.closest('[data-vk]'); if (r && r.dataset.vk === 'volS') sfx('coins', 0.8, 0); });
 modalEl.addEventListener('click', e => {
   const st = e.target.closest('[data-settab]'); if (st) { setTab = st.dataset.settab; openModal(setHtml()); return; }
@@ -6634,6 +6639,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.38.6', '11월 29일', ['아래 메뉴 가운데 단추가 재화 띠와 겹치지 않아요', '기록, 메뉴 펼치기 아이콘의 네모 바탕을 없앴어요', '효과음은 작게, 배경 음악은 크게 바꿨어요. 설정에서 0부터 100까지 10씩 조절해요 (기본 50)']],
   ['0.38.5', '11월 29일', ['요원 강화 가이드가 레벨이 가장 낮은 출전 요원을 열어 줘요', '요원 창을 연 동안 전투 대사 말풍선이 화면을 가리지 않아요']],
   ['0.38.4', '11월 29일', ['편성의 코드 단추로 현재 편성을 복사하거나, 받은 코드로 같은 편성을 만들어요']],
   ['0.38.3', '11월 29일', ['행운 돌림판이 생겼어요. 하루 세 번 무료로 돌려요 (왼쪽 메뉴)', '편성에서 요원을 누르면 정보와 편성, 해제 메뉴가 나와요', '편성의 카메라 단추로 화면이 따라갈 요원을 골라요', '접속하면 특별 채용 알림 창이 나와요. 오늘 다시 보지 않기를 고를 수 있어요']],

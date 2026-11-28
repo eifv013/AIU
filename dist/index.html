@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.37.2';
+window.AIU_VER = '0.37.3';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -2054,7 +2054,7 @@ html,body{overflow-x:hidden}
 #hpage .hp-grade b{margin:0!important;font:400 17px "Black Han Sans"!important}
 #hpage .hp-grade small{margin-left:2px}
 #hpage .hp-tags{top:54px!important}
-#hpLv[data-cap]::after{content:' / ' attr(data-cap);font:400 13px "Black Han Sans";color:#8f99ae}
+#hpLv[data-cap]::after{content:none;font:400 13px "Black Han Sans";color:#8f99ae}
 .slot.dead::after{content:attr(data-rev);position:absolute;left:0;right:0;top:34%;z-index:5;text-align:center;font:400 22px "Black Han Sans";color:#fff;text-shadow:0 0 6px #000,0 0 2px #000;pointer-events:none}
 .gw-st{display:block;margin-top:2px;font:700 11.5px 'IBM Plex Sans KR';font-style:normal;color:#d4ab55}
 .sx-front b{color:#fff!important;z-index:2}.sx-front small{z-index:2}
@@ -2565,7 +2565,8 @@ html,body{overflow-x:hidden}
 
   /** 요원 Lv 강화 비용 (현재 lv → lv+1), 경험치 */
   /** 요원 레벨 상한: ★1 100, 별마다 +50 (★5 300, 각성 350). 초반 스테이지는 막지 않고, 후반에 승급이 필요해지게 */
-  function heroLvCap(stars) { return 100 + 50 * (clampInt(stars, 1, 6, 1) - 1); }
+  // 고정 상한은 후반에 스테이지를 막아서 없앰 (레벨 비용이 점점 커지는 것으로 속도를 조절). 함수는 남겨 둠
+  function heroLvCap(stars) { return 99999; }
   function heroLvCost(lv) { return Math.floor(10 * Math.pow(1.13, clampInt(lv, 1, 1e6, 1) - 1)); }
 
   /** lv 에서 n 단계 올리는 총 비용 */
@@ -7779,6 +7780,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.37.3', '11월 28일', ['요원 레벨 고정 상한을 없앴어요. 후반 스테이지가 막히지 않게 레벨은 계속 올릴 수 있어요']],
   ['0.37.2', '11월 28일', ['요원 레벨 상한을 ★1 Lv.100부터 별마다 50씩으로 바꿨어요 (Lv.20은 너무 낮았어요)', '메뉴를 새로 열면 항상 첫 화면부터 보여요', '카메라를 축소해도 지도 바깥 검은 곳이 보이지 않아요', '가방 창이 내용만큼만 열려요', '그림이 아직 없는 요원은 임시 얼굴 대신 어두운 실루엣으로 나와요', '호출 결과 카드의 이름이 잘 보이게 바꿨어요']],
   ['0.37.0', '11월 28일', ['요원 레벨에 상한이 생겼어요. ★1은 Lv.100이고 별마다 50씩 늘어요(★5 Lv.300, 각성 Lv.350)', '스테이지가 오를 때 골드와 경험치가 너무 빨리 늘던 걸 줄였어요', '수사력 단계를 승급하면 보석 대신 팀 공격력과 체력이 5%씩 영구로 올라요', '쓰러진 요원은 8초 뒤 다시 일어나 싸워요. 얼굴 칸에 남은 초가 나와요', '수사력 칸마다 무엇이 오르는지(공격력, 골드 획득, 치명타 확률) 적어 뒀어요']],
   ['0.36.3', '11월 28일', ['요원 화면의 등급 문장을 그림 얼굴을 가리지 않게 왼쪽 위로 옮겼어요']],

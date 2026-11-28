@@ -557,6 +557,6 @@ test('보급품: 팀이 약해도 0이 아닌 보상', () => {
   assert.ok(C.useItem(s, 'g2', 1).gold > 0); assert.ok(C.useItem(s, 'e2', 1).exp > 0);
 });
 
-test('요원 레벨 상한: ★1 100, 별마다 +50', () => {
-  assert.equal(C.heroLvCap(1), 100); assert.equal(C.heroLvCap(5), 300); assert.equal(C.heroLvCap(6), 350);
+test('요원 레벨: 고정 상한 없음', () => {
+  assert.ok(C.heroLvCap(1) > 10000);
 });

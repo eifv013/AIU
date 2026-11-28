@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.27.0';
+window.AIU_VER = '0.28.0';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1497,6 +1497,36 @@ img.rs-emb{width:76px;height:76px;top:-42px}
 .awk-em{filter:hue-rotate(-40deg) saturate(1.6) drop-shadow(0 0 12px #ff3d55)!important}
 .hp-b.star.awk:not(:disabled){background:linear-gradient(#ff8a7a,#d0283c 50%,#6e0a18)!important;border-color:#ffd0c0!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 2px 0 #2e0408,0 0 16px rgba(255,60,80,.7)!important}
 .awk-face{box-shadow:0 0 24px rgba(255,61,85,.9)}
+
+/* ---------- 메뉴 틀 그림 (GPT 그림 12장, 0.28.0) ---------- */
+.mbox{border:0!important;border-style:solid!important;border-width:44px 26px 30px!important;border-image:var(--ui-window) 74 46 56 46 fill / 44px 26px 30px stretch!important;background:none!important;box-shadow:0 14px 40px rgba(0,0,0,.7)!important;padding:10px 6px 8px!important;border-radius:0!important}
+.mbox::before{display:none!important}
+.mbody{max-height:calc(100vh - 150px);max-height:calc(100dvh - 150px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}.mbody::-webkit-scrollbar{display:none}
+.mbox .mx{right:-18px!important;top:-30px!important}
+.mbox h2{margin:-6px -6px 10px!important;padding:6px 30px!important;background:var(--ui-ribbon) center/100% 100% no-repeat!important;border:0!important;box-shadow:none!important}
+.mbox h2::before,.mbox h2::after{display:none!important}
+.btn:not(.ghost){border:0!important;border-style:solid!important;border-width:12px 18px!important;border-image:var(--ui-btn-gold) 40 60 fill / 12px 18px stretch!important;background:none!important;box-shadow:none!important;padding:0 4px!important}
+.btn.ghost{border:0!important;border-style:solid!important;border-width:12px 18px!important;border-image:var(--ui-btn-navy) 40 60 fill / 12px 18px stretch!important;background:none!important;box-shadow:none!important;color:#e8ecf6!important;padding:0 4px!important}
+.btn:disabled{filter:grayscale(.85) brightness(.75)}
+.seg,#hsub{border:0!important;background:none!important;padding:0!important;gap:4px!important;border-radius:0!important;box-shadow:none!important}
+.seg button,#hsub button{border:0!important;border-radius:0!important;height:36px!important;background:var(--ui-tab-off) center/100% 100% no-repeat!important;box-shadow:none!important;color:#aeb6c8!important}
+.seg button.on,#hsub button.on{background:var(--ui-tab-on) center/100% 100% no-repeat!important;color:#ffe9a8!important;text-shadow:0 1px 2px #000}
+.mrow{border:0!important;border-style:solid!important;border-width:10px 14px!important;border-image:var(--ui-row) 30 40 fill / 10px 14px stretch!important;background:none!important;border-radius:0!important;padding:2px 4px!important}
+.mrow.done{filter:brightness(.7)}
+.mrow{gap:6px!important}.mrow .mt b{white-space:nowrap;font-size:13px!important}
+#side{border:0!important;border-style:solid!important;border-width:14px 9px!important;border-image:var(--ui-side) 60 40 fill / 14px 9px stretch!important;background:none!important;box-shadow:0 3px 10px rgba(0,0,0,.5)!important;border-radius:0!important;padding:0 2px!important}
+#tabs{background:var(--ui-bottom) center bottom/100% 100% no-repeat!important;border:0!important}
+#tabs button:not(.ct) .tb{background:var(--ui-slot) center/100% 100% no-repeat!important;border:0!important;box-shadow:none!important;border-radius:0!important}
+#tabs button:not(.ct) .tb::before{display:none!important}
+#tabs button.on:not(.ct) .tb{filter:drop-shadow(0 0 6px rgba(242,201,76,.75)) brightness(1.15)}
+/* 요원 카드: 등급 틀 */
+.ac .ap{border:0!important;border-radius:3px!important;box-shadow:none!important}
+.ac .ap::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:var(--ui-card-r) center/100% 100% no-repeat}
+.ac.g-영웅 .ap::before{background-image:var(--ui-card-h)}
+.ac.g-전설 .ap::before{background-image:var(--ui-card-l)}
+.ac.g-각성 .ap::before{background-image:var(--ui-card-l);filter:hue-rotate(-50deg) saturate(1.8) brightness(1.05) drop-shadow(0 0 5px rgba(255,60,80,.8))}
+.ac .ap img{padding:5% 6% 0}
+.ac .anm{bottom:13%!important}.ac .ast{bottom:2.5%!important}
 </style>
 </head>
 <body>
@@ -3936,7 +3966,7 @@ function doSummon(n, kind) {
 
 /* ---------- 모달 ---------- */
 function openModal(html, onClose) {
-  const m = $('modal'); m.innerHTML = `<div class="mbox"><button class="mx" data-close aria-label="닫기"><svg viewBox="0 0 40 40"><path d="M20 2L38 20 20 38 2 20z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.5" stroke-linejoin="round"/><path d="M14 14l12 12M26 14L14 26" stroke="#fff4e0" stroke-width="3.4" stroke-linecap="round"/></svg></button>${html}</div>`; m.classList.add('on');
+  const m = $('modal'); m.innerHTML = `<div class="mbox"><button class="mx" data-close aria-label="닫기"><svg viewBox="0 0 40 40"><path d="M20 2L38 20 20 38 2 20z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.5" stroke-linejoin="round"/><path d="M14 14l12 12M26 14L14 26" stroke="#fff4e0" stroke-width="3.4" stroke-linecap="round"/></svg></button><div class="mbody">${html}</div></div>`; m.classList.add('on');
   m.onclick = e => { const b = e.target.closest('[data-close]'); if (!b) return; m.classList.remove('on'); if (onClose) onClose(b.dataset.close); };
 }
 function showOffline(r) {
@@ -4676,6 +4706,10 @@ function giFill(root) {
 giFill(document);
 if (ART.ic_e_badge) document.documentElement.style.setProperty('--badge', `url("${ART.ic_e_badge}")`);
 new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1 && (n.querySelector && (n.querySelector('svg use,img[data-gi]')) || n.matches && n.matches('svg'))) giFill(n.parentNode || n); }).observe(document.body, { childList: true, subtree: true });
+/* ---------- 메뉴 틀 그림을 CSS 변수로 ---------- */
+(function () { const R = document.documentElement.style;
+  for (const k of ['window', 'ribbon', 'btn_gold', 'btn_navy', 'tab_on', 'tab_off', 'row', 'side', 'bottom', 'slot', 'card_r', 'card_h', 'card_l'])
+    if (ART['ui_' + k]) R.setProperty('--ui-' + k.replace('_', '-'), `url(${ART['ui_' + k]})`); })();
 /* ---------- 근원체 출현 컷인 ---------- */
 function bossCutIn() {
   const el = $('bossin'), t = theme(), img = ART['spr_boss' + (Math.floor((S.stage - 1) / 10) % 3 + 1)] || ART.spr_boss1;
@@ -4772,6 +4806,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.28.0', '11월 28일', ['창, 버튼, 탭, 목록, 카드, 메뉴 판을 새 그림 틀로 바꿨어요']],
   ['0.27.0', '11월 28일', ['전설 다음 등급 각성: 전설 요원 ★5에서 조각 10개로 각성해요']],
   ['0.26.0', '11월 28일', ['요원이 50명으로 늘었어요 (희귀 18, 영웅 18, 전설 14)']],
   ['0.25.0', '11월 28일', ['아이콘 54개를 새 그림으로 바꿨어요']],

@@ -67,11 +67,11 @@ test('훈련소: 치명타 최대치와 비용', () => {
 test('별 승급 조각', () => {
   assert.equal(C.starNeed(1), 10);
   assert.equal(C.starNeed(4), 200);
-  assert.equal(C.starNeed(1, '전설'), 1); assert.equal(C.starNeed(4, '전설'), 5);
+  assert.equal(C.starNeed(1, '전설'), 2); assert.equal(C.starNeed(4, '전설'), 15);
   assert.equal(C.starNeed(2, '영웅'), 15);
   // 전설 ★5 까지 필요한 장수가 희귀보다 훨씬 적어야 함 (드문 만큼)
   const sum = g => [1, 2, 3, 4].reduce((a, s) => a + C.starNeed(s, g), 0);
-  assert.ok(sum('전설') * 20 < sum('희귀'));
+  assert.ok(sum('전설') * 10 < sum('희귀'));
   assert.equal(C.starNeed(5), Infinity);
 });
 
@@ -198,9 +198,9 @@ test('요원 호출: 호출권 차감, 소환 레벨 상승 보상', () => {
   assert.equal(st.gems, s.gems + C.levelReward(2).gems); assert.equal(st.ptix, C.levelReward(2).ptix);
   const poor = C.newState(0); poor.tix = 0; assert.throws(() => C.doSummon(poor, 1, 'call', Math.random), RangeError);
 });
-test('정예 호출: 희귀 없음, 전설 2%, 정예 호출권 먼저 사용', () => {
+test('정예 호출: 희귀 없음, 전설 0.5%, 정예 호출권 먼저 사용', () => {
   const s = C.newState(0); s.gems = 1000; s.ptix = 1;
-  const a = C.doSummon(s, 1, 'elite', () => 0.01); assert.equal(C.heroById(a.ids[0]).grade, '전설'); assert.equal(a.paid, 'ptix'); assert.equal(a.state.gems, 1000);
+  const a = C.doSummon(s, 1, 'elite', () => 0.004); assert.equal(C.heroById(a.ids[0]).grade, '전설'); assert.equal(a.paid, 'ptix'); assert.equal(a.state.gems, 1000);
   const b = C.doSummon(a.state, 10, 'elite', () => 0.99); assert.equal(b.paid, 'gems'); assert.equal(b.state.gems, 1000 - 300);
   assert.ok(b.ids.every(id => C.heroById(id).grade !== '희귀'));
   assert.equal(b.state.pulls.total, 11);   // 정예 호출도 소환 레벨에 쌓임
@@ -276,7 +276,7 @@ test('한정 요원: 나이트폴은 특별 채용에서만 나옴', () => {
   assert.ok(!pool.has('dark'));
   assert.deepEqual([...pool].sort(), C.HEROES.filter(h => h.grade === '전설' && !h.limited).map(h => h.id).sort());
   let s = C.newState(0); s.gems = 1e6;
-  for (let i = 0; i < 50; i++) { const r = i / 50 * 0.02; assert.notEqual(C.doSummon(s, 1, 'elite', () => r).ids[0], 'dark'); }
+  for (let i = 0; i < 50; i++) { const r = i / 50 * 0.005; assert.notEqual(C.doSummon(s, 1, 'elite', () => r).ids[0], 'dark'); }
   s.pulls.total = 300;
   assert.deepEqual(C.doSummon(s, 1, 'pickup', () => 0.001).ids, ['dark']);
 });

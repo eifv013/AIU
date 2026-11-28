@@ -464,7 +464,7 @@
     ],
     packs: [
       { id: 'p_new', name: '신입 수사관 환영 패키지', sub: '한 번만 살 수 있어요', rw: { gems: 1000, ptix: 5, tix: 50 }, price: 1100, tag: '추천' },
-      { id: 'p_lv', name: '호출 레벨 지원 패키지', sub: '호출권을 넉넉하게', rw: { tix: 300, gems: 500 }, price: 9900, tag: '인기' },
+      { id: 'p_lv', name: '소환 레벨 지원 패키지', sub: '호출권을 넉넉하게', rw: { tix: 300, gems: 500 }, price: 9900, tag: '인기' },
       { id: 'p_ptix', name: '정예 호출 지원 패키지', sub: '정예 호출권을 한 번에', rw: { ptix: 30, gems: 1000 }, price: 14900, tag: 'Hot' },
     ],
     gems: [[60, 1200], [300, 5900], [650, 12000], [1350, 25000], [2800, 49000], [6000, 99000]],
@@ -902,7 +902,7 @@
     { kind: 'lvup',    text: '요원 강화',      need: 50,   rw: { tix: 20 },   pt: 20 },
     { kind: 'summon',  text: '요원 호출',      need: 60,   rw: { gems: 150 }, pt: 20 },
     { kind: 'dungeon', text: '일일 작전 완료', need: 15,   rw: { g2: 2, e2: 2 }, pt: 20 },
-    { kind: 'train',   text: '성장 레벨업',    need: 30,   rw: { med: 20 },   pt: 20 },
+    { kind: 'train',   text: '수사력 강화',    need: 30,   rw: { med: 20 },   pt: 20 },
   ];
   const MONTHLY = [
     { kind: 'kill',    text: '이상체 처리',    need: 15000, rw: { gems: 500 }, pt: 50 },
@@ -983,7 +983,7 @@
     { kind: 'lvup',   text: '요원 강화',     need: 5,  gems: 10 },
     { kind: 'kill',   text: '이상체 처리',   need: 30, gems: 10 },
     { kind: 'boss',   text: '근원체 봉쇄',   need: 1,  gems: 20 },
-    { kind: 'train',  text: '훈련소 강화',   need: 3,  gems: 10 },
+    { kind: 'train',  text: '수사력 강화',   need: 3,  gems: 10 },
     { kind: 'summon', text: '요원 호출',     need: 1,  gems: 10 },
     { kind: 'lvup',   text: '요원 강화',     need: 20, gems: 15 },
     { kind: 'boss',   text: '근원체 봉쇄',   need: 3,  gems: 30 },
@@ -998,7 +998,7 @@
     { kind: 'party',   text: '요원 2명 출전',     need: 2,  rw: { shard: 'mage', n: 5 } },   // 블레이즈 조각 5개 → 바로 첫 승급
     { kind: 'star',    text: '블레이즈 승급',     need: 1,  rw: { tix: 10 } },
     { kind: 'summon',  text: '요원 호출',         need: 10, rw: { gems: 200 } },
-    { kind: 'train',   text: '성장 강화',         need: 3,  rw: { gold: 500 } },
+    { kind: 'train',   text: '수사력 강화',         need: 3,  rw: { gold: 500 } },
     { kind: 'dungeon', text: '일일 작전',         need: 1,  rw: { gems: 200 } },
     { kind: 'boss',    text: '근원체 봉쇄',       need: 3,  rw: { ptix: 1 } },
   ];

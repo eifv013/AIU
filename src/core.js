@@ -300,6 +300,39 @@
    * - 최대 8시간까지만 인정
    * - 처치 속도는 (파티 DPS / 적 체력), 상한 2마리/초, 효율 50%
    */
+  /* ---------- 핵심 버프: 출전 요원 유형 조합 (세나 키우기 편성 핵심 버프처럼) ---------- */
+  const SYNERGY = [
+    { type: '공격', need: [2, 3], text: n => `공격력 +${n * 10}%`, atk: [0.1, 0.2] },
+    { type: '광역', need: [2, 3], text: n => `공격력 +${n * 8}%`, atk: [0.08, 0.16] },
+    { type: '방어', need: [2, 3], text: n => `체력 +${n * 15}%`, hp: [0.15, 0.3] },
+    { type: '지원', need: [2, 3], text: n => `기술 재사용 -${n * 10}%`, cd: [0.1, 0.2] },
+  ];
+  /** 현재 편성의 핵심 버프. lines 는 화면 표시용 (유형, 인원, 단계, 문구) */
+  function synergy(state) {
+    const cnt = {}; for (const id of partyIds(state)) { const h = heroById(id); cnt[h.type] = (cnt[h.type] || 0) + 1; }
+    const out = { atk: 1, hp: 1, cd: 1, lines: [] };
+    for (const r of SYNERGY) {
+      const n = cnt[r.type] || 0, lv = r.need.filter(k => n >= k).length;
+      out.lines.push({ type: r.type, n, lv, next: r.need[lv] || null, text: r.text(Math.max(1, lv)) });
+      if (!lv) continue;
+      if (r.atk) out.atk += r.atk[lv - 1]; if (r.hp) out.hp += r.hp[lv - 1]; if (r.cd) out.cd -= r.cd[lv - 1];
+    }
+    const all = TYPES.every(t => cnt[t]);
+    out.lines.push({ type: '전체', n: TYPES.filter(t => cnt[t]).length, lv: all ? 1 : 0, next: all ? null : 4, text: '공격력 +10%, 체력 +10%' });
+    if (all) { out.atk += 0.1; out.hp += 0.1; }
+    return out;
+  }
+
+  /* ---------- 가방: 시간 보급품 (쓰면 그 시간만큼 사냥한 보상) ---------- */
+  const ITEMS = { g2: { name: '골드 보급품', sub: '2시간 사냥 골드', key: 'gold' }, e2: { name: '경험치 보급품', sub: '2시간 사냥 경험치', key: 'exp' } };
+  function useItem(state, id, n = 1) {
+    const it = ITEMS[id]; const k = clampInt(n, 1, 999, 1);
+    if (!it || (state.bag[id] || 0) < k) return null;
+    const r = offlineReward(state, 7200), v = Math.floor((r[it.key] || 0) / CONST.OFFLINE_RATE) * k;   // 자리 비움 할인 없이
+    state.bag[id] -= k; state[it.key] += v;
+    return { [it.key]: v };
+  }
+
   function offlineReward(state, elapsedSec) {
     if (!isNum(elapsedSec) || elapsedSec < CONST.OFFLINE_MIN_SEC) return { sec: 0, gold: 0, kills: 0 };
     const sec = Math.min(elapsedSec, CONST.OFFLINE_CAP_SEC);
@@ -512,6 +545,7 @@
     { id: 'welcome', from: 'AIU 본부', title: '신입 수사관 환영 선물', rw: { gems: 300 } },
     { id: 'u018', from: 'AIU 본부', title: '0.18 업데이트 기념 선물', rw: { tix: 10 } },
     { id: 'rain', from: '나이트폴', title: '비 오는 날의 보급품', rw: { ptix: 1 } },
+    { id: 'supply', from: 'AIU 본부', title: '현장 보급품 지급', rw: { g2: 3, e2: 3 } },
   ];
   function mailClaim(state, id) {
     const m = MAILS.find(x => x.id === id);
@@ -532,6 +566,7 @@
     if (r.gems) state.gems += r.gems;
     if (r.tix) state.tix += r.tix;
     if (r.ptix) state.ptix += r.ptix;
+    for (const k of Object.keys(ITEMS)) if (r[k]) state.bag[k] = (state.bag[k] || 0) + r[k];
     if (r.shard && state.heroes[r.shard]) state.heroes[r.shard].shards += clampInt(r.n, 0, 1e6, 0);   // 요원 조각
     return r;
   }
@@ -672,7 +707,8 @@
       heroes,
       party: STARTER_IDS.slice(),   // 전투에 나가는 요원 (최대 5명)
       unl: [],
-      mail: [],           // 받은 우편
+      mail: [],
+      bag: {},            // 가방 (보급품 개수)           // 받은 우편
       cdx: {},            // 요원 도감 받은 단계            // 받은 수사 수첩 보상
       face: '',           // 프로필 얼굴 (비면 첫 출전 요원)
       up: { atk: 0, gold: 0, crit: 0 },
@@ -736,6 +772,7 @@
       s.daily.bonus = raw.daily.bonus === true && s.daily.got.length === MISSIONS.length;
     }
     s.cdx = {}; if (raw.cdx && typeof raw.cdx === 'object') for (const h of HEROES) if (isNum(raw.cdx[h.id])) s.cdx[h.id] = clampInt(raw.cdx[h.id], 0, CODEX_TIERS, 0);
+    s.bag = {}; if (raw.bag && typeof raw.bag === 'object') for (const k of Object.keys(ITEMS)) if (isNum(raw.bag[k])) s.bag[k] = clampInt(raw.bag[k], 0, 1e6, 0);
     s.mail = Array.isArray(raw.mail) ? raw.mail.filter(x => MAILS.some(m => m.id === x)) : [];
     s.unl = Array.isArray(raw.unl) ? raw.unl.filter(x => ROADMAP.some(r => r.id === x)) : [];
     s.face = typeof raw.face === 'string' && HEROES.some(h => h.id === raw.face) ? raw.face : '';
@@ -773,7 +810,7 @@
   const Core = {
     HEROES, TYPES, STARTER_IDS, partyIds, partySlots, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
-    MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
+    SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,

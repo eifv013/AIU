@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.18.0';
+window.AIU_VER = '0.19.0';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -848,7 +848,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 #side button,#side #btnSet{width:44px!important;padding:3px 0 2px!important;border:0!important;background:none!important;box-shadow:none!important}
 #side svg{width:28px!important;height:28px!important;filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))}
 #side span{display:none}
-#side .sd-list button{height:38px}
+#side .sd-list button{height:35px}
 #sideTg svg{width:24px!important;height:24px!important}
 #side.fold .sd-list{display:none}
 #sideTg{position:relative}#sideTg.alert::after{content:'';position:absolute;right:2px;top:0;width:8px;height:8px;border-radius:50%;background:#ff4a3a}
@@ -988,6 +988,9 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 .mlist{display:grid;gap:7px;margin:8px 0;max-height:56vh;overflow:auto}
 .ml{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:#1b2236;border:1px solid var(--line);text-align:left}
 .ml.got{opacity:.5}.ml div{flex:1;min-width:0}.ml b{display:block;font:400 14px "Black Han Sans"}.ml small{font:600 11px 'IBM Plex Sans KR';color:var(--dim)}
+.ml .rd-r{flex:none;width:46px}
+.bag-b{display:grid;gap:4px;flex:none}.bag-b .btn{min-width:0;padding:5px 10px;font-size:12px}
+.ml b{white-space:nowrap}
 .mlist .empty{padding:30px 0;text-align:center;color:var(--dim)}
 /* ---------- 호출 카드 뒤집기 ---------- */
 .rc{perspective:400px}
@@ -998,6 +1001,27 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 @keyframes rcFlip{0%{transform:rotateY(90deg)}100%{transform:none}}
 .rc.flip.leg{box-shadow:0 0 18px rgba(255,210,122,.9)}
 .sp-ver{position:absolute;right:12px;top:calc(env(safe-area-inset-top) + 8px);font:600 11px 'IBM Plex Sans KR';color:rgba(255,255,255,.6);z-index:3}
+
+/* ---------- 성장 (영향력 창) ---------- */
+.gw-h{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:linear-gradient(90deg,#1f2a4a,#151b2e);border:1px solid #3a4462}
+.gw-h b{font:400 17px "Black Han Sans";color:var(--gold)}.gw-h small{font:700 12px 'IBM Plex Sans KR';color:var(--dim)}
+.gw-bar{height:8px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden}.gw-bar i{display:block;height:100%;background:linear-gradient(90deg,#4f8de8,#9fd0ff)}
+.gw-mul{margin:10px auto 8px;width:min(100%,260px)}
+.gw-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.gw-c{display:grid;justify-items:center;gap:4px;padding:10px 6px 8px;border-radius:8px;background:#1b2236;border:1px solid #3a4462;text-align:center}
+.gw-ic{width:46px;height:46px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(#3b5590,#1e2b4a);border:2px solid #8fb0e8}.gw-ic .ic{width:28px;height:28px}
+.gw-c b{font:400 14px "Black Han Sans"}.gw-lv{font:700 12px 'IBM Plex Sans KR';color:var(--dim)}
+.gw-v{min-height:18px;font:700 12px 'IBM Plex Sans KR'}.gw-v i{font-style:normal;color:var(--dim)}.gw-v em{font-style:normal;color:#6ff0c8}
+.gw-c .btn{width:100%;padding:6px 2px;display:grid;gap:2px;font-size:13px}.gw-c .btn .cost{font-size:11px;justify-content:center}
+.gw-tabs{display:flex;gap:6px;margin-top:12px}.gw-tabs button{flex:1;height:34px;border:1px solid #3a4462;border-radius:17px;background:#141a28;color:var(--dim);font:700 13px 'IBM Plex Sans KR'}
+.gw-tabs button.on{background:#26365e;color:#fff;border-color:#6e86c4}
+/* ---------- 핵심 버프 ---------- */
+.syn{margin:8px 0;padding:8px 10px;border-radius:8px;background:#141a28;border:1px solid #3a4462}
+.syn-h{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}.syn-h b{font:400 15px "Black Han Sans";color:var(--gold)}.syn-h small{font:600 11px 'IBM Plex Sans KR';color:var(--dim)}
+.syn-r{display:grid;grid-template-columns:20px 74px 1fr auto;align-items:center;gap:6px;padding:4px 0;font:700 12px 'IBM Plex Sans KR';color:#6b7590}
+.syn-r .ic{width:16px;height:16px}.syn-r em{font-style:normal}.syn-r small{font-size:11px}
+.syn-r.on{color:#e8ecf6}.syn-r.on em{color:#6ff0c8}.syn-r.on .ic{color:var(--gold)}
+.syn-all{display:grid;place-items:center;width:16px;height:16px;border-radius:4px;background:#3a4462;font:400 11px "Black Han Sans";font-style:normal;color:#fff}.syn-r.on .syn-all{background:var(--gold);color:#1d1606}
 </style>
 </head>
 <body>
@@ -1054,6 +1078,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
       <div class="sd-list">
       <button data-side="road"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="url(#mSteel)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><circle cx="12" cy="12" r="7.6" fill="#26304c" stroke="#141a2b" stroke-width=".9"/><path d="M12 5.2l2 6.8-2 6.8-2-6.8z" fill="url(#mGold)" stroke="#5a3504" stroke-width=".6"/><path d="M12 12l2-.0" /><path d="M5.2 12l6.8-2 6.8 2-6.8 2z" fill="#9fb3e8" opacity=".85"/><circle cx="12" cy="12" r="1.4" fill="#fff"/></svg><span>수첩</span><i class="dot" id="dotRoad"></i></button>
       <button data-side="mail"><svg viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="19" height="13" rx="1.6" fill="#eef2fb" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M2.8 6.2L12 13l9.2-6.8" fill="none" stroke="#141a2b" stroke-width="1.2" stroke-linejoin="round"/><path d="M3.5 6.5L12 12.6l8.5-6.1" fill="url(#mGold)" opacity=".9"/><circle cx="18.5" cy="15.5" r="3.6" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M18.5 13.7v2.2" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><circle cx="18.5" cy="17.4" r=".8" fill="#fff"/></svg><span>우편</span><i class="dot" id="dotMail"></i></button>
+      <button data-side="bag"><svg viewBox="0 0 24 24"><path d="M8 7V5.5a4 4 0 0 1 8 0V7" fill="none" stroke="#141a2b" stroke-width="2.6"/><path d="M8 7V5.5a4 4 0 0 1 8 0V7" fill="none" stroke="#c9a46a" stroke-width="1.4"/><rect x="3.5" y="7" width="17" height="14" rx="3" fill="#8a5a2b" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M3.5 12h17" stroke="#141a2b" stroke-width="1.1"/><rect x="10" y="10.5" width="4" height="3.5" rx=".8" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/></svg><span>가방</span></button>
       <button data-side="mis"><svg viewBox="0 0 24 24"><rect x="4.5" y="4" width="15" height="18" rx="2" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><rect x="6.5" y="6.5" width="11" height="13.5" rx="1" fill="#eef2fb"/><rect x="8.5" y="2.5" width="7" height="4" rx="1" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8 11l1.5 1.5 2.6-2.8M8 16l1.5 1.5 2.6-2.8" fill="none" stroke="#1fa868" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.8 11.3h2.2M13.8 16.3h2.2" stroke="#7c87a6" stroke-width="1.5" stroke-linecap="round"/></svg><span>임무</span><i class="dot" id="dotMis"></i></button>
       <button data-side="att"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" fill="#eef2fb" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3H3z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8 3v4M16 3v4" stroke="#141a2b" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="15.3" r="4" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M10.3 15.3l1.2 1.2 2.3-2.4" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>출석</span><i class="dot" id="dotAtt"></i></button>
       <button data-side="book"><svg viewBox="0 0 24 24"><path d="M3 5.5c3-1.2 6-1.2 9 .6v14c-3-1.8-6-1.8-9-.6z" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M21 5.5c-3-1.2-6-1.2-9 .6v14c3-1.8 6-1.8 9-.6z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M5 8.5c1.8-.6 3.6-.5 5 .3M5 11.5c1.8-.6 3.6-.5 5 .3M14 8.8c1.4-.8 3.2-.9 5-.3" stroke="#eef2fb" stroke-width=".9" stroke-linecap="round" opacity=".8"/><path d="M15.5 12l.9 1.9 2 .3-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.3z" fill="url(#mGold)"/></svg><span>기록</span></button>
@@ -1489,6 +1514,39 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
    * - 최대 8시간까지만 인정
    * - 처치 속도는 (파티 DPS / 적 체력), 상한 2마리/초, 효율 50%
    */
+  /* ---------- 핵심 버프: 출전 요원 유형 조합 (세나 키우기 편성 핵심 버프처럼) ---------- */
+  const SYNERGY = [
+    { type: '공격', need: [2, 3], text: n => `공격력 +${n * 10}%`, atk: [0.1, 0.2] },
+    { type: '광역', need: [2, 3], text: n => `공격력 +${n * 8}%`, atk: [0.08, 0.16] },
+    { type: '방어', need: [2, 3], text: n => `체력 +${n * 15}%`, hp: [0.15, 0.3] },
+    { type: '지원', need: [2, 3], text: n => `기술 재사용 -${n * 10}%`, cd: [0.1, 0.2] },
+  ];
+  /** 현재 편성의 핵심 버프. lines 는 화면 표시용 (유형, 인원, 단계, 문구) */
+  function synergy(state) {
+    const cnt = {}; for (const id of partyIds(state)) { const h = heroById(id); cnt[h.type] = (cnt[h.type] || 0) + 1; }
+    const out = { atk: 1, hp: 1, cd: 1, lines: [] };
+    for (const r of SYNERGY) {
+      const n = cnt[r.type] || 0, lv = r.need.filter(k => n >= k).length;
+      out.lines.push({ type: r.type, n, lv, next: r.need[lv] || null, text: r.text(Math.max(1, lv)) });
+      if (!lv) continue;
+      if (r.atk) out.atk += r.atk[lv - 1]; if (r.hp) out.hp += r.hp[lv - 1]; if (r.cd) out.cd -= r.cd[lv - 1];
+    }
+    const all = TYPES.every(t => cnt[t]);
+    out.lines.push({ type: '전체', n: TYPES.filter(t => cnt[t]).length, lv: all ? 1 : 0, next: all ? null : 4, text: '공격력 +10%, 체력 +10%' });
+    if (all) { out.atk += 0.1; out.hp += 0.1; }
+    return out;
+  }
+
+  /* ---------- 가방: 시간 보급품 (쓰면 그 시간만큼 사냥한 보상) ---------- */
+  const ITEMS = { g2: { name: '골드 보급품', sub: '2시간 사냥 골드', key: 'gold' }, e2: { name: '경험치 보급품', sub: '2시간 사냥 경험치', key: 'exp' } };
+  function useItem(state, id, n = 1) {
+    const it = ITEMS[id]; const k = clampInt(n, 1, 999, 1);
+    if (!it || (state.bag[id] || 0) < k) return null;
+    const r = offlineReward(state, 7200), v = Math.floor((r[it.key] || 0) / CONST.OFFLINE_RATE) * k;   // 자리 비움 할인 없이
+    state.bag[id] -= k; state[it.key] += v;
+    return { [it.key]: v };
+  }
+
   function offlineReward(state, elapsedSec) {
     if (!isNum(elapsedSec) || elapsedSec < CONST.OFFLINE_MIN_SEC) return { sec: 0, gold: 0, kills: 0 };
     const sec = Math.min(elapsedSec, CONST.OFFLINE_CAP_SEC);
@@ -1701,6 +1759,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     { id: 'welcome', from: 'AIU 본부', title: '신입 수사관 환영 선물', rw: { gems: 300 } },
     { id: 'u018', from: 'AIU 본부', title: '0.18 업데이트 기념 선물', rw: { tix: 10 } },
     { id: 'rain', from: '나이트폴', title: '비 오는 날의 보급품', rw: { ptix: 1 } },
+    { id: 'supply', from: 'AIU 본부', title: '현장 보급품 지급', rw: { g2: 3, e2: 3 } },
   ];
   function mailClaim(state, id) {
     const m = MAILS.find(x => x.id === id);
@@ -1721,6 +1780,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     if (r.gems) state.gems += r.gems;
     if (r.tix) state.tix += r.tix;
     if (r.ptix) state.ptix += r.ptix;
+    for (const k of Object.keys(ITEMS)) if (r[k]) state.bag[k] = (state.bag[k] || 0) + r[k];
     if (r.shard && state.heroes[r.shard]) state.heroes[r.shard].shards += clampInt(r.n, 0, 1e6, 0);   // 요원 조각
     return r;
   }
@@ -1861,7 +1921,8 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
       heroes,
       party: STARTER_IDS.slice(),   // 전투에 나가는 요원 (최대 5명)
       unl: [],
-      mail: [],           // 받은 우편
+      mail: [],
+      bag: {},            // 가방 (보급품 개수)           // 받은 우편
       cdx: {},            // 요원 도감 받은 단계            // 받은 수사 수첩 보상
       face: '',           // 프로필 얼굴 (비면 첫 출전 요원)
       up: { atk: 0, gold: 0, crit: 0 },
@@ -1925,6 +1986,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
       s.daily.bonus = raw.daily.bonus === true && s.daily.got.length === MISSIONS.length;
     }
     s.cdx = {}; if (raw.cdx && typeof raw.cdx === 'object') for (const h of HEROES) if (isNum(raw.cdx[h.id])) s.cdx[h.id] = clampInt(raw.cdx[h.id], 0, CODEX_TIERS, 0);
+    s.bag = {}; if (raw.bag && typeof raw.bag === 'object') for (const k of Object.keys(ITEMS)) if (isNum(raw.bag[k])) s.bag[k] = clampInt(raw.bag[k], 0, 1e6, 0);
     s.mail = Array.isArray(raw.mail) ? raw.mail.filter(x => MAILS.some(m => m.id === x)) : [];
     s.unl = Array.isArray(raw.unl) ? raw.unl.filter(x => ROADMAP.some(r => r.id === x)) : [];
     s.face = typeof raw.face === 'string' && HEROES.some(h => h.id === raw.face) ? raw.face : '';
@@ -1962,7 +2024,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   const Core = {
     HEROES, TYPES, STARTER_IDS, partyIds, partySlots, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
-    MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
+    SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,
@@ -2449,7 +2511,8 @@ const owned = () => C.HEROES.filter(h => S.heroes[h.id].owned);
 const team = () => C.partyIds(S).map(id => C.heroById(id));
 const RANKS = ['신입 수사관', '정식 수사관', '선임 수사관', '수석 수사관', '수사팀장', '특수 수사관'];   // 프로필 계급 (구역 10스테이지마다 하나씩)
 /** 전투력: 출전 요원의 공격력 ×10 + 체력 합 (세나 키우기 전투력처럼 한 숫자로) */
-function teamPower() { return Math.round(team().reduce((a, h) => { const d = S.heroes[h.id]; return a + C.heroAtk(h.id, d.lv, d.stars, S.up.atk) * 10 + C.heroHp(h.id, d.lv, d.stars); }, 0)); }
+let SYN = { atk: 1, hp: 1, cd: 1, lines: [] };   // 핵심 버프 (편성이 바뀔 때 syncHeroes 에서 갱신)
+function teamPower() { const y = C.synergy(S); return Math.round(team().reduce((a, h) => { const d = S.heroes[h.id]; return a + C.heroAtk(h.id, d.lv, d.stars, S.up.atk) * y.atk * 10 + C.heroHp(h.id, d.lv, d.stars) * y.hp; }, 0)); }
 const HERO_SIZE = 50;
 // 진형: [앞(이동 방향), 옆] 오프셋. 근접은 앞줄, 원거리는 뒷줄 (파티가 바뀌면 다시 나눔)
 const FRONT = [[30, -16], [32, 18], [38, 1]], BACK = [[-20, -30], [-40, 4], [-18, 32], [-36, -12]];
@@ -2474,8 +2537,9 @@ function partyChanged() {
   partyKey = '';
 }
 function syncHeroes(full) {
+  SYN = C.synergy(S);
   for (const h of team()) {
-    const d = S.heroes[h.id], max = C.heroHp(h.id, d.lv, d.stars);
+    const d = S.heroes[h.id], max = C.heroHp(h.id, d.lv, d.stars) * SYN.hp;
     const r = R.heroes[h.id];
     if (!r) { const p = formSlot(h.id); R.heroes[h.id] = { hp: max, max, cd: h.skill.cd * 0.5, at: Math.random(), swing: 0, hurt: 0, x: p.x, y: p.y, face: 1 }; }
     else { const ratio = r.max > 0 ? r.hp / r.max : 1; r.max = max; r.hp = full ? max : Math.min(max, max * ratio); }
@@ -2650,7 +2714,7 @@ function moveTo(o, tx, ty, sp, dt) {
   return d;
 }
 function heroAct(h, r, dt) {
-  const d = S.heroes[h.id], atk = C.heroAtk(h.id, d.lv, d.stars, S.up.atk), s = HERO_SIZE;
+  const d = S.heroes[h.id], atk = C.heroAtk(h.id, d.lv, d.stars, S.up.atk) * SYN.atk, s = HERO_SIZE;
   r.swing = Math.max(0, r.swing - dt * 4); r.hurt = Math.max(0, r.hurt - dt * 3);
   r.walk = false;
   // 내 근처 적, 없으면 파티가 싸우는 중일 때 파티 기준점에서 가까운 적 (한 명만 앞서 나가 혼자 싸우지 않게)
@@ -2661,7 +2725,7 @@ function heroAct(h, r, dt) {
     return;
   }
   // 직접 누른 기술은 사거리를 기다리지 않고 바로 씀 (근처에 적이 있으면)
-  if (r.queued && r.cd <= 0) { r.queued = false; r.cd = h.skill.cd; r.face = tgt.x >= r.x ? 1 : -1; castSkill(h, atk, r, s, tgt); r.swing = 1; return; }
+  if (r.queued && r.cd <= 0) { r.queued = false; r.cd = h.skill.cd * SYN.cd; r.face = tgt.x >= r.x ? 1 : -1; castSkill(h, atk, r, s, tgt); r.swing = 1; return; }
   const range = RANGE[h.range] + (h.range === 'melee' ? tgt.size * 0.25 : 0), dd = dist(r, tgt);
   if (dd > range) { moveTo(r, tgt.x, tgt.y, 90, dt); r.walk = true; return; }
   r.face = tgt.x >= r.x ? 1 : -1; dmgSrc = h.id;
@@ -2669,7 +2733,7 @@ function heroAct(h, r, dt) {
   r.cd -= dt;
   if (r.cd <= 0) {
     r.cd = 0;
-    if (S.autoSkill || r.queued) { r.queued = false; r.cd = h.skill.cd; castSkill(h, atk, r, s, tgt); r.swing = 1; return; }
+    if (S.autoSkill || r.queued) { r.queued = false; r.cd = h.skill.cd * SYN.cd; castSkill(h, atk, r, s, tgt); r.swing = 1; return; }
   }
   // 일반 공격
   r.at += dt * h.atkSpd;
@@ -3291,7 +3355,7 @@ function updateUI() {
   if (key !== partyKey) { partyKey = key; renderParty(); }
   for (const h of team()) {
     const el = $('sl-' + h.id), r = R.heroes[h.id]; if (!el || !r) continue;
-    el.style.setProperty('--cd', Math.max(0, r.cd / h.skill.cd).toFixed(3));
+    el.style.setProperty('--cd', Math.max(0, r.cd / (h.skill.cd * SYN.cd)).toFixed(3));
     el.style.setProperty('--hp', (100 * Math.max(0, r.hp / r.max)).toFixed(1) + '%');
     el.classList.toggle('ready', r.cd <= 0.15 && r.hp > 0);
     el.classList.toggle('dead', r.hp <= 0);
@@ -3376,6 +3440,7 @@ function formHtml() {
   return `<div class="fstage"><div class="fbg" style="background-image:url(${bg || ''})"></div><div class="ring"></div>${spots}</div>
       <div class="fbar"><span class="fc"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2l8 3v6c0 5-3.5 9-8 11c-4.5-2-8-6-8-11V5z" fill="#c9d3ee"/></svg><b class="${pids.length >= slots ? 'full' : ''}">${pids.length}</b>/${slots}</span>
         <button class="mbtn go" data-act="autoform">자동 편성</button></div>
+    <div class="syn"><div class="syn-h"><b>핵심 버프</b><small>같은 유형 요원을 함께 출전시키면 켜져요</small></div>${SYN.lines.map(l => `<div class="syn-r ${l.lv ? 'on' : ''}">${l.type === '전체' ? '<i class="syn-all">4</i>' : `<svg class="ic"><use href="#i-t-${l.type}"/></svg>`}<span>${l.type === '전체' ? '네 유형 모두' : l.type + ' ' + l.n + '명'}</span><em>${l.text}</em><small>${l.next ? (l.type === '전체' ? `${l.n} / 4 유형` : `${l.next}명부터`) : '최대'}</small></div>`).join('')}</div>
     <p class="fhint">요원을 누르면 출전하거나 빠져요. 근접 요원은 앞줄, 원거리 요원은 뒷줄에 서요.</p>
     <div class="agrid">${sortHeroes(owned(), pids).map(h => agentCard(h, pids, 'fpick')).join('')}</div>`;
 }
@@ -3393,10 +3458,14 @@ function renderPanel() {
     for (const x of $('hsub').children) x.classList.toggle('on', x.dataset.hsub === hsub);
     P.innerHTML = hsub === 'form' ? formHtml() : hsub === 'codex' ? codexHtml() : manageHtml();
   } else if (tab === 'train') {
+    // 세나 키우기 영향력 창처럼: 단계 + 막대, ×1/×10/×100, 강화 카드 3장, 아래 잠긴 탭
     const ic = { atk: 'sword', gold: 'gold', crit: 'target' };
-    P.innerHTML = C.UPGRADES.map(u => `<div class="urow" data-u="${u.id}"><div class="uic"><svg><use href="#i-${ic[u.id]}"/></svg></div>
-      <div><div class="ut">${u.name}</div><div class="uv"></div></div>
-      <button class="btn" data-act="up" data-u="${u.id}"><span>강화</span><span class="cost">${icon('exp')}<i></i></span></button></div>`).join('');
+    P.innerHTML = `<div class="gw"><div class="gw-h"><b id="gwLv"></b><div class="gw-bar"><i id="gwBar"></i></div><small id="gwN"></small></div>
+      <div class="seg gw-mul">${[1, 10, 100].map(n => `<button data-act="umul" data-n="${n}" class="${uMul === n ? 'on' : ''}">×${n}</button>`).join('')}</div>
+      <div class="gw-cards">${C.UPGRADES.map(u => `<div class="gw-c" data-u="${u.id}"><div class="gw-ic"><svg class="ic"><use href="#i-${ic[u.id]}"/></svg></div><b>${u.name}</b><small class="gw-lv"></small><div class="gw-v"></div>
+        <button class="btn" data-act="up" data-u="${u.id}"><span>레벨업</span><span class="cost">${icon('gold')}<i></i></span></button></div>`).join('')}</div>
+      <p class="hint">출전한 요원 모두에게 적용돼요.</p>
+      <div class="gw-tabs"><button class="on">훈련</button><button data-act="cdxlock" data-v="51">특성<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-1px;margin-left:3px"><rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4"/></svg></button><button data-act="cdxlock" data-v="121">장비<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-1px;margin-left:3px"><rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4"/></svg></button></div></div>`;
   } else if (tab === 'run') {
     renderRun(P);
   } else {
@@ -3474,12 +3543,16 @@ function updatePanel() {
     const all = $('hAll'); if (all) all.disabled = !owned().some(h => S.heroes[h.id].shards >= C.starNeed(S.heroes[h.id].stars, h.grade));
     if (hpageId) fillHeroDetail();
   } else if (tab === 'train') {
-    for (const row of P.querySelectorAll('.urow[data-u]')) {
-      const id = row.dataset.u, lv = S.up[id], cost = C.upgradeCost(id, lv);
-      row.querySelector('.uv').innerHTML = id === 'crit' ? `Lv.${lv}  현재 <em>${Math.round(C.critChance(lv) * 100)}%</em>` : `Lv.${lv}  현재 <em>+${lv * 10}%</em>`;
+    const tot = C.UPGRADES.reduce((a, u) => a + S.up[u.id], 0);
+    $('gwLv').textContent = `수사 훈련 ${Math.floor(tot / 10) + 1}단계`; $('gwBar').style.width = (tot % 10) * 10 + '%'; $('gwN').textContent = `${tot % 10} / 10`;
+    for (const row of P.querySelectorAll('.gw-c[data-u]')) {
+      const id = row.dataset.u, lv = S.up[id], { n, cost } = upPlan(id);
+      const val = L => id === 'crit' ? Math.round(C.critChance(L) * 100) + '%' : '+' + L * 10 + '%';
+      row.querySelector('.gw-lv').textContent = `Lv.${lv}`;
+      row.querySelector('.gw-v').innerHTML = n ? `${val(lv)} <i>»</i> <em>${val(lv + n)}</em>` : `${val(lv)}`;
       const btn = row.querySelector('button');
-      btn.querySelector('.cost i').textContent = cost === Infinity ? '최대' : C.formatNum(cost);
-      btn.disabled = cost === Infinity || cost > S.gold;
+      btn.querySelector('.cost i').textContent = n ? C.formatNum(cost) : '최대';
+      btn.disabled = !n || cost > S.gold;
     }
   } else if (tab === 'run') {
     updateRun(P);
@@ -3921,10 +3994,11 @@ function onAct(e) {
       if (d.shards < need) return;
       const pw0 = teamPower(), before = d.stars; d.shards -= need; d.stars++; C.progress(S, 'star', 1); setTimeout(() => pwUp(pw0), 0); syncHeroes(false); showStarUp(b.dataset.h, before); renderPanel(); if (hpageId) renderHeroPage();
     } else if (act === 'up') {
-      const id = b.dataset.u, cost = C.upgradeCost(id, S.up[id]);
-      if (cost > S.gold) return toast('골드가 부족해요');
-      S.gold -= cost; S.up[id]++; C.progress(S, 'train', 1);
-    } else if (act === 'sum') doSummon(+b.dataset.n, b.dataset.kind);
+      const id = b.dataset.u, { n, cost } = upPlan(id);
+      if (!n) return; if (cost > S.gold) return toast('골드가 부족해요');
+      const pw0 = teamPower(); S.gold -= cost; S.up[id] += n; C.progress(S, 'train', n); pwUp(pw0);
+    } else if (act === 'umul') { uMul = +b.dataset.n; renderPanel(); }
+    else if (act === 'sum') doSummon(+b.dataset.n, b.dataset.kind);
     else if (act === 'testOff') showOffline(C.offlineReward(S, 3600));
     else if (act === 'reset') confirmReset();
     updateUI(); writeSave();
@@ -4028,6 +4102,7 @@ $('side').addEventListener('click', e => {
   if (b.dataset.side === 'road') return openModal(roadHtml());
   if (b.dataset.side === 'book') return openModal(bookHtml());
   if (b.dataset.side === 'mail') return openModal(mailHtml());
+  if (b.dataset.side === 'bag') return openModal(bagHtml());
   if (b.dataset.side === 'news') { try { localStorage.setItem('aiu-news', NEWS[0][0]); } catch (e) {} $('dotNews').classList.remove('on'); return openModal(newsHtml()); }
   openSide(b.dataset.side);
 });
@@ -4426,6 +4501,28 @@ modalEl.addEventListener('click', e => {
   if (e.target.closest('[data-flipall]')) { [...modalEl.querySelectorAll('.rc.fd')].forEach((c, i) => setTimeout(() => rcFlip(c), i * 60)); const b = modalEl.querySelector('[data-flipall]'); b.remove(); }
 });
 
+
+/* ---------- 성장: 한 번에 올릴 수 (×1/×10/×100) ---------- */
+let uMul = 1;
+function upPlan(id) {
+  let n = 0, cost = 0, lv = S.up[id];
+  while (n < uMul) { const c = C.upgradeCost(id, lv + n); if (c === Infinity) break; cost += c; n++; }
+  return { n, cost };
+}
+
+/* ---------- 가방 ---------- */
+function bagHtml() {
+  const ids = Object.keys(C.ITEMS);
+  const has = ids.filter(k => S.bag[k] > 0);
+  return `<h2>가방</h2><div class="mlist">${has.length ? has.map(k => { const it = C.ITEMS[k]; return `<div class="ml"><div class="rd-r">${icon(it.key === 'gold' ? 'gold' : 'exp')}<span>${S.bag[k]}</span></div><div><b>${it.name}</b><small>${it.sub}</small></div>
+    <span class="bag-b"><button class="btn sm ghost" data-use="${k}" data-n="1">1개 사용</button><button class="btn sm" data-use="${k}" data-n="${S.bag[k]}">모두 사용</button></span></div>`; }).join('') : '<p class="empty">가방이 비어 있어요</p>'}</div>
+    <p class="hint">보급품은 우편함과 수사 수첩에서 받아요.</p><div class="mbtns"><button class="btn" data-close>닫기</button></div>`;
+}
+modalEl.addEventListener('click', e => {
+  const b = e.target.closest('[data-use]'); if (!b) return;
+  const r = C.useItem(S, b.dataset.use, +b.dataset.n); if (!r) return;
+  writeSave(); modalEl.classList.remove('on'); showResult('gift', '보상 획득', rwTiles(r));
+});
 /* ---------- 근원체 출현 컷인 ---------- */
 function bossCutIn() {
   const el = $('bossin'), t = theme(), img = ART['spr_boss' + (Math.floor((S.stage - 1) / 10) % 3 + 1)] || ART.spr_boss1;
@@ -4519,6 +4616,7 @@ try { if (localStorage.getItem('aiu-side') === '1') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.19.0', '11월 28일', ['앱이 스스로 새 버전을 받아요 (다시 설치할 필요 없음)', '편성에 핵심 버프: 같은 유형 요원을 함께 내보내면 능력치가 올라요', '성장 창이 ×1, ×10, ×100 레벨업으로 바뀌었어요', '가방과 보급품이 생겼어요', '앱 아이콘이 바뀌었어요']],
   ['0.18.0', '11월 28일', ['우편함, 스테이지 창, 스테이지 클리어, 새 기능 열림 알림, 호출 카드 뒤집기가 생겼어요', '요원 도감 레벨 달성 보상, 기술 설명, 전투력 변화 표시가 생겼어요', '수사 수첩, 프로필, 피해량 기록, 일괄 소탕이 생겼어요', '구역 근원체가 처음 나올 때 이야기가 나와요', '요원 창을 요원 관리, 편성, 도감으로 나눴어요', '요원 상세 화면과 승급 성공 연출이 생겼어요', '가이드 보상으로 블레이즈 첫 승급을 할 수 있어요', '근원체 출현 컷인, 요원 대사, 보상 획득 창이 생겼어요', '재화와 메뉴 아이콘을 새로 그렸어요', '절전 모드와 새 설정이 생겼어요']],
   ['0.17.0', '11월 27일', ['가이드 퀘스트가 생겼어요', '뒤로 가기 버튼을 누르면 종료를 묻도록 바꿨어요', '오프닝 연출을 새로 만들었어요']],
 ];

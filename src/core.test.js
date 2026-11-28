@@ -352,3 +352,19 @@ test('우편함: 한 번만 받음', () => {
   assert.equal(C.mailClaim(s, 'welcome'), null);
   assert.deepEqual(C.sanitize(JSON.parse(JSON.stringify({ ...s, mail: ['welcome', 'zz'] })), 0).mail, ['welcome']);
 });
+
+test('핵심 버프: 방어 2명이면 체력 +15%, 네 유형이면 전체 버프', () => {
+  const s = C.newState(0);
+  s.heroes.knight.owned = true; s.heroes.breaker.owned = true; s.party = ['knight', 'breaker'];
+  const a = C.synergy(s); assert.ok(Math.abs(a.hp - 1.15) < 1e-9); assert.equal(a.atk, 1);
+  for (const id of ['archer', 'mage', 'priest']) s.heroes[id].owned = true;
+  s.stage = 21; s.party = ['knight', 'archer', 'mage', 'priest'];
+  const b = C.synergy(s); assert.ok(Math.abs(b.atk - 1.1) < 1e-9); assert.ok(Math.abs(b.hp - 1.1) < 1e-9);
+});
+test('가방: 보급품을 쓰면 줄고 골드가 늘어남', () => {
+  const s = C.newState(0); C.mailClaim(s, 'supply');
+  assert.equal(s.bag.g2, 3); const g = s.gold;
+  const r = C.useItem(s, 'g2', 2); assert.ok(r.gold > 0); assert.equal(s.gold, g + r.gold); assert.equal(s.bag.g2, 1);
+  assert.equal(C.useItem(s, 'g2', 5), null);
+  assert.equal(C.sanitize(JSON.parse(JSON.stringify(s)), 0).bag.g2, 1);
+});

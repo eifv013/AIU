@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.19.3';
+window.AIU_VER = '0.19.4';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1028,18 +1028,59 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 #side{padding:5px 4px 6px!important;border-radius:14px!important;border:0!important;
   background:linear-gradient(#141b2e,#0c111f) padding-box,linear-gradient(160deg,#c8b27a,#5b4b2a 30%,#2a3150 55%,#8d7a4c) border-box!important;
   border:2px solid transparent!important;box-shadow:0 4px 14px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.06)!important}
-#side .sd-list{display:grid!important;grid-template-columns:repeat(2,42px);gap:4px!important;margin-top:6px!important;padding-top:6px;border-top:1px solid rgba(200,178,122,.28)}
-#side{align-items:flex-end!important}
-#side .sd-list button,#side #btnSet{width:42px!important;height:40px!important;border-radius:9px!important;
+#side .sd-list{display:grid!important;grid-template-columns:40px;gap:3px!important;max-height:calc(100vh - var(--bottomH,120px) - var(--teamH,74px) - 250px);overflow-y:auto;scrollbar-width:none;margin-top:6px!important;padding-top:6px;border-top:1px solid rgba(200,178,122,.28)}
+#side{align-items:center!important;top:calc(env(safe-area-inset-top) + 78px)!important}
+#side .sd-list button,#side #btnSet{width:40px!important;height:34px!important;border-radius:9px!important;
   background:radial-gradient(circle at 50% 35%,#2a3558,#151c30 70%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -2px 4px rgba(0,0,0,.5),0 1px 0 rgba(0,0,0,.6)!important;border:1px solid rgba(110,134,196,.25)!important}
 #side .sd-list button:active,#side #btnSet:active{transform:scale(.94);background:radial-gradient(circle at 50% 35%,#3a4a78,#1b2440 70%)!important}
-#side .sd-list svg{width:27px!important;height:27px!important}
+#side .sd-list svg{width:25px!important;height:25px!important}
 #side .dot{right:-4px!important;top:-4px!important}
-#sideTg{width:42px!important;height:38px!important;display:grid;place-items:center}
+#sideTg{width:40px!important;height:34px!important;display:grid;place-items:center}
 #sideTg svg{width:28px!important;height:28px!important}
 #sideTg .tg-m{display:none}#side.fold #sideTg .tg-m{display:block}#side.fold #sideTg .tg-x{display:none}
 #side.fold{padding:4px!important}
 #side.fold .sd-list{display:none!important}
+
+/* ---------- 전투 화면 왼쪽, 오른쪽 버튼을 같은 모양으로 (금속 테두리 판 + 오목한 칸) ---------- */
+#bctl{padding:5px 4px!important;gap:4px!important;border-radius:14px;border:2px solid transparent!important;
+  background:linear-gradient(#141b2e,#0c111f) padding-box,linear-gradient(160deg,#c8b27a,#5b4b2a 30%,#2a3150 55%,#8d7a4c) border-box!important;box-shadow:0 4px 14px rgba(0,0,0,.6)}
+#bctl button{width:42px!important;height:42px!important;border-radius:9px!important;border:1px solid rgba(110,134,196,.25)!important;color:#c9d3ee!important;
+  background:radial-gradient(circle at 50% 35%,#2a3558,#151c30 70%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -2px 4px rgba(0,0,0,.5)!important}
+#bctl button[aria-pressed="true"]{color:var(--gold)!important;border-color:rgba(242,201,76,.7)!important;background:radial-gradient(circle at 50% 35%,#5a4a1e,#231d0c 75%)!important;box-shadow:inset 0 0 10px rgba(242,201,76,.35),inset 0 1px 0 rgba(255,255,255,.1)!important}
+#bctl button:active{transform:scale(.94)}
+#bctl .ic{width:19px!important;height:19px!important}
+#bossAuto{border:2px solid transparent!important;background:radial-gradient(circle at 50% 35%,#2a3558,#151c30 70%) padding-box,linear-gradient(160deg,#c8b27a,#5b4b2a 30%,#2a3150 55%,#8d7a4c) border-box!important;color:#c9d3ee!important;box-shadow:0 4px 12px rgba(0,0,0,.6)!important}
+#bossAuto[aria-pressed="true"]{color:var(--gold)!important;background:radial-gradient(circle at 50% 35%,#5a4a1e,#231d0c 75%) padding-box,linear-gradient(160deg,#fff0b0,#c99a2e 40%,#6b5320 70%,#e8c860) border-box!important;box-shadow:0 0 12px rgba(242,201,76,.4),0 4px 12px rgba(0,0,0,.6)!important}
+/* 가방 (아래 재화 줄 오른쪽) */
+#btnBag{position:relative;flex:none;width:34px;height:34px;display:grid;place-items:center;padding:0;border-radius:9px;border:1px solid rgba(110,134,196,.3);background:radial-gradient(circle at 50% 35%,#2a3558,#151c30 70%);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),inset 0 -2px 4px rgba(0,0,0,.5)}
+#btnBag svg{width:24px;height:24px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))}
+#btnBag:active{transform:scale(.94)}
+#btnBag .dot{top:-6px;right:-6px}
+
+/* ---------- 위쪽 배치 (세나 키우기 메인 화면처럼) ---------- */
+#stageBox{flex:0 1 50%!important;padding:4px 2px 0 0!important;background:none!important;border:0!important;box-shadow:none!important;text-align:left!important}
+.sb-bar{position:relative;display:flex;align-items:center;height:44px;padding-right:40px}
+.sb-gem{flex:none;width:18px;height:26px;margin-right:-4px;position:relative;z-index:2;filter:drop-shadow(0 1px 2px #000)}
+#prog{flex:1;display:block!important;margin:0!important;position:relative;height:14px;filter:drop-shadow(0 0 1px rgba(200,178,122,.9)) drop-shadow(0 2px 3px rgba(0,0,0,.7))}
+#prog::before{content:''!important;position:absolute;inset:0;height:auto!important;border-radius:0!important;clip-path:polygon(0 0,92% 0,100% 50%,92% 100%,0 100%);background:linear-gradient(#0a0d16,#1a2030)!important;box-shadow:none!important}
+#prog i{position:absolute;left:0;top:2px;bottom:2px;height:auto!important;border-radius:0!important;clip-path:polygon(0 0,calc(100% - 6px) 0,100% 50%,calc(100% - 6px) 100%,0 100%);background:linear-gradient(#ffe38a,#e0a92a)!important}
+#prog i.boss{background:linear-gradient(#ff8a7a,#d0302a)!important}
+#prog span{position:absolute;right:-38px;top:22px;font:400 15px "Black Han Sans"!important;color:#fff;text-shadow:0 1px 3px #000}
+.sb-boss{position:absolute;right:0;top:0;width:44px;height:44px;border-radius:50%;overflow:hidden;border:2px solid #c8b27a;background:radial-gradient(#5a1e1e,#1a0a0a);box-shadow:0 2px 8px rgba(0,0,0,.6)}
+.sb-boss img{width:100%;height:180%;object-fit:cover;object-position:50% 0%}
+#stageRow{display:flex!important;justify-content:flex-start!important;align-items:baseline;gap:6px;margin-top:1px;padding-left:16px;text-shadow:0 1px 3px #000}
+#stage{font:400 16px "Black Han Sans"!important}#area{font:700 11px 'IBM Plex Sans KR'!important;color:#c9d3ee!important}
+/* 근원체 소환 띠 */
+#bossBtn{display:none!important}
+#bossSum{position:absolute;left:8px;top:calc(env(safe-area-inset-top) + 72px);z-index:3;display:flex;align-items:center;gap:6px;width:min(52%,190px);height:42px;padding:0 10px 0 0;border:0;border-radius:6px;overflow:hidden;color:#fff;text-align:left;
+  background:linear-gradient(90deg,rgba(120,24,24,.92),rgba(70,14,14,.75) 70%,rgba(40,8,8,0));box-shadow:inset 0 1px 0 rgba(255,140,120,.25)}
+#bossSum img{flex:none;width:52px;height:52px;margin-top:6px;object-fit:cover;object-position:50% 5%;filter:drop-shadow(0 0 6px rgba(255,60,60,.6))}
+#bossSum .bs-arr{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;letter-spacing:-2px;color:#ffb0a0;opacity:.7}
+#bossSum .bs-t{display:grid;padding-top:8px}#bossSum b{font:400 15px "Black Han Sans"}#bossSum small{font:700 10px 'IBM Plex Sans KR';color:#ffc8bc}
+#bossSum.off{filter:saturate(.35) brightness(.75)}
+#bossSum.on{animation:bsGlow 1.3s ease-in-out infinite}
+@keyframes bsGlow{50%{box-shadow:inset 0 0 14px rgba(255,90,70,.9)}}
+#bossSum.hide{display:none}
 </style>
 </head>
 <body>
@@ -1087,8 +1128,9 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     <div id="hud">
       <div id="prof"><div class="pf-face"><img id="pfImg" alt=""></div><div class="pf-t"><b>Lv.<span id="pfLv">1</span></b><span class="pf-n">AIU 수사팀</span><span class="pf-r" id="pfRank"></span><i class="pf-bar"><i id="pfBar"></i></i></div></div>
       <div id="stageBox">
+        <div class="sb-bar"><svg class="sb-gem" viewBox="0 0 20 28"><path d="M10 1l8 12-8 14-8-14z" fill="url(#mBlue)" stroke="#c9d3ee" stroke-width="1.2" stroke-linejoin="round"/><path d="M10 1v26M2 13h16" stroke="#c9d3ee" stroke-width=".6" opacity=".6"/></svg>
+          <div id="prog"><i></i><span></span></div><div class="sb-boss"><img id="sbBoss" alt=""></div></div>
         <div id="stageRow"><span id="stage">1-1</span><span id="area">초원 길</span></div>
-        <div id="prog"><i></i><span></span></div>
       </div>
     </div>
     <!-- 오른쪽: 설정, 일일 임무, 출석 -->
@@ -1096,7 +1138,6 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
       <div class="sd-list">
       <button data-side="road"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="url(#mSteel)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><circle cx="12" cy="12" r="7.6" fill="#26304c" stroke="#141a2b" stroke-width=".9"/><path d="M12 5.2l2 6.8-2 6.8-2-6.8z" fill="url(#mGold)" stroke="#5a3504" stroke-width=".6"/><path d="M12 12l2-.0" /><path d="M5.2 12l6.8-2 6.8 2-6.8 2z" fill="#9fb3e8" opacity=".85"/><circle cx="12" cy="12" r="1.4" fill="#fff"/></svg><span>수첩</span><i class="dot" id="dotRoad"></i></button>
       <button data-side="mail"><svg viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="19" height="13" rx="1.6" fill="#eef2fb" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M2.8 6.2L12 13l9.2-6.8" fill="none" stroke="#141a2b" stroke-width="1.2" stroke-linejoin="round"/><path d="M3.5 6.5L12 12.6l8.5-6.1" fill="url(#mGold)" opacity=".9"/></svg><span>우편</span><i class="dot" id="dotMail"></i></button>
-      <button data-side="bag"><svg viewBox="0 0 24 24"><path d="M8 7V5.5a4 4 0 0 1 8 0V7" fill="none" stroke="#141a2b" stroke-width="2.6"/><path d="M8 7V5.5a4 4 0 0 1 8 0V7" fill="none" stroke="#c9a46a" stroke-width="1.4"/><rect x="3.5" y="7" width="17" height="14" rx="3" fill="#8a5a2b" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M3.5 12h17" stroke="#141a2b" stroke-width="1.1"/><rect x="10" y="10.5" width="4" height="3.5" rx=".8" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/></svg><span>가방</span><i class="dot" id="dotBag"></i></button>
       <button data-side="mis"><svg viewBox="0 0 24 24"><rect x="4.5" y="4" width="15" height="18" rx="2" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><rect x="6.5" y="6.5" width="11" height="13.5" rx="1" fill="#eef2fb"/><rect x="8.5" y="2.5" width="7" height="4" rx="1" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8 11l1.5 1.5 2.6-2.8M8 16l1.5 1.5 2.6-2.8" fill="none" stroke="#1fa868" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.8 11.3h2.2M13.8 16.3h2.2" stroke="#7c87a6" stroke-width="1.5" stroke-linecap="round"/></svg><span>임무</span><i class="dot" id="dotMis"></i></button>
       <button data-side="att"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" fill="#eef2fb" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3H3z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8 3v4M16 3v4" stroke="#141a2b" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="15.3" r="4" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M10.3 15.3l1.2 1.2 2.3-2.4" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>출석</span><i class="dot" id="dotAtt"></i></button>
       <button data-side="book"><svg viewBox="0 0 24 24"><path d="M3 5.5c3-1.2 6-1.2 9 .6v14c-3-1.8-6-1.8-9-.6z" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M21 5.5c-3-1.2-6-1.2-9 .6v14c3-1.8 6-1.8 9-.6z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M5 8.5c1.8-.6 3.6-.5 5 .3M5 11.5c1.8-.6 3.6-.5 5 .3M14 8.8c1.4-.8 3.2-.9 5-.3" stroke="#eef2fb" stroke-width=".9" stroke-linecap="round" opacity=".8"/><path d="M15.5 12l.9 1.9 2 .3-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.3z" fill="url(#mGold)"/></svg><span>기록</span></button>
@@ -1105,6 +1146,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
       <button id="btnSet" aria-label="설정"><svg viewBox="0 0 24 24"><path d="M8.96 4.82 L9.12 1.59 L14.88 1.59 L15.04 4.82 L16.70 5.78 L19.57 4.30 L22.45 9.29 L19.74 11.04 L19.74 12.96 L22.45 14.71 L19.57 19.70 L16.70 18.22 L15.04 19.18 L14.88 22.41 L9.12 22.41 L8.96 19.18 L7.30 18.22 L4.43 19.70 L1.55 14.71 L4.26 12.96 L4.26 11.04 L1.55 9.29 L4.43 4.30 L7.30 5.78Z M12 8.6a3.4 3.4 0 1 0 0 6.8a3.4 3.4 0 1 0 0-6.8z" fill="url(#mSteel)" fill-rule="evenodd" stroke="#141a2b" stroke-width="1.2" stroke-linejoin="round"/><circle cx="12" cy="12" r="5.6" fill="none" stroke="#525d7a" stroke-width="1"/><path d="M6.2 8.2a7 7 0 0 1 4-3.3" fill="none" stroke="#fff" stroke-width="1.1" stroke-linecap="round" opacity=".8"/></svg><span>설정</span></button>
       </div></div>
     <button id="bossBtn">근원체 추적</button>
+    <button id="bossSum"><img id="bsImg" alt=""><span class="bs-arr">◀◀◀</span><span class="bs-t"><b>근원체 소환</b><small id="bsSub"></small></span></button>
     <div id="banner"></div>
     <!-- 왼쪽 아래 세로: 자동 기술, 배속 -->
     <div id="meter"><div class="mt-h"><button data-mt="dps" class="on">피해량</button><button data-mt="log">획득</button><button id="mtX" aria-label="닫기">✕</button></div><div id="mtB"></div></div>
@@ -1131,7 +1173,8 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   <div id="bottom">
     <div id="bbar"><span class="pw">전투력 <b id="power">0</b></span>
       <span class="pill"><svg class="ic"><use href="#i-gold"/></svg><span id="gold">0</span></span>
-      <span class="pill"><svg class="ic"><use href="#i-gem"/></svg><span id="gems">0</span></span></div>
+      <span class="pill"><svg class="ic"><use href="#i-gem"/></svg><span id="gems">0</span></span>
+      <button id="btnBag" aria-label="가방"><svg viewBox="0 0 24 24"><path d="M8 7V5.5a4 4 0 0 1 8 0V7" fill="none" stroke="#141a2b" stroke-width="2.6"/><path d="M8 7V5.5a4 4 0 0 1 8 0V7" fill="none" stroke="#c9a46a" stroke-width="1.4"/><rect x="3.5" y="7" width="17" height="14" rx="3" fill="#8a5a2b" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M3.5 12h17" stroke="#141a2b" stroke-width="1.1"/><rect x="10" y="10.5" width="4" height="3.5" rx=".8" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/></svg><i class="dot" id="dotBag"></i></button></div>
     <nav id="tabs">
       <button data-tab="hero"><span class="tb"><svg viewBox="0 0 32 32"><path d="M4.5 30c.8-7.5 5.2-11.5 11.5-11.5S26.7 22.5 27.5 30z" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M11.6 19.3L16 26l4.4-6.7" fill="#eef2fb" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M16 22.4l-1.4 3.2 1.4 3 1.4-3z" fill="#e0503e"/><circle cx="16" cy="12" r="6" fill="url(#mSkin)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M9.8 12.2c-.4-4.6 2.4-7.2 6.2-7.2s6.6 2.6 6.2 7.2c-1-2-3.3-2.9-6.2-2.9s-5.2.9-6.2 2.9z" fill="#2b2333" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M20.5 22.3l3.6.9v2.6c0 1.6-1.6 2.8-3.6 3.4-2-.6-3.6-1.8-3.6-3.4v-2.6z" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/></svg></span><span class="tl">요원</span><i class="dot" id="dotHero"></i></button>
       <button data-tab="train"><span class="tb"><svg viewBox="0 0 32 32"><rect x="4" y="21" width="7" height="8" rx="1" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><rect x="12.5" y="17" width="7" height="12" rx="1" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><rect x="21" y="13" width="7" height="16" rx="1" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M16 2.5l9 9.5h-5v6h-8v-6H7z" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M16 5.6l-5.4 5.6" stroke="#fffbe6" stroke-width="1.3" stroke-linecap="round"/><path d="M5 6.5l.7 1.6 1.6.7-1.6.7L5 11.1l-.7-1.6-1.6-.7 1.6-.7zM27 3.5l.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5z" fill="#fff6cf"/></svg></span><span class="tl">성장</span><i class="dot" id="dotTrain"></i></button>
@@ -3121,7 +3164,7 @@ function drawWalls(F) {
 }
 /** 미니맵: 지도 전체, 이상체(빨강), 근원체(크게), 요원 팀(노랑), 현재 보이는 범위 */
 function drawMinimap() {
-  const mw = 58, mh = mw * MAPH / MAPW, mx = 13, my = R.boss ? 124 : 80, k = mw / MAPW;   // 왼쪽 위 프로필 아래 (오른쪽은 메뉴 아이콘 자리)
+  const mw = 58, mh = mw * MAPH / MAPW, mx = 13, my = R.boss ? 124 : 128, k = mw / MAPW;   // 왼쪽 위 프로필 아래 (오른쪽은 메뉴 아이콘 자리)
   g.fillStyle = 'rgba(18,21,28,.78)'; g.fillRect(mx - 3, my - 3, mw + 6, mh + 6);
   g.strokeStyle = '#2E3542'; g.lineWidth = 1; g.strokeRect(mx - 3.5, my - 3.5, mw + 7, mh + 7);
   const P = (x, y) => [mx + (x + MAPW / 2) * k, my + (y + MAPH / 2) * k];
@@ -3349,7 +3392,13 @@ function updateUI() {
   else if (R.chal) { bar.className = ''; bar.style.width = '100%'; lab.textContent = '작전'; }
   else if (S.farming) { bar.className = ''; bar.style.width = '100%'; lab.textContent = '구역 순찰'; }
   else { bar.className = ''; bar.style.width = (100 * S.kills / C.CONST.WAVE_KILLS) + '%'; lab.textContent = `${S.kills} / ${C.CONST.WAVE_KILLS}`; }
-  $('bossBtn').style.display = S.farming && !R.boss && !R.chal ? 'block' : 'none';
+  // 근원체 소환 띠: 처치가 다 차기 전에는 흐리게, 순찰 중(자동 추적 꺼짐)이면 반짝이며 누르면 소환
+  const bs = $('bossSum'), bimg = ART['spr_boss' + (chap % 3 + 1)] || '';
+  if ($('bsImg').getAttribute('src') !== bimg) { $('bsImg').src = bimg; $('sbBoss').src = bimg; }
+  bs.classList.toggle('hide', !!(R.boss || R.chal));
+  const full = S.farming || S.kills >= C.CONST.WAVE_KILLS;
+  bs.classList.toggle('on', S.farming); bs.classList.toggle('off', !full);
+  $('bsSub').textContent = S.farming ? '눌러서 바로 소환' : full ? '추적 중' : `처치 ${S.kills} / ${C.CONST.WAVE_KILLS}`;
   $('bossAuto').style.display = R.boss || R.chal ? 'none' : 'grid';
   $('bossAuto').setAttribute('aria-pressed', S.farming ? 'false' : 'true');
   // 가이드 퀘스트
@@ -4114,13 +4163,13 @@ $('quest').addEventListener('click', () => {
 $('bAuto').addEventListener('click', () => { S.autoSkill = !S.autoSkill; toast(S.autoSkill ? '기술을 자동으로 써요' : '준비된 요원 얼굴을 누르면 기술을 써요'); writeSave(); updateUI(); });
 $('bSpd').addEventListener('click', () => { S.speed = S.speed === 2 ? 1 : 2; writeSave(); updateUI(); });
 // 파티 칸: 기술이 준비된 요원을 누르면 바로 사용 (자동이 켜져 있어도 먼저 쓸 수 있음)
+$('btnBag').addEventListener('click', () => openModal(bagHtml()));
 $('side').addEventListener('click', e => {
   const b = e.target.closest('[data-side]'); if (!b) return;
   if (b.dataset.side === 'sleep') return sleepOn();
   if (b.dataset.side === 'road') return openModal(roadHtml());
   if (b.dataset.side === 'book') return openModal(bookHtml());
   if (b.dataset.side === 'mail') return openModal(mailHtml());
-  if (b.dataset.side === 'bag') return openModal(bagHtml());
   if (b.dataset.side === 'news') { try { localStorage.setItem('aiu-news', NEWS[0][0]); } catch (e) {} $('dotNews').classList.remove('on'); return openModal(newsHtml()); }
   openSide(b.dataset.side);
 });
@@ -4173,6 +4222,7 @@ modalEl.addEventListener('click', e => {
   else if (b.dataset.set === 'hot') { modalEl.classList.remove('on'); hotCheck(true); }
   else if (b.dataset.set === 'opening') { modalEl.classList.remove('on'); playOpening(); }
 });
+$('bossSum').addEventListener('click', () => { if (S.farming) $('bossBtn').click(); else if (S.kills < C.CONST.WAVE_KILLS) toast(`이상체를 ${C.CONST.WAVE_KILLS}마리 처치하면 근원체가 나와요`); });
 $('bossBtn').addEventListener('click', () => { S.farming = false; S.kills = C.CONST.WAVE_KILLS; R.enemies = []; R.boss = null; updateUI(); });
 
 /* ---------- 요원 호출 / 특별 채용 ---------- */
@@ -4634,6 +4684,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.19.4', '11월 28일', ['위쪽 화면을 바꿨어요: 오른쪽 위 스테이지 막대, 왼쪽 근원체 소환', '오른쪽 메뉴를 펼치면 한 줄로 나와요', '가방을 아래 재화 줄 오른쪽으로 옮겼어요', '전투 화면 왼쪽, 오른쪽 버튼 모양을 하나로 맞췄어요']],
   ['0.19.3', '11월 28일', ['오른쪽 메뉴는 처음에 접혀 있어요. 위 버튼을 누르면 펼쳐져요', '오른쪽 메뉴 판과 설정 아이콘을 새로 그렸어요']],
   ['0.19.2', '11월 28일', ['받을 것이 있으면 빨간 원 안에 느낌표가 떠요', '우편, 수첩, 소식에 알림이 안 뜨던 문제를 고쳤어요']],
   ['0.19.1', '11월 28일', ['오프닝 대사를 화면 아래 검은 띠에서 그림 위로 올렸어요']],

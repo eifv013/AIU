@@ -165,7 +165,7 @@
     OFFLINE_RATE: 0.5,       // 오프라인 효율 50%
     MAX_KILLS_PER_SEC: 2,    // 오프라인 계산 시 처치 속도 상한
     START_GEMS: 1000,
-    START_EXP: 200,          // 시작 경험치 (예전 저장에도 처음 한 번)        // 시작 보석: 100회 호출
+    START_EXP: 3000,          // 시작 경험치 (예전 저장에도 처음 한 번)        // 시작 보석: 100회 호출
     SAVE_VERSION: 2,         // 2: 세나 방식 뽑기로 바뀜 (예전 저장에는 보상 보석을 한 번 줌)
     MIGRATE_GEMS: 1000,
     /* 출동 (세나 키우기의 일일 던전, 무한의 탑과 같은 자리) */
@@ -241,20 +241,24 @@
     const s = clampInt(stage, 1, 1e9, 1);
     return `${Math.floor((s - 1) / 10) + 1}-${((s - 1) % 10) + 1}`;
   }
-  function enemyHp(stage)   { return 20 * Math.pow(1.18, clampInt(stage, 1, 1e6, 1) - 1); }
-  function enemyAtk(stage)  { return 3  * Math.pow(1.16, clampInt(stage, 1, 1e6, 1) - 1); }
+  /* 성장 곡선 (0.37.4, 진행 시뮬레이션으로 맞춤)
+   * 적 체력은 스테이지마다 1.10배, 요원 공격력은 레벨마다 1.07배 → 한 스테이지에 약 1.4레벨이 필요
+   * 레벨 비용은 1.06배, 경험치 보상은 1.075배 → 한 스테이지 진행에 드는 사냥 시간이 스테이지마다 약 0.7%씩만 늘어남
+   * (예전 1.18 / 1.09 / 1.13 / 1.08 은 스테이지마다 17%씩 늘어 100스테이지 근처에서 사실상 벽이 됨) */
+  function enemyHp(stage)   { return 20 * Math.pow(1.10, clampInt(stage, 1, 1e6, 1) - 1); }
+  function enemyAtk(stage)  { return 3  * Math.pow(1.10, clampInt(stage, 1, 1e6, 1) - 1); }
   function bossHp(stage)    { return enemyHp(stage) * 12; }
   function bossAtk(stage)   { return enemyAtk(stage) * 3; }
 
   /** 일반 적 1마리 골드. goldLv = 현상금 협상 레벨 */
   function killGold(stage, goldLv) {
     // 스테이지마다 10%씩 (예전 15%는 80스테이지쯤 이상체 한 마리가 수사력 강화 몇 번 값이라 너무 많았음)
-    return 3 * Math.pow(1.10, clampInt(stage, 1, 1e6, 1) - 1) * goldMult(goldLv);
+    return 3 * Math.pow(1.08, clampInt(stage, 1, 1e6, 1) - 1) * goldMult(goldLv);
   }
   function bossGold(stage, goldLv) { return killGold(stage, goldLv) * 10; }
   /** 요원 경험치 (요원 레벨업 재화, 세나 키우기 영웅 경험치와 같음). 골드는 훈련소에만 씀 */
   // 스테이지마다 8%씩 (예전 15%는 이상체 한 마리가 요원 1레벨 값이었음)
-  function killExp(stage) { return 2 * Math.pow(1.08, clampInt(stage, 1, 1e6, 1) - 1); }
+  function killExp(stage) { return 3 * Math.pow(1.075, clampInt(stage, 1, 1e6, 1) - 1); }
   function bossExp(stage) { return killExp(stage) * 10; }
 
   /* ---------- 4. 성장 공식 ---------- */
@@ -273,15 +277,29 @@
   /** 화면에 보일 등급 (각성한 전설은 '각성') */
   function heroGrade(state, id) { const h = heroById(id), d = state.heroes[id]; return h.grade === '전설' && d && d.stars >= AWAKE_STAR ? '각성' : h.grade; }
 
+  /* ---------- 기술 성장 (세븐나이츠처럼 별이 오를수록 기술 수치가 커짐) ----------
+   * ★1 100%, ★2 115%, ★3 130%, ★4 150%, ★5 170%, 각성 200% + 재사용 1초 줄어듦 */
+  const SKILL_GROW = [1, 1, 1.15, 1.3, 1.5, 1.7, 2.0];
+  function skillGrow(stars) { return SKILL_GROW[clampInt(stars, 1, AWAKE_STAR, 1)]; }
+  /** 별을 반영한 기술 수치 (피해 배율, 회복, 즉시 처치 대상 배율). 원본은 바꾸지 않음 */
+  function skillOf(h, stars) {
+    const k = h.skill, g = skillGrow(stars), r = v => Math.round(v * 100) / 100, r1 = v => Math.round(v * 10) / 10, o = { ...k };
+    o.mult = k.kind === 'shield' ? r(k.mult * g) : r1(k.mult * g);
+    if (k.low) o.low = r1(k.low * g);
+    if (k.heal) o.heal = r(k.heal * g);
+    if (k.amp) o.amp = r(k.amp * (1 + (g - 1) / 2));
+    if (clampInt(stars, 1, AWAKE_STAR, 1) >= AWAKE_STAR) o.cd = Math.max(3, k.cd - 1);
+    return o;
+  }
   /** 요원 공격력 */
   function heroAtk(id, lv, stars, atkLv) {
     const h = heroById(id);
-    return h.baseAtk * Math.pow(1.09, clampInt(lv, 1, 1e6, 1) - 1) * starMult(stars) * atkMult(atkLv);
+    return h.baseAtk * Math.pow(1.07, clampInt(lv, 1, 1e6, 1) - 1) * starMult(stars) * atkMult(atkLv);
   }
   /** 요원 최대 체력 */
   function heroHp(id, lv, stars) {
     const h = heroById(id);
-    return h.baseHp * Math.pow(1.08, clampInt(lv, 1, 1e6, 1) - 1) * starMult(stars);
+    return h.baseHp * Math.pow(1.07, clampInt(lv, 1, 1e6, 1) - 1) * starMult(stars);
   }
   /** 초당 기본 피해(스킬 제외, 치명타 기대값 포함) */
   function heroDps(id, lv, stars, atkLv, critLv) {
@@ -293,7 +311,7 @@
   /** 요원 레벨 상한: ★1 100, 별마다 +50 (★5 300, 각성 350). 초반 스테이지는 막지 않고, 후반에 승급이 필요해지게 */
   // 고정 상한은 후반에 스테이지를 막아서 없앰 (레벨 비용이 점점 커지는 것으로 속도를 조절). 함수는 남겨 둠
   function heroLvCap(stars) { return 99999; }
-  function heroLvCost(lv) { return Math.floor(10 * Math.pow(1.13, clampInt(lv, 1, 1e6, 1) - 1)); }
+  function heroLvCost(lv) { return Math.floor(300 * Math.pow(1.06, clampInt(lv, 1, 1e6, 1) - 1)); }
 
   /** lv 에서 n 단계 올리는 총 비용 */
   function heroLvCostBulk(lv, n) {
@@ -447,7 +465,7 @@
       { id: 'gem1', name: '일일 보급품 꾸러미', rw: { g2: 2, e2: 2 }, pay: 'gems', cost: 100, lim: 3, tag: 'Hot' },
       { id: 'd_tix', name: '일일 호출권 상자', rw: { tix: 30 }, pay: 'gems', cost: 60, lim: 5 },
       { id: 'd_gold', name: '일일 골드 주머니', rw: { gold: 50000 }, pay: 'gems', cost: 50, lim: 5 },
-      { id: 'd_exp', name: '일일 경험치 꾸러미', rw: { exp: 20000 }, pay: 'gems', cost: 50, lim: 5 },
+      { id: 'd_exp', name: '일일 경험치 꾸러미', rw: { exp: 200000 }, pay: 'gems', cost: 50, lim: 5 },
       { id: 'gem3', name: '일일 구급상자 묶음', rw: { med: 20 }, pay: 'gems', cost: 80, lim: 3 },
       { id: 'd_g2', name: '일일 수사 장비', rw: { g2: 5 }, pay: 'gems', cost: 120, lim: 1 },
       { id: 'd_e2', name: '일일 분석 키트', rw: { e2: 5 }, pay: 'gems', cost: 120, lim: 1 },
@@ -458,7 +476,7 @@
       { id: 'ad2', name: '호출권 10장', rw: { tix: 10 }, pay: 'ad', lim: 2 },
       { id: 'ad3', name: '구급상자 10개', rw: { med: 10 }, pay: 'ad', lim: 2 },
       { id: 'ad4', name: '골드 3만', rw: { gold: 30000 }, pay: 'ad', lim: 2 },
-      { id: 'ad5', name: '경험치 1만', rw: { exp: 10000 }, pay: 'ad', lim: 2 },
+      { id: 'ad5', name: '경험치 10만', rw: { exp: 100000 }, pay: 'ad', lim: 2 },
       { id: 'ad6', name: '수사 장비 2개', rw: { g2: 2 }, pay: 'ad', lim: 2 },
     ],
     // 상점 탭 보석 상점: 보석으로 사는 묶음 (매일 초기화)
@@ -998,7 +1016,7 @@
    * rw: 보상 (hero 는 요원 한 명. 이미 있으면 조각 1개). 다 끝나면 아래 QUESTS 를 계속 돎 */
   const GUIDE = [
     { kind: 'kill',    text: '이상체 처리',       need: 10, rw: { gems: 100 } },
-    { kind: 'lvup',    text: '블레이즈 강화',     need: 3,  rw: { exp: 300 } },
+    { kind: 'lvup',    text: '블레이즈 강화',     need: 3,  rw: { exp: 3000 } },
     { kind: 'boss',    text: '근원체 봉쇄',       need: 1,  rw: { hero: 'knight' } },
     { kind: 'party',   text: '요원 2명 출전',     need: 2,  rw: { shard: 'mage', n: 5 } },   // 블레이즈 조각 5개 → 바로 첫 승급
     { kind: 'star',    text: '블레이즈 승급',     need: 1,  rw: { tix: 10 } },
@@ -1532,7 +1550,7 @@
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
     AWAKE_STAR, AWAKE_NEED, maxStars, heroGrade, gemTotal, spendGems, FIRST_PAY, firstPayStart, firstPayReady, firstPayClaim, WEEKLY, MONTHLY, REPEAT, MPASS, MPASS_PRICE, misReset, misClaim, misReadyCount, repeatReady, mpassClaim, mpassReady, weekKey, monthKey, PASS, PASS_PRICE, passClaim, passReady, PASSES, pxVal, pxClaim, pxReady, pxBuy, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
-    heroLvCap, heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, upCap, upCost, tstepOf, tstepProg, tstepCost, tstepUp, TSTEP, starNeed, STAR_NEED,
+    skillGrow, skillOf, SKILL_GROW, heroLvCap, heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, upCap, upCost, tstepOf, tstepProg, tstepCost, tstepUp, TSTEP, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, summonMaxN, addTickets, shopItem, STREAK, streakClaim, GOLD_PACKS, goldPackCount, goldPackBuy, PLANS, planById, planLeft, planBuy, planClaim, levelReward, applySummon, pickupRemainSec, formatRemain,
     newState, cloneState, sanitize, loadFromString, QUESTS, GUIDE, questAt, questAdd, questClaim,
     DUNGEONS, MISSIONS, ATTEND, dayKey, dailyReset, dungeonById, dungeonStage, dungeonReward, towerStage, towerReward,

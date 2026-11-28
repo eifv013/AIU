@@ -48,13 +48,21 @@ test('요원 능력치: 레벨, 별, 훈련 반영', () => {
 });
 
 test('강화 비용: 일괄 비용과 구매 가능 수', () => {
-  assert.equal(C.heroLvCost(1), 10);
+  assert.equal(C.heroLvCost(1), 300);
   assert.equal(C.heroLvCostBulk(1, 3), C.heroLvCost(1) + C.heroLvCost(2) + C.heroLvCost(3));
   assert.equal(C.heroLvCostBulk(1, 0), 0);
-  const r = C.heroLvAffordable(1, 25, 10);
-  assert.equal(r.n, 2);                 // 10 + 11 = 21 ≤ 25, 다음 12 는 불가
-  assert.equal(r.cost, 21);
-  assert.equal(C.heroLvAffordable(1, 5, 10).n, 0);
+  const r = C.heroLvAffordable(1, 700, 10);
+  assert.equal(r.n, 2);                 // 300 + 318 = 618 ≤ 700, 다음 337 은 불가
+  assert.equal(r.cost, 618);
+  assert.equal(C.heroLvAffordable(1, 299, 10).n, 0);
+});
+
+test('성장 곡선: 후반에도 한 스테이지 진행 시간이 폭증하지 않음', () => {
+  // 한 스테이지에 필요한 레벨 수 = ln(적 체력 증가) / ln(공격력 증가)
+  const L = Math.log(C.enemyHp(2) / C.enemyHp(1)) / Math.log(C.heroAtk('knight', 2, 1, 0) / C.heroAtk('knight', 1, 1, 0));
+  // 스테이지당 사냥 시간 증가율 = 레벨 비용 증가^L / 경험치 증가
+  const g = Math.pow(C.heroLvCost(501) / C.heroLvCost(500), L) / (C.killExp(501) / C.killExp(500));
+  assert.ok(g < 1.02, `스테이지마다 ${((g - 1) * 100).toFixed(1)}%씩 느려짐`);
 });
 
 test('훈련소: 치명타 최대치와 비용', () => {
@@ -559,4 +567,12 @@ test('보급품: 팀이 약해도 0이 아닌 보상', () => {
 
 test('요원 레벨: 고정 상한 없음', () => {
   assert.ok(C.heroLvCap(1) > 10000);
+});
+
+test('기술 성장: 별이 오를수록 기술 수치가 커지고 원본은 그대로', () => {
+  const h = C.heroById('requiem');
+  assert.equal(C.skillOf(h, 1).mult, h.skill.mult);
+  assert.ok(C.skillOf(h, 5).mult > C.skillOf(h, 3).mult);
+  assert.equal(C.skillOf(h, C.AWAKE_STAR).cd, h.skill.cd - 1);
+  assert.equal(h.skill.mult, 9);   // 원본 데이터는 바뀌지 않음
 });

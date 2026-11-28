@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.33.0';
+window.AIU_VER = '0.33.1';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -2146,6 +2146,45 @@ const Snd = (() => {
   return { play, setVol, wake };
 })();
 const sfx = (k, v, gap, rate) => Snd.play(k, v, gap, rate);
+/* ---------- 배경 음악 ----------
+ * 순찰(main)과 근원체(boss) 두 곡. 근원체가 나오면 1초 동안 서로 섞어 바꿈(크로스페이드).
+ * 아이폰은 audio.volume 을 못 바꾸므로 Web Audio 음량(gain)으로 조절. 오프닝 중, 화면을 내렸을 때는 멈춤 */
+const BGM_SRC = /*BGM*/{};
+const Bgm = (() => {
+  let ctx = null; const tr = {};
+  const level = () => GQ.bgm === false ? 0 : (GQ.vol ?? 0.7) * 0.5;
+  function wake() {
+    if (ctx) { if (ctx.state === 'suspended') ctx.resume().catch(() => {}); return; }
+    try {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      for (const k of Object.keys(BGM_SRC)) {
+        const a = new Audio(BGM_SRC[k]); a.loop = true; a.preload = 'auto';
+        const g = ctx.createGain(); g.gain.value = 0; ctx.createMediaElementSource(a).connect(g).connect(ctx.destination);
+        tr[k] = { a, g, v: 0 };
+      }
+    } catch (e) { ctx = null; }
+  }
+  /** 지금 틀 곡: 오프닝이 떠 있거나 숨김이면 없음, 근원체가 있으면 boss */
+  function want() {
+    const op = document.getElementById('op');
+    if (!ctx || document.hidden || GQ.bgm === false || (op && op.offsetParent !== null && getComputedStyle(op).display !== 'none')) return null;
+    return typeof R !== 'undefined' && R.boss && tr.boss ? 'boss' : 'main';
+  }
+  setInterval(() => {
+    if (!ctx) return;
+    const w = want(), L = level();
+    for (const [k, t] of Object.entries(tr)) {
+      const to = k === w ? L : 0;
+      t.v += Math.sign(to - t.v) * Math.min(Math.abs(to - t.v), L / 10 || 0.05);   // 1초에 걸쳐 바뀜
+      t.g.gain.value = t.v;
+      if (to > 0 && t.a.paused) { if (k === 'boss') t.a.currentTime = 0; t.a.play().catch(() => {}); }
+      if (to === 0 && t.v <= 0.001 && !t.a.paused) t.a.pause();
+    }
+  }, 100);
+  addEventListener('pointerdown', wake, { capture: true }); addEventListener('keydown', wake, { capture: true });
+  document.addEventListener('visibilitychange', () => { if (ctx && !document.hidden) ctx.resume().catch(() => {}); });
+  return window.__bgm = { wake, now: () => Object.entries(tr).filter(([, t]) => !t.a.paused && t.v > 0.01).map(([k]) => k) };
+})();
 /* 버튼 소리: 큰 금색 버튼은 'button', 닫기는 'door', 나머지는 'click' */
 document.addEventListener('click', e => {
   const b = e.target.closest('button,[data-act],[data-tab]'); if (!b || b.disabled) return;
@@ -2541,7 +2580,7 @@ try { const v = parseFloat(localStorage.getItem('aiu-dpr')); if (v >= 1 && v <= 
 /* 그래픽 설정 (세븐나이츠 키우기의 그래픽 품질, 프레임 설정과 같은 역할)
  * hi: 높음이면 안개, 등불 반사, 윤곽 빛, 몸 휘기, 비 90줄. 낮음이면 모두 끄고 비 30줄, 해상도 1배
  * fps60: 끄면 초당 30번만 그림 (배터리와 발열도 줄어듦) */
-const GQ = { hi: true, fps60: true, auto: true, dmgNum: true, shake: true, autoSleep: 0, snd: true, vol: 0.7 };
+const GQ = { hi: true, fps60: true, auto: true, dmgNum: true, shake: true, autoSleep: 0, snd: true, bgm: true, vol: 0.7 };
 try { Object.assign(GQ, JSON.parse(localStorage.getItem('aiu-gfx') || '{}')); } catch (e) { /* 저장 불가 */ }
 function saveGQ() { try { localStorage.setItem('aiu-gfx', JSON.stringify(GQ)); } catch (e) { /* 저장 불가 */ } }
 const perf = { t: 0, n: 0 };
@@ -4305,7 +4344,8 @@ function gfxRows() {
   const sl = [[0, '끔'], [3, '3분'], [10, '10분']].map(([v, l]) => `<button data-gfx="autoSleep" data-v="${v}" class="${(GQ.autoSleep || 0) === v ? 'on' : ''}">${l}</button>`).join('');
   const vol = [[0.35, '작게'], [0.7, '보통'], [1, '크게']].map(([v, l]) => `<button data-vol="${v}" class="${Math.abs((GQ.vol ?? 0.7) - v) < 0.01 ? 'on' : ''}">${l}</button>`).join('');
   return `<div class="optg">소리</div><div class="setrow"><div><div class="ut">효과음</div><div class="uv">총소리, 타격음, 버튼 소리를 내요</div></div>${tg('snd')}</div>
-    <div class="setrow"><div><div class="ut">음량</div><div class="uv">효과음 크기</div></div><div class="seg">${vol}</div></div>
+    <div class="setrow"><div><div class="ut">배경 음악</div><div class="uv">순찰과 근원체 전투 음악을 틀어요</div></div>${tg('bgm')}</div>
+    <div class="setrow"><div><div class="ut">음량</div><div class="uv">효과음과 배경 음악 크기</div></div><div class="seg">${vol}</div></div>
     <div class="optg">화면</div><div class="setrow"><div><div class="ut">그래픽</div><div class="uv">낮음으로 두면 빛과 안개가 줄어 가벼워요</div></div>${seg('hi', [[true, '높음'], [false, '낮음']])}</div>
     <div class="setrow"><div><div class="ut">프레임</div><div class="uv">30으로 두면 배터리와 발열이 줄어요</div></div>${seg('fps60', [[true, '60'], [false, '30']])}</div>
     <div class="setrow"><div><div class="ut">피해 숫자</div><div class="uv">적에게 준 피해를 숫자로 보여 줘요</div></div>${tg('dmgNum')}</div>
@@ -5821,6 +5861,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.33.1', '11월 28일', ['배경 음악을 넣었어요. 순찰 중에는 어두운 비트, 근원체가 나오면 사이버펑크 전투 곡으로 자연스럽게 바뀌어요', '설정에서 배경 음악을 끄고 켤 수 있어요']],
   ['0.33.0', '11월 28일', ['아래 메뉴 이름을 호출에서 상점으로 바꾸고, 상점 창을 화면 위까지 크게 열어요', '호출 화면을 배너 하나씩 넘겨 보는 방식으로 바꿨어요. 소환 레벨 막대, 연출 스킵, 1회 10회 30회 300회 버튼이 있어요', '30회 호출은 카드 30장이 한 화면에 빠르게 깔리고, 결과 화면 아래에서 10회 30회를 바로 다시 하거나 자동 호출을 켤 수 있어요', '상점에 추천 상점, 일일 광고 상점, 보석 상점, 복장 상점을 나눠 넣었어요', '일일 상점에 누적 구매일 보상(1일차부터 7일차까지)과 상품 9개를 넣었어요', '재화에 월간 한정 골드 충전을 넣었어요', '정기권에 주간 호출권 혜택, 광고 제거 월정액, 골드 버프 월정액을 넣었어요. 다시 사면 기간이 더해져요']],
   ['0.32.4', '11월 28일', ['호출 연출의 건너뛰기 버튼을 화면 위쪽에서 아래 모두 열기 옆으로 옮겼어요', '호출에 30회와 최대(가진 만큼, 최대 1000회) 버튼을 넣고, 30회부터는 결과를 요원별로 묶어 한 창에 보여 줘요', '호출 화면의 긴 확률표를 빼고, 배너마다 확률 정보 버튼을 눌러 팝업으로 보게 했어요', '카메라에 화면 크기(축소, 기본, 확대)를 넣었어요', '작전 보상 아이콘이 숫자를 가리던 문제와 균열 심층 칸 정렬을 고쳤어요', '기록 창이 구급상자와 버튼을 가리지 않게 위로 올리고, 메뉴를 열면 숨겨요', '누를 수 없는 버튼의 글씨가 배경에 묻혀 안 보이던 문제를 고쳤어요']],
   ['0.32.2', '11월 28일', ['아래 메뉴의 수사력, 작전, 임무 아이콘을 새 그림으로 바꿨어요']],

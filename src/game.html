@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.33.7';
+window.AIU_VER = '0.34.1';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -950,7 +950,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 .bk i{position:relative;font-style:normal;color:var(--gold)}
 
 /* ---------- 전투력 변화 ---------- */
-#pwup{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 64px);z-index:58;display:none;transform:translateX(-50%);padding:6px 18px;border-radius:16px;background:rgba(10,14,24,.88);border:1px solid rgba(242,201,76,.5);font:400 16px "Black Han Sans";white-space:nowrap;pointer-events:none}
+#pwup{position:fixed;left:50%;top:40%;z-index:58;display:none;transform:translateX(-50%);padding:6px 18px;border-radius:16px;background:rgba(10,14,24,.88);border:1px solid rgba(242,201,76,.5);font:400 16px "Black Han Sans";white-space:nowrap;pointer-events:none}
 #pwup.on{display:block;animation:pwIn 1.6s ease forwards}
 #pwup em{font-style:normal;color:#6ff0c8;margin-left:6px}
 @keyframes pwIn{0%{opacity:0;transform:translate(-50%,8px)}12%{opacity:1;transform:translate(-50%,0)}80%{opacity:1}100%{opacity:0}}
@@ -1884,6 +1884,54 @@ button.cx{width:100%;color:#fff;position:relative}button.cx .dot{position:absolu
 .ml2-i .ic{width:26px;height:26px}
 .ml2-i em{position:absolute;right:2px;bottom:0;font:400 11px "Black Han Sans";font-style:normal;color:#fff;text-shadow:0 0 2px #000,0 0 2px #000,0 1px 2px #000}
 .ml2-b{flex:none;min-width:64px;padding:8px 10px}
+
+/* 보상 칸 (임무, 수첩, 우편): 칸 하나에 보상 하나. 테두리 판 대신 깔끔한 아이템 칸 */
+.rd-r{width:auto!important;height:auto!important;display:flex!important;gap:4px;border:0!important;border-image:none!important;background:none!important;box-shadow:none!important;padding:0!important;animation:none!important}
+.rdi{position:relative;width:38px;height:38px;flex:none;display:grid;place-items:center;border-radius:6px;border:1px solid #6d7fae;background:radial-gradient(circle at 50% 35%,#34477a,#141b31 75%);font-style:normal}
+.rdi .ic{width:26px!important;height:26px!important}
+.rdi span{position:absolute;right:2px;bottom:0;left:auto!important;font:400 11px "Black Han Sans"!important;color:#fff;text-shadow:0 0 2px #000,0 0 2px #000,0 1px 2px #000}
+.rd.ready .rdi{border-color:var(--gold);box-shadow:0 0 8px rgba(242,201,76,.6)}
+.mlr{grid-template-columns:minmax(0,1fr) auto 64px!important}
+.mlr .mt small{display:block;margin-top:2px;font:600 11px 'IBM Plex Sans KR';color:var(--dim)}
+
+/* 패스 창 */
+.px-tabs{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-bottom:8px}.px-tabs button{position:relative;padding:7px 0!important;font-size:12.5px!important}
+.px-dot{position:absolute;right:4px;top:3px;width:7px;height:7px;border-radius:50%;background:#e0323a}
+.px-top{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px 10px}.px-n{font:400 15px "Black Han Sans"}.px-d{grid-column:1/3}.px-top b{color:var(--gold);margin-left:4px}
+.px-top small{font:600 11.5px/1.4 'IBM Plex Sans KR';color:var(--dim);word-break:keep-all}.px-top .px-u{margin-left:3px}
+.px-top .btn{flex:none;padding:8px 10px;font-size:13px}
+
+/* 패스: 받을 수 있는 칸은 아이템 칸이 금색으로 빛남 */
+.ps-c.ready .rs-it{border-color:#f2c94c!important;box-shadow:0 0 12px rgba(242,201,76,.85),inset 0 0 8px rgba(242,201,76,.35)!important;animation:qpulse 1.2s infinite}
+.ps-c.got .rs-it::after{content:'✓';position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.55);font:400 22px "Black Han Sans";color:#6ff0c8}
+.ps-c .rs-it{position:relative}
+
+/* 패스 줄을 촘촘하게: 한 화면에 더 많이 보이게 (테두리 판 대신 얇은 줄) */
+.ps{gap:4px!important}
+.ps-r{grid-template-columns:52px 1fr 1fr!important;gap:5px!important}
+.ps-st{height:40px!important;border:0!important;border-image:none!important;border-radius:6px!important;background:#151b2e!important;box-shadow:inset 0 0 0 1px #2c3757!important;padding:0!important}
+.ps-c{height:46px!important;border:0!important;border-image:none!important;border-radius:6px!important;background:linear-gradient(90deg,#141a2b,#1a2238)!important;box-shadow:inset 0 0 0 1px #2c3757!important;padding:0!important}
+.ps-c .rs-items{display:flex;gap:4px}
+.ps-c .rs-it{width:38px!important;height:38px!important}.ps-c .rs-it .ic{width:24px!important;height:24px!important}
+/* 메뉴 창은 모든 탭에서 화면 위까지 크게 (요원 창처럼) */
+#app.bigp:not(.folded):not(.herofull) #panel{max-height:calc(100% - var(--bottomH,110px) - 4px)!important;height:calc(100% - var(--bottomH,110px) - 4px);display:flex;flex-direction:column}
+#app.bigp:not(.folded):not(.herofull) #panel>*{flex-shrink:0}
+#app.bigp:not(.folded):not(.herofull) #panel>.psub{margin-top:auto}
+#panel .ps{max-height:none!important;overflow:visible!important}
+#modal .ps{max-height:56vh!important}
+
+.hp-no2{position:absolute;left:10px;right:10px;bottom:6px;z-index:2;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:rgba(10,14,24,.88);border:1px solid #3b4870}
+.hp-no2>div{flex:1;min-width:0;display:grid;gap:3px}.hp-no2 b{font:400 15px "Black Han Sans";color:#f3e6c4}.hp-no2 small{font:600 11.5px/1.45 'IBM Plex Sans KR';color:var(--dim);word-break:keep-all}
+.hp-no2 .btn{flex:none;padding:10px 12px}
+
+#hpage.unown .hp-no2{padding:8px 10px}
+#hpage.unown .hp-stats{bottom:82px}
+#hpage.unown .hp-desc{bottom:128px}
+#hpage.unown .hp-mid{bottom:166px}
+
+/* 잠금은 칸 오른쪽 위 작은 자물쇠로만 (보상 숫자를 가리지 않게) */
+.ps-lock{inset:3px 3px auto auto!important;width:16px!important;height:16px!important;border-radius:4px!important;background-color:rgba(0,0,0,.7)!important;background-size:11px!important}
+.ps-c:has(.ps-lock) .rs-it{filter:saturate(.55) brightness(.8)}
 </style>
 </head>
 <body>
@@ -2200,17 +2248,25 @@ const Bgm = (() => {
     if (tr.title && (shown('op') || shown('splash'))) return 'title';   // 시작 화면, 오프닝
     return typeof R !== 'undefined' && R.boss && tr.boss ? 'boss' : 'main';
   }
+  // 곡 위치 기억: 화면을 내렸다 올리거나(홈 버튼) 끄기/켜기를 해도 끊긴 자리에서 이어서 틂.
+  // 처음부터 다시 트는 때는 장면이 실제로 바뀐 때뿐 (새 근원체가 나옴, 시작 화면으로 돌아옴)
+  let lastScene = null;
+  const hush = () => { for (const t of Object.values(tr)) { t.pos = t.a.currentTime; t.v = 0; t.g.gain.value = 0; if (!t.a.paused) t.a.pause(); } };
   setInterval(() => {
     if (!ctx) return;
     const w = want(), L = level();
+    if (w && w !== lastScene) { const t = tr[w]; if (t && w !== 'main' && lastScene !== null) t.pos = 0; lastScene = w; }   // 다른 장면으로 바뀜: 근원체, 시작 화면 곡은 처음부터
     for (const [k, t] of Object.entries(tr)) {
       const to = k === w ? L : 0;
       t.v += Math.sign(to - t.v) * Math.min(Math.abs(to - t.v), L / 10 || 0.05);   // 1초에 걸쳐 바뀜
       t.g.gain.value = t.v;
-      if (to > 0 && t.a.paused) { if (k !== 'main') t.a.currentTime = 0; t.a.play().catch(() => {}); }
-      if (to === 0 && t.v <= 0.001 && !t.a.paused) t.a.pause();
+      if (to > 0 && t.a.paused) { if (t.pos != null) t.a.currentTime = t.pos; t.a.play().catch(() => {}); }
+      if (to === 0 && t.v <= 0.001 && !t.a.paused) { t.pos = t.a.currentTime; t.a.pause(); }
     }
   }, 100);
+  // 화면을 내리면 바로 멈추고 자리 기억 (백그라운드에서는 타이머가 느려져서 서서히 줄이기가 안 됨)
+  document.addEventListener('visibilitychange', () => { if (document.hidden && ctx) hush(); });
+  addEventListener('pagehide', () => { if (ctx) hush(); });
   // 휴대폰은 손가락을 뗄 때(touchend, click)만 소리 허락이 생김. pointerdown 만 받으면 첫 터치에 소리가 안 남
   for (const ev of ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown']) addEventListener(ev, wake, { capture: true });
   // 앱(웹뷰)은 자동 재생을 허락해 두었으므로 켜자마자 시작 화면 음악을 틂. 브라우저에서 막히면 첫 터치 때 다시 시도
@@ -2732,6 +2788,8 @@ function startChal(kind, id, lv) {
   const eq = kind === 'tower' ? C.towerStage(lv) : C.dungeonStage(id, lv);
   const name = kind === 'tower' ? `균열 심층 ${lv}층` : `${C.dungeonById(id).name} ${lv}단계`;
   R.chal = { kind, id, lv, eq, name };
+  // 작전에 들어가면 메뉴 창을 내리고 전투 화면을 보여 줌 (세나 키우기처럼)
+  $('app').classList.add('folded'); for (const x of $('tabs').children) x.classList.remove('on');
   // 지금 사냥하던 지도를 그대로 맡겨 둠 (출동이 끝나면 이 장면으로 돌아옴)
   R.saved = { enemies: R.enemies.filter(e => !e.boss && e.hp > 0), A: { ...R.A }, cam: { ...R.cam }, heading: R.heading, roam: R.roam, spawnT: R.spawnT,
     heroes: Object.fromEntries(team().filter(h => R.heroes[h.id]).map(h => { const r = R.heroes[h.id]; return [h.id, { x: r.x, y: r.y, hp: r.hp, max: r.max, cd: r.cd, face: r.face }]; })) };
@@ -3097,7 +3155,6 @@ function update(dt) {
   let lx = R.A.x + Math.cos(R.heading) * 40, ly = R.A.y + Math.sin(R.heading) * 40;
   const near = R.enemies.filter(e => e.aggro);
   if (near.length) { let ex = 0, ey = 0; for (const e of near) { ex += e.x; ey += e.y - e.size * 0.4; } lx = (R.A.x + ex / near.length) / 2; ly = (R.A.y + ey / near.length) / 2; }
-  if (R.camId && R.heroes[R.camId] && R.heroes[R.camId].hp > 0) { lx = R.heroes[R.camId].x; ly = R.heroes[R.camId].y - 30; }
   R.cam.x += (lx - R.cam.x) * Math.min(1, dt * 2.5); R.cam.y += (ly - R.cam.y) * Math.min(1, dt * 2.5);
   R.cam.x = clampN(R.cam.x, -MAPW / 2 + 120, MAPW / 2 - 120); R.cam.y = clampN(R.cam.y, -MAPH / 2 + 110, MAPH / 2 - 110);
 }
@@ -3574,15 +3631,16 @@ function skillText(h) {
   const k = h.skill, x = v => '×' + v;
   const pc = v => Math.round(v * 100);
   return {
-    single: `노린 적 하나에게 공격력의 ${k.mult}배 피해를 줘요`,
-    multi: `근처 적을 ${k.hits}번 연속으로 공격해요. 한 번에 공격력의 ${k.mult}배 피해`,
-    aoe: `${k.slow ? '주변 모든 적' : '노린 적과 그 주변 적'}에게 공격력의 ${k.mult}배 피해를 줘요${k.stun ? `. ${k.stun}초 동안 기절시켜요` : ''}${k.slow ? `. ${k.slow}초 동안 느리게 만들어요` : ''}`,
-    buff: `${k.dur}초 동안 팀 공격력이 1.5배가 되고, 팀 체력을 최대 체력의 ${pc(k.heal)}%만큼 회복해요`,
-    mark: `체력이 가장 많은 적에게 표식을 남겨요. ${k.dur}초 동안 그 적이 받는 피해가 ${pc(k.amp)}% 늘어나요`,
-    exorcise: `근원체에게 공격력의 ${k.mult}배 피해를 줘요. 이상체에게는 ${k.low}배 피해를 주고, ${pc(k.kill)}% 확률로 바로 처치해요`,
-    shield: `팀 전체에 최대 체력의 ${pc(k.mult)}%만큼 보호막을 ${k.dur}초 동안 씌우고, 적을 자기 쪽으로 끌어와요`,
-    cage: `가장 강한 적을 ${k.dur}초 동안 격리해 움직이지 못하게 해요. 격리가 풀릴 때 공격력의 ${k.mult}배 피해를 줘요`,
-    execute: `체력이 가장 낮은 적 ${k.hits}명을 차례로 공격해 공격력의 ${k.mult}배 피해를 줘요. 체력이 ${pc(k.under)}% 아래인 적은 바로 처치해요`,
+    single: `적 하나에게 공격력의 ${k.mult}배 피해를 줘요.`,
+    multi: `가까운 적을 ${k.hits}번 연속으로 공격해요. 한 번에 공격력의 ${k.mult}배 피해를 줘요.`,
+    aoe: k.slow ? `주변의 모든 적에게 공격력의 ${k.mult}배 피해를 주고, ${k.slow}초 동안 느리게 만들어요.`
+      : `목표와 그 주변 적에게 공격력의 ${k.mult}배 피해를 ${k.stun ? `주고, ${k.stun}초 동안 기절시켜요.` : '줘요.'}`,
+    buff: `${k.dur}초 동안 팀 공격력이 1.5배가 되고, 팀 체력을 최대 체력의 ${pc(k.heal)}%만큼 회복해요.`,
+    mark: `체력이 가장 많은 적에게 표식을 남겨요. ${k.dur}초 동안 그 적이 받는 피해가 ${pc(k.amp)}% 늘어나요.`,
+    exorcise: `근원체에게 공격력의 ${k.mult}배 피해를 줘요. 이상체에게는 ${k.low}배 피해를 주고, ${pc(k.kill)}% 확률로 바로 처치해요.`,
+    shield: `적을 자기 쪽으로 끌어오고, 팀 전체에 ${k.dur}초 동안 최대 체력의 ${pc(k.mult)}%만큼 보호막을 씌워요.`,
+    cage: `가장 강한 적을 ${k.dur}초 동안 가둬 움직이지 못하게 해요. 풀려날 때 공격력의 ${k.mult}배 피해를 줘요.`,
+    execute: `체력이 가장 낮은 적 ${k.hits}명을 차례로 공격해 공격력의 ${k.mult}배 피해를 줘요. 체력이 ${pc(k.under)}% 아래인 적은 바로 처치해요.`,
   }[k.kind] || '';
 }
 const starStr = n => starHtml(n);
@@ -3631,7 +3689,7 @@ function formHtml() {
 }
 function renderPanel() {
   const P = $('panel');
-  $('app').classList.toggle('shopfull', tab === 'summon');
+  $('app').classList.toggle('shopfull', tab === 'summon'); $('app').classList.add('bigp');
   if (SUB_READY[tab] && !SUB_READY[tab].includes(subSel[tab])) { P.innerHTML = subSoon(tab); return updatePanel(); }
   if (tab === 'hero') {
     // 요원 창 (세나 키우기 영웅 창처럼): 아래 작은 탭으로 요원 관리 / 편성 / 도감
@@ -3817,9 +3875,10 @@ function mpassHtml() {
     const ok = mm.pts >= r.pt, cell = (track, rw, got, can) => `<button class="ps-c ${got ? 'got' : can ? 'ready' : ''}" ${can && !got ? `data-mp="${i}" data-tr="${track}"` : 'disabled'}>${rwTiles(rw)}${track === 'paid' && !paid ? '<i class="ps-lock"></i>' : ''}</button>`;
     return `<div class="ps-r"><span class="ps-st ${ok ? 'on' : ''}">${r.pt}</span>${cell('free', r.free, mm.pf.includes(i), ok)}${cell('paid', r.paid, mm.pp.includes(i), ok && paid)}</div>`;
   };
-  return `<h2>임무</h2>${misTabs('p')}<div class="mpt">임무 점수 <b>${mm.pts}</b><small>이번 달 임무 패스. 매달 1일에 새로 시작해요</small></div>
+  const act = paid ? `<button class="btn sm" data-mpall ${C.mpassReady(S).length ? '' : 'disabled'}>모두 받기</button>` : `<button class="btn sm" data-mpbuy>패스 구매 ₩${C.MPASS_PRICE.toLocaleString()}</button>`;
+  return `<h2>임무</h2>${misTabs('p')}<div class="mpt px-top"><span class="px-n">임무 점수 <b>${mm.pts}</b></span>${act}<small class="px-d">이번 달 임무 패스예요. 매달 1일에 새로 시작해요.</small></div>
     <div class="ps-h"><span>점수</span><span>무료</span><span>패스</span></div><div class="ps">${C.MPASS.map(row).join('')}</div>
-    <div class="mbtns"><button class="btn ghost" data-close>닫기</button>${paid ? `<button class="btn" data-mpall ${C.mpassReady(S).length ? '' : 'disabled'}>모두 받기</button>` : `<button class="btn" data-mpbuy>임무 패스 ${C.MPASS_PRICE.toLocaleString()}원</button>`}</div>`;
+    <div class="mbtns"><button class="btn ghost" data-close>닫기</button></div>`;
 }
 function misOpen(t) { misTab = t; if (misInPanel) return renderPanel(); if (t === 'd') { openModal(misHtml()); updateRun(modalEl); } else openModal(t === 'p' ? mpassHtml() : misListHtml(t)); }
 const misClick = async e => {
@@ -4081,7 +4140,7 @@ function renderHeroPage() {
   const sp = ART['spr_' + id];
   const awkPrev = hpAwk && h.grade === '전설';
   if (awkPrev) col = GRADE_COL['각성'];
-  $('hpage').classList.toggle('sdview', hpSd); $('hpage').classList.toggle('awkview', awkPrev);
+  $('hpage').classList.toggle('sdview', hpSd); $('hpage').classList.toggle('unown', !d.owned); $('hpage').classList.toggle('awkview', awkPrev);
   $('hpage').style.setProperty('--gc', col);
   $('hpage').innerHTML = `<img class="hp-bg" src="${bigArt(id)}" alt="">
     <div class="hp-tags"><span><i class="tic t-${h.type}"><svg><use href="#i-t-${h.type}"/></svg></i>${h.type}형</span><span><i class="tic" style="color:${col}"><svg><use href="#i-t-${h.type}"/></svg></i>${h.role}</span><span class="sq"><i class="tic sqi">${C.squadOf(id).name.slice(0, 1)}</i>${C.squadOf(id).name}</span>
@@ -4110,13 +4169,19 @@ function renderHeroPage() {
       <button class="hp-b star ${h.grade === '전설' && d.stars >= 5 ? 'awk' : ''}" data-act="star" data-h="${id}" id="hpStar"><b>${h.grade === '전설' && d.stars >= 5 ? '각성' : '승급'}</b><span class="pill2"><svg class="ic" viewBox="0 0 24 24"><rect x="5" y="3" width="12" height="17" rx="2" fill="#3a4566" stroke="#c9d3ee" stroke-width="1.4"/><path d="M11 8l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.8 2.6-.4z" fill="#f2c94c"/></svg><i id="hpSh"></i></span></button>
       <button class="hp-b lv" data-act="lv" data-h="${id}" id="hpUp"><b id="hpUpT">레벨업</b><span class="pill2">${icon('exp')}<i id="hpCost"></i></span></button>
       <button class="hp-b sm bulk" data-act="hpbulk" id="hpBulk"></button></div>`
-    : `<div class="hp-no">${h.limited ? '특별 채용(한정)에서만 만날 수 있어요' : h.grade === '희귀' ? '요원 호출에서 만날 수 있어요' : '요원 호출이나 정예 호출에서 만날 수 있어요'}</div>`}`;
+    : `<div class="hp-stats"><span>${icon('s_atk')}<b id="hpAtk"></b></span><span>${icon('s_hp')}<b id="hpHp"></b></span><span>${icon('s_cd')}<b>${h.skill.cd}초</b></span></div>
+    <div class="hp-no2"><div><b>아직 합류하지 않은 요원이에요</b><small>${h.limited ? '특별 채용(한정)에서만 만날 수 있어요.' : h.grade === '희귀' ? '요원 호출에서 만날 수 있어요.' : '요원 호출이나 정예 호출에서 만날 수 있어요.'} 1레벨 기준 능력치예요.</small></div><button class="btn" data-act="hpgo">호출하러 가기</button></div>`}`;
   fillHeroDetail();
 }
 function fillHeroDetail() {
   const id = hpageId; if (!id || !$('hpage').firstChild) return;
   const h = C.heroById(id), d = S.heroes[id];
-  if (!d.owned) return;
+  if (!d.owned) {
+    const atk = C.heroAtk(id, 1, 1, S.up.atk), hp = C.heroHp(id, 1, 1);
+    $('hpLv').textContent = 1; $('hpPw').textContent = C.formatNum(Math.round(atk * 10 + hp));
+    if ($('hpAtk')) { $('hpAtk').textContent = C.formatNum(atk); $('hpHp').textContent = C.formatNum(hp); }
+    return;
+  }
   $('hpLv').textContent = d.lv;
   const st = hpAwk && h.grade === '전설' ? C.AWAKE_STAR : d.stars;   // 각성 정보 보기: ★6 기준 능력치
   const atk = C.heroAtk(id, d.lv, st, S.up.atk), hp = C.heroHp(id, d.lv, st);
@@ -4167,6 +4232,7 @@ function onAct(e) {
     else if (act === 'hfil') { hfil = b.dataset.v; renderPanel(); }
     else if (act === 'hfilc') { const L = ['전체', ...C.TYPES]; hfil = L[(L.indexOf(hfil) + 1) % L.length]; renderPanel(); }   // 분류 버튼: 누를 때마다 다음 분류
     else if (act === 'hpnav') { hpageId = detId = b.dataset.h; hpAwk = false; renderHeroPage(); }
+    else if (act === 'hpgo') { closeHeroPage(); closeHeroWin(); sumSub = subSel.summon = 'summon'; sumTop = 'agent'; sumBan = null; $('tabs').querySelector('[data-tab="summon"]').click(); }
     else if (act === 'hpskill') { const h = C.heroById(hpageId); openModal(`<div class="sktip"><div class="sk-h"><img src="${ART['id_' + h.id] || portrait(h.id)}" alt=""><div><small>기술</small><b>${h.skill.name}</b></div><span>재사용 ${h.skill.cd}초</span></div><p>${skillText(h)}</p><div class="mbtns"><button class="btn" data-close>확인</button></div></div>`); }
     else if (act === 'hpbulk') { bulk = bulk === 1 ? 10 : bulk === 10 ? 0 : 1; fillHeroDetail(); }
     else if (act === 'hpjoin') {
@@ -4442,7 +4508,8 @@ function openModal(html, onClose) {
   const m = $('modal'), was = m.classList.contains('on') ? (m.querySelector('.mbody h2') || {}).textContent : null;
   const keep = was ? [...m.querySelectorAll(SCROLLERS)].map(e => e.scrollTop) : null;
   m.innerHTML = `<div class="mbox"><button class="mx" data-close aria-label="닫기"><svg viewBox="0 0 40 40"><path d="M20 2L38 20 20 38 2 20z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.5" stroke-linejoin="round"/><path d="M14 14l12 12M26 14L14 26" stroke="#fff4e0" stroke-width="3.4" stroke-linecap="round"/></svg></button><div class="mbody">${html}</div></div>`; m.classList.add('on');
-  m.onclick = e => { const b = e.target.closest('[data-close]'); if (!b) return; m.classList.remove('on'); if (onClose) onClose(b.dataset.close); };
+  // 창 바깥(어두운 바탕)을 누르면 닫힘. 닫기 버튼과 같게 처리 (확인 창은 '취소'로)
+  m.onclick = e => { if (e.target === m) { m.classList.remove('on'); if (onClose) onClose('outside'); return; } const b = e.target.closest('[data-close]'); if (!b) return; m.classList.remove('on'); if (onClose) onClose(b.dataset.close); };
   if (keep && (m.querySelector('.mbody h2') || {}).textContent === was) m.querySelectorAll(SCROLLERS).forEach((e, i) => { if (keep[i]) e.scrollTop = keep[i]; });
 }
 function showOffline(r) {
@@ -4619,7 +4686,9 @@ modalEl.addEventListener('click', e => {
 /* ---------- 수사 수첩 (구역 돌파 보상, 열리는 콘텐츠) ---------- */
 function rdTile(rw) {
   const [k, v] = Object.entries(rw)[0];
-  return `${icon({ gems: 'gem', tix: 'tix', ptix: 'ptix', gold: 'gold', exp: 'exp', g2: 'g2', e2: 'e2', med: 'med' }[k])}<span>${C.formatNum(v)}</span>${Object.keys(rw).length > 1 ? '<b class="rd-more">+</b>' : ''}`;
+  // 보상이 여러 개면 노란 + 표시로 숨기지 않고 한 칸씩 모두 보여 줌
+  const I = { gems: 'gem', tix: 'tix', ptix: 'ptix', gold: 'gold', exp: 'exp', g2: 'g2', e2: 'e2', med: 'med' };
+  return Object.entries(rw).filter(([q]) => I[q]).map(([q, n]) => `<i class="rdi">${icon(I[q])}<span>${C.formatNum(n)}</span></i>`).join('');
 }
 function roadHtml() {
   const ready = C.roadReady(S).length;
@@ -5244,9 +5313,51 @@ $('panel').addEventListener('click', e => {
   P.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) < 50) return;
     const bi = BANS.findIndex(b => b[0] === sumBan); sumBan = BANS[(bi + (dx < 0 ? 1 : 2)) % 3][0]; renderPanel(); }, { passive: true }); })();
 
+
+/* =====================================================================
+ * 패스 창 (세나 키우기 성장 패스처럼 여러 개를 탭으로): 스테이지, 팀 레벨, 호출, 균열, 임무
+ * 위: 이름, 현재 값, 구매(또는 모두 받기). 아래: 기준 값 / 무료 / 패스 줄
+ * ===================================================================== */
+let pxTab = 'stage';
+const PX_TABS = [['stage', '스테이지'], ['level', '팀 레벨'], ['summon', '호출'], ['rift', '균열'], ['mis', '임무']];
+function pxInfo(id) {
+  if (id === 'stage') return { name: '수사 패스', desc: '스테이지를 넘을 때마다 받아요.', unit: '스테이지', v: S.stage, steps: C.PASS.map(r => ({ v: r.st, free: r.free, paid: r.paid })), f: S.pass.f, p: S.pass.p, paid: S.pass.paid, price: C.PASS_PRICE, ready: C.passReady(S).length };
+  if (id === 'mis') { const mm = S.mis.m; return { name: '임무 패스', desc: '임무 점수로 올라요. 매달 1일에 새로 시작해요.', unit: '점', v: mm.pts, steps: C.MPASS.map(r => ({ v: r.pt, free: r.free, paid: r.paid })), f: mm.pf, p: mm.pp, paid: S.mis.paid === mm.k, price: C.MPASS_PRICE, ready: C.mpassReady(S).length }; }
+  const P = C.PASSES[id], x = S.px[id];
+  return { name: P.name, desc: P.desc, unit: P.unit, v: C.pxVal(S, id), steps: P.steps, f: x.f, p: x.p, paid: x.paid, price: P.price, ready: C.pxReady(S, id).length };
+}
+function pxWinHtml() {
+  C.misReset(S, new Date());
+  const I = pxInfo(pxTab);
+  const tabs = `<div class="seg px-tabs">${PX_TABS.map(([k, n]) => { const r = pxInfo(k).ready; return `<button data-pxt="${k}" class="${pxTab === k ? 'on' : ''}">${n}${r ? '<i class="px-dot"></i>' : ''}</button>`; }).join('')}</div>`;
+  const act = I.paid ? `<button class="btn sm" data-pxall ${I.ready ? '' : 'disabled'}>모두 받기</button>` : `<button class="btn sm" data-pxbuy>패스 구매 ₩${I.price.toLocaleString()}</button>`;
+  const row = (r, i) => { const ok = I.v >= r.v;
+    const cell = (tr, rw, got, can) => `<button class="ps-c ${got ? 'got' : can ? 'ready' : ''}" ${can && !got ? `data-pxc="${i}" data-tr="${tr}"` : 'disabled'}>${rwTiles(rw)}${tr === 'paid' && !I.paid ? '<i class="ps-lock"></i>' : ''}</button>`;
+    return `<div class="ps-r"><span class="ps-st ${ok ? 'on' : ''}">${r.v.toLocaleString()}</span>${cell('free', r.free, I.f.includes(i), ok)}${cell('paid', r.paid, I.p.includes(i), ok && I.paid)}</div>`; };
+  return `<h2>패스</h2>${tabs}<div class="mpt px-top"><span class="px-n">${I.name} <b>${I.v.toLocaleString()}</b><small class="px-u">${I.unit}</small></span>${act}<small class="px-d">${I.desc}${I.paid ? '' : ' 패스를 사면 오른쪽 줄 보상도 받아요.'}</small></div>
+    <div class="ps-h"><span>${I.unit}</span><span>무료</span><span>패스</span></div><div class="ps">${I.steps.map(row).join('')}</div>
+    <div class="mbtns"><button class="btn ghost" data-close>닫기</button></div>`;
+}
+modalEl.addEventListener('click', async e => {
+  const t = e.target.closest('[data-pxt]'); if (t) { pxTab = t.dataset.pxt; return openModal(pxWinHtml()); }
+  const c = e.target.closest('[data-pxc]'), all = e.target.closest('[data-pxall]'), buy = e.target.closest('[data-pxbuy]');
+  if (buy) {
+    const I = pxInfo(pxTab), prod = pxTab === 'stage' ? 'pass' : pxTab === 'mis' ? 'mpass' : 'px_' + pxTab;
+    modalEl.classList.remove('on');
+    if (await Pay.buy(prod, I.price, I.name)) { if (pxTab === 'stage') S.pass.paid = true; else if (pxTab === 'mis') S.mis.paid = S.mis.m.k; else C.pxBuy(S, pxTab); C.firstPayStart(S, new Date()); writeSave(); }
+    return openModal(pxWinHtml());
+  }
+  if (!c && !all) return;
+  const claim = (i, tr) => pxTab === 'stage' ? C.passClaim(S, i, tr) : pxTab === 'mis' ? C.mpassClaim(S, i, tr) : C.pxClaim(S, pxTab, i, tr);
+  const list = c ? [[+c.dataset.pxc, c.dataset.tr]] : pxTab === 'stage' ? C.passReady(S) : pxTab === 'mis' ? C.mpassReady(S) : C.pxReady(S, pxTab);
+  const got = {}; for (const [i, tr] of list) { const w = claim(i, tr); if (w) for (const [k, v] of Object.entries(w)) got[k] = (got[k] || 0) + v; }
+  writeSave(); openModal(pxWinHtml()); if (Object.keys(got).length) showResult('gift', '보상 획득', rwTiles(got));
+});
+
 /* ---------- 스테이지 클리어 띠 ---------- */
 let clrT = 0;
 function stageClear(rw) {
+  if (overlayBlocked()) return;
   const el = $('clear');
   el.innerHTML = `<i class="cl-ink"></i>${ART.ic_e_boss ? `<img class="cl-skull" src="${ART.ic_e_boss}" alt="">` : ''}<b class="cl-stamp"><small>TARGET DOWN</small>근원체 처치</b><em class="cl-st">${C.stageLabel(S.stage - 1 > 0 ? S.stage - 1 : S.stage)} 봉쇄 완료</em><div>${Object.entries(rw).filter(([, v]) => v).map(([k, v]) => `<span>${icon({ gold: 'gold', gems: 'gem', exp: 'exp', tix: 'tix' }[k])}+${C.formatNum(v)}</span>`).join('')}</div>`;
   el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
@@ -5287,14 +5398,10 @@ modalEl.addEventListener('click', e => {
 
 /* ---------- 우편함 ---------- */
 function mailHtml() {
-  // 세나 키우기 우편함처럼: 왼쪽 보낸 이 얼굴(요원이 보낸 우편) 또는 본부 표시, 가운데 제목과 보상 칸(전부), 오른쪽 받기
+  // 임무 목록과 같은 칸 모양: 제목과 보낸 이, 보상 칸, 받기
   const left = C.MAILS.filter(m => !S.mail.includes(m.id));
-  const I = { gems: 'gem', tix: 'tix', ptix: 'ptix', gold: 'gold', exp: 'exp', g2: 'g2', e2: 'e2', med: 'med' };
-  const fromIc = m => { const h = C.HEROES.find(x => x.name === m.from); return h ? `<img src="${ART['id_' + h.id] || portrait(h.id)}" alt="">` : '<i class="ml2-hq">AIU</i>'; };
-  const row = m => `<div class="ml2"><div class="ml2-f">${fromIc(m)}</div><div class="ml2-c"><b>${m.title}</b><small>${m.from}</small>
-      <div class="ml2-r">${Object.entries(m.rw).filter(([k]) => I[k]).map(([k, v]) => `<span class="ml2-i">${icon(I[k])}<em>${C.formatNum(v)}</em></span>`).join('')}</div></div>
-      <button class="btn ml2-b" data-mail="${m.id}">받기</button></div>`;
-  return `<h2>우편함</h2><p class="ml2-n">받을 우편 <b>${left.length}</b>통</p><div class="mlist">${left.length ? left.map(row).join('') : '<p class="empty">받을 우편이 없어요</p>'}</div>
+  const row = m => `<div class="mrow mlr"><div class="mt"><b>${m.title}</b><small>${m.from}</small></div><span class="rw rd-r">${rdTile(m.rw)}</span><button class="btn sm" data-mail="${m.id}">받기</button></div>`;
+  return `<h2>우편함</h2><div class="mlist">${left.length ? left.map(row).join('') : '<p class="empty">받을 우편이 없어요</p>'}</div>
     <div class="mbtns"><button class="btn ghost" data-close>닫기</button><button class="btn" data-mail="all" ${left.length ? '' : 'disabled'}>모두 받기</button></div>`;
 }
 modalEl.addEventListener('click', e => {
@@ -5387,18 +5494,15 @@ $('preNo').addEventListener('click', () => {
   toast(`편성 ${S.preI + 1}번으로 바꿨어요`);
 });
 
-/* ---------- 카메라: 따라갈 요원 고르기 (세나 키우기 카메라 대상) ---------- */
+/* ---------- 카메라: 누를 때마다 화면 크기가 기본 → 확대 → 축소 로 바뀜 (창 없이). 글자도 현재 크기로 바뀜 ---------- */
+const CAMZ = [[1, '기본'], [1.3, '확대'], [0.8, '축소']];
+const camLabel = () => { const z = CAMZ.find(c => Math.abs(c[0] - camZ) < 0.01) || CAMZ[0]; const sp = $('bCam').querySelector('span'); if (sp) sp.textContent = z[1]; };
 $('bCam').addEventListener('click', () => {
-  const zi = [0.8, 1, 1.3].indexOf(camZ);
-  openModal(`<h2>카메라</h2><div class="optg">화면 크기</div><div class="seg camz">${['축소', '기본', '확대'].map((n, i) => `<button data-camz="${i}" class="${zi === i ? 'on' : ''}">${n}</button>`).join('')}</div><div class="optg">따라갈 요원</div><div class="pfw-g"><button data-cam="" class="${!R.camId ? 'on' : ''}" aria-label="팀 전체"><svg viewBox="0 0 24 24" style="width:60%;height:60%"><circle cx="8" cy="9" r="3" fill="#c9d3ee"/><circle cx="16" cy="9" r="3" fill="#c9d3ee"/><path d="M3 19c0-3 2-5 5-5s5 2 5 5zM11 19c0-3 2-5 5-5s5 2 5 5z" fill="#c9d3ee"/></svg></button>${team().map(h => `<button data-cam="${h.id}" class="${R.camId === h.id ? 'on' : ''}"><img src="${ART['id_' + h.id] || portrait(h.id)}" alt="${h.name}"></button>`).join('')}</div><div class="mbtns"><button class="btn" data-close>닫기</button></div>`);
+  const i = CAMZ.findIndex(c => Math.abs(c[0] - camZ) < 0.01), nx = CAMZ[(i + 1) % CAMZ.length];
+  camZ = nx[0]; try { localStorage.setItem('aiu-camz', String([0.8, 1, 1.3].indexOf(camZ))); } catch (err) {}
+  camLabel(); toast(`화면 ${nx[1]}`);
 });
-modalEl.addEventListener('click', e => {
-  const z = e.target.closest('[data-camz]');
-  if (z) { camZ = [0.8, 1, 1.3][+z.dataset.camz]; try { localStorage.setItem('aiu-camz', z.dataset.camz); } catch (err) {} for (const x of modalEl.querySelectorAll('[data-camz]')) x.classList.toggle('on', x === z); return toast(`화면 ${['축소', '기본', '확대'][+z.dataset.camz]}`); }
-  const b = e.target.closest('[data-cam]'); if (!b) return;
-  R.camId = b.dataset.cam || null; $('bCam').setAttribute('aria-pressed', !!R.camId); modalEl.classList.remove('on');
-  toast(R.camId ? `${C.heroById(R.camId).name}을(를) 따라가요` : '팀 전체를 보여 줘요');
-});
+camLabel();
 
 /* =====================================================================
  * 결제, 광고 연결 지점
@@ -5408,7 +5512,7 @@ modalEl.addEventListener('click', e => {
  * 지금은 '시험 모드': 결제는 실제 돈이 나가지 않는 시험 결제, 광고는 3초 시험 화면
  * ===================================================================== */
 const PRODUCTS = {   // 스토어에 등록할 상품 ID (구글 플레이 콘솔의 인앱 상품 ID 와 같게)
-  mpass: 'aiu_mission_pass', p_new: 'aiu_pack_new', p_lv: 'aiu_pack_summon', p_ptix: 'aiu_pack_elite', w_sum: 'aiu_weekly_summon', p_month: 'aiu_monthly', p_noad: 'aiu_no_ads', pass: 'aiu_pass_s1',
+  mpass: 'aiu_mission_pass', px_level: 'aiu_pass_level', px_summon: 'aiu_pass_summon', px_rift: 'aiu_pass_rift', p_new: 'aiu_pack_new', p_lv: 'aiu_pack_summon', p_ptix: 'aiu_pack_elite', w_sum: 'aiu_weekly_summon', p_month: 'aiu_monthly', p_noad: 'aiu_no_ads', pass: 'aiu_pass_s1',
   g0: 'aiu_gem_60', g1: 'aiu_gem_300', g2: 'aiu_gem_650', g3: 'aiu_gem_1350', g4: 'aiu_gem_2800', g5: 'aiu_gem_6000',
 };
 const AD_UNITS = { gold: 'ad_gold_buff', shop: 'ad_shop_reward', mail: 'ad_mail' };   // 광고 자리 ID
@@ -5546,7 +5650,7 @@ function passHtml() {
     <div class="ps-h"><span>스테이지</span><span>무료</span><span>패스</span></div><div class="ps">${C.PASS.map(row).join('')}</div>
     <div class="mbtns"><button class="btn ghost" data-close>닫기</button>${S.pass.paid ? `<button class="btn" data-passall ${C.passReady(S).length ? '' : 'disabled'}>모두 받기</button>` : `<button class="btn" data-passbuy>패스 구매 ${C.PASS_PRICE.toLocaleString()}원</button>`}</div>`;
 }
-$('passBtn').addEventListener('click', () => openModal(passHtml()));
+$('passBtn').addEventListener('click', () => { pxTab = 'stage'; openModal(pxWinHtml()); });
 $('panel').addEventListener('click', e => { const b = e.target.closest('[data-mopen]'); if (!b) return; if (b.dataset.mopen === 'pass') openModal(passHtml()); else misOpen('p'); });
 modalEl.addEventListener('click', async e => {
   const one = e.target.closest('[data-pass]'), all = e.target.closest('[data-passall]'), buy = e.target.closest('[data-passbuy]');
@@ -5804,7 +5908,10 @@ new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) i
 /* 검수용 (화면 확인 스크립트에서만 씀) */
 window.__aiu = { get R() { return R; }, fxPic, sfx, castSkill };
 /* ---------- 근원체 출현 컷인 ---------- */
+// 메뉴 창이나 요원 화면이 열려 있으면 전투 연출(출현, 처치 도장, 대사)을 그 위에 띄우지 않음
+function overlayBlocked() { const a = $('app'); return a.classList.contains('hdopen') || !a.classList.contains('folded'); }
 function bossCutIn() {
+  if (overlayBlocked()) return;
   sfx('glitch', 0.7, 0.5); setTimeout(() => sfx('cinehit', 0.85, 0.5), 180);
   const el = $('bossin'), t = theme(), img = ART['spr_boss' + (Math.floor((S.stage - 1) / 10) % 3 + 1)] || ART.spr_boss1;
   el.innerHTML = `<div class="bt">근원체 출현</div><div class="bb">${img ? `<img src="${img}" alt="">` : ''}<div class="bn"><b>${t.boss}</b><small>${t.name}</small></div></div>`;
@@ -5814,28 +5921,37 @@ function bossCutIn() {
 }
 
 /* ---------- 전투 중 요원 대사 (근원체가 나오면 출전 요원 한 명이 한마디) ---------- */
+// {b} 자리에는 이번 근원체 이름이 들어감. 같은 대사가 연달아 나오지 않게 최근 대사는 피함
 const LINES = {
-  mage: ['기다리는 건 질색이라서요. 바로 태웁니다!', '불 붙일 데가 또 생겼네요.'],
-  knight: ['내 뒤로 물러서. 막는 건 내 일이다.', '방패 들어. 정면으로 간다.'],
-  archer: ['조준 끝. 한 발이면 충분해.', '움직이지 마라… 쏜다.'],
-  priest: ['다친 사람 있으면 바로 말해요.', '버텨요. 제가 붙어 있을게요.'],
-  dark: ['…늦었군. 정리한다.', '균열은 내가 닫는다.'],
-  scanner: ['반응 크다! 저게 근원체예요!', '드론 띄웁니다. 약점 찾았어요.'],
-  breaker: ['문이든 괴물이든 부수면 그만이지.', '길 연다! 따라와!'],
-  echo: ['소리가 이상해… 다들 귀 막아.', '이 주파수면 움직임이 느려질 거야.'],
-  requiem: ['기도는 끝났다. 이제 보내 주지.', '은 탄환은 넉넉하다.'],
-  ironside: ['전원 내 방패 뒤로!', '이 정도로는 안 뚫려.'],
-  blackbox: ['좋은 표본이군. 격리하지.', '상자 안이 조용해질 거야.'],
-  ghost: ['…이미 뒤에 있어.', '보이지 않는 게 제일 무섭지.'],
+  mage: ['기다리는 건 질색이라서요. 바로 태웁니다!', '불 붙일 데가 또 생겼네요.', '{b}? 이름부터 잘 탈 것 같네요.', '뒤로 빠져요. 이번엔 크게 갑니다.', '비 오는 날 불 피우는 게 제 특기예요.', '연료는 넉넉해요. 끝까지 갑니다.', '저 덩치면 오래 타겠네요.', '보고서는 나중에. 일단 태우고요.'],
+  knight: ['내 뒤로 물러서. 막는 건 내 일이다.', '방패 들어. 정면으로 간다.', '{b}의 첫 공격은 내가 받는다.', '진형 유지해. 아무도 안 쓰러진다.', '무겁긴 해도 못 막을 건 없어.', '다들 숨 고르고, 내 신호에 맞춰.', '여기가 선이다. 넘어오게 두지 마.', '버티는 건 자신 있다.'],
+  archer: ['조준 끝. 한 발이면 충분해.', '움직이지 마라… 쏜다.', '{b}, 약점은 이미 봤어.', '바람 없음. 거리 좋고.', '숨 한 번 참고… 지금.', '머리를 내밀면 끝이야.', '탄은 아껴. 나는 안 빗나가.', '저 덩치면 눈 감고도 맞혀.'],
+  priest: ['다친 사람 있으면 바로 말해요.', '버텨요. 제가 붙어 있을게요.', '{b}의 기운이 독해요. 조심해요.', '무리하지 마요. 치료는 제 몫이니까.', '숨 쉬어요. 다 같이 돌아가요.', '피가 멎을 때까지 손 안 놓을게요.', '한 명도 놓치지 않아요.', '쓰러지면 제가 다시 세워요.'],
+  dark: ['…늦었군. 정리한다.', '균열은 내가 닫는다.', '{b}. 오늘 밤으로 끝이다.', '비가 그치기 전에 끝내지.', '도망칠 곳은 없다.', '시끄럽군. 조용히 시켜 주지.', '그림자 속에서는 내가 먼저다.', '…따라와.'],
+  scanner: ['반응 크다! 저게 근원체예요!', '드론 띄웁니다. 약점 찾았어요.', '{b} 신호 잡았어요! 바로 앞이에요!', '수치가 계속 올라가요. 서둘러요!', '왼쪽 다리 쪽 반응이 약해요!', '기록 남기는 중이니까 멋있게 부탁해요.', '잠깐, 패턴이 바뀌었어요!', '지도 갱신했어요. 이쪽으로!'],
 };
-let talkT = 0;
+const TYPE_LINES = {
+  공격: ['목표 확인. 바로 처리한다.', '빈틈이 보인다.', '{b}, 거기서 멈춰.', '먼저 치는 쪽이 이긴다.', '한 번에 끝낸다.', '눈 떼지 마. 금방 끝나.', '숨 쉴 틈 안 준다.', '사냥 시작이다.'],
+  광역: ['한꺼번에 정리하죠.', '다들 물러서요!', '{b} 주변까지 싹 쓸어요.', '모여 있으면 더 좋죠.', '범위 안이에요. 갑니다!', '한 번에 날려 버릴게요.', '터지는 소리 크게 날 거예요.', '정리 끝나면 연락할게요.'],
+  방어: ['내 뒤로 와.', '여긴 못 지나간다.', '{b}의 공격은 내가 맡는다.', '버텨. 무너지면 끝이다.', '방패는 아직 멀쩡하다.', '천천히, 하지만 확실하게.', '앞은 내가 연다.', '다친 사람은 뒤로 빠져.'],
+  지원: ['지원 들어갑니다.', '버텨요, 제가 도울게요.', '{b} 분석 끝났어요.', '조금만 더 버텨요!', '탄약 보급했어요.', '신호 연결됐어요. 계속 가요.', '제가 뒤를 볼게요.', '다들 상태 괜찮아요?'],
+};
+let talkT = 0; const talkRecent = [];
 function talk() {
-  const TL = { 공격: ['목표 확인. 바로 처리한다.', '빈틈이 보인다.'], 광역: ['한꺼번에 정리하죠.', '다들 물러서요!'], 방어: ['내 뒤로 와.', '여긴 못 지나간다.'], 지원: ['지원 들어갑니다.', '버텨요, 제가 붙을게요.'] };
-  for (const h of team()) if (!LINES[h.id]) LINES[h.id] = TL[h.type];
-  const t = team().filter(h => LINES[h.id]); if (!t.length) return;
-  const h = t[Math.floor(Math.random() * t.length)], L = LINES[h.id], el = $('talk');
+  if (overlayBlocked()) return;
+  const bn = (theme().boss || '근원체');
+  const t = team(); if (!t.length) return;
+  // 최근에 말한 요원은 덜 고름, 최근 대사 6개는 다시 안 나옴
+  const lastWho = talkRecent.length ? talkRecent[talkRecent.length - 1].who : '';
+  const pool = t.length > 1 ? t.filter(h => h.id !== lastWho) : t;
+  const h = pool[Math.floor(Math.random() * pool.length)];
+  const all = [...(LINES[h.id] || []), ...(TYPE_LINES[h.type] || [])];
+  const fresh = all.filter(l => !talkRecent.some(r => r.line === l));
+  const line = (fresh.length ? fresh : all)[Math.floor(Math.random() * (fresh.length || all.length))];
+  talkRecent.push({ who: h.id, line }); if (talkRecent.length > 6) talkRecent.shift();
+  const el = $('talk');
   el.style.setProperty('--tc', ({ 희귀: '#9fc3ff', 영웅: '#d9a6ff', 전설: '#ffd27a', 각성: '#ff8a9a' })[C.heroGrade(S, h.id)]);
-  el.innerHTML = `<img src="${ART['id_' + h.id] || portrait(h.id)}" alt=""><div><b>${h.name}</b><span>${L[Math.floor(Math.random() * L.length)]}</span></div>`;
+  el.innerHTML = `<img src="${ART['id_' + h.id] || portrait(h.id)}" alt=""><div><b>${h.name}</b><span>${line.replace('{b}', bn)}</span></div>`;
   el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
   clearTimeout(talkT); talkT = setTimeout(() => el.classList.remove('on'), 3200);
 }
@@ -5901,7 +6017,10 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
-  ['0.33.7', '11월 28일', ['우편함을 다시 꾸몄어요. 보낸 사람 얼굴, 제목, 보상을 한 칸씩 모두 보여 주고 숫자가 그림을 가리지 않아요', '지난 업데이트 기념 우편을 뺐어요']],
+  ['0.34.1', '11월 28일', ['메뉴 창이 요원 창처럼 화면 위까지 크게 열려요', '패스 칸을 촘촘하게 바꿔 한 화면에 더 많이 보여요', '메뉴나 요원 화면을 열면 근원체 출현, 처치 도장, 요원 대사가 뜨지 않아요', '아직 없는 요원도 1레벨 능력치와 호출하러 가기 버튼이 보여요', '근원체가 나올 때 요원 대사가 매번 다르게 나와요']],
+  ['0.34.0', '11월 28일', ['패스 창을 새로 만들었어요. 스테이지, 팀 레벨, 호출, 균열, 임무 패스를 탭으로 골라 보고, 위에서 바로 패스를 사거나 모두 받을 수 있어요', '임무 패스 구매 버튼을 목록 위로 올렸어요', '받을 수 있는 패스 보상은 금색으로 빛나요', '일일 작전, 균열에 들어가면 메뉴가 내려가고 전투 화면이 보여요', '창 바깥을 누르면 창이 닫혀요']],
+  ['0.33.8', '11월 28일', ['카메라 버튼을 누를 때마다 화면이 기본, 확대, 축소 순서로 바로 바뀌어요 (창이 뜨지 않아요)', '배경 음악이 화면을 내렸다 올려도 끊긴 자리에서 이어서 나와요', '전투력 변화 알림을 화면 가운데로 옮겼어요', '기술 설명 문장을 자연스럽게 다듬었어요']],
+  ['0.33.7', '11월 28일', ['우편함을 임무 목록과 같은 칸 모양으로 정리했어요', '보상이 여러 개일 때 노란 + 표시로 숨기지 않고 한 칸씩 모두 보여 줘요 (우편함, 임무, 수사 수첩)', '지난 업데이트 기념 우편을 뺐어요']],
   ['0.33.6', '11월 28일', ['앱을 켤 때 작은 AIU 글자가 잠깐 먼저 보이던 문제를 고쳐, 시작 화면이 다 준비된 뒤 한 번에 서서히 나타나요', '시작 화면에서 음악이 안 나오던 문제를 고쳤어요. 휴대폰에서 첫 터치에 소리가 바로 나요', '앱에서는 화면을 누르기 전부터 시작 화면 음악이 나와요 (새 앱을 받은 뒤부터)']],
   ['0.33.5', '11월 28일', ['안내 문구가 화면 위쪽 프로필과 스테이지 막대를 가리지 않게 화면 가운데에 뜨도록 바꿨어요']],
   ['0.33.4', '11월 28일', ['시작 화면과 오프닝에 시네마틱 범죄 분위기 음악을 넣었어요. 게임에 들어가면 순찰 음악으로 자연스럽게 바뀌어요']],
@@ -5962,7 +6081,7 @@ function newsHtml() {
 const newsSeen = () => { try { return localStorage.getItem('aiu-news') === NEWS[0][0]; } catch (e) { return true; } };
 $('dotNews').classList.toggle('on', !newsSeen());
 $('dotMail').classList.toggle('on', C.MAILS.some(m => !S.mail.includes(m.id)));
-setInterval(() => { $('dotFp').classList.toggle('on', C.firstPayReady(S, new Date()) >= 0); $('dotRoad2').classList.toggle('on', C.roadReady(S).length > 0); $('dotHw').classList.toggle('on', runAlert()); $('dotPass').classList.toggle('on', C.passReady(S).length > 0); $('dotAd').classList.toggle('on', !C.adBuffOn(S, Date.now())); $('dotBag').classList.toggle('on', Object.values(S.bag).some(n => n > 0)); $('dotMail').classList.toggle('on', C.MAILS.some(m => !S.mail.includes(m.id))); $('sideTg').classList.toggle('alert', $('side').classList.contains('fold') && [...$('side').querySelectorAll('.dot')].some(d => d.classList.contains('on') || d.style.display === 'block')); }, 1000);
+setInterval(() => { $('dotFp').classList.toggle('on', C.firstPayReady(S, new Date()) >= 0); $('dotRoad2').classList.toggle('on', C.roadReady(S).length > 0); $('dotHw').classList.toggle('on', runAlert()); $('dotPass').classList.toggle('on', C.passReady(S).length > 0 || ['level', 'summon', 'rift'].some(k => C.pxReady(S, k).length > 0)); $('dotAd').classList.toggle('on', !C.adBuffOn(S, Date.now())); $('dotBag').classList.toggle('on', Object.values(S.bag).some(n => n > 0)); $('dotMail').classList.toggle('on', C.MAILS.some(m => !S.mail.includes(m.id))); $('sideTg').classList.toggle('alert', $('side').classList.contains('fold') && [...$('side').querySelectorAll('.dot')].some(d => d.classList.contains('on') || d.style.display === 'block')); }, 1000);
 
 /* ---------- 절전 모드: 화면은 검게, 전투와 보상은 계속 ---------- */
 let sleeping = false, slBase = null, idleT = 0;

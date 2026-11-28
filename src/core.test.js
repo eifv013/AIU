@@ -521,3 +521,13 @@ test('상점: 누적 구매일, 골드 충전, 정기권', () => {
   const back = C.loadFromString(JSON.stringify(s), 0).state;
   assert.deepEqual(back.plans, s.plans); assert.deepEqual(back.sk, s.sk); assert.deepEqual(back.shopM, s.shopM);
 });
+
+test('성장 패스: 팀 레벨, 호출, 균열', () => {
+  const s = C.newState(0); s.acc.lv = 9; s.pulls.total = 120; s.tower = 0;
+  assert.deepEqual(C.pxReady(s, 'level').map(x => x[0]), [0, 1, 2]);
+  assert.ok(C.pxClaim(s, 'level', 0, 'free')); assert.equal(C.pxClaim(s, 'level', 0, 'free'), null);
+  assert.equal(C.pxClaim(s, 'level', 0, 'paid'), null); C.pxBuy(s, 'level'); assert.ok(C.pxClaim(s, 'level', 0, 'paid'));
+  assert.equal(C.pxClaim(s, 'level', 5, 'free'), null);
+  assert.equal(C.pxReady(s, 'summon').length, 3); assert.equal(C.pxReady(s, 'rift').length, 0);
+  const back = C.loadFromString(JSON.stringify(s), 0).state; assert.deepEqual(back.px, s.px);
+});

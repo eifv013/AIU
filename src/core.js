@@ -531,6 +531,25 @@
   /* 수사 패스: 스테이지 단계마다 무료 보상 + 유료(패스 구매) 보상 */
   const PASS = [5, 10, 15, 20, 30, 40, 50, 60, 80, 100].map((st, i) => ({ st, free: i % 2 ? { tix: 10 } : { gems: 50 }, paid: i % 3 === 2 ? { ptix: 2 } : { gems: 200 } }));
   const PASS_PRICE = 9900;
+  /* ---------- 성장 패스 여러 개 (세나 키우기 성장 패스들처럼): 기준 값에 닿을 때마다 무료 보상, 패스를 사면 추가 보상 ---------- */
+  const mkSteps = (vals, f, pd) => vals.map((v, i) => ({ v, free: f(i), paid: pd(i) }));
+  const PASSES = {
+    level: { name: '팀 레벨 패스', unit: '레벨', desc: '수사팀 레벨이 오를 때마다 받아요.', price: 9900, val: s => s.acc.lv,
+      steps: mkSteps([3, 5, 8, 10, 13, 15, 18, 20, 25, 30, 35, 40], i => i % 2 ? { tix: 20 } : { gems: 60 }, i => i % 3 === 2 ? { ptix: 3 } : { gems: 300 }) },
+    summon: { name: '호출 패스', unit: '회', desc: '요원 호출 누적 횟수로 받아요.', price: 9900, val: s => s.pulls.total,
+      steps: mkSteps([30, 60, 100, 150, 200, 300, 400, 500, 700, 1000, 1500, 2000], i => i % 2 ? { tix: 30 } : { gems: 80 }, i => i % 2 ? { ptix: 3 } : { gems: 400 }) },
+    rift: { name: '균열 패스', unit: '층', desc: '균열 심층을 돌파한 층수로 받아요.', price: 9900, val: s => s.tower,
+      steps: mkSteps([5, 10, 15, 20, 30, 40, 50, 60, 80, 100, 130, 160], i => i % 2 ? { med: 20 } : { gems: 80 }, i => i % 3 === 2 ? { ptix: 3 } : { gems: 400 }) },
+  };
+  const pxVal = (state, id) => PASSES[id].val(state) || 0;
+  function pxClaim(state, id, i, track) {
+    const P = PASSES[id], r = P && P.steps[i], x = state.px[id]; if (!r || pxVal(state, id) < r.v) return null;
+    if (track === 'paid' && !x.paid) return null;
+    const got = x[track === 'paid' ? 'p' : 'f']; if (got.includes(i)) return null;
+    got.push(i); const w = r[track === 'paid' ? 'paid' : 'free']; giveReward(state, w); return w;
+  }
+  function pxReady(state, id) { const P = PASSES[id], x = state.px[id], v = pxVal(state, id), out = []; P.steps.forEach((r, i) => { if (v < r.v) return; if (!x.f.includes(i)) out.push([i, 'free']); if (x.paid && !x.p.includes(i)) out.push([i, 'paid']); }); return out; }
+  function pxBuy(state, id) { if (!PASSES[id]) throw new RangeError('없는 패스예요'); state.px[id].paid = true; }
   function passClaim(state, i, track) {
     const r = PASS[i]; if (!r || state.stage < r.st) return null;
     if (track === 'paid' && !state.pass.paid) return null;
@@ -1015,6 +1034,7 @@
       fp: { start: '', got: [] },   // 첫 결제 보너스
       mis: freshMis(),    // 주간, 월간, 반복 임무와 임무 패스
       pass: { paid: false, f: [], p: [] },   // 수사 패스
+      px: { level: { paid: false, f: [], p: [] }, summon: { paid: false, f: [], p: [] }, rift: { paid: false, f: [], p: [] } },   // 성장 패스들
       owned: [],          // 산 패키지 (한 번만)
       shop: { day: '', n: {} },   // 상점 오늘 산 횟수
       sk: { n: 0, day: '', got: [] },   // 일일 상점 누적 구매일, 마지막으로 센 날, 받은 일차
@@ -1110,6 +1130,7 @@
     s.adBuff = isNum(raw.adBuff) ? raw.adBuff : 0;
     const okIdx = a => Array.isArray(a) ? [...new Set(a.filter(i => Number.isInteger(i) && i >= 0 && i < PASS.length))] : [];
     s.pass = { paid: !!(raw.pass && raw.pass.paid === true), f: okIdx(raw.pass && raw.pass.f), p: okIdx(raw.pass && raw.pass.p) };
+    s.px = {}; for (const id of Object.keys(PASSES)) { const r = raw.px && raw.px[id]; const ok = a => Array.isArray(a) ? [...new Set(a.filter(i => Number.isInteger(i) && i >= 0 && i < PASSES[id].steps.length))] : []; s.px[id] = { paid: !!(r && r.paid === true), f: ok(r && r.f), p: ok(r && r.p) }; }
     s.owned = Array.isArray(raw.owned) ? raw.owned.filter(x => typeof x === 'string').slice(0, 50) : [];
     s.mis = freshMis();
     if (raw.mis && typeof raw.mis === 'object') {
@@ -1473,7 +1494,7 @@
   const Core = {
     HEROES, TYPES, STARTER_IDS, partyIds, partySlots, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
-    AWAKE_STAR, AWAKE_NEED, maxStars, heroGrade, gemTotal, spendGems, FIRST_PAY, firstPayStart, firstPayReady, firstPayClaim, WEEKLY, MONTHLY, REPEAT, MPASS, MPASS_PRICE, misReset, misClaim, misReadyCount, repeatReady, mpassClaim, mpassReady, weekKey, monthKey, PASS, PASS_PRICE, passClaim, passReady, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
+    AWAKE_STAR, AWAKE_NEED, maxStars, heroGrade, gemTotal, spendGems, FIRST_PAY, firstPayStart, firstPayReady, firstPayClaim, WEEKLY, MONTHLY, REPEAT, MPASS, MPASS_PRICE, misReset, misClaim, misReadyCount, repeatReady, mpassClaim, mpassReady, weekKey, monthKey, PASS, PASS_PRICE, passClaim, passReady, PASSES, pxVal, pxClaim, pxReady, pxBuy, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, summonMaxN, addTickets, shopItem, STREAK, streakClaim, GOLD_PACKS, goldPackCount, goldPackBuy, PLANS, planById, planLeft, planBuy, planClaim, levelReward, applySummon, pickupRemainSec, formatRemain,

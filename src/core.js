@@ -315,6 +315,29 @@
     if (!u) throw new Error(`알 수 없는 강화: ${id}`);
     return u;
   }
+  /* ---------- 수사력 단계 (세나 키우기 영향력처럼) ----------
+   * 단계마다 강화 상한이 있음 (사격, 협상은 단계 x10, 급소는 단계 x3). 세 가지를 모두 상한까지 올리면
+   * 골드를 내고 다음 단계로 승급, 상한이 올라가고 보석 보상 */
+  const TSTEP = { LV: 10, CRIT: 3, COST: 3000, GROW: 1.7, GEM: 50 };
+  function tstepOf(state) { return clampInt(state && state.tstep, 1, 9999, 1); }
+  /** 현재 단계에서 이 강화의 상한 레벨 */
+  function upCap(state, id) { const u = upgradeById(id), t = tstepOf(state); return Math.min(u.max, t * (id === 'crit' ? TSTEP.CRIT : TSTEP.LV)); }
+  /** 단계 상한을 반영한 강화 비용 (상한이면 Infinity) */
+  function upCost(state, id, lv) { return lv >= upCap(state, id) ? Infinity : upgradeCost(id, lv); }
+  /** 단계 진행: 현재 단계 안에서 올린 수 / 필요한 수 */
+  function tstepProg(state) {
+    const t = tstepOf(state); let cur = 0, need = 0;
+    for (const u of UPGRADES) { const cap = upCap(state, u.id), lo = Math.min(cap, (t - 1) * (u.id === 'crit' ? TSTEP.CRIT : TSTEP.LV)); need += cap - lo; cur += Math.max(0, Math.min(cap, state.up[u.id]) - lo); }
+    return { cur, need, ready: UPGRADES.every(u => state.up[u.id] >= upCap(state, u.id)) };
+  }
+  function tstepCost(state) { return Math.floor(TSTEP.COST * Math.pow(TSTEP.GROW, tstepOf(state) - 1)); }
+  /** 단계 승급. 상태를 바꾸고 받은 보석 수 반환 */
+  function tstepUp(state) {
+    if (!tstepProg(state).ready) throw new RangeError('세 가지 강화를 모두 상한까지 올려야 해요');
+    const c = tstepCost(state); if (state.gold < c) throw new RangeError('골드가 부족해요');
+    state.gold -= c; state.tstep = tstepOf(state) + 1;
+    const gem = TSTEP.GEM * (state.tstep - 1); state.gems += gem; return gem;
+  }
   /** 훈련소 강화 비용. 최대 레벨이면 Infinity */
   function upgradeCost(id, lv) {
     const u = upgradeById(id);
@@ -649,7 +672,7 @@
     let total = state.pulls.total, relay = state.pulls.relay, relayHit = false;
     for (let i = 0; i < cnt; i++) {
       let id;
-      if (kind === 'call') { id = summon(1, rng, summonLevel(total))[0]; total++; }
+      if (kind === 'call') { id = summon(1, rng, summonLevel(total))[0]; }
       else {
         const r = rng();
         if (!isNum(r) || r < 0 || r >= 1) throw new RangeError('rng 값은 0 이상 1 미만이어야 합니다');
@@ -660,7 +683,7 @@
         else id = pick(heroes, (r - CONST.PREMIUM_LEGEND) / (1 - CONST.PREMIUM_LEGEND));
         if (kind === 'pickup') { relay++; if (id === 'dark') relay = 0; if (relay >= CONST.RELAY) { id = 'dark'; relay = 0; relayHit = true; } }
       }
-      ids.push(id);
+      ids.push(id); total++;   // 요원 호출, 정예 호출, 특별 채용 모두 소환 레벨에 쌓임
     }
     const res = applySummon(state, ids), st = res.state;
     if (paid === 'tix') st.tix -= cnt * CONST.CALL_COST; else if (paid === 'ptix') st.ptix -= cnt; else spendGems(st, cnt * CONST.PREMIUM_COST);
@@ -1152,6 +1175,9 @@
     if (raw.up && typeof raw.up === 'object') {
       for (const u of UPGRADES) s.up[u.id] = clampInt(raw.up[u.id], 0, u.max, 0);
     }
+    // 수사력 단계: 저장값이 없으면 현재 강화 레벨이 들어가는 단계로 맞춤 (기존 진행이 깎이지 않게)
+    const needT = Math.max(1, Math.ceil(s.up.atk / TSTEP.LV), Math.ceil(s.up.gold / TSTEP.LV), Math.ceil(s.up.crit / TSTEP.CRIT));
+    s.tstep = Math.max(needT, clampInt(raw.tstep, 1, 9999, 1));
     if (raw.heroes && typeof raw.heroes === 'object') {
       for (const h of HEROES) {
         const r = raw.heroes[h.id];
@@ -1496,7 +1522,7 @@
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
     AWAKE_STAR, AWAKE_NEED, maxStars, heroGrade, gemTotal, spendGems, FIRST_PAY, firstPayStart, firstPayReady, firstPayClaim, WEEKLY, MONTHLY, REPEAT, MPASS, MPASS_PRICE, misReset, misClaim, misReadyCount, repeatReady, mpassClaim, mpassReady, weekKey, monthKey, PASS, PASS_PRICE, passClaim, passReady, PASSES, pxVal, pxClaim, pxReady, pxBuy, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
-    heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
+    heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, upCap, upCost, tstepOf, tstepProg, tstepCost, tstepUp, TSTEP, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, summonMaxN, addTickets, shopItem, STREAK, streakClaim, GOLD_PACKS, goldPackCount, goldPackBuy, PLANS, planById, planLeft, planBuy, planClaim, levelReward, applySummon, pickupRemainSec, formatRemain,
     newState, cloneState, sanitize, loadFromString, QUESTS, GUIDE, questAt, questAdd, questClaim,
     DUNGEONS, MISSIONS, ATTEND, dayKey, dailyReset, dungeonById, dungeonStage, dungeonReward, towerStage, towerReward,

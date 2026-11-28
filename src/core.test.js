@@ -203,7 +203,7 @@ test('정예 호출: 희귀 없음, 전설 2%, 정예 호출권 먼저 사용', 
   const a = C.doSummon(s, 1, 'elite', () => 0.01); assert.equal(C.heroById(a.ids[0]).grade, '전설'); assert.equal(a.paid, 'ptix'); assert.equal(a.state.gems, 1000);
   const b = C.doSummon(a.state, 10, 'elite', () => 0.99); assert.equal(b.paid, 'gems'); assert.equal(b.state.gems, 1000 - 300);
   assert.ok(b.ids.every(id => C.heroById(id).grade !== '희귀'));
-  assert.equal(b.state.pulls.total, 0);   // 소환 레벨은 요원 호출로만
+  assert.equal(b.state.pulls.total, 11);   // 정예 호출도 소환 레벨에 쌓임
 });
 test('특별 채용: 소환 레벨 3부터, 릴레이 확정', () => {
   const s = C.newState(0); s.gems = 1e6;
@@ -530,4 +530,24 @@ test('성장 패스: 팀 레벨, 호출, 균열', () => {
   assert.equal(C.pxClaim(s, 'level', 5, 'free'), null);
   assert.equal(C.pxReady(s, 'summon').length, 3); assert.equal(C.pxReady(s, 'rift').length, 0);
   const back = C.loadFromString(JSON.stringify(s), 0).state; assert.deepEqual(back.px, s.px);
+});
+
+test('수사력 단계: 상한까지만 강화, 모두 채우면 승급', () => {
+  const s = C.newState();
+  assert.equal(C.tstepOf(s), 1);
+  assert.equal(C.upCap(s, 'atk'), 10); assert.equal(C.upCap(s, 'crit'), 3);
+  s.up.atk = 10; assert.equal(C.upCost(s, 'atk', 10), Infinity);
+  assert.throws(() => C.tstepUp(s), RangeError);
+  s.up.gold = 10; s.up.crit = 3; s.gold = 0;
+  assert.equal(C.tstepProg(s).ready, true);
+  assert.throws(() => C.tstepUp(s), RangeError);   // 골드 부족
+  s.gold = C.tstepCost(s); const g0 = s.gems;
+  const gem = C.tstepUp(s);
+  assert.equal(C.tstepOf(s), 2); assert.equal(s.gold, 0); assert.equal(s.gems, g0 + gem);
+  assert.equal(C.upCap(s, 'atk'), 20); assert.ok(C.upCost(s, 'atk', 10) < Infinity);
+  assert.deepEqual(C.tstepProg(s), { cur: 0, need: 23, ready: false });
+});
+test('수사력 단계: 예전 저장은 현재 강화 레벨에 맞는 단계로', () => {
+  const s = C.sanitize({ v: 2, up: { atk: 35, gold: 12, crit: 4 } });
+  assert.equal(s.tstep, 4); assert.equal(s.up.atk, 35);
 });

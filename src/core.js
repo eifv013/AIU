@@ -15,7 +15,7 @@
   // type: 명단과 파티에 보이는 큰 분류 4가지 (공격, 광역, 방어, 지원). role 은 요원 상세에서만 보이는 세부 역할.
   // limited: 특별 채용(한정)에서만 나옴. 요원 호출, 정예 호출에는 나오지 않음
   // 기술 kind: single 단일 / multi 연사 / aoe 범위 / buff 팀 강화와 회복 /
-  //            mark 표식(받는 피해 증가) / exorcise 근원체 특효 + 즉시 처리 / shield 보호막과 도발 / cage 가둠 / execute 처형
+  //            mark 표식(받는 피해 증가) / exorcise 근원체 특효 + 즉시 처리 / shield 보호막과 도발 / cage 격리 / execute 처형
   const HEROES = [
     { id: 'knight', name: '램파트', kind: '사람',  role: '돌격',   type: '방어', grade: '희귀', baseAtk: 12, baseHp: 160, atkSpd: 1.0, range: 'melee',
       skill: { name: '방패 돌진', cd: 6,  kind: 'single', mult: 5 } },
@@ -263,7 +263,12 @@
   const CRIT_DMG = 2;
 
   /** 별(★) 배율: ★1=1, ★2=1.5, ★3=2 ... */
-  function starMult(stars) { return 1 + 0.5 * (clampInt(stars, 1, CONST.MAX_STARS, 1) - 1); }
+  /* 각성: 전설 요원이 ★5 다음에 한 번 더 올라가는 단계 (등급 표시도 '각성'으로). 내부적으로는 ★6 */
+  const AWAKE_STAR = 6, AWAKE_NEED = 10;
+  function starMult(stars) { const s = clampInt(stars, 1, AWAKE_STAR, 1); return s >= AWAKE_STAR ? 4.2 : 1 + 0.5 * (s - 1); }
+  const maxStars = grade => grade === '전설' ? AWAKE_STAR : CONST.MAX_STARS;
+  /** 화면에 보일 등급 (각성한 전설은 '각성') */
+  function heroGrade(state, id) { const h = heroById(id), d = state.heroes[id]; return h.grade === '전설' && d && d.stars >= AWAKE_STAR ? '각성' : h.grade; }
 
   /** 요원 공격력 */
   function heroAtk(id, lv, stars, atkLv) {
@@ -322,9 +327,11 @@
    * 세나 계열처럼 전설을 같은 전설 수십 장으로 키우게 하지 않음 */
   const STAR_NEED = { 희귀: [10, 30, 80, 200], 영웅: [5, 15, 40, 100], 전설: [1, 2, 3, 5] };
   function starNeed(stars, grade = '희귀') {
-    const s = clampInt(stars, 1, CONST.MAX_STARS, 1);
+    const mx = maxStars(grade), s = clampInt(stars, 1, mx, 1);
+    if (s >= mx) return Infinity;
+    if (s === CONST.MAX_STARS) return AWAKE_NEED;   // 전설 ★5 → 각성
     const t = STAR_NEED[grade] || STAR_NEED['희귀'];
-    return s >= CONST.MAX_STARS ? Infinity : t[s - 1];
+    return t[s - 1];
   }
 
 
@@ -1044,7 +1051,7 @@
           // 시작 요원은 항상 보유
           owned: STARTER_IDS.includes(h.id) ? true : r.owned === true,
           lv: clampInt(r.lv, 1, 1e6, 1),
-          stars: clampInt(r.stars, 1, CONST.MAX_STARS, 1),
+          stars: clampInt(r.stars, 1, maxStars(h.grade), 1),
           shards: clampInt(r.shards, 0, 1e6, 0),
         };
       }
@@ -1065,7 +1072,7 @@
   const Core = {
     HEROES, TYPES, STARTER_IDS, partyIds, partySlots, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
-    gemTotal, spendGems, FIRST_PAY, firstPayStart, firstPayReady, firstPayClaim, WEEKLY, MONTHLY, REPEAT, MPASS, MPASS_PRICE, misReset, misClaim, misReadyCount, repeatReady, mpassClaim, mpassReady, weekKey, monthKey, PASS, PASS_PRICE, passClaim, passReady, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
+    AWAKE_STAR, AWAKE_NEED, maxStars, heroGrade, gemTotal, spendGems, FIRST_PAY, firstPayStart, firstPayReady, firstPayClaim, WEEKLY, MONTHLY, REPEAT, MPASS, MPASS_PRICE, misReset, misClaim, misReadyCount, repeatReady, mpassClaim, mpassReady, weekKey, monthKey, PASS, PASS_PRICE, passClaim, passReady, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,

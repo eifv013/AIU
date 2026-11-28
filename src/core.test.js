@@ -431,3 +431,13 @@ test('유료 보석부터 쓰고, 첫 결제 보너스는 3일', () => {
   assert.equal(C.firstPayReady(s, d5), 2); C.firstPayClaim(s, d5); assert.equal(C.firstPayReady(s, d5), -1);
   const t = C.sanitize(JSON.parse(JSON.stringify(s)), 0); assert.equal(t.fp.got.length, 3);
 });
+
+test('각성: 전설 ★5 다음 단계, 조각 10개', () => {
+  const s = C.newState(0);
+  assert.equal(C.starNeed(5, '전설'), 10); assert.equal(C.starNeed(6, '전설'), Infinity); assert.equal(C.starNeed(5, '영웅'), Infinity);
+  s.heroes.reaper.owned = true; s.heroes.reaper.stars = 6;
+  assert.equal(C.heroGrade(s, 'reaper'), '각성'); assert.equal(C.heroGrade(s, 'mage'), '영웅');
+  assert.ok(C.heroAtk('reaper', 1, 6, 0) > C.heroAtk('reaper', 1, 5, 0) * 1.3);
+  assert.equal(C.sanitize(JSON.parse(JSON.stringify(s)), 0).heroes.reaper.stars, 6);
+  s.heroes.mage.stars = 6; assert.equal(C.sanitize(JSON.parse(JSON.stringify(s)), 0).heroes.mage.stars, 5);
+});

@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.38.3';
+window.AIU_VER = '0.38.4';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -2227,6 +2227,7 @@ html,body{overflow-x:hidden}
 .wh-s .rdi{width:40px;height:40px}.wh-pin{position:absolute;left:50%;top:-10px;z-index:2;width:0;height:0;margin-left:-11px;border:11px solid transparent;border-top:20px solid #ff5a4a;filter:drop-shadow(0 2px 2px #000)}
 .wh-c{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:radial-gradient(#ffe08a,#b8862a);border:3px solid #3a2a08}
 .wh-b{white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:6px}.wh-b small{font:700 11px 'IBM Plex Sans KR'}.fcam{min-width:40px;padding:0 8px!important}.cam-all{display:grid;place-items:center;aspect-ratio:1}.cam-all b{font:400 14px "Black Han Sans";color:#fff}
+.fc-box{margin:10px 0;padding:10px;border:1px solid #3a4560;background:#0c1220;font:600 13px "IBM Plex Sans KR";color:#e8ecf6;word-break:break-all;text-align:center}.fc-in{width:100%;box-sizing:border-box;padding:10px;background:#0c1220;border:1px solid #3a4560;color:#fff;font:14px "IBM Plex Sans KR";margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -6116,7 +6117,7 @@ function formHtml() {
   return `<div class="fstage"><div class="fbg" style="background-image:url(${bg || ''})"></div><div class="ring"></div>${spots}</div>
       <div class="fbar"><span class="fc"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2l8 3v6c0 5-3.5 9-8 11c-4.5-2-8-6-8-11V5z" fill="#c9d3ee"/></svg><b class="${pids.length >= slots ? 'full' : ''}">${pids.length}</b>/${slots}</span>
         <button class="fsyn" data-act="synwin" aria-label="핵심 버프">${SYN.lines.filter(l => l.type !== '전체').map(l => `<i class="${l.lv ? 'on' : ''}"><svg class="ic"><use href="#i-t-${l.type}"/></svg><b>${l.n}</b></i>`).join('')}<span>버프</span></button>
-        <button class="btn fauto" data-act="autoform">자동 편성</button><button class="btn ghost fcam" data-act="camwin" aria-label="카메라 대상"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M4 7h3l2-2h6l2 2h3v12H4z" fill="none" stroke="#e8ecf6" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="#e8ecf6" stroke-width="2"/></svg></button></div>
+        <button class="btn fauto" data-act="autoform">자동 편성</button><button class="btn ghost fcam" data-act="fcode" aria-label="편성 코드"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5" fill="none" stroke="#e8ecf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="btn ghost fcam" data-act="camwin" aria-label="카메라 대상"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M4 7h3l2-2h6l2 2h3v12H4z" fill="none" stroke="#e8ecf6" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="#e8ecf6" stroke-width="2"/></svg></button></div>
     <div class="agrid">${sortHeroes(owned(), pids).map(h => agentCard(h, pids, 'fpick')).join('')}</div>`;
 }
 /** 메뉴 칸 오른쪽 위 도움말(?) 단추 (세나 키우기처럼 화면마다 설명). 칸 위쪽 테두리에 붙여 둠 */
@@ -6739,6 +6740,15 @@ function onAct(e) {
       const pw = h => { const d = S.heroes[h.id]; return C.heroAtk(h.id, d.lv, d.stars, S.up.atk) * 10 + C.heroHp(h.id, d.lv, d.stars); };
       S.party = owned().sort((a, b) => pw(b) - pw(a)).slice(0, C.partySlots(S)).map(h => h.id);
       partyChanged(); renderPanel(); writeSave(); void 0;
+    }
+    else if (act === 'fcode') { return openModal(fcodeHtml()); }
+    else if (act === 'fcopy') { const c = fcodeOf(); try { navigator.clipboard.writeText(c); toast('편성 코드를 복사했어요'); } catch (x) { toast(c); } return; }
+    else if (act === 'fapply') {
+      // 붙여 넣은 코드 적용: 가진 요원만, 열린 칸 수만큼, 중복 없이
+      const raw = (document.getElementById('fcIn') || {}).value || '';
+      const ids = [...new Set(raw.replace(/^AIU-/i, '').split('-').map(x => x.trim()).map(x => C.HEROES.find(h => h.id === x || h.code === x)).filter(h => h && S.heroes[h.id] && S.heroes[h.id].owned).map(h => h.id))].slice(0, C.partySlots(S));
+      if (!ids.length) return toast('적용할 수 있는 요원이 없는 코드예요');
+      S.party = ids; partyChanged(); writeSave(); modalEl.classList.remove('on'); renderPanel(); return toast(`편성 코드를 적용했어요 (${ids.length}명)`);
     }
     else if (act === 'cdxagents') openModal(cdxHtml());
     else if (act === 'cdxtitle') return openTitles();
@@ -8632,6 +8642,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.38.4', '11월 29일', ['편성의 코드 단추로 현재 편성을 복사하거나, 받은 코드로 같은 편성을 만들어요']],
   ['0.38.3', '11월 29일', ['행운 돌림판이 생겼어요. 하루 세 번 무료로 돌려요 (왼쪽 메뉴)', '편성에서 요원을 누르면 정보와 편성, 해제 메뉴가 나와요', '편성의 카메라 단추로 화면이 따라갈 요원을 골라요', '접속하면 특별 채용 알림 창이 나와요. 오늘 다시 보지 않기를 고를 수 있어요']],
   ['0.38.2', '11월 29일', ['스테이지 창에서 지난 스테이지로 옮겨 사냥할 수 있어요. 최고 스테이지 단추로 돌아와요', '스테이지 창에 이야기 건너뛰기가 생겼어요', '근원체 소환 옵션에 실패 시 자동 재도전이 생겼어요', '구급상자를 근원체 전투에서만 쓰게 할 수 있어요', '출석부가 14일로 늘었어요', '일일 임무를 2개, 4개, 모두 끝내면 위쪽 상자를 열어요', '설정이 게임 설정과 계정 탭으로 나뉘고, 배경 음악과 효과음 크기를 따로 맞춰요. 기술 연출을 선명, 반투명, 끄기 중에 고를 수 있어요', 'AI 모드에 순서 탭이 생겨 하는 일을 하나씩 끄고 켤 수 있어요', '이야기 장면에 AUTO 단추가 생겼어요', '핵심 버프 창에서 유형별 보유 요원을 볼 수 있어요', '패스 창이 패스 목록부터 보여 줘요', '메뉴마다 도움말(?) 단추가 생겼어요', '대표 얼굴 테두리를 고를 수 있어요', '아지트 위쪽에 시설 줄이 생겼어요']],
   ['0.38.1', '11월 29일', ['특수 작전과 모의 대련이 실제 전투로 바뀌었어요. 특수 작전은 한 번 깨면 소탕할 수 있어요', '장비를 근원체에게서 얻어요. 일반부터 전설까지 등급과 추가 옵션이 있고, 보관함에서 바꿔 끼거나 분해할 수 있어요', '파트너를 간식으로 레벨업하고, 같은 파트너로 별을 올려요. 함께하지 않는 파트너도 보유 효과를 줘요', '간식은 현상 의뢰와 수색에서 받아요', '하루가 지나도 후원, 특수 작전, 대련 횟수가 채워지지 않던 문제를 고쳤어요']],
@@ -8961,6 +8972,11 @@ setInterval(() => {
 
 
 document.addEventListener('click', e => { if (!e.target.closest('.fmenu') && !e.target.closest('[data-act="fpick"]')) document.querySelectorAll('.fmenu').forEach(x => x.remove()); }, true);
+/* ---------- 편성 코드 (세나 키우기 편성 공유처럼): 현재 편성을 글자로 복사하고 붙여 넣어 적용 ---------- */
+function fcodeOf() { return 'AIU-' + S.party.join('-'); }
+function fcodeHtml() {
+  return `<h2>편성 코드</h2><p class="hint">현재 편성을 코드로 복사하거나, 받은 코드를 붙여 넣어 같은 편성으로 바꿔요.</p><div class="fc-box">${fcodeOf()}</div><input id="fcIn" class="fc-in" placeholder="코드 붙여 넣기" autocomplete="off"><div class="mbtns"><button class="btn ghost" data-act="fcopy">복사</button><button class="btn" data-act="fapply">적용</button></div>`;
+}
 /* ---------- 카메라 대상 (세나 키우기 편성의 카메라처럼): 고른 요원을 화면이 따라감 ---------- */
 var camTarget = (() => { try { return localStorage.getItem('aiu-camt') || ''; } catch (e) { return ''; } })();
 function camHtml() {

@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.30.0';
+window.AIU_VER = '0.30.1';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1545,6 +1545,8 @@ img.rs-emb{width:76px;height:76px;top:-42px}
 .hp-b.sm.on{border-image:var(--ui-btn-gold) 40 60 fill / 7px 9px stretch!important;background:none!important;color:#2a2005!important;filter:saturate(.7) brightness(.85)}
 .hp-b:disabled{filter:grayscale(.8) brightness(.7)}
 .rd,.ml,.hw,.cx,.setrow,.sh-it,.sh-gem,.att,.ps-st,.ps-c,.urow,.gw-c,.syn,.bk,.adbox,.fp-r,.rd-r,.cb-r{border:0!important;border-style:solid!important;border-width:10px 14px!important;border-image:var(--ui-row) 30 40 fill / 10px 14px stretch!important;background:none!important;border-radius:0!important;box-shadow:none!important}
+
+.slot.g-각성 .face{box-shadow:0 0 0 2px #ff3d55,0 0 10px rgba(255,61,85,.8)!important}
 </style>
 </head>
 <body>
@@ -1979,6 +1981,12 @@ function drawRimmed(g, im, rim, x, y, w, h, bend = 0, flap = 0, flash = 0, slice
 
 /** 요원 그리기. s = 키 기준 크기, swing = 공격 동작(0~1), face: 1 오른쪽 / -1 왼쪽 */
 function drawHero(g, id, x, y, s, t, swing, hurt, face = 1) {
+  // 각성 요원: 발밑에 붉은 기운이 맥박처럼 일렁임
+  if (S.heroes[id] && S.heroes[id].stars >= 6) {
+    const pu = 0.75 + Math.sin(t * 4 + x * 0.05) * 0.25, gr = g.createRadialGradient(x, y, 0, x, y, s * 0.55);
+    gr.addColorStop(0, `rgba(255,80,100,${0.85 * pu})`); gr.addColorStop(0.6, `rgba(255,40,70,${0.35 * pu})`); gr.addColorStop(1, 'rgba(255,40,70,0)');
+    g.save(); g.globalCompositeOperation = 'lighter'; g.fillStyle = gr; g.beginPath(); g.ellipse(x, y, s * 0.55, s * 0.18, 0, 0, Math.PI * 2); g.fill(); g.restore();
+  }
   if (imgOk('spr_' + id)) {
     // 동작 그림이 있으면: 공격 중엔 C(공격 자세), 걷는 중엔 B와 D(한 발 내디딤)를 번갈아. 없으면 B 한 장
     let k = 'spr_' + id;
@@ -3086,7 +3094,7 @@ function renderParty() {
     const h = list[i];
     // 빈칸: 열린 칸은 + (누르면 요원 창), 아직 안 열린 칸은 자물쇠와 열리는 구역
     const at = C.CONST.PARTY_SLOT_AT[i], open = S.stage >= at;
-    slots.push(h ? `<div class="slot" id="sl-${h.id}"><div class="face"><img src="${portrait(h.id)}" alt="${h.name}"></div><div class="hp"><i></i></div></div>`
+    slots.push(h ? `<div class="slot g-${C.heroGrade(S, h.id)}" id="sl-${h.id}"><div class="face"><img src="${portrait(h.id)}" alt="${h.name}"></div><div class="hp"><i></i></div></div>`
       : open ? `<div class="slot empty open" data-open="1"><span>+</span></div>`
       : `<div class="slot empty lock">${icon('b_lock')}<small>${Math.floor((at - 1) / 10) + 1}구역</small></div>`);
   }
@@ -4829,7 +4837,7 @@ function talk() {
 
 /* ---------- 처음 들어가는 메뉴마다 도움말 (한 번만, 오른쪽 위 ? 로 다시 보기) ---------- */
 const HELP = {
-  hero: ['요원', ['<b>요원 관리</b>: 요원을 누르면 상세 화면이 열려요. 레벨업에는 경험치, 승급에는 조각을 써요.', '<b>편성</b>: 요원을 눌러 출전시키거나 빼요. 출전 칸은 구역이 오를수록 늘어나요.', '<b>도감</b>: 모은 요원을 한눈에 봐요.', '카드 아래 막대가 가득 차면 <b>승급</b>할 수 있어요. 일괄 승급을 누르면 한꺼번에 승급해요.']],
+  hero: ['요원', ['<b>요원 관리</b>: 요원을 누르면 상세 화면이 열려요. 레벨업에는 경험치, 승급에는 조각을 써요.', '<b>편성</b>: 요원을 눌러 출전시키거나 빼요. 출전 칸은 구역이 오를수록 늘어나요.', '<b>도감</b>: 모은 요원을 한눈에 봐요.', '카드 아래 막대가 가득 차면 <b>승급</b>할 수 있어요. 일괄 승급을 누르면 한꺼번에 승급해요.', '<b>각성</b>: 전설 요원이 ★5가 된 뒤 조각 10개를 모으면 각성해요. 각성하면 능력치가 크게 오르고 카드와 별이 붉게 바뀌어요.']],
   train: ['성장', ['골드로 수사팀 전체를 강화해요. 출전한 요원 모두에게 적용돼요.', '<b>사격 훈련</b>은 공격력, <b>현상금 협상</b>은 골드 획득, <b>급소 노리기</b>는 치명타 확률을 올려요.', '×1, ×10, ×100을 고르면 한 번에 여러 레벨을 올려요.']],
   run: ['작전', ['하루 3번씩 들어갈 수 있는 <b>일일 작전</b>이에요. 매일 0시에 다시 채워져요.', '<b>현상수배</b>는 골드, <b>단서 추적</b>은 호출권, <b>모의 훈련</b>은 경험치를 크게 줘요.', '클리어한 단계는 <b>소탕</b>으로 바로 보상을 받아요.', '<b>균열 심층</b>은 한 층씩 내려가며 보석을 모으는 도전이에요.']],
   summon: ['호출', ['<b>요원 호출</b>은 호출권으로 뽑아요. 많이 뽑을수록 호출 레벨이 올라 좋은 요원이 잘 나와요.', '<b>정예 호출</b>은 영웅 이상만 나와요.', '<b>특별 채용</b>에서는 한정 요원을 만날 수 있어요.']],
@@ -4887,6 +4895,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.30.1', '11월 28일', ['각성 요원은 전투에서 발밑에 붉은 기운이 돌고, 출전 칸도 붉게 빛나요', '도움말에 각성 설명을 넣었어요']],
   ['0.30.0', '11월 28일', ['요원 상세 화면 위쪽 절반이 어둡게 가려지던 문제를 고쳤어요', '볼트 요원 그림을 넣었어요']],
   ['0.29.9', '11월 28일', ['이클립스, 리퍼 요원 그림을 넣었어요', '새 요원 그림을 더 선명하게 바꿨어요']],
   ['0.29.7', '11월 28일', ['오라클 요원 그림을 넣었어요 (카드, 전신, 공격, 걷기)']],

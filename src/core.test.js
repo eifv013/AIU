@@ -441,3 +441,50 @@ test('각성: 전설 ★5 다음 단계, 조각 10개', () => {
   assert.equal(C.sanitize(JSON.parse(JSON.stringify(s)), 0).heroes.reaper.stars, 6);
   s.heroes.mage.stars = 6; assert.equal(C.sanitize(JSON.parse(JSON.stringify(s)), 0).heroes.mage.stars, 5);
 });
+
+/* ---------- 수집 시스템 ---------- */
+const seq = arr => { let i = 0; return () => arr[i++ % arr.length]; };
+test('칭호: 조건을 채우면 얻고, 장착하면 보너스, 도감 레벨', () => {
+  const s = C.newState(0);
+  assert.deepEqual(C.titleCheck(s).map(t => t.id), ['new']);
+  C.progress(s, 'kill', 100); assert.ok(C.titleCheck(s).some(t => t.id === 'kill1'));
+  assert.throws(() => C.titleEquip(s, 'boss3'), /보유하지 않은/);
+  const b0 = C.statBonus(s).gold; C.titleEquip(s, 'kill1'); assert.ok(C.statBonus(s).gold > b0);
+  assert.equal(C.titleLevel(s), 1);   // 칭호 2개 → 1레벨
+  assert.deepEqual(C.sanitize(JSON.parse(JSON.stringify({ ...s, tt: ['kill1', 'zzz'], ttEq: 'zzz' })), 0).tt, ['kill1']);
+});
+test('도감: 레벨 단계 10개, 승급 단계, 영구 보너스', () => {
+  const s = C.newState(0); s.heroes.mage.lv = 35; s.heroes.mage.stars = 3;
+  assert.equal(C.codexClaim(s, 'mage'), 20 + 40 + 60);
+  assert.equal(C.codexStarClaim(s, 'mage'), 30 + 60);
+  assert.equal(s.cdxs.mage, 2); assert.ok(C.statBonus(s).src.도감.atk > 0);
+  assert.equal(C.codexNext(s, 'mage').lv, 40);
+});
+test('증거 카드: 10장이어야 켜지고, 합성은 같은 등급 3장', () => {
+  const s = C.newState(0);
+  C.CARDS.filter(c => c.grade === '일반').slice(0, 9).forEach(c => C.cardAdd(s, c.id));
+  C.deckAuto(s); assert.equal(s.deck.length, 9); assert.equal(C.statBonus(s).src['증거 카드'].atk, 0);
+  C.cardAdd(s, 'c_rose'); C.deckAuto(s); assert.ok(C.deckOn(s)); assert.ok(C.statBonus(s).src['증거 카드'].cdmg > 0);
+  C.cardAdd(s, 'c_mask'); assert.equal(C.deckToggle(s, 'c_mask'), 'full');
+  assert.throws(() => C.cardCombine(s, ['c_shell', 'c_shell', 'c_shell'], Math.random), /남는 카드/);
+  C.cardAdd(s, 'c_shell', 3);
+  const r = C.cardCombine(s, ['c_shell', 'c_shell', 'c_shell'], seq([0.1, 0, 0]));   // 0.1 < 0.3 → 희귀
+  assert.ok(r.up); assert.equal(C.cardById(r.id).grade, '희귀'); assert.equal(s.cards.c_shell.n, 1);
+  assert.throws(() => C.cardCombine(s, ['c_shell', 'c_rose', 'c_shell'], Math.random), /같은 등급/);
+  C.cardAdd(s, 'c_print', 2); assert.ok(C.cardStarUp(s, 'c_print')); assert.equal(s.cards.c_print.s, 2);
+});
+test('복장: 보석으로 사고 입기, 고유 능력, 레벨 초기화, 수사팀 이름', () => {
+  const s = C.newState(0); s.gems = 2500;
+  C.costumeBuy(s, 'mage_biker'); assert.equal(s.gems, 500); assert.throws(() => C.costumeBuy(s, 'mage_suit'), /부족/);
+  assert.throws(() => C.costumeWear(s, 'dark', 'mage_biker'), /보유하지 않은/);
+  C.costumeWear(s, 'mage', 'mage_biker'); assert.equal(s.cosEq.mage, 'mage_biker');
+  assert.ok(C.statBonus(s).src.복장.atk > 0);
+  assert.equal(C.passiveOf(s, 'mage').on, false); s.stage = 81; assert.ok(C.statBonus(s).src['고유 능력'].boss > 0);
+  s.heroes.mage.lv = 20; const e0 = s.exp, back = C.heroLvReset(s, 'mage');
+  assert.equal(back, C.heroLvCostBulk(1, 19)); assert.equal(s.exp, e0 + back); assert.equal(s.heroes.mage.lv, 1);
+  assert.equal(C.teamNameError('A'), '수사팀 이름이 너무 짧아요'); assert.equal(C.teamNameError('가나다라마바사아자'), '수사팀 이름이 너무 길어요'); assert.ok(C.teamNameError('반가워!'));
+  C.teamRename(s, '야간반', 1000); assert.equal(s.tname, '야간반');
+  assert.throws(() => C.teamRename(s, '주간반', 2000), /24시간/);
+  assert.equal(C.accAdd(s, C.accNeed(1)), 1); assert.equal(s.acc.lv, 2);
+  const r = C.sanitize(JSON.parse(JSON.stringify(s)), 0); assert.equal(r.tname, '야간반'); assert.equal(r.cosEq.mage, 'mage_biker');
+});

@@ -681,7 +681,7 @@
     { id: 'dress', name: '복장 도감 열림', stage: 121, rw: { ptix: 3 } },
   ];
   /* 요원 도감: 요원 레벨 10마다 한 번씩 보석 (세나 키우기 영웅 도감 달성 보상처럼) */
-  const CODEX_STEP = 10, CODEX_TIERS = 5;
+  const CODEX_STEP = 10, CODEX_TIERS = 10;
   const codexGems = tier => 20 * tier;
   /** 다음에 받을 단계 (모두 받았으면 null) */
   function codexNext(state, id) {
@@ -845,7 +845,7 @@
   function mpassReady(state) { const mm = state.mis.m, out = []; MPASS.forEach((r, i) => { if (mm.pts < r.pt) return; if (!mm.pf.includes(i)) out.push([i, 'free']); if (state.mis.paid === mm.k && !mm.pp.includes(i)) out.push([i, 'paid']); }); return out; }
 
   /** 가이드 퀘스트와 일일, 주간, 월간, 반복 임무를 함께 올림 */
-  function progress(state, kind, amount = 1) { questAdd(state, kind, amount); missionAdd(state, kind, amount); misAdd(state, kind, amount); }
+  function progress(state, kind, amount = 1) { if (state.st && isNum(amount) && amount > 0) state.st[kind] = (state.st[kind] || 0) + amount; questAdd(state, kind, amount); missionAdd(state, kind, amount); misAdd(state, kind, amount); }
 
   /** 출석 보상 받을 수 있는지 / 받기 (오늘 이미 받았으면 null) */
   function canAttend(state, now) { return state.att.last !== dayKey(now); }
@@ -965,6 +965,14 @@
       tower: 0,                 // 균열 심층 돌파한 층
       daily: { p: {}, got: [], bonus: false },   // 일일 임무 진행, 받은 번호, 보너스
       att: { n: 0, last: '' },  // 출석 받은 횟수, 마지막 날짜
+      st: {},                   // 누적 기록 (처리, 근원체, 호출 등) → 칭호 조건
+      tt: [], ttEq: '',         // 얻은 칭호, 장착 칭호
+      cdxs: {},                 // 요원 도감 승급 단계 받은 수
+      cards: {}, deck: [],      // 증거 카드 { id: { n: 장수, s: 별 } }, 편성 10칸
+      cos: [], cosEq: {},       // 산 복장, 요원별 입은 복장
+      lore: [],                 // 읽은 요원 기록
+      acc: { lv: 1, xp: 0 },    // 수사팀 레벨
+      uid: '', tname: 'AIU 수사팀', tnameAt: 0,   // 수사팀 번호, 이름, 이름 바꾼 시각
     };
   }
 
@@ -1056,10 +1064,322 @@
         };
       }
     }
+    // 수집 시스템
+    s.st = {}; if (raw.st && typeof raw.st === 'object') for (const k of Object.keys(raw.st).slice(0, 40)) if (/^[a-z]{1,12}$/.test(k) && isNum(raw.st[k])) s.st[k] = clampInt(raw.st[k], 0, 1e12, 0);
+    s.tt = Array.isArray(raw.tt) ? [...new Set(raw.tt.filter(id => TITLES.some(t => t.id === id)))] : [];
+    s.ttEq = s.tt.includes(raw.ttEq) ? raw.ttEq : '';
+    s.cdxs = {}; if (raw.cdxs && typeof raw.cdxs === 'object') for (const h of HEROES) if (isNum(raw.cdxs[h.id])) s.cdxs[h.id] = clampInt(raw.cdxs[h.id], 0, 5, 0);
+    s.cards = {}; if (raw.cards && typeof raw.cards === 'object') for (const c of CARDS) { const r = raw.cards[c.id]; if (r && typeof r === 'object' && isNum(r.n) && r.n > 0) s.cards[c.id] = { n: clampInt(r.n, 1, 1e6, 1), s: clampInt(r.s, 1, CARD_MAX, 1) }; }
+    s.deck = Array.isArray(raw.deck) ? [...new Set(raw.deck.filter(id => s.cards[id]))].slice(0, CARD_SLOTS) : [];
+    s.cos = Array.isArray(raw.cos) ? [...new Set(raw.cos.filter(id => COSTUMES.some(c => c.id === id)))] : [];
+    s.cosEq = {}; if (raw.cosEq && typeof raw.cosEq === 'object') for (const h of HEROES) { const c = raw.cosEq[h.id]; if (s.cos.includes(c) && costumeById(c).hero === h.id) s.cosEq[h.id] = c; }
+    s.lore = Array.isArray(raw.lore) ? [...new Set(raw.lore.filter(id => HEROES.some(h => h.id === id)))] : [];
+    if (raw.acc && typeof raw.acc === 'object') s.acc = { lv: clampInt(raw.acc.lv, 1, 1e6, 1), xp: clampInt(raw.acc.xp, 0, 1e12, 0) };
+    s.uid = typeof raw.uid === 'string' && /^[A-Z0-9]{6}$/.test(raw.uid) ? raw.uid : '';
+    s.tname = typeof raw.tname === 'string' && !teamNameError(raw.tname) ? raw.tname.trim() : base.tname;
+    s.tnameAt = isNum(raw.tnameAt) && raw.tnameAt > 0 ? raw.tnameAt : 0;
     // 파티: 보유한 요원만, 중복 없이 최대 5명. 예전 저장(파티 없음)은 보유 요원 앞에서부터
     s.party = Array.isArray(raw.party) ? raw.party.filter(id => typeof id === 'string') : null;
     s.party = partyIds(s);
     return s;
+  }
+
+
+  /* ============================================================
+   * 수집 시스템 (세나 키우기의 칭호, 도감, 기사단 카드, 코스튬, 고유 능력을 AIU식으로)
+   *  - 모든 보너스는 statBonus(state) 하나로 모아 전투(공격력, 체력, 치명타, 근원체 피해, 골드)에 반영
+   *  - 상태: st(누적 기록), tt(얻은 칭호), ttEq(장착 칭호), cdxs(도감 승급 단계), cards, deck, cos, cosEq, lore, acc(수사팀 레벨), uid, tname, tnameAt
+   * ============================================================ */
+  // 능력치 종류: 화면 이름과 설명 (요원 상세 능력치 칸, 프로필 수사팀 능력치에서 같이 씀)
+  const STATS = {
+    atk:  { name: '공격력',        pct: true, desc: '요원이 주는 피해의 기준이 돼요.' },
+    hp:   { name: '체력',          pct: true, desc: '체력이 0이 되면 요원이 쓰러져요.' },
+    crit: { name: '치명타 확률',   pct: true, desc: '공격이 치명타로 들어갈 확률이에요.' },
+    cdmg: { name: '치명타 피해',   pct: true, desc: '치명타가 터졌을 때 더 들어가는 피해예요.' },
+    boss: { name: '근원체 피해',   pct: true, desc: '근원체에게 주는 피해가 늘어나요.' },
+    gold: { name: '골드 획득',     pct: true, desc: '이상체를 처리하고 받는 골드가 늘어나요.' },
+  };
+  // 소속: 요원 도감을 나누는 묶음 (세나 키우기 영웅 도감의 세력처럼)
+  const SQUADS = [
+    { id: 'first',  name: '창설 1팀',     sub: 'AIU를 처음 만든 요원들', ids: ['dark', 'mage', 'archer', 'knight', 'priest', 'scanner', 'breaker', 'echo'] },
+    { id: 'special', name: '특수 대응반', sub: '근원체만 쫓는 정예 요원들', ids: ['requiem', 'ironside', 'blackbox', 'ghost', 'judge', 'aegis', 'oracle', 'eclipse', 'reaper', 'vault', 'phantom', 'titan', 'exorcist'] },
+    { id: 'patrol', name: '현장 순찰반',  sub: '골목마다 먼저 달려가는 요원들', ids: ['patrol', 'sniff', 'rookie', 'flare', 'medic', 'bulwark', 'wire', 'tracer', 'static', 'crowbar', 'lens', 'hound', 'smoke', 'salt'] },
+    { id: 'ally',   name: '외부 협력관',  sub: '다른 기관에서 파견 온 요원들', ids: ['viper', 'thunder', 'warden', 'chapel', 'frost', 'raven', 'anchor', 'cipher', 'jackal', 'mirror', 'inferno', 'saint', 'dozer', 'pulse', 'vortex'] },
+  ];
+  function squadOf(id) { return SQUADS.find(q => q.ids.includes(id)) || SQUADS[0]; }
+
+  /* ---------- 요원 도감: 레벨 단계 (10~100) + 승급 단계 ----------
+   * 레벨 단계마다 보석과 함께 영구 능력치. 능력치 종류는 요원 유형으로 정함 */
+  const CODEX_STAT = { 공격: 'cdmg', 광역: 'atk', 방어: 'hp', 지원: 'crit' };
+  const CODEX_VAL = { cdmg: 0.009, atk: 0.004, hp: 0.005, crit: 0.0015 };
+  const CODEX_STAR_VAL = { cdmg: 0.02, atk: 0.01, hp: 0.012, crit: 0.004 };
+  function codexStat(id) { return CODEX_STAT[heroById(id).type]; }
+  /** 승급 도감: 다음 받을 별 단계 (★2부터, 전설은 각성까지) */
+  function codexStarNext(state, id) {
+    const h = heroById(id), d = state.heroes[id]; if (!d || !d.owned) return null;
+    const got = (state.cdxs && state.cdxs[id]) || 0, star = got + 2;
+    if (star > maxStars(h.grade)) return null;
+    return { tier: got + 1, star, ready: d.stars >= star, gems: 30 * (got + 1) };
+  }
+  function codexStarClaim(state, only) {
+    let g = 0;
+    for (const h of HEROES) {
+      if (only && h.id !== only) continue;
+      let n;
+      while ((n = codexStarNext(state, h.id)) && n.ready) { state.cdxs[h.id] = n.tier; g += n.gems; }
+    }
+    state.gems += g; return g;
+  }
+
+  /* ---------- 칭호 ----------
+   * cat: 분류 (필터), k: 누적 기록 종류, n: 목표, hold: 보유 효과, eq: 장착 효과(장착한 하나만). hidden 은 얻기 전까지 조건을 숨김 */
+  const TITLE_CATS = ['수집', '성장', '전투', '명성', '소모', '출석', '히든', '기타'];
+  const T = (id, name, cat, k, n, hs, hv, es, ev, hidden) => ({ id, name, cat, k, n, hold: { [hs]: hv }, eq: { [es]: ev }, hidden: !!hidden });
+  const TITLES = [
+    T('new',      '신입 수사관',     '기타', 'stage',  1,     'atk', 0.005, 'atk', 0.02),
+    T('kill1',    '첫 처리',         '전투', 'kill',   100,   'atk', 0.005, 'gold', 0.03),
+    T('kill2',    '골목 청소부',     '전투', 'kill',   1000,  'atk', 0.005, 'gold', 0.05),
+    T('kill3',    '밤거리의 사냥꾼', '전투', 'kill',   10000, 'atk', 0.01,  'atk', 0.05),
+    T('kill4',    '이상체의 악몽',   '전투', 'kill',   50000, 'atk', 0.01,  'cdmg', 0.1),
+    T('boss1',    '근원 추적자',     '전투', 'boss',   10,    'boss', 0.01, 'boss', 0.04),
+    T('boss2',    '봉쇄 전문가',     '전투', 'boss',   50,    'boss', 0.01, 'boss', 0.06),
+    T('boss3',    '근원체 사냥꾼',   '전투', 'boss',   200,   'boss', 0.015, 'boss', 0.1),
+    T('stage1',   '현장 배치',       '명성', 'stage',  21,    'hp', 0.005, 'hp', 0.03),
+    T('stage2',   '구역 담당관',     '명성', 'stage',  51,    'hp', 0.005, 'hp', 0.04),
+    T('stage3',   '도시의 방패',     '명성', 'stage',  101,   'hp', 0.01,  'hp', 0.06),
+    T('stage4',   '전설의 수사관',   '명성', 'stage',  201,   'hp', 0.01,  'atk', 0.08),
+    T('tower1',   '균열 탐사자',     '명성', 'tower',  10,    'crit', 0.002, 'crit', 0.01),
+    T('tower2',   '심층 잠수부',     '명성', 'tower',  30,    'crit', 0.003, 'crit', 0.015),
+    T('tower3',   '심연을 본 자',    '명성', 'tower',  60,    'crit', 0.004, 'crit', 0.02),
+    T('own1',     '팀 꾸리기',       '수집', 'own',    5,     'hp', 0.005, 'atk', 0.02),
+    T('own2',     '든든한 명단',     '수집', 'own',    15,    'hp', 0.005, 'hp', 0.04),
+    T('own3',     '인사 담당',       '수집', 'own',    30,    'atk', 0.01, 'atk', 0.05),
+    T('own4',     'AIU 전원 집합',   '수집', 'own',    50,    'atk', 0.015, 'cdmg', 0.12),
+    T('leg1',     '전설을 만나다',   '수집', 'legend', 1,     'cdmg', 0.01, 'cdmg', 0.05),
+    T('leg2',     '전설의 동료들',   '수집', 'legend', 5,     'cdmg', 0.015, 'cdmg', 0.08),
+    T('card1',    '증거 수집가',     '수집', 'cards',  10,    'gold', 0.01, 'gold', 0.04),
+    T('card2',    '증거 보관소장',   '수집', 'cards',  30,    'gold', 0.015, 'gold', 0.06),
+    T('lv1',      '꾸준한 훈련',     '성장', 'lvup',   100,   'atk', 0.005, 'atk', 0.02),
+    T('lv2',      '성장의 시간',     '성장', 'lvup',   1000,  'atk', 0.01, 'atk', 0.04),
+    T('star1',    '첫 승급',         '성장', 'star',   1,     'hp', 0.005, 'hp', 0.02),
+    T('star2',    '별을 모으는 자',  '성장', 'star',   30,    'hp', 0.01, 'hp', 0.05),
+    T('awk',      '한계를 넘은 자',  '성장', 'awaken', 1,     'cdmg', 0.02, 'cdmg', 0.1),
+    T('train1',   '사격장 단골',     '성장', 'train',  100,   'crit', 0.002, 'crit', 0.01),
+    T('sum1',     '첫 호출',         '소모', 'summon', 10,    'gold', 0.005, 'gold', 0.02),
+    T('sum2',     '호출 담당관',     '소모', 'summon', 100,   'gold', 0.01, 'gold', 0.04),
+    T('sum3',     '인재 사냥꾼',     '소모', 'summon', 1000,  'atk', 0.01, 'atk', 0.05),
+    T('dg1',      '작전 수행자',     '소모', 'dungeon', 20,   'gold', 0.01, 'gold', 0.04),
+    T('att1',     '출근 도장',       '출석', 'att',    7,     'hp', 0.005, 'gold', 0.03),
+    T('att2',     '개근 수사관',     '출석', 'att',    30,    'hp', 0.01,  'hp', 0.05),
+    T('h_night',  '밤의 그림자',     '히든', 'night',  1,     'cdmg', 0.01, 'cdmg', 0.06, true),
+    T('h_lose',   '포기를 모르는',   '히든', 'lose',   10,    'hp', 0.01,  'hp', 0.06, true),
+    T('h_reset',  '처음부터 다시',   '히든', 'reset',  1,     'atk', 0.005, 'atk', 0.03, true),
+    T('h_name',   '이름을 바꾼 자',  '히든', 'rename', 1,     'gold', 0.005, 'gold', 0.03, true),
+    T('h_lore',   '기록 보관 담당',  '히든', 'lore',   10,    'crit', 0.003, 'crit', 0.015, true),
+  ];
+  const TITLE_LV_NEED = 2;   // 칭호 도감 레벨: 칭호 2개마다 1레벨 (최대 20)
+  const TITLE_LV_MAX = 20;
+  // 칭호 도감 레벨 효과 (레벨마다 하나씩, 누적)
+  const TITLE_LV_FX = Array.from({ length: TITLE_LV_MAX }, (_, i) => { const L = i + 1, k = ['atk', 'hp', 'crit', 'cdmg', 'boss'][i % 5]; return { lv: L, stat: k, v: { atk: 0.01, hp: 0.01, crit: 0.002, cdmg: 0.02, boss: 0.015 }[k] * (L > 10 ? 2 : 1) }; });
+  function titleById(id) { return TITLES.find(t => t.id === id); }
+  /** 칭호 조건에 쓰는 현재 값 */
+  function titleProgress(state, t) {
+    const st = state.st || {};
+    switch (t.k) {
+      case 'stage': return state.stage;
+      case 'tower': return state.tower || 0;
+      case 'own': return HEROES.filter(h => state.heroes[h.id] && state.heroes[h.id].owned).length;
+      case 'legend': return HEROES.filter(h => h.grade === '전설' && state.heroes[h.id] && state.heroes[h.id].owned).length;
+      case 'awaken': return HEROES.filter(h => heroGrade(state, h.id) === '각성').length;
+      case 'cards': return CARDS.filter(c => state.cards && state.cards[c.id]).length;
+      case 'att': return (state.att && state.att.n) || 0;
+      case 'lore': return (state.lore || []).length;
+      default: return st[t.k] || 0;
+    }
+  }
+  /** 새로 조건을 채운 칭호를 얻음. 새로 얻은 칭호 목록 */
+  function titleCheck(state) {
+    const out = [];
+    for (const t of TITLES) if (!state.tt.includes(t.id) && titleProgress(state, t) >= t.n) { state.tt.push(t.id); out.push(t); }
+    return out;
+  }
+  function titleLevel(state) { return Math.min(TITLE_LV_MAX, Math.floor(state.tt.length / TITLE_LV_NEED)); }
+  function titleEquip(state, id) {
+    if (!state.tt.includes(id)) throw new RangeError('보유하지 않은 칭호예요');
+    state.ttEq = id; return true;
+  }
+
+  /* ---------- 증거 카드 (세나 키우기 기사단 카드처럼) ----------
+   * 10장을 편성해야 효과가 켜짐. 같은 등급 3장을 합성하면 30% 확률로 위 등급, 실패하면 같은 등급 다른 카드
+   * 카드마다 별(1~5). 같은 카드가 더 있으면 승급 */
+  const CARD_GRADES = ['일반', '희귀', '영웅', '전설'];
+  const CARD_BASE = { 일반: 0.004, 희귀: 0.008, 영웅: 0.016, 전설: 0.03 };
+  const CARD_STAT_K = { atk: 1, hp: 1, crit: 0.25, cdmg: 2, boss: 1.5, gold: 1.5 };
+  const CARD_NEED = [1, 2, 3, 4];   // ★n → ★n+1 에 드는 같은 카드 수
+  const CARD_MAX = 5;
+  const CK = (id, name, grade, stat, icon) => ({ id, name, grade, stat, icon });
+  const CARDS = [
+    CK('c_shell', '탄피', '일반', 'atk', 'shell'), CK('c_print', '지문', '일반', 'crit', 'print'), CK('c_tape', '녹음 테이프', '일반', 'gold', 'tape'), CK('c_photo', '현장 사진', '일반', 'hp', 'photo'),
+    CK('c_key', '낡은 열쇠', '일반', 'boss', 'key'), CK('c_ticket', '버스표', '일반', 'gold', 'ticket'), CK('c_lighter', '라이터', '일반', 'cdmg', 'lighter'), CK('c_glove', '고무장갑', '일반', 'hp', 'glove'),
+    CK('c_badge', '경찰 배지', '일반', 'atk', 'badge'), CK('c_map', '구역 지도', '일반', 'boss', 'map'), CK('c_note', '쪽지', '일반', 'crit', 'note'), CK('c_coin', '이상한 동전', '일반', 'gold', 'coin'),
+    CK('c_rose', '시든 장미', '희귀', 'cdmg', 'rose'), CK('c_watch', '멈춘 시계', '희귀', 'boss', 'watch'), CK('c_mask', '깨진 가면', '희귀', 'atk', 'mask'), CK('c_film', '필름 한 롤', '희귀', 'crit', 'film'),
+    CK('c_ring', '반지', '희귀', 'hp', 'ring'), CK('c_bullet', '은탄환', '희귀', 'boss', 'bullet'), CK('c_diary', '피해자 일기', '희귀', 'gold', 'diary'), CK('c_lens', '돋보기', '희귀', 'crit', 'lens'),
+    CK('c_doll', '저주 인형', '영웅', 'cdmg', 'doll'), CK('c_mirror', '흐린 거울', '영웅', 'atk', 'mirror'), CK('c_bell', '은방울', '영웅', 'hp', 'bell'), CK('c_cross', '녹슨 십자가', '영웅', 'boss', 'cross'),
+    CK('c_box', '봉인 상자', '영웅', 'gold', 'box'), CK('c_eye', '유리 눈', '영웅', 'crit', 'eye'),
+    CK('c_omega', '오메가 문서', '전설', 'atk', 'omega'), CK('c_core', '근원체 파편', '전설', 'boss', 'core'), CK('c_heart', '검은 심장', '전설', 'cdmg', 'heart'), CK('c_crown', '균열 왕관', '전설', 'hp', 'crown'),
+  ];
+  const CARD_SLOTS = 10;
+  const COMBINE_UP = 0.3;
+  function cardById(id) { return CARDS.find(c => c.id === id); }
+  function cardValue(id, star) { const c = cardById(id); return CARD_BASE[c.grade] * CARD_STAT_K[c.stat] * (1 + 0.5 * (clampInt(star, 1, CARD_MAX, 1) - 1)); }
+  function cardAdd(state, id, n = 1) { const c = state.cards[id] || (state.cards[id] = { n: 0, s: 1 }); c.n += n; return c; }
+  /** 카드 뽑기: 등급 확률 일반 70, 희귀 22, 영웅 7, 전설 1 */
+  function cardRoll(rng, grade) {
+    const r = rng(); const g = grade || (r < 0.01 ? '전설' : r < 0.08 ? '영웅' : r < 0.3 ? '희귀' : '일반');
+    const L = CARDS.filter(c => c.grade === g); return L[Math.floor(rng() * L.length) % L.length].id;
+  }
+  /** 승급: 같은 카드 n장으로 별 하나 (n은 CARD_NEED). 보유 1장은 남김 */
+  function cardStarNeed(c) { return c.s >= CARD_MAX ? Infinity : CARD_NEED[c.s - 1]; }
+  function cardStarUp(state, id) {
+    const c = state.cards[id]; if (!c) return false;
+    const need = cardStarNeed(c); if (c.n - 1 < need) return false;
+    c.n -= need; c.s++; return true;
+  }
+  function cardStarAll(state) { let k = 0; for (const id of Object.keys(state.cards)) while (cardStarUp(state, id)) k++; return k; }
+  /** 합성: 같은 등급 카드 3장 (남는 장만, 편성용 1장은 남김) → 결과 카드 id */
+  function cardSpare(state, id) { const c = state.cards[id]; return c ? c.n - 1 : 0; }
+  function cardCombine(state, ids, rng) {
+    if (!Array.isArray(ids) || ids.length !== 3) throw new RangeError('카드 3장을 넣어 주세요');
+    const g = cardById(ids[0]).grade;
+    if (g === '전설') throw new RangeError('전설 카드는 합성할 수 없어요');
+    if (!ids.every(id => cardById(id).grade === g)) throw new RangeError('같은 등급 카드만 합성할 수 있어요');
+    const use = {}; for (const id of ids) use[id] = (use[id] || 0) + 1;
+    for (const id of Object.keys(use)) if (cardSpare(state, id) < use[id]) throw new RangeError('남는 카드가 부족해요');
+    for (const id of Object.keys(use)) state.cards[id].n -= use[id];
+    const up = rng() < COMBINE_UP, out = cardRoll(rng, up ? CARD_GRADES[CARD_GRADES.indexOf(g) + 1] : g);
+    cardAdd(state, out, 1); return { id: out, up };
+  }
+  /** 일괄 합성: 한 등급에서 남는 카드를 3장씩 계속 합성 */
+  function cardCombineAll(state, grade, rng) {
+    const out = [];
+    for (let k = 0; k < 500; k++) {
+      const pool = []; for (const c of CARDS) if (c.grade === grade) for (let i = 0; i < cardSpare(state, c.id); i++) pool.push(c.id);
+      if (pool.length < 3) break; out.push(cardCombine(state, pool.slice(0, 3), rng));
+    }
+    return out;
+  }
+  function deckToggle(state, id) {
+    const i = state.deck.indexOf(id);
+    if (i >= 0) { state.deck.splice(i, 1); return 'out'; }
+    if (!state.cards[id]) throw new RangeError('보유하지 않은 카드예요');
+    if (state.deck.length >= CARD_SLOTS) return 'full';
+    state.deck.push(id); return 'in';
+  }
+  function deckAuto(state) {
+    const score = id => { const c = state.cards[id], k = cardById(id).stat; return cardValue(id, c.s) / CARD_STAT_K[k] * ({ atk: 1.2, cdmg: 1, boss: 1, hp: 0.8, crit: 1, gold: 0.6 })[k]; };
+    state.deck = Object.keys(state.cards).filter(id => state.cards[id].n > 0).sort((a, b) => score(b) - score(a)).slice(0, CARD_SLOTS);
+    return state.deck.length;
+  }
+  const deckOn = state => state.deck.length >= CARD_SLOTS;
+
+  /* ---------- 복장 (세나 키우기 코스튬처럼): 사면 보유 효과, 입으면 그림이 바뀜 ---------- */
+  const COSTUMES = [
+    { id: 'dark_rain',  hero: 'dark',   name: '빗속의 추적자', price: 2000, hold: { atk: 0.03, hp: 0.03 } },
+    { id: 'dark_gala',  hero: 'dark',   name: '가면 무도회',   price: 3000, hold: { cdmg: 0.06 } },
+    { id: 'mage_biker', hero: 'mage',   name: '심야 라이더',   price: 2000, hold: { atk: 0.03, hp: 0.03 } },
+    { id: 'mage_suit',  hero: 'mage',   name: '정장 차림',     price: 3000, hold: { boss: 0.05 } },
+    { id: 'archer_rf',  hero: 'archer', name: '옥상 저격수',   price: 2000, hold: { atk: 0.03, hp: 0.03 } },
+    { id: 'archer_off', hero: 'archer', name: '비번 날',       price: 3000, hold: { crit: 0.01 } },
+    { id: 'knight_riot', hero: 'knight', name: '진압 기동대',  price: 2000, hold: { atk: 0.03, hp: 0.03 } },
+    { id: 'knight_coat', hero: 'knight', name: '트렌치코트',   price: 3000, hold: { hp: 0.06 } },
+    { id: 'priest_er',  hero: 'priest', name: '응급실 당직',   price: 2000, hold: { atk: 0.03, hp: 0.03 } },
+    { id: 'priest_nun', hero: 'priest', name: '수녀원 잠입',   price: 3000, hold: { gold: 0.06 } },
+  ];
+  function costumeById(id) { return COSTUMES.find(c => c.id === id); }
+  function costumeBuy(state, id) {
+    const c = costumeById(id); if (!c) throw new RangeError('없는 복장이에요');
+    if (state.cos.includes(id)) throw new RangeError('이미 보유한 복장이에요');
+    if (!spendGems(state, c.price)) throw new RangeError('보석이 부족해요');
+    state.cos.push(id); return true;
+  }
+  function costumeWear(state, heroId, cosId) {
+    if (cosId && (!state.cos.includes(cosId) || costumeById(cosId).hero !== heroId)) throw new RangeError('보유하지 않은 복장이에요');
+    if (cosId) state.cosEq[heroId] = cosId; else delete state.cosEq[heroId];
+    return true;
+  }
+
+  /* ---------- 고유 능력: 출전 중이고 스테이지 조건을 넘으면 팀 전체에 켜짐 ---------- */
+  const PASSIVE = { 공격: { stat: 'cdmg', v: 0.08, name: '급소 간파' }, 광역: { stat: 'boss', v: 0.06, name: '현장 장악' }, 방어: { stat: 'hp', v: 0.06, name: '불굴' }, 지원: { stat: 'atk', v: 0.04, name: '작전 지휘' } };
+  const PASSIVE_OPEN = { 희귀: 41, 영웅: 81, 전설: 121 };
+  const PASSIVE_MUL = { 희귀: 1, 영웅: 1.5, 전설: 2, 각성: 3 };
+  function passiveOf(state, id) {
+    const h = heroById(id), p = PASSIVE[h.type], g = heroGrade(state, id);
+    return { name: p.name, stat: p.stat, v: p.v * PASSIVE_MUL[g], open: PASSIVE_OPEN[h.grade], on: state.stage >= PASSIVE_OPEN[h.grade] };
+  }
+
+  /* ---------- 요원 기록 (이야기 한 편 읽으면 보석 한 번) ---------- */
+  const LORE_GEMS = 30;
+  function loreRead(state, id) { heroById(id); if (state.lore.includes(id)) return 0; state.lore.push(id); state.gems += LORE_GEMS; return LORE_GEMS; }
+
+  /* ---------- 레벨 초기화: 쓴 경험치를 모두 돌려받고 Lv.1 ---------- */
+  function heroLvRefund(lv) { return heroLvCostBulk(1, clampInt(lv, 1, 1e6, 1) - 1); }
+  function heroLvReset(state, id) {
+    const d = state.heroes[id]; if (!d || !d.owned || d.lv <= 1) return 0;
+    const back = heroLvRefund(d.lv); state.exp += back; d.lv = 1; return back;
+  }
+
+  /* ---------- 수사팀 레벨 (처리할 때마다 경험치) ---------- */
+  function accNeed(lv) { return Math.floor(60 * Math.pow(clampInt(lv, 1, 1e6, 1), 1.35)); }
+  function accAdd(state, xp) {
+    const a = state.acc; a.xp += xp; let up = 0;
+    while (a.xp >= accNeed(a.lv)) { a.xp -= accNeed(a.lv); a.lv++; up++; }
+    return up;
+  }
+
+  /* ---------- 수사팀 이름 ---------- */
+  const TNAME_COOL = 24 * 3600e3;
+  /** 이름 검사: 2~8자, 한글/영문/숫자만. 문제가 있으면 안내 문구 */
+  function teamNameError(name) {
+    if (typeof name !== 'string') return '수사팀 이름을 입력해 주세요';
+    const s = name.trim();
+    if (!s) return '수사팀 이름을 입력해 주세요';
+    if ([...s].length < 2) return '수사팀 이름이 너무 짧아요';
+    if ([...s].length > 8) return '수사팀 이름이 너무 길어요';
+    if (!/^[가-힣A-Za-z0-9]+$/.test(s)) return '한글, 영문, 숫자만 쓸 수 있어요';
+    return '';
+  }
+  function teamRename(state, name, nowMs) {
+    const err = teamNameError(name); if (err) throw new RangeError(err);
+    if (state.tnameAt && nowMs - state.tnameAt < TNAME_COOL) throw new RangeError('바꾼 뒤 24시간이 지나야 다시 바꿀 수 있어요');
+    state.tname = name.trim(); state.tnameAt = nowMs; state.st.rename = (state.st.rename || 0) + 1; return true;
+  }
+  function makeUid(rng) { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = ''; for (let i = 0; i < 6; i++) s += A[Math.floor(rng() * A.length) % A.length]; return s; }
+
+  /* ---------- 보너스 합계 (전투에 쓰는 값). src 는 출처별 (프로필 수사팀 능력치 필터) ---------- */
+  function statBonus(state) {
+    const z = () => ({ atk: 0, hp: 0, crit: 0, cdmg: 0, boss: 0, gold: 0 });
+    const src = { 칭호: z(), 도감: z(), '증거 카드': z(), 복장: z(), '고유 능력': z() };
+    const add = (o, k, v) => { o[k] += v; };
+    // 칭호: 보유 효과 전부 + 장착 효과 하나 + 도감 레벨 효과
+    for (const id of state.tt) { const t = titleById(id); if (t) for (const k in t.hold) add(src.칭호, k, t.hold[k]); }
+    const eq = titleById(state.ttEq); if (eq && state.tt.includes(eq.id)) for (const k in eq.eq) add(src.칭호, k, eq.eq[k]);
+    const tl = titleLevel(state); for (const f of TITLE_LV_FX) if (f.lv <= tl) add(src.칭호, f.stat, f.v);
+    // 요원 도감: 레벨 단계, 승급 단계
+    for (const h of HEROES) { const k = codexStat(h.id); add(src.도감, k, CODEX_VAL[k] * ((state.cdx && state.cdx[h.id]) || 0)); add(src.도감, k, CODEX_STAR_VAL[k] * ((state.cdxs && state.cdxs[h.id]) || 0)); }
+    // 증거 카드: 10장 편성했을 때만
+    if (deckOn(state)) for (const id of state.deck) { const c = state.cards[id]; if (c) add(src['증거 카드'], cardById(id).stat, cardValue(id, c.s)); }
+    // 복장: 보유 효과
+    for (const id of state.cos) { const c = costumeById(id); if (c) for (const k in c.hold) add(src.복장, k, c.hold[k]); }
+    // 고유 능력: 출전 요원
+    for (const id of partyIds(state)) { const p = passiveOf(state, id); if (p.on) add(src['고유 능력'], p.stat, p.v); }
+    const all = z(); for (const s of Object.values(src)) for (const k in s) all[k] += s[k];
+    return { ...all, src };
+  }
+
+  /** 전투 배율 한 번에: 편성 핵심 버프 × 수집 보너스 */
+  function battleMods(state) {
+    const y = synergy(state), b = statBonus(state);
+    return { atk: y.atk * (1 + b.atk), hp: y.hp * (1 + b.hp), cd: y.cd, crit: b.crit, cdmg: b.cdmg, boss: 1 + b.boss, gold: 1 + b.gold, lines: y.lines };
   }
 
   /** 저장 문자열 파싱. JSON 오류면 새 상태 */
@@ -1078,6 +1398,10 @@
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,
     newState, cloneState, sanitize, loadFromString, QUESTS, GUIDE, questAt, questAdd, questClaim,
     DUNGEONS, MISSIONS, ATTEND, dayKey, dailyReset, dungeonById, dungeonStage, dungeonReward, towerStage, towerReward,
+    STATS, SQUADS, squadOf, CODEX_STAT, CODEX_VAL, CODEX_STAR_VAL, CODEX_TIERS, CODEX_STEP, codexStat, codexStarNext, codexStarClaim,
+    TITLES, TITLE_CATS, TITLE_LV_NEED, TITLE_LV_MAX, TITLE_LV_FX, titleById, titleProgress, titleCheck, titleLevel, titleEquip,
+    CARDS, CARD_GRADES, CARD_SLOTS, CARD_MAX, COMBINE_UP, cardById, cardValue, cardAdd, cardRoll, cardStarNeed, cardStarUp, cardStarAll, cardSpare, cardCombine, cardCombineAll, deckToggle, deckAuto, deckOn,
+    COSTUMES, costumeById, costumeBuy, costumeWear, PASSIVE, PASSIVE_OPEN, passiveOf, LORE_GEMS, loreRead, heroLvRefund, heroLvReset, accNeed, accAdd, teamNameError, teamRename, makeUid, statBonus, battleMods,
     chalHp, chalAtk, clearDungeon, sweepDungeon, clearTower, missionAdd, missionClaim, missionBonus, progress, canAttend, attend,
   };
 

@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.30.5';
+window.AIU_VER = '0.31.0';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1565,6 +1565,134 @@ img.rs-emb{width:76px;height:76px;top:-42px}
 .ml b{grid-column:2/4;grid-row:1;white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;font-size:14px!important}
 .ml small{grid-column:2;grid-row:2;align-self:center}
 .ml .btn{grid-column:3;grid-row:2;min-width:58px!important;min-height:32px!important;font-size:13px!important}
+/* ===== 0.31 수집 시스템 (프로필, 칭호, 도감, 복장, 증거 카드, 요원 상세 추가) ===== */
+.mbody:has(> .ttw,> .cxrs,> .cosl,> .hstw,> .lore,> .pf2){overflow:hidden}
+.mbody>.cxrs,.mbody>.cosl,.mbody>.hstw,.mbody>.pf2{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.mbody>.ttw{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+.mbody>.lore{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+/* 프로필 */
+.pf2-h{position:relative;display:flex;gap:12px;align-items:center;padding:10px;border-radius:8px;background:linear-gradient(#1f2742,#141a2b);border:1px solid rgba(210,171,85,.35)}
+.pf2-h>img{width:72px;height:72px;border-radius:8px;object-fit:cover;object-position:50% 18%;border:2px solid var(--gold)}
+.pf2-i{flex:1;min-width:0;display:grid;gap:5px}
+.pf2-n{display:flex;align-items:baseline;gap:6px}.pf2-n small{font:700 12px 'IBM Plex Sans KR';color:var(--gold)}.pf2-n b{font:400 20px "Black Han Sans";color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pf2-t{justify-self:start;padding:2px 10px;border:1px solid #c9a24c;border-radius:10px;background:linear-gradient(#4a3c1c,#231c0c);color:#f3e6c4;font:700 12px 'IBM Plex Sans KR'}.pf2-t.none{border-color:#4a5677;background:#1b2236;color:var(--dim)}
+.pf2-x{position:relative;height:16px;border-radius:8px;background:#0b0e18;border:1px solid #34405e;overflow:hidden}.pf2-x i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#3a9b7a,#6ff0c8)}.pf2-x span{position:relative;display:block;text-align:center;font:700 10.5px/14px 'IBM Plex Sans KR';color:#fff;text-shadow:0 1px 2px #000}
+.pf2-id{font:600 10.5px 'IBM Plex Sans KR';color:var(--dim)}
+.pf2-b{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.pf2-b .btn{font-size:13px;padding:8px 2px;white-space:nowrap;letter-spacing:-.02em}
+.pf2-sh{display:flex;align-items:center;justify-content:space-between;margin:2px 0 6px}.pf2-sh b{font:400 16px "Black Han Sans";color:#f3e6c4}
+.pf2-sel{padding:4px 12px;border:1px solid #4a5677;border-radius:14px;background:#1b2236;color:#fff;font:700 12.5px 'IBM Plex Sans KR'}.pf2-sel i{font-style:normal;margin-left:6px;color:var(--gold)}
+.pf2-g{display:grid;gap:4px}.pf2-g>div{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:6px;background:#1b2236;border:1px solid #283150;font:600 13px 'IBM Plex Sans KR'}
+.pf2-g span{display:flex;align-items:center;gap:6px}.pf2-g .ic{width:18px;height:18px}.pf2-g b{color:#6ff0c8;font:400 15px "Black Han Sans"}
+.pf2-g.sub{grid-template-columns:1fr 1fr;margin-top:6px}.pf2-g.sub b{color:var(--gold)}
+.srcw{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}.srcw button{padding:10px;border:1px solid #4a5677;border-radius:6px;background:#1b2236;color:#c9d3ee;font:700 14px 'IBM Plex Sans KR'}.srcw button.on{border-color:var(--gold);color:var(--gold);background:linear-gradient(#3a3018,#1d180c)}
+.nmw input{width:100%;padding:12px;border:1px solid #4a5677;border-radius:6px;background:#0b0e18;color:#fff;font:700 17px 'IBM Plex Sans KR';text-align:center;outline:none}.nmw input:focus{border-color:var(--gold)}
+.nm-e{min-height:18px;margin:6px 0 0;text-align:center;font:700 13px 'IBM Plex Sans KR';color:#ff6b5b}
+/* 칭호 도감 */
+.tt-top{display:flex;gap:10px;align-items:stretch}
+.tt-ring{flex:none;width:104px;height:104px;border-radius:50%;display:grid;place-content:center;text-align:center;background:radial-gradient(#141a2b 58%,transparent 59%),conic-gradient(#6ff0c8 calc(var(--p)*1%),#283150 0);box-shadow:0 0 0 2px #34405e,0 0 18px rgba(111,240,200,.25)}
+.tt-ring b{font:400 24px "Black Han Sans";color:#fff}.tt-ring small{font:700 11px 'IBM Plex Sans KR';color:var(--dim)}
+.tt-fx{flex:1;min-width:0;display:flex;flex-direction:column;border:1px solid #34405e;border-radius:6px;background:#10141f;overflow:hidden}
+.tt-fxh{padding:4px;text-align:center;font:700 12px 'IBM Plex Sans KR';background:#1f2742;color:#f3e6c4}
+.tt-fxl{height:84px;overflow-y:auto;overscroll-behavior:contain}.tt-fxl div{display:flex;gap:8px;padding:3px 8px;font:600 11.5px 'IBM Plex Sans KR';color:#6a7390;border-bottom:1px solid #1b2236}
+.tt-fxl div.on{color:#e8ecf6}.tt-fxl i{font-style:normal;width:18px;color:var(--gold)}
+.tt-bar{display:flex;align-items:center;gap:6px;margin:10px 0 6px}.tt-bar span{flex:1;font:700 13px 'IBM Plex Sans KR';color:var(--dim)}
+.tt-bar button{display:flex;align-items:center;gap:4px;padding:5px 10px;border:1px solid #4a5677;border-radius:14px;background:#1b2236;color:#fff;font:700 12px 'IBM Plex Sans KR'}.tt-bar i{font-style:normal;color:var(--gold)}
+.tt-q{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font:600 12px 'IBM Plex Sans KR';color:var(--gold)}.tt-q button{border:0;background:none;color:var(--dim);font:700 12px 'IBM Plex Sans KR';text-decoration:underline}
+.tt-list{flex:1;min-height:120px;overflow-y:auto;overscroll-behavior:contain;display:grid;grid-template-columns:1fr 1fr;gap:6px;align-content:start}
+.tt{position:relative;display:grid;gap:1px;padding:8px 10px;border:1px solid #34405e;border-radius:6px;background:linear-gradient(#232c46,#151b2c);color:#fff;text-align:left}
+.tt small{font:700 10px 'IBM Plex Sans KR';color:var(--dim)}.tt b{font:400 14px "Black Han Sans";white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tt.off{opacity:.5}.tt.off b{color:#9aa6c2}.tt.eq{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold) inset}
+.tt em{position:absolute;right:6px;top:6px;padding:0 6px;border-radius:8px;background:var(--gold);color:#1a1300;font:700 10px/16px 'IBM Plex Sans KR';font-style:normal}
+.tt .lk{position:absolute;right:8px;top:9px;width:11px;height:13px;background:#8a93ab;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3' fill='none' stroke='black' stroke-width='2.6'/%3E%3C/svg%3E") center/contain no-repeat}
+.tti{display:grid;gap:8px}.tti-n{padding:10px;text-align:center;border:1px solid var(--gold);border-radius:6px;background:linear-gradient(#3a3018,#1d180c)}.tti-n.off{border-color:#4a5677;background:#1b2236;opacity:.8}
+.tti-n small{display:block;font:700 11px 'IBM Plex Sans KR';color:var(--dim)}.tti-n b{font:400 22px "Black Han Sans";color:#f3e6c4}
+.tti-r,.tti-c{display:grid;gap:3px;padding:8px 10px;border-radius:6px;background:#1b2236;border:1px solid #283150}.tti-r span,.tti-c span{font:700 11.5px 'IBM Plex Sans KR';color:var(--dim)}.tti-r b,.tti-c b{font:700 14px 'IBM Plex Sans KR';color:#6ff0c8}.tti-c b{color:#fff}.tti-c small{text-align:right;font:700 11px 'IBM Plex Sans KR';color:var(--dim)}
+/* 도감 탭 */
+.cdx2{position:relative;display:grid;width:100%;margin-bottom:10px;padding:0 0 10px;border:2px solid #3a4462;border-radius:8px;overflow:hidden;background:linear-gradient(#1d2540,#10141f);text-align:left;color:#fff}
+.cdx2-f{display:flex;height:84px;overflow:hidden;mask-image:linear-gradient(#000 55%,transparent)}.cdx2-f.tts{mask-image:none;height:auto;min-height:60px;margin-bottom:14px}.cdx2-f img{flex:1;min-width:0;object-fit:cover;object-position:50% 18%}
+.cdx2-f.tts{flex-wrap:wrap;gap:4px;padding:8px;align-content:flex-start}.cdx2-f.tts em{padding:3px 8px;border-radius:4px;background:#283150;border:1px solid #3a4462;font:700 11px 'IBM Plex Sans KR';font-style:normal;color:#9aa6c2}.cdx2-f.tts em.on{background:linear-gradient(#4a3c1c,#231c0c);color:#f3e6c4;border:1px solid #c9a24c}
+.cdx2 b{margin:-18px 14px 0;font:400 22px "Black Han Sans";text-shadow:0 2px 0 #000,0 0 10px #000;position:relative}.cdx2 span{margin:0 14px;font:700 12.5px 'IBM Plex Sans KR';color:var(--gold)}
+.cdx2 .dot{position:absolute;right:8px;top:8px}
+.sq-h{display:flex;align-items:center;gap:10px;margin:8px 0 2px;padding:8px;border-radius:6px;background:linear-gradient(90deg,#3a3018,#151b2c);border-left:3px solid var(--gold)}
+.sq-f{display:flex}.sq-f img{width:30px;height:30px;margin-left:-8px;border-radius:50%;border:2px solid #151b2c;object-fit:cover;object-position:50% 18%}.sq-f img:first-child{margin-left:0}
+.sq-h>div:nth-child(2){flex:1;min-width:0}.sq-h b{display:block;font:400 16px "Black Han Sans";color:#f3e6c4}.sq-h small{font:600 11px 'IBM Plex Sans KR';color:var(--dim)}.sq-h>span{font:700 12px 'IBM Plex Sans KR';color:var(--gold)}
+button.cx{width:100%;color:#fff;position:relative}button.cx .dot{position:absolute;right:8px;top:8px}
+.cxh{display:flex;align-items:center;gap:12px}.cxh img{width:64px;height:80px;border-radius:6px;object-fit:cover;object-position:50% 12%;border:2px solid var(--gold)}.cxh small{font:700 11.5px 'IBM Plex Sans KR';color:var(--dim)}.cxh b{display:block;font:400 22px "Black Han Sans"}
+.cx-seg{margin:10px 0 6px}
+.cxrs{display:grid;gap:5px;align-content:start}
+.cxr{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:6px;background:#1b2236;border:1px solid #283150}
+.cxr.done{opacity:.55}.cxg{display:grid;justify-items:center;width:46px;font:700 11px 'IBM Plex Sans KR';color:#fff}.cxg .ic{width:22px;height:22px}
+.cxr>div{flex:1;min-width:0}.cxr b{display:block;font:700 13px 'IBM Plex Sans KR'}.cxr small{font:700 11.5px 'IBM Plex Sans KR';color:#6ff0c8}
+.cxr .ok{font:400 20px "Black Han Sans";color:#6ff0c8;font-style:normal;width:62px;text-align:center}.cxr .btn.sm{min-width:72px}
+/* 복장 */
+.cosl{display:grid;gap:6px;align-content:start}
+.cos{position:relative;display:flex;align-items:center;gap:10px;padding:6px;border-radius:6px;background:#1b2236;border:1px solid #283150}
+.cos.own{border-color:rgba(210,171,85,.5)}
+.cos>img{width:56px;height:70px;border-radius:4px;object-fit:cover;object-position:50% 12%}.cos>img.pre{filter:grayscale(1) brightness(.45)}
+.cos>em{position:absolute;left:6px;top:30px;width:56px;text-align:center;font:700 9.5px 'IBM Plex Sans KR';font-style:normal;color:#fff;text-shadow:0 1px 2px #000}
+.cos>div{flex:1;min-width:0}.cos small{font:700 11px 'IBM Plex Sans KR';color:var(--dim)}.cos b{display:block;font:400 15px "Black Han Sans"}.cos span{font:600 11.5px 'IBM Plex Sans KR';color:#6ff0c8}
+.cos .btn.sm{min-width:78px}
+/* 수사팀 탭 */
+.tmw{display:grid;gap:10px}
+.tm{position:relative;display:grid;align-content:end;gap:2px;height:96px;padding:12px 16px;border:2px solid #3a4462;border-radius:8px;text-align:left;color:#fff;background:linear-gradient(110deg,#232c46,#10141f);overflow:hidden}
+.tm b{font:400 24px "Black Han Sans";text-shadow:0 2px 0 #000}.tm span{font:700 12.5px 'IBM Plex Sans KR';color:var(--gold)}
+.tm.lock{filter:grayscale(.8) brightness(.7)}.tm.lock::after{content:'';position:absolute;right:18px;top:50%;width:30px;height:36px;margin-top:-18px;background:#8a93ab;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3' fill='none' stroke='black' stroke-width='2.6'/%3E%3C/svg%3E") center/contain no-repeat}
+.tm.ev{height:120px;border-color:#7d62d6;background:radial-gradient(circle at 80% 50%,rgba(150,100,255,.5),transparent 55%),linear-gradient(110deg,#2a1d4a,#10141f);box-shadow:0 0 14px rgba(150,100,255,.35)}
+/* 증거 카드 */
+.ecw{display:grid;gap:8px}
+.ec-top{display:flex;align-items:center;gap:8px}.ec-top .seg{flex:1;margin:0}
+.ec-back,.ec-help{flex:none;width:34px;height:34px;border:1px solid #4a5677;border-radius:50%;background:#1b2236;color:#fff;font:400 20px/1 "Black Han Sans";padding:0}
+.ecd,.ecm{position:relative;padding:10px;border-radius:8px;border:1px solid #34405e;background:radial-gradient(circle at 50% 40%,rgba(120,90,220,.25),transparent 70%),#10141f}
+.ecd.on{border-color:#9a7bff;box-shadow:0 0 14px rgba(154,123,255,.35)}
+.ecd-g{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.ec-e{display:grid;place-items:center;aspect-ratio:3/4;border:1px dashed #4a5677;border-radius:5px;color:#4a5677;font:400 22px "Black Han Sans"}
+.ecd-msg,.ecm-msg{margin:8px 0;text-align:center;font:700 12px/1.45 'IBM Plex Sans KR';color:#c9b6ff}
+.ecd-fx{margin:8px 0;text-align:center;font:700 12px/1.45 'IBM Plex Sans KR';color:#6ff0c8}
+.ecd-b{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.ecd-b .btn{font-size:12.5px;padding:8px 2px;white-space:nowrap}
+.ecm-g{display:grid;grid-template-columns:repeat(3,72px);justify-content:center;gap:10px;margin-top:6px}
+.ecm-i{position:absolute;left:8px;top:8px;padding:3px 8px;border:1px solid #4a5677;border-radius:10px;background:#1b2236;color:#fff;font:700 11px 'IBM Plex Sans KR'}
+.ec-cnt{font:700 12px 'IBM Plex Sans KR';color:var(--dim)}
+.ec-all{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.ecard{position:relative;display:grid;justify-items:center;align-content:start;aspect-ratio:3/4;padding:14px 2px 2px;border:2px solid var(--cc);border-radius:5px;background:linear-gradient(color-mix(in srgb,var(--cc) 30%,#151b2c),#0b0e18 70%);color:#fff;overflow:hidden;min-width:0}
+.ecard .ec-g{position:absolute;left:0;right:0;top:0;padding:1px 0;background:var(--cc);color:#0b0e18;font:700 9px/12px 'IBM Plex Sans KR';font-style:normal;text-align:center}
+.ecard .ec-ic .ic{width:24px;height:24px;margin-top:2px}
+.ecard b{width:100%;margin-top:2px;font:700 10px/1.2 'IBM Plex Sans KR';text-align:center;word-break:keep-all;overflow:hidden;max-height:24px}
+.ecard .ec-s{font:400 9px 'Black Han Sans';color:var(--gold);letter-spacing:-1px}
+.ecard .ec-n{position:absolute;left:0;right:0;bottom:0;padding:1px 0;background:rgba(0,0,0,.6);font:700 9.5px 'IBM Plex Sans KR';color:var(--dim)}.ecard .ec-n.ok{color:#6ff0c8}
+.ecard.off{filter:grayscale(1) brightness(.45)}
+.ecard.in::after{content:'편성';position:absolute;right:2px;top:13px;padding:0 3px;border-radius:3px;background:#9a7bff;font:700 8.5px/12px 'IBM Plex Sans KR'}
+.ecard.sel{box-shadow:0 0 0 2px #fff}
+.ecd-g .ecard.in::after,.ecm-g .ecard.in::after{display:none}
+.eci{display:grid;gap:8px}.eci-c{display:grid;justify-content:center}.eci-c .ecard{width:96px}
+.eci-r{display:flex;justify-content:space-between;padding:8px 10px;border-radius:6px;background:#1b2236;font:700 13px 'IBM Plex Sans KR'}.eci-r span{color:var(--dim)}.eci-r b{color:#6ff0c8}
+.eci-many{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;max-height:40vh;overflow:auto}
+.ecr{display:grid;gap:6px;max-height:50vh;overflow:auto}.ecr-h{display:flex;justify-content:space-between;padding:6px 10px;border-radius:4px;background:#283150;font:700 13px 'IBM Plex Sans KR'}.ecr-h b{color:var(--gold)}
+.ecr-g{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.ecr-g div{padding:5px 4px;border-radius:4px;background:#1b2236;text-align:center;font:700 11px 'IBM Plex Sans KR'}.ecr-g small{display:block;color:var(--dim);font-size:10.5px}
+/* 요원 상세 추가 */
+.hp-tags .sq .sqi{font:400 14px "Black Han Sans";font-style:normal;display:grid;place-items:center;color:var(--gold)}
+.hp-awk{justify-self:start;padding:5px 12px;border:1px solid #ff8a9a;border-radius:14px;background:linear-gradient(#5a1420,#2a0810);color:#ffd0d6;font:700 12px 'IBM Plex Sans KR';box-shadow:0 0 10px rgba(255,61,85,.4)}
+.hp-awk.on{background:linear-gradient(#ff8a7a,#d0283c);color:#fff}
+.hp-side{position:absolute;right:8px;top:12px;display:grid;gap:6px}
+.hp-side button{position:relative;display:grid;justify-items:center;gap:0;width:46px;padding:5px 0 3px;border:1px solid rgba(201,211,238,.45);border-radius:8px;background:rgba(14,18,30,.78);color:#e8ecf6}
+.hp-side svg{width:20px;height:20px}.hp-side small{font:700 9.5px 'IBM Plex Sans KR'}.hp-side button.on{border-color:var(--gold);color:var(--gold)}
+.hp-side .dot{position:absolute;right:-3px;top:-3px}
+.hp-sks{display:flex;align-items:center;gap:8px}
+.hp-sk{display:grid;justify-items:center;width:52px;padding:4px 0 3px;border:1px solid rgba(150,166,204,.5);border-radius:6px;background:rgba(14,18,30,.88);color:#e8ecf6}
+.hp-sk i{display:grid;place-items:center;height:24px}.hp-sk .ic{width:22px;height:22px}.hp-sk small{font:700 9.5px 'IBM Plex Sans KR'}
+.hp-sk.lk{opacity:.55;filter:grayscale(1)}
+.hp-stats span{cursor:pointer}
+#hpage.sdview .hp-bg{opacity:0}
+#hpage.sdview{background:radial-gradient(ellipse at 50% 60%,rgba(80,120,220,.35),transparent 60%),linear-gradient(#0d1426,#07080d)}
+#hpage.sdview .hp-sd{left:50%;bottom:270px;width:220px;transform:translateX(-50%)}
+#hpage.sdview .hp-sd img{max-height:230px;max-width:200px}#hpage.sdview .hp-sd::before{width:200px;height:40px}
+#hpage.awkview .hp-bg{filter:saturate(1.2) contrast(1.05) drop-shadow(0 0 0 transparent)}
+#hpage.awkview::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at 50% 30%,rgba(255,61,85,.28),transparent 60%);mix-blend-mode:screen;animation:platGlow 2.4s ease-in-out infinite}
+.hstw{display:grid;grid-template-columns:1fr 1fr;gap:4px;align-content:start}
+.hst{display:flex;align-items:center;justify-content:space-between;gap:4px;padding:8px;border:1px solid #283150;border-radius:6px;background:#1b2236;color:#fff;font:600 12px 'IBM Plex Sans KR'}
+.hst span{display:flex;align-items:center;gap:4px;white-space:nowrap}.hst .ic{width:16px;height:16px}.hst b{font:400 14px "Black Han Sans";color:var(--gold);white-space:nowrap}
+.lore-h{display:flex;align-items:center;gap:12px;padding-bottom:10px;border-bottom:1px solid rgba(210,171,85,.35)}.lore-h img{width:56px;height:56px;border-radius:50%;object-fit:cover;object-position:50% 18%;border:2px solid var(--gold)}
+.lore-h small{font:700 11.5px 'IBM Plex Sans KR';color:var(--dim)}.lore-h b{display:block;font:400 22px "Black Han Sans";color:#f3e6c4}
+.lore-p{flex:1;min-height:0;overflow-y:auto;padding:10px 4px;background:repeating-linear-gradient(transparent 0 25px,rgba(210,171,85,.08) 25px 26px)}.lore-p p{margin:0 0 12px;font:500 14px/1.8 'IBM Plex Sans KR';color:#e8ecf6;word-break:keep-all}
 </style>
 </head>
 <body>
@@ -1613,7 +1741,7 @@ img.rs-emb{width:76px;height:76px;top:-42px}
     <canvas id="cv"></canvas>
     <!-- 왼쪽 위: 수사팀 프로필 (대장 얼굴, 레벨, 계급, 구역 진행) / 오른쪽 위: 스테이지 진행 -->
     <div id="hud">
-      <div id="prof"><div class="pf-face"><img id="pfImg" alt=""></div><div class="pf-t"><b>Lv.<span id="pfLv">1</span></b><span class="pf-n">AIU 수사팀</span><span class="pf-r" id="pfRank"></span><i class="pf-bar"><i id="pfBar"></i></i></div></div>
+      <div id="prof"><div class="pf-face"><img id="pfImg" alt=""></div><div class="pf-t"><b>Lv.<span id="pfLv">1</span></b><span class="pf-n" id="pfName">AIU 수사팀</span><span class="pf-r" id="pfRank"></span><i class="pf-bar"><i id="pfBar"></i></i></div></div>
       <div id="stageBox">
         <div class="sb-bar"><svg class="sb-gem" viewBox="0 0 20 28"><path d="M10 1l8 12-8 14-8-14z" fill="url(#mBlue)" stroke="#c9d3ee" stroke-width="1.2" stroke-linejoin="round"/><path d="M10 1v26M2 13h16" stroke="#c9d3ee" stroke-width=".6" opacity=".6"/></svg>
           <div id="prog"><i></i><span></span></div><div class="sb-boss"><img id="sbBoss" alt=""></div></div>
@@ -1661,7 +1789,7 @@ img.rs-emb{width:76px;height:76px;top:-42px}
   <div id="panel"></div>
   <div id="hpage"></div>
   <!-- 요원 창 아래 작은 탭: 요원 관리 / 편성 / 도감 (세나 키우기 영웅 창과 같은 자리) -->
-  <div id="hsub"><button data-hsub="manage">요원 관리</button><button data-hsub="form">편성</button><button data-hsub="codex">도감</button></div>
+  <div id="hsub"><button data-hsub="manage">요원 관리</button><button data-hsub="form">편성</button><button data-hsub="codex">도감</button><button data-hsub="team">수사팀</button></div>
   <!-- 아래 띠: 전투력과 재화 / 메뉴 -->
   <div id="bottom">
     <div id="bbar"><span class="pw">전투력 <b id="power">0</b></span>
@@ -2460,7 +2588,7 @@ img.rs-emb{width:76px;height:76px;top:-42px}
     { id: 'dress', name: '복장 도감 열림', stage: 121, rw: { ptix: 3 } },
   ];
   /* 요원 도감: 요원 레벨 10마다 한 번씩 보석 (세나 키우기 영웅 도감 달성 보상처럼) */
-  const CODEX_STEP = 10, CODEX_TIERS = 5;
+  const CODEX_STEP = 10, CODEX_TIERS = 10;
   const codexGems = tier => 20 * tier;
   /** 다음에 받을 단계 (모두 받았으면 null) */
   function codexNext(state, id) {
@@ -2624,7 +2752,7 @@ img.rs-emb{width:76px;height:76px;top:-42px}
   function mpassReady(state) { const mm = state.mis.m, out = []; MPASS.forEach((r, i) => { if (mm.pts < r.pt) return; if (!mm.pf.includes(i)) out.push([i, 'free']); if (state.mis.paid === mm.k && !mm.pp.includes(i)) out.push([i, 'paid']); }); return out; }
 
   /** 가이드 퀘스트와 일일, 주간, 월간, 반복 임무를 함께 올림 */
-  function progress(state, kind, amount = 1) { questAdd(state, kind, amount); missionAdd(state, kind, amount); misAdd(state, kind, amount); }
+  function progress(state, kind, amount = 1) { if (state.st && isNum(amount) && amount > 0) state.st[kind] = (state.st[kind] || 0) + amount; questAdd(state, kind, amount); missionAdd(state, kind, amount); misAdd(state, kind, amount); }
 
   /** 출석 보상 받을 수 있는지 / 받기 (오늘 이미 받았으면 null) */
   function canAttend(state, now) { return state.att.last !== dayKey(now); }
@@ -2744,6 +2872,14 @@ img.rs-emb{width:76px;height:76px;top:-42px}
       tower: 0,                 // 균열 심층 돌파한 층
       daily: { p: {}, got: [], bonus: false },   // 일일 임무 진행, 받은 번호, 보너스
       att: { n: 0, last: '' },  // 출석 받은 횟수, 마지막 날짜
+      st: {},                   // 누적 기록 (처리, 근원체, 호출 등) → 칭호 조건
+      tt: [], ttEq: '',         // 얻은 칭호, 장착 칭호
+      cdxs: {},                 // 요원 도감 승급 단계 받은 수
+      cards: {}, deck: [],      // 증거 카드 { id: { n: 장수, s: 별 } }, 편성 10칸
+      cos: [], cosEq: {},       // 산 복장, 요원별 입은 복장
+      lore: [],                 // 읽은 요원 기록
+      acc: { lv: 1, xp: 0 },    // 수사팀 레벨
+      uid: '', tname: 'AIU 수사팀', tnameAt: 0,   // 수사팀 번호, 이름, 이름 바꾼 시각
     };
   }
 
@@ -2835,10 +2971,322 @@ img.rs-emb{width:76px;height:76px;top:-42px}
         };
       }
     }
+    // 수집 시스템
+    s.st = {}; if (raw.st && typeof raw.st === 'object') for (const k of Object.keys(raw.st).slice(0, 40)) if (/^[a-z]{1,12}$/.test(k) && isNum(raw.st[k])) s.st[k] = clampInt(raw.st[k], 0, 1e12, 0);
+    s.tt = Array.isArray(raw.tt) ? [...new Set(raw.tt.filter(id => TITLES.some(t => t.id === id)))] : [];
+    s.ttEq = s.tt.includes(raw.ttEq) ? raw.ttEq : '';
+    s.cdxs = {}; if (raw.cdxs && typeof raw.cdxs === 'object') for (const h of HEROES) if (isNum(raw.cdxs[h.id])) s.cdxs[h.id] = clampInt(raw.cdxs[h.id], 0, 5, 0);
+    s.cards = {}; if (raw.cards && typeof raw.cards === 'object') for (const c of CARDS) { const r = raw.cards[c.id]; if (r && typeof r === 'object' && isNum(r.n) && r.n > 0) s.cards[c.id] = { n: clampInt(r.n, 1, 1e6, 1), s: clampInt(r.s, 1, CARD_MAX, 1) }; }
+    s.deck = Array.isArray(raw.deck) ? [...new Set(raw.deck.filter(id => s.cards[id]))].slice(0, CARD_SLOTS) : [];
+    s.cos = Array.isArray(raw.cos) ? [...new Set(raw.cos.filter(id => COSTUMES.some(c => c.id === id)))] : [];
+    s.cosEq = {}; if (raw.cosEq && typeof raw.cosEq === 'object') for (const h of HEROES) { const c = raw.cosEq[h.id]; if (s.cos.includes(c) && costumeById(c).hero === h.id) s.cosEq[h.id] = c; }
+    s.lore = Array.isArray(raw.lore) ? [...new Set(raw.lore.filter(id => HEROES.some(h => h.id === id)))] : [];
+    if (raw.acc && typeof raw.acc === 'object') s.acc = { lv: clampInt(raw.acc.lv, 1, 1e6, 1), xp: clampInt(raw.acc.xp, 0, 1e12, 0) };
+    s.uid = typeof raw.uid === 'string' && /^[A-Z0-9]{6}$/.test(raw.uid) ? raw.uid : '';
+    s.tname = typeof raw.tname === 'string' && !teamNameError(raw.tname) ? raw.tname.trim() : base.tname;
+    s.tnameAt = isNum(raw.tnameAt) && raw.tnameAt > 0 ? raw.tnameAt : 0;
     // 파티: 보유한 요원만, 중복 없이 최대 5명. 예전 저장(파티 없음)은 보유 요원 앞에서부터
     s.party = Array.isArray(raw.party) ? raw.party.filter(id => typeof id === 'string') : null;
     s.party = partyIds(s);
     return s;
+  }
+
+
+  /* ============================================================
+   * 수집 시스템 (세나 키우기의 칭호, 도감, 기사단 카드, 코스튬, 고유 능력을 AIU식으로)
+   *  - 모든 보너스는 statBonus(state) 하나로 모아 전투(공격력, 체력, 치명타, 근원체 피해, 골드)에 반영
+   *  - 상태: st(누적 기록), tt(얻은 칭호), ttEq(장착 칭호), cdxs(도감 승급 단계), cards, deck, cos, cosEq, lore, acc(수사팀 레벨), uid, tname, tnameAt
+   * ============================================================ */
+  // 능력치 종류: 화면 이름과 설명 (요원 상세 능력치 칸, 프로필 수사팀 능력치에서 같이 씀)
+  const STATS = {
+    atk:  { name: '공격력',        pct: true, desc: '요원이 주는 피해의 기준이 돼요.' },
+    hp:   { name: '체력',          pct: true, desc: '체력이 0이 되면 요원이 쓰러져요.' },
+    crit: { name: '치명타 확률',   pct: true, desc: '공격이 치명타로 들어갈 확률이에요.' },
+    cdmg: { name: '치명타 피해',   pct: true, desc: '치명타가 터졌을 때 더 들어가는 피해예요.' },
+    boss: { name: '근원체 피해',   pct: true, desc: '근원체에게 주는 피해가 늘어나요.' },
+    gold: { name: '골드 획득',     pct: true, desc: '이상체를 처리하고 받는 골드가 늘어나요.' },
+  };
+  // 소속: 요원 도감을 나누는 묶음 (세나 키우기 영웅 도감의 세력처럼)
+  const SQUADS = [
+    { id: 'first',  name: '창설 1팀',     sub: 'AIU를 처음 만든 요원들', ids: ['dark', 'mage', 'archer', 'knight', 'priest', 'scanner', 'breaker', 'echo'] },
+    { id: 'special', name: '특수 대응반', sub: '근원체만 쫓는 정예 요원들', ids: ['requiem', 'ironside', 'blackbox', 'ghost', 'judge', 'aegis', 'oracle', 'eclipse', 'reaper', 'vault', 'phantom', 'titan', 'exorcist'] },
+    { id: 'patrol', name: '현장 순찰반',  sub: '골목마다 먼저 달려가는 요원들', ids: ['patrol', 'sniff', 'rookie', 'flare', 'medic', 'bulwark', 'wire', 'tracer', 'static', 'crowbar', 'lens', 'hound', 'smoke', 'salt'] },
+    { id: 'ally',   name: '외부 협력관',  sub: '다른 기관에서 파견 온 요원들', ids: ['viper', 'thunder', 'warden', 'chapel', 'frost', 'raven', 'anchor', 'cipher', 'jackal', 'mirror', 'inferno', 'saint', 'dozer', 'pulse', 'vortex'] },
+  ];
+  function squadOf(id) { return SQUADS.find(q => q.ids.includes(id)) || SQUADS[0]; }
+
+  /* ---------- 요원 도감: 레벨 단계 (10~100) + 승급 단계 ----------
+   * 레벨 단계마다 보석과 함께 영구 능력치. 능력치 종류는 요원 유형으로 정함 */
+  const CODEX_STAT = { 공격: 'cdmg', 광역: 'atk', 방어: 'hp', 지원: 'crit' };
+  const CODEX_VAL = { cdmg: 0.009, atk: 0.004, hp: 0.005, crit: 0.0015 };
+  const CODEX_STAR_VAL = { cdmg: 0.02, atk: 0.01, hp: 0.012, crit: 0.004 };
+  function codexStat(id) { return CODEX_STAT[heroById(id).type]; }
+  /** 승급 도감: 다음 받을 별 단계 (★2부터, 전설은 각성까지) */
+  function codexStarNext(state, id) {
+    const h = heroById(id), d = state.heroes[id]; if (!d || !d.owned) return null;
+    const got = (state.cdxs && state.cdxs[id]) || 0, star = got + 2;
+    if (star > maxStars(h.grade)) return null;
+    return { tier: got + 1, star, ready: d.stars >= star, gems: 30 * (got + 1) };
+  }
+  function codexStarClaim(state, only) {
+    let g = 0;
+    for (const h of HEROES) {
+      if (only && h.id !== only) continue;
+      let n;
+      while ((n = codexStarNext(state, h.id)) && n.ready) { state.cdxs[h.id] = n.tier; g += n.gems; }
+    }
+    state.gems += g; return g;
+  }
+
+  /* ---------- 칭호 ----------
+   * cat: 분류 (필터), k: 누적 기록 종류, n: 목표, hold: 보유 효과, eq: 장착 효과(장착한 하나만). hidden 은 얻기 전까지 조건을 숨김 */
+  const TITLE_CATS = ['수집', '성장', '전투', '명성', '소모', '출석', '히든', '기타'];
+  const T = (id, name, cat, k, n, hs, hv, es, ev, hidden) => ({ id, name, cat, k, n, hold: { [hs]: hv }, eq: { [es]: ev }, hidden: !!hidden });
+  const TITLES = [
+    T('new',      '신입 수사관',     '기타', 'stage',  1,     'atk', 0.005, 'atk', 0.02),
+    T('kill1',    '첫 처리',         '전투', 'kill',   100,   'atk', 0.005, 'gold', 0.03),
+    T('kill2',    '골목 청소부',     '전투', 'kill',   1000,  'atk', 0.005, 'gold', 0.05),
+    T('kill3',    '밤거리의 사냥꾼', '전투', 'kill',   10000, 'atk', 0.01,  'atk', 0.05),
+    T('kill4',    '이상체의 악몽',   '전투', 'kill',   50000, 'atk', 0.01,  'cdmg', 0.1),
+    T('boss1',    '근원 추적자',     '전투', 'boss',   10,    'boss', 0.01, 'boss', 0.04),
+    T('boss2',    '봉쇄 전문가',     '전투', 'boss',   50,    'boss', 0.01, 'boss', 0.06),
+    T('boss3',    '근원체 사냥꾼',   '전투', 'boss',   200,   'boss', 0.015, 'boss', 0.1),
+    T('stage1',   '현장 배치',       '명성', 'stage',  21,    'hp', 0.005, 'hp', 0.03),
+    T('stage2',   '구역 담당관',     '명성', 'stage',  51,    'hp', 0.005, 'hp', 0.04),
+    T('stage3',   '도시의 방패',     '명성', 'stage',  101,   'hp', 0.01,  'hp', 0.06),
+    T('stage4',   '전설의 수사관',   '명성', 'stage',  201,   'hp', 0.01,  'atk', 0.08),
+    T('tower1',   '균열 탐사자',     '명성', 'tower',  10,    'crit', 0.002, 'crit', 0.01),
+    T('tower2',   '심층 잠수부',     '명성', 'tower',  30,    'crit', 0.003, 'crit', 0.015),
+    T('tower3',   '심연을 본 자',    '명성', 'tower',  60,    'crit', 0.004, 'crit', 0.02),
+    T('own1',     '팀 꾸리기',       '수집', 'own',    5,     'hp', 0.005, 'atk', 0.02),
+    T('own2',     '든든한 명단',     '수집', 'own',    15,    'hp', 0.005, 'hp', 0.04),
+    T('own3',     '인사 담당',       '수집', 'own',    30,    'atk', 0.01, 'atk', 0.05),
+    T('own4',     'AIU 전원 집합',   '수집', 'own',    50,    'atk', 0.015, 'cdmg', 0.12),
+    T('leg1',     '전설을 만나다',   '수집', 'legend', 1,     'cdmg', 0.01, 'cdmg', 0.05),
+    T('leg2',     '전설의 동료들',   '수집', 'legend', 5,     'cdmg', 0.015, 'cdmg', 0.08),
+    T('card1',    '증거 수집가',     '수집', 'cards',  10,    'gold', 0.01, 'gold', 0.04),
+    T('card2',    '증거 보관소장',   '수집', 'cards',  30,    'gold', 0.015, 'gold', 0.06),
+    T('lv1',      '꾸준한 훈련',     '성장', 'lvup',   100,   'atk', 0.005, 'atk', 0.02),
+    T('lv2',      '성장의 시간',     '성장', 'lvup',   1000,  'atk', 0.01, 'atk', 0.04),
+    T('star1',    '첫 승급',         '성장', 'star',   1,     'hp', 0.005, 'hp', 0.02),
+    T('star2',    '별을 모으는 자',  '성장', 'star',   30,    'hp', 0.01, 'hp', 0.05),
+    T('awk',      '한계를 넘은 자',  '성장', 'awaken', 1,     'cdmg', 0.02, 'cdmg', 0.1),
+    T('train1',   '사격장 단골',     '성장', 'train',  100,   'crit', 0.002, 'crit', 0.01),
+    T('sum1',     '첫 호출',         '소모', 'summon', 10,    'gold', 0.005, 'gold', 0.02),
+    T('sum2',     '호출 담당관',     '소모', 'summon', 100,   'gold', 0.01, 'gold', 0.04),
+    T('sum3',     '인재 사냥꾼',     '소모', 'summon', 1000,  'atk', 0.01, 'atk', 0.05),
+    T('dg1',      '작전 수행자',     '소모', 'dungeon', 20,   'gold', 0.01, 'gold', 0.04),
+    T('att1',     '출근 도장',       '출석', 'att',    7,     'hp', 0.005, 'gold', 0.03),
+    T('att2',     '개근 수사관',     '출석', 'att',    30,    'hp', 0.01,  'hp', 0.05),
+    T('h_night',  '밤의 그림자',     '히든', 'night',  1,     'cdmg', 0.01, 'cdmg', 0.06, true),
+    T('h_lose',   '포기를 모르는',   '히든', 'lose',   10,    'hp', 0.01,  'hp', 0.06, true),
+    T('h_reset',  '처음부터 다시',   '히든', 'reset',  1,     'atk', 0.005, 'atk', 0.03, true),
+    T('h_name',   '이름을 바꾼 자',  '히든', 'rename', 1,     'gold', 0.005, 'gold', 0.03, true),
+    T('h_lore',   '기록 보관 담당',  '히든', 'lore',   10,    'crit', 0.003, 'crit', 0.015, true),
+  ];
+  const TITLE_LV_NEED = 2;   // 칭호 도감 레벨: 칭호 2개마다 1레벨 (최대 20)
+  const TITLE_LV_MAX = 20;
+  // 칭호 도감 레벨 효과 (레벨마다 하나씩, 누적)
+  const TITLE_LV_FX = Array.from({ length: TITLE_LV_MAX }, (_, i) => { const L = i + 1, k = ['atk', 'hp', 'crit', 'cdmg', 'boss'][i % 5]; return { lv: L, stat: k, v: { atk: 0.01, hp: 0.01, crit: 0.002, cdmg: 0.02, boss: 0.015 }[k] * (L > 10 ? 2 : 1) }; });
+  function titleById(id) { return TITLES.find(t => t.id === id); }
+  /** 칭호 조건에 쓰는 현재 값 */
+  function titleProgress(state, t) {
+    const st = state.st || {};
+    switch (t.k) {
+      case 'stage': return state.stage;
+      case 'tower': return state.tower || 0;
+      case 'own': return HEROES.filter(h => state.heroes[h.id] && state.heroes[h.id].owned).length;
+      case 'legend': return HEROES.filter(h => h.grade === '전설' && state.heroes[h.id] && state.heroes[h.id].owned).length;
+      case 'awaken': return HEROES.filter(h => heroGrade(state, h.id) === '각성').length;
+      case 'cards': return CARDS.filter(c => state.cards && state.cards[c.id]).length;
+      case 'att': return (state.att && state.att.n) || 0;
+      case 'lore': return (state.lore || []).length;
+      default: return st[t.k] || 0;
+    }
+  }
+  /** 새로 조건을 채운 칭호를 얻음. 새로 얻은 칭호 목록 */
+  function titleCheck(state) {
+    const out = [];
+    for (const t of TITLES) if (!state.tt.includes(t.id) && titleProgress(state, t) >= t.n) { state.tt.push(t.id); out.push(t); }
+    return out;
+  }
+  function titleLevel(state) { return Math.min(TITLE_LV_MAX, Math.floor(state.tt.length / TITLE_LV_NEED)); }
+  function titleEquip(state, id) {
+    if (!state.tt.includes(id)) throw new RangeError('보유하지 않은 칭호예요');
+    state.ttEq = id; return true;
+  }
+
+  /* ---------- 증거 카드 (세나 키우기 기사단 카드처럼) ----------
+   * 10장을 편성해야 효과가 켜짐. 같은 등급 3장을 합성하면 30% 확률로 위 등급, 실패하면 같은 등급 다른 카드
+   * 카드마다 별(1~5). 같은 카드가 더 있으면 승급 */
+  const CARD_GRADES = ['일반', '희귀', '영웅', '전설'];
+  const CARD_BASE = { 일반: 0.004, 희귀: 0.008, 영웅: 0.016, 전설: 0.03 };
+  const CARD_STAT_K = { atk: 1, hp: 1, crit: 0.25, cdmg: 2, boss: 1.5, gold: 1.5 };
+  const CARD_NEED = [1, 2, 3, 4];   // ★n → ★n+1 에 드는 같은 카드 수
+  const CARD_MAX = 5;
+  const CK = (id, name, grade, stat, icon) => ({ id, name, grade, stat, icon });
+  const CARDS = [
+    CK('c_shell', '탄피', '일반', 'atk', 'shell'), CK('c_print', '지문', '일반', 'crit', 'print'), CK('c_tape', '녹음 테이프', '일반', 'gold', 'tape'), CK('c_photo', '현장 사진', '일반', 'hp', 'photo'),
+    CK('c_key', '낡은 열쇠', '일반', 'boss', 'key'), CK('c_ticket', '버스표', '일반', 'gold', 'ticket'), CK('c_lighter', '라이터', '일반', 'cdmg', 'lighter'), CK('c_glove', '고무장갑', '일반', 'hp', 'glove'),
+    CK('c_badge', '경찰 배지', '일반', 'atk', 'badge'), CK('c_map', '구역 지도', '일반', 'boss', 'map'), CK('c_note', '쪽지', '일반', 'crit', 'note'), CK('c_coin', '이상한 동전', '일반', 'gold', 'coin'),
+    CK('c_rose', '시든 장미', '희귀', 'cdmg', 'rose'), CK('c_watch', '멈춘 시계', '희귀', 'boss', 'watch'), CK('c_mask', '깨진 가면', '희귀', 'atk', 'mask'), CK('c_film', '필름 한 롤', '희귀', 'crit', 'film'),
+    CK('c_ring', '반지', '희귀', 'hp', 'ring'), CK('c_bullet', '은탄환', '희귀', 'boss', 'bullet'), CK('c_diary', '피해자 일기', '희귀', 'gold', 'diary'), CK('c_lens', '돋보기', '희귀', 'crit', 'lens'),
+    CK('c_doll', '저주 인형', '영웅', 'cdmg', 'doll'), CK('c_mirror', '흐린 거울', '영웅', 'atk', 'mirror'), CK('c_bell', '은방울', '영웅', 'hp', 'bell'), CK('c_cross', '녹슨 십자가', '영웅', 'boss', 'cross'),
+    CK('c_box', '봉인 상자', '영웅', 'gold', 'box'), CK('c_eye', '유리 눈', '영웅', 'crit', 'eye'),
+    CK('c_omega', '오메가 문서', '전설', 'atk', 'omega'), CK('c_core', '근원체 파편', '전설', 'boss', 'core'), CK('c_heart', '검은 심장', '전설', 'cdmg', 'heart'), CK('c_crown', '균열 왕관', '전설', 'hp', 'crown'),
+  ];
+  const CARD_SLOTS = 10;
+  const COMBINE_UP = 0.3;
+  function cardById(id) { return CARDS.find(c => c.id === id); }
+  function cardValue(id, star) { const c = cardById(id); return CARD_BASE[c.grade] * CARD_STAT_K[c.stat] * (1 + 0.5 * (clampInt(star, 1, CARD_MAX, 1) - 1)); }
+  function cardAdd(state, id, n = 1) { const c = state.cards[id] || (state.cards[id] = { n: 0, s: 1 }); c.n += n; return c; }
+  /** 카드 뽑기: 등급 확률 일반 70, 희귀 22, 영웅 7, 전설 1 */
+  function cardRoll(rng, grade) {
+    const r = rng(); const g = grade || (r < 0.01 ? '전설' : r < 0.08 ? '영웅' : r < 0.3 ? '희귀' : '일반');
+    const L = CARDS.filter(c => c.grade === g); return L[Math.floor(rng() * L.length) % L.length].id;
+  }
+  /** 승급: 같은 카드 n장으로 별 하나 (n은 CARD_NEED). 보유 1장은 남김 */
+  function cardStarNeed(c) { return c.s >= CARD_MAX ? Infinity : CARD_NEED[c.s - 1]; }
+  function cardStarUp(state, id) {
+    const c = state.cards[id]; if (!c) return false;
+    const need = cardStarNeed(c); if (c.n - 1 < need) return false;
+    c.n -= need; c.s++; return true;
+  }
+  function cardStarAll(state) { let k = 0; for (const id of Object.keys(state.cards)) while (cardStarUp(state, id)) k++; return k; }
+  /** 합성: 같은 등급 카드 3장 (남는 장만, 편성용 1장은 남김) → 결과 카드 id */
+  function cardSpare(state, id) { const c = state.cards[id]; return c ? c.n - 1 : 0; }
+  function cardCombine(state, ids, rng) {
+    if (!Array.isArray(ids) || ids.length !== 3) throw new RangeError('카드 3장을 넣어 주세요');
+    const g = cardById(ids[0]).grade;
+    if (g === '전설') throw new RangeError('전설 카드는 합성할 수 없어요');
+    if (!ids.every(id => cardById(id).grade === g)) throw new RangeError('같은 등급 카드만 합성할 수 있어요');
+    const use = {}; for (const id of ids) use[id] = (use[id] || 0) + 1;
+    for (const id of Object.keys(use)) if (cardSpare(state, id) < use[id]) throw new RangeError('남는 카드가 부족해요');
+    for (const id of Object.keys(use)) state.cards[id].n -= use[id];
+    const up = rng() < COMBINE_UP, out = cardRoll(rng, up ? CARD_GRADES[CARD_GRADES.indexOf(g) + 1] : g);
+    cardAdd(state, out, 1); return { id: out, up };
+  }
+  /** 일괄 합성: 한 등급에서 남는 카드를 3장씩 계속 합성 */
+  function cardCombineAll(state, grade, rng) {
+    const out = [];
+    for (let k = 0; k < 500; k++) {
+      const pool = []; for (const c of CARDS) if (c.grade === grade) for (let i = 0; i < cardSpare(state, c.id); i++) pool.push(c.id);
+      if (pool.length < 3) break; out.push(cardCombine(state, pool.slice(0, 3), rng));
+    }
+    return out;
+  }
+  function deckToggle(state, id) {
+    const i = state.deck.indexOf(id);
+    if (i >= 0) { state.deck.splice(i, 1); return 'out'; }
+    if (!state.cards[id]) throw new RangeError('보유하지 않은 카드예요');
+    if (state.deck.length >= CARD_SLOTS) return 'full';
+    state.deck.push(id); return 'in';
+  }
+  function deckAuto(state) {
+    const score = id => { const c = state.cards[id], k = cardById(id).stat; return cardValue(id, c.s) / CARD_STAT_K[k] * ({ atk: 1.2, cdmg: 1, boss: 1, hp: 0.8, crit: 1, gold: 0.6 })[k]; };
+    state.deck = Object.keys(state.cards).filter(id => state.cards[id].n > 0).sort((a, b) => score(b) - score(a)).slice(0, CARD_SLOTS);
+    return state.deck.length;
+  }
+  const deckOn = state => state.deck.length >= CARD_SLOTS;
+
+  /* ---------- 복장 (세나 키우기 코스튬처럼): 사면 보유 효과, 입으면 그림이 바뀜 ---------- */
+  const COSTUMES = [
+    { id: 'dark_rain',  hero: 'dark',   name: '빗속의 추적자', price: 2000, hold: { atk: 0.03, hp: 0.03 } },
+    { id: 'dark_gala',  hero: 'dark',   name: '가면 무도회',   price: 3000, hold: { cdmg: 0.06 } },
+    { id: 'mage_biker', hero: 'mage',   name: '심야 라이더',   price: 2000, hold: { atk: 0.03, hp: 0.03 } },
+    { id: 'mage_suit',  hero: 'mage',   name: '정장 차림',     price: 3000, hold: { boss: 0.05 } },
+    { id: 'archer_rf',  hero: 'archer', name: '옥상 저격수',   price: 2000, hold: { atk: 0.03, hp: 0.03 } },
+    { id: 'archer_off', hero: 'archer', name: '비번 날',       price: 3000, hold: { crit: 0.01 } },
+    { id: 'knight_riot', hero: 'knight', name: '진압 기동대',  price: 2000, hold: { atk: 0.03, hp: 0.03 } },
+    { id: 'knight_coat', hero: 'knight', name: '트렌치코트',   price: 3000, hold: { hp: 0.06 } },
+    { id: 'priest_er',  hero: 'priest', name: '응급실 당직',   price: 2000, hold: { atk: 0.03, hp: 0.03 } },
+    { id: 'priest_nun', hero: 'priest', name: '수녀원 잠입',   price: 3000, hold: { gold: 0.06 } },
+  ];
+  function costumeById(id) { return COSTUMES.find(c => c.id === id); }
+  function costumeBuy(state, id) {
+    const c = costumeById(id); if (!c) throw new RangeError('없는 복장이에요');
+    if (state.cos.includes(id)) throw new RangeError('이미 보유한 복장이에요');
+    if (!spendGems(state, c.price)) throw new RangeError('보석이 부족해요');
+    state.cos.push(id); return true;
+  }
+  function costumeWear(state, heroId, cosId) {
+    if (cosId && (!state.cos.includes(cosId) || costumeById(cosId).hero !== heroId)) throw new RangeError('보유하지 않은 복장이에요');
+    if (cosId) state.cosEq[heroId] = cosId; else delete state.cosEq[heroId];
+    return true;
+  }
+
+  /* ---------- 고유 능력: 출전 중이고 스테이지 조건을 넘으면 팀 전체에 켜짐 ---------- */
+  const PASSIVE = { 공격: { stat: 'cdmg', v: 0.08, name: '급소 간파' }, 광역: { stat: 'boss', v: 0.06, name: '현장 장악' }, 방어: { stat: 'hp', v: 0.06, name: '불굴' }, 지원: { stat: 'atk', v: 0.04, name: '작전 지휘' } };
+  const PASSIVE_OPEN = { 희귀: 41, 영웅: 81, 전설: 121 };
+  const PASSIVE_MUL = { 희귀: 1, 영웅: 1.5, 전설: 2, 각성: 3 };
+  function passiveOf(state, id) {
+    const h = heroById(id), p = PASSIVE[h.type], g = heroGrade(state, id);
+    return { name: p.name, stat: p.stat, v: p.v * PASSIVE_MUL[g], open: PASSIVE_OPEN[h.grade], on: state.stage >= PASSIVE_OPEN[h.grade] };
+  }
+
+  /* ---------- 요원 기록 (이야기 한 편 읽으면 보석 한 번) ---------- */
+  const LORE_GEMS = 30;
+  function loreRead(state, id) { heroById(id); if (state.lore.includes(id)) return 0; state.lore.push(id); state.gems += LORE_GEMS; return LORE_GEMS; }
+
+  /* ---------- 레벨 초기화: 쓴 경험치를 모두 돌려받고 Lv.1 ---------- */
+  function heroLvRefund(lv) { return heroLvCostBulk(1, clampInt(lv, 1, 1e6, 1) - 1); }
+  function heroLvReset(state, id) {
+    const d = state.heroes[id]; if (!d || !d.owned || d.lv <= 1) return 0;
+    const back = heroLvRefund(d.lv); state.exp += back; d.lv = 1; return back;
+  }
+
+  /* ---------- 수사팀 레벨 (처리할 때마다 경험치) ---------- */
+  function accNeed(lv) { return Math.floor(60 * Math.pow(clampInt(lv, 1, 1e6, 1), 1.35)); }
+  function accAdd(state, xp) {
+    const a = state.acc; a.xp += xp; let up = 0;
+    while (a.xp >= accNeed(a.lv)) { a.xp -= accNeed(a.lv); a.lv++; up++; }
+    return up;
+  }
+
+  /* ---------- 수사팀 이름 ---------- */
+  const TNAME_COOL = 24 * 3600e3;
+  /** 이름 검사: 2~8자, 한글/영문/숫자만. 문제가 있으면 안내 문구 */
+  function teamNameError(name) {
+    if (typeof name !== 'string') return '수사팀 이름을 입력해 주세요';
+    const s = name.trim();
+    if (!s) return '수사팀 이름을 입력해 주세요';
+    if ([...s].length < 2) return '수사팀 이름이 너무 짧아요';
+    if ([...s].length > 8) return '수사팀 이름이 너무 길어요';
+    if (!/^[가-힣A-Za-z0-9]+$/.test(s)) return '한글, 영문, 숫자만 쓸 수 있어요';
+    return '';
+  }
+  function teamRename(state, name, nowMs) {
+    const err = teamNameError(name); if (err) throw new RangeError(err);
+    if (state.tnameAt && nowMs - state.tnameAt < TNAME_COOL) throw new RangeError('바꾼 뒤 24시간이 지나야 다시 바꿀 수 있어요');
+    state.tname = name.trim(); state.tnameAt = nowMs; state.st.rename = (state.st.rename || 0) + 1; return true;
+  }
+  function makeUid(rng) { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = ''; for (let i = 0; i < 6; i++) s += A[Math.floor(rng() * A.length) % A.length]; return s; }
+
+  /* ---------- 보너스 합계 (전투에 쓰는 값). src 는 출처별 (프로필 수사팀 능력치 필터) ---------- */
+  function statBonus(state) {
+    const z = () => ({ atk: 0, hp: 0, crit: 0, cdmg: 0, boss: 0, gold: 0 });
+    const src = { 칭호: z(), 도감: z(), '증거 카드': z(), 복장: z(), '고유 능력': z() };
+    const add = (o, k, v) => { o[k] += v; };
+    // 칭호: 보유 효과 전부 + 장착 효과 하나 + 도감 레벨 효과
+    for (const id of state.tt) { const t = titleById(id); if (t) for (const k in t.hold) add(src.칭호, k, t.hold[k]); }
+    const eq = titleById(state.ttEq); if (eq && state.tt.includes(eq.id)) for (const k in eq.eq) add(src.칭호, k, eq.eq[k]);
+    const tl = titleLevel(state); for (const f of TITLE_LV_FX) if (f.lv <= tl) add(src.칭호, f.stat, f.v);
+    // 요원 도감: 레벨 단계, 승급 단계
+    for (const h of HEROES) { const k = codexStat(h.id); add(src.도감, k, CODEX_VAL[k] * ((state.cdx && state.cdx[h.id]) || 0)); add(src.도감, k, CODEX_STAR_VAL[k] * ((state.cdxs && state.cdxs[h.id]) || 0)); }
+    // 증거 카드: 10장 편성했을 때만
+    if (deckOn(state)) for (const id of state.deck) { const c = state.cards[id]; if (c) add(src['증거 카드'], cardById(id).stat, cardValue(id, c.s)); }
+    // 복장: 보유 효과
+    for (const id of state.cos) { const c = costumeById(id); if (c) for (const k in c.hold) add(src.복장, k, c.hold[k]); }
+    // 고유 능력: 출전 요원
+    for (const id of partyIds(state)) { const p = passiveOf(state, id); if (p.on) add(src['고유 능력'], p.stat, p.v); }
+    const all = z(); for (const s of Object.values(src)) for (const k in s) all[k] += s[k];
+    return { ...all, src };
+  }
+
+  /** 전투 배율 한 번에: 편성 핵심 버프 × 수집 보너스 */
+  function battleMods(state) {
+    const y = synergy(state), b = statBonus(state);
+    return { atk: y.atk * (1 + b.atk), hp: y.hp * (1 + b.hp), cd: y.cd, crit: b.crit, cdmg: b.cdmg, boss: 1 + b.boss, gold: 1 + b.gold, lines: y.lines };
   }
 
   /** 저장 문자열 파싱. JSON 오류면 새 상태 */
@@ -2857,6 +3305,10 @@ img.rs-emb{width:76px;height:76px;top:-42px}
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,
     newState, cloneState, sanitize, loadFromString, QUESTS, GUIDE, questAt, questAdd, questClaim,
     DUNGEONS, MISSIONS, ATTEND, dayKey, dailyReset, dungeonById, dungeonStage, dungeonReward, towerStage, towerReward,
+    STATS, SQUADS, squadOf, CODEX_STAT, CODEX_VAL, CODEX_STAR_VAL, CODEX_TIERS, CODEX_STEP, codexStat, codexStarNext, codexStarClaim,
+    TITLES, TITLE_CATS, TITLE_LV_NEED, TITLE_LV_MAX, TITLE_LV_FX, titleById, titleProgress, titleCheck, titleLevel, titleEquip,
+    CARDS, CARD_GRADES, CARD_SLOTS, CARD_MAX, COMBINE_UP, cardById, cardValue, cardAdd, cardRoll, cardStarNeed, cardStarUp, cardStarAll, cardSpare, cardCombine, cardCombineAll, deckToggle, deckAuto, deckOn,
+    COSTUMES, costumeById, costumeBuy, costumeWear, PASSIVE, PASSIVE_OPEN, passiveOf, LORE_GEMS, loreRead, heroLvRefund, heroLvReset, accNeed, accAdd, teamNameError, teamRename, makeUid, statBonus, battleMods,
     chalHp, chalAtk, clearDungeon, sweepDungeon, clearTower, missionAdd, missionClaim, missionBonus, progress, canAttend, attend,
   };
 
@@ -3383,7 +3835,7 @@ const team = () => C.partyIds(S).map(id => C.heroById(id));
 const RANKS = ['신입 수사관', '정식 수사관', '선임 수사관', '수석 수사관', '수사팀장', '특수 수사관'];   // 프로필 계급 (구역 10스테이지마다 하나씩)
 /** 전투력: 출전 요원의 공격력 ×10 + 체력 합 (세나 키우기 전투력처럼 한 숫자로) */
 let SYN = { atk: 1, hp: 1, cd: 1, lines: [] };   // 핵심 버프 (편성이 바뀔 때 syncHeroes 에서 갱신)
-function teamPower() { const y = C.synergy(S); return Math.round(team().reduce((a, h) => { const d = S.heroes[h.id]; return a + C.heroAtk(h.id, d.lv, d.stars, S.up.atk) * y.atk * 10 + C.heroHp(h.id, d.lv, d.stars) * y.hp; }, 0)); }
+function teamPower() { const y = C.battleMods(S); return Math.round(team().reduce((a, h) => { const d = S.heroes[h.id]; return a + C.heroAtk(h.id, d.lv, d.stars, S.up.atk) * y.atk * 10 + C.heroHp(h.id, d.lv, d.stars) * y.hp; }, 0)); }
 const HERO_SIZE = 50;
 // 진형: [앞(이동 방향), 옆] 오프셋. 근접은 앞줄, 원거리는 뒷줄 (파티가 바뀌면 다시 나눔)
 const FRONT = [[30, -16], [32, 18], [38, 1]], BACK = [[-20, -30], [-40, 4], [-18, 32], [-36, -12]];
@@ -3408,7 +3860,7 @@ function partyChanged() {
   partyKey = '';
 }
 function syncHeroes(full) {
-  SYN = C.synergy(S);
+  SYN = C.battleMods(S);   // 편성 버프 × 칭호, 도감, 증거 카드, 복장, 고유 능력
   for (const h of team()) {
     const d = S.heroes[h.id], max = C.heroHp(h.id, d.lv, d.stars) * SYN.hp;
     const r = R.heroes[h.id];
@@ -3486,6 +3938,7 @@ function chalEnd(win, reason) {
   let rw = null;
   try {
     if (win) rw = ch.kind === 'tower' ? C.clearTower(S) : C.clearDungeon(S, ch.id, ch.lv);
+    if (win && ch.kind === 'tower') dropCard();   // 균열 심층 한 층 돌파마다 증거 카드 1장
     if (win && ch.kind !== 'tower') dsel[ch.id] = S.dbest[ch.id] + 1;   // 깨면 다음 단계를 골라 둠
   } catch (e) { toast(e.message); }
   // 결과 창 없이: 가운데 알림과 위쪽 보상 알림만 띄우고 잠깐 뒤 원래 스테이지로 (세나 키우기 던전처럼 흐름을 끊지 않음)
@@ -3527,9 +3980,9 @@ let dmgSrc = null;
 const DPS = { d: {}, t: 0, on: true };
 function damage(e, base) {
   if (!e || e.hp <= 0) return;
-  const crit = Math.random() < C.critChance(S.up.crit);
-  // 스캐너 표식이 붙은 적은 받는 피해 증가
-  const dmg = base * (R.buff > 0 ? 1.5 : 1) * (crit ? C.CRIT_DMG : 1) * (e.mark > 0 ? 1 + (e.markAmp || 0) : 1);
+  const crit = Math.random() < Math.min(0.75, C.critChance(S.up.crit) + (SYN.crit || 0));
+  // 스캐너 표식이 붙은 적은 받는 피해 증가. 근원체에게는 근원체 피해 보너스
+  const dmg = base * (R.buff > 0 ? 1.5 : 1) * (crit ? C.CRIT_DMG + (SYN.cdmg || 0) : 1) * (e.mark > 0 ? 1 + (e.markAmp || 0) : 1) * (e.boss ? SYN.boss || 1 : 1);
   e.hp -= dmg; e.hit = 0.14; if (dmgSrc) { DPS.d[dmgSrc] = (DPS.d[dmgSrc] || 0) + Math.min(dmg, Math.max(0, e.hp + dmg)); } e.aggro = true;
   if (crit || base > 0 && R.skillHit) e.flash = 0.09;   // 흰 번쩍은 센 타격에만
   // 밀려남: 요원 팀 쪽에서 바깥으로. 근원체는 거의 안 밀림
@@ -3545,16 +3998,17 @@ function kill(e) {
   if (!e.boss && Math.random() < 0.7) fxPic('fx_blood', e.x, e.y - e.size * 0.5, e.size * 2.2, e.size * 2.2, 0.45, { rot: Math.random() * 6.28, grow: 0.6, a: 0.9 });
   if (e.boss && R.chal) chalEnd(true);
   else if (e.boss) {
-    const gold = C.bossGold(S.stage, S.up.gold);
+    const gold = C.bossGold(S.stage, S.up.gold) * (SYN.gold || 1);
     S.gold += gold; S.gems += C.CONST.BOSS_GEMS; S.exp += C.bossExp(S.stage);
     const prevSt = S.stage;
     sfx('boom', 0.9, 0.5); fxPic('fx_fire', e.x, e.y - e.size * 0.5, e.size * 4, e.size * 4, 0.8, { grow: 0.6 }); fxPic('fx_light', e.x, e.y - e.size * 0.5, e.size * 5, e.size * 5, 0.5); setTimeout(() => fxPic('fx_gold', e.x, e.y - e.size * 0.6, e.size * 3.2, e.size * 3.2, 0.9, { grow: 0.5 }), 250); setTimeout(() => sfx('coins', 0.7, 0.3), 350);
     stageClear({ gold, gems: C.CONST.BOSS_GEMS, exp: C.bossExp(S.stage) });
-    S.stage++; S.kills = 0; R.boss = null; S.farming = false; C.progress(S, 'boss', 1); C.addTickets(S, 0, 1);
+    S.stage++; S.kills = 0; R.boss = null; S.farming = false; C.progress(S, 'boss', 1); C.addTickets(S, 0, 1); accXp(20);
+    if (Math.random() < 0.35) dropCard(e.x, e.y - e.size * 1.3);   // 근원체를 잡으면 가끔 증거 카드
     addText(e.x, e.y - e.size, '+' + C.formatNum(gold), '#ffd23a', true);
     writeSave(); renderPanel(); unlockCheck(prevSt);
   } else {
-    S.gold += C.killGold(S.stage, S.up.gold) * (C.adBuffOn(S, Date.now()) ? 1.1 : 1); S.exp += C.killExp(S.stage); C.progress(S, 'kill', 1); C.addTickets(S, 1);
+    S.gold += C.killGold(S.stage, S.up.gold) * (C.adBuffOn(S, Date.now()) ? 1.1 : 1) * (SYN.gold || 1); S.exp += C.killExp(S.stage); C.progress(S, 'kill', 1); C.addTickets(S, 1); accXp(1);
     if (!S.farming && S.kills < C.CONST.WAVE_KILLS) S.kills++;
   }
   for (let i = 0; i < (e.boss ? 26 : 9); i++) { const a = Math.random() * 6.28, v = 20 + Math.random() * (e.boss ? 90 : 50);
@@ -3568,7 +4022,7 @@ function bossFail(reason) {
   if (!R.boss) return;
   if (R.chal) return chalEnd(false, reason);
   R.enemies = R.enemies.filter(en => en !== R.boss); R.boss = null;
-  S.farming = true; S.kills = 0;
+  S.farming = true; S.kills = 0; C.progress(S, 'lose', 1);
   banner(reason); writeSave();
 }
 
@@ -4213,8 +4667,10 @@ function updateUI() {
   const lead = S.face && S.heroes[S.face] && S.heroes[S.face].owned ? C.heroById(S.face) : team()[0];
   if (lead) { const src = ART['id_' + lead.id] || ART['card_' + lead.id] || portrait(lead.id); if ($('pfImg').getAttribute('src') !== src) $('pfImg').src = src; }
   const chap = Math.floor((S.stage - 1) / 10);
-  $('pfLv').textContent = S.stage; $('pfRank').textContent = RANKS[Math.min(chap, RANKS.length - 1)];
-  $('pfBar').style.width = (((S.stage - 1) % 10) * 10 + 10 * Math.min(1, S.kills / C.CONST.WAVE_KILLS)).toFixed(1) + '%';
+  // 수사팀 레벨과 경험치 막대, 이름, 장착 칭호(없으면 구역 계급)
+  const ttl = C.titleById(S.ttEq);
+  $('pfLv').textContent = S.acc.lv; $('pfName').textContent = S.tname; $('pfRank').textContent = ttl ? ttl.name : RANKS[Math.min(chap, RANKS.length - 1)];
+  $('pfBar').style.width = Math.min(100, S.acc.xp / C.accNeed(S.acc.lv) * 100).toFixed(1) + '%';
   $('power').textContent = C.formatNum(teamPower());
   if ($('app').classList.contains('herofull')) { $('phPw').textContent = C.formatNum(teamPower()); $('phExp').textContent = C.formatNum(S.exp); $('phGold').textContent = C.formatNum(S.gold); }
   $('gems').textContent = C.formatNum(C.gemTotal(S));
@@ -4347,19 +4803,12 @@ function formHtml() {
     <p class="fhint">요원을 누르면 출전하거나 빠져요. 근접 요원은 앞줄, 원거리 요원은 뒷줄에 서요.</p>
     <div class="agrid">${sortHeroes(owned(), pids).map(h => agentCard(h, pids, 'fpick')).join('')}</div>`;
 }
-function codexHtml() {
-  const n = owned().length;
-  const rd = C.HEROES.some(h => (C.codexNext(S, h.id) || {}).ready);
-  return `<button class="cdx" data-act="cdxagents"><img src="${ART.op_key || ''}" alt=""><b>요원 도감</b><span>모은 요원 ${n} / ${C.HEROES.length}</span>${rd ? '<i class="dot on"></i>' : ''}</button>
-    <button class="cdx lock" data-act="cdxlock" data-v="51"><img src="${ART.op_boss || ''}" alt=""><b>사건 도감</b><span>스테이지 51 달성 시 열려요</span></button>
-    <button class="cdx lock" data-act="cdxlock" data-v="121"><img src="${ART.op_nf || ''}" alt=""><b>복장 도감</b><span>스테이지 121 달성 시 열려요</span></button>`;
-}
 function renderPanel() {
   const P = $('panel');
   if (tab === 'hero') {
     // 요원 창 (세나 키우기 영웅 창처럼): 아래 작은 탭으로 요원 관리 / 편성 / 도감
     for (const x of $('hsub').children) x.classList.toggle('on', x.dataset.hsub === hsub);
-    P.innerHTML = hsub === 'form' ? formHtml() : hsub === 'codex' ? codexHtml() : manageHtml();
+    P.innerHTML = hsub === 'form' ? formHtml() : hsub === 'codex' ? codexHtml() : hsub === 'team' ? teamHtml() : manageHtml();
   } else if (tab === 'train') {
     // 세나 키우기 영향력 창처럼: 단계 + 막대, ×1/×10/×100, 강화 카드 3장, 아래 잠긴 탭
     const ic = { atk: 'sword', gold: 'gold', crit: 'target' };
@@ -4801,7 +5250,7 @@ let hpageId = null;
 const GRADE_COL = { 희귀: '#4f8fe0', 영웅: '#b35ee0', 전설: '#f0a531', 각성: '#ff3d55' };
 /** 별 표시: ★1~5, 각성이면 붉은 별 5개 + 각성 */
 const starHtml = (n, sp = 's') => n >= 6 ? `<b class="awk-st">★★★★★</b>` : '★'.repeat(n) + `<${sp}>${'★'.repeat(C.CONST.MAX_STARS - n)}</${sp}>`;
-const bigArt = id => ART['big_' + id] || ({ mage: ART.op_blaze, dark: ART.op_nf })[id] || ART['card_' + id] || portrait(id);
+const bigArt = id => (S.cosEq && S.cosEq[id] && ART['cos_' + S.cosEq[id]]) || ART['big_' + id] || ({ mage: ART.op_blaze, dark: ART.op_nf })[id] || ART['card_' + id] || portrait(id);
 function openHeroDetail(id) {
   if (!$('app').classList.contains('herofull')) openHeroWin();
   hpageId = id; detId = id;
@@ -4811,23 +5260,38 @@ function openHeroDetail(id) {
 function closeHeroPage() { if (!hpageId) return; hpageId = null; detId = null; $('app').classList.remove('hdopen'); renderPanel(); }
 function renderHeroPage() {
   const id = hpageId; if (!id) return;
-  const h = C.heroById(id), d = S.heroes[id], gr = C.heroGrade(S, id), col = GRADE_COL[gr];
+  const h = C.heroById(id), d = S.heroes[id];
+  let gr = C.heroGrade(S, id), col = GRADE_COL[gr];
+  if (hpAwk && h.grade === '전설') gr = '각성';
   const list = hsub === 'manage' && !ownOnly ? sortHeroes(C.HEROES.filter(x => hfil === '전체' || x.type === hfil), C.partyIds(S)) : sortHeroes(owned(), C.partyIds(S));
   const i = list.findIndex(x => x.id === id);
   const sp = ART['spr_' + id];
+  const awkPrev = hpAwk && h.grade === '전설';
+  if (awkPrev) col = GRADE_COL['각성'];
+  $('hpage').classList.toggle('sdview', hpSd); $('hpage').classList.toggle('awkview', awkPrev);
   $('hpage').style.setProperty('--gc', col);
   $('hpage').innerHTML = `<img class="hp-bg" src="${bigArt(id)}" alt="">
-    <div class="hp-tags"><span><i class="tic t-${h.type}"><svg><use href="#i-t-${h.type}"/></svg></i>${h.type}형</span><span><i class="tic" style="color:${col}"><svg><use href="#i-t-${h.type}"/></svg></i>${h.role}</span></div>
+    <div class="hp-tags"><span><i class="tic t-${h.type}"><svg><use href="#i-t-${h.type}"/></svg></i>${h.type}형</span><span><i class="tic" style="color:${col}"><svg><use href="#i-t-${h.type}"/></svg></i>${h.role}</span><span class="sq"><i class="tic sqi">${C.squadOf(id).name.slice(0, 1)}</i>${C.squadOf(id).name}</span>
+      ${h.grade === '전설' ? `<button class="hp-awk ${hpAwk ? 'on' : ''}" data-act="hpawk">${hpAwk ? '현재 정보 보기' : '각성 정보 보기'}</button>` : ''}</div>
+    <div class="hp-side">
+      <button data-act="hpstats" aria-label="능력치"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg><small>능력치</small></button>
+      <button data-act="hplore" aria-label="기록"><svg viewBox="0 0 24 24"><path d="M4 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4zM20 4h-4a2 2 0 0 0-2 2" stroke="currentColor" stroke-width="2" fill="none"/></svg><small>기록</small>${S.lore.includes(id) ? '' : '<i class="dot on"></i>'}</button>
+      <button data-act="hpcos" aria-label="복장"><svg viewBox="0 0 24 24"><path d="M8 3l4 3 4-3 5 4-3 4-2-1v11H8V10l-2 1-3-4z" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></svg><small>복장</small></button>
+      <button data-act="hpsd" aria-label="보기 전환" class="${hpSd ? 'on' : ''}"><svg viewBox="0 0 24 24"><path d="M4 7h13l-3-3M20 17H7l3 3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><small>${hpSd ? '전신' : '현장'}</small></button>
+      ${d.owned ? `<button data-act="hpreset" aria-label="레벨 초기화"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg><small>초기화</small></button>` : ''}
+    </div>
     <div class="hp-grade" style="--gc:${col}"><img class="gi${gr === '각성' ? ' awk-em' : ''}" src="${ART['ic_' + ({ 희귀: 'g_rare', 영웅: 'g_hero', 전설: 'g_legend', 각성: 'g_awake' })[gr]] || ''}" alt=""><b>${gr}</b>${h.limited ? '<small>한정</small>' : ''}</div>
     ${list.length > 1 ? `<button class="hp-nav l" data-act="hpnav" data-h="${list[(i - 1 + list.length) % list.length].id}" aria-label="이전 요원">‹</button><button class="hp-nav r" data-act="hpnav" data-h="${list[(i + 1) % list.length].id}" aria-label="다음 요원">›</button>` : ''}
     <div class="hp-sd">${sp ? `<img src="${sp}" alt="">` : `<img class="face" src="${portrait(id)}" alt="">`}</div>
     <div class="hp-mid">
-      <button class="hp-skill" data-act="hpskill" style="--gc:${col}"><span>${h.skill.name}</span><small>재사용 ${h.skill.cd}초</small></button>
-      <div class="hp-stars">${starHtml(d.stars, 'span')}</div>
+      <div class="hp-sks"><button class="hp-sk" data-act="hpatk"><i>${icon('s_atk')}</i><small>일반 공격</small></button>
+        <button class="hp-skill" data-act="hpskill" style="--gc:${col}"><span>${h.skill.name}</span><small>재사용 ${h.skill.cd}초</small></button>
+        <button class="hp-sk ${C.passiveOf(S, id).on ? '' : 'lk'}" data-act="hppas"><i>${stIc(C.passiveOf(S, id).stat)}</i><small>고유 능력</small></button></div>
+      <div class="hp-stars">${starHtml(hpAwk && h.grade === '전설' ? C.AWAKE_STAR : d.stars, 'span')}</div>
       <div class="hp-name"><b>${h.name}</b><div><span>Lv.<i id="hpLv"></i></span><span class="pw">${icon('s_power')}<i id="hpPw"></i></span></div></div>
     </div>
     <div class="hp-desc">${skillText(h)}</div>
-    ${d.owned ? `<div class="hp-stats"><span>${icon('s_atk')}<b id="hpAtk"></b></span><span>${icon('s_hp')}<b id="hpHp"></b></span><span>${icon('s_cd')}<b>${h.skill.cd}초</b></span></div>
+    ${d.owned ? `<div class="hp-stats"><span data-act="hpstat" data-k="atk">${icon('s_atk')}<b id="hpAtk"></b></span><span data-act="hpstat" data-k="hp">${icon('s_hp')}<b id="hpHp"></b></span><span data-act="hpstat" data-k="cd">${icon('s_cd')}<b>${h.skill.cd}초</b></span></div>
     <div class="hp-btns">
       <button class="hp-b sm" data-act="${C.partyIds(S).includes(id) ? 'party' : 'hpjoin'}" data-h="${id}" id="hpParty"></button>
       <button class="hp-b star ${h.grade === '전설' && d.stars >= 5 ? 'awk' : ''}" data-act="star" data-h="${id}" id="hpStar"><b>${h.grade === '전설' && d.stars >= 5 ? '각성' : '승급'}</b><span class="pill2"><svg class="ic" viewBox="0 0 24 24"><rect x="5" y="3" width="12" height="17" rx="2" fill="#3a4566" stroke="#c9d3ee" stroke-width="1.4"/><path d="M11 8l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.8 2.6-.4z" fill="#f2c94c"/></svg><i id="hpSh"></i></span></button>
@@ -4841,7 +5305,8 @@ function fillHeroDetail() {
   const h = C.heroById(id), d = S.heroes[id];
   if (!d.owned) return;
   $('hpLv').textContent = d.lv;
-  const atk = C.heroAtk(id, d.lv, d.stars, S.up.atk), hp = C.heroHp(id, d.lv, d.stars);
+  const st = hpAwk && h.grade === '전설' ? C.AWAKE_STAR : d.stars;   // 각성 정보 보기: ★6 기준 능력치
+  const atk = C.heroAtk(id, d.lv, st, S.up.atk), hp = C.heroHp(id, d.lv, st);
   $('hpPw').textContent = C.formatNum(Math.round(atk * 10 + hp));
   $('hpAtk').textContent = C.formatNum(atk); $('hpHp').textContent = C.formatNum(hp);
   const pids = C.partyIds(S), inP = pids.includes(id), pb = $('hpParty');
@@ -4888,7 +5353,7 @@ function onAct(e) {
     }
     else if (act === 'hfil') { hfil = b.dataset.v; renderPanel(); }
     else if (act === 'hfilc') { const L = ['전체', ...C.TYPES]; hfil = L[(L.indexOf(hfil) + 1) % L.length]; renderPanel(); }   // 분류 버튼: 누를 때마다 다음 분류
-    else if (act === 'hpnav') { hpageId = detId = b.dataset.h; renderHeroPage(); }
+    else if (act === 'hpnav') { hpageId = detId = b.dataset.h; hpAwk = false; renderHeroPage(); }
     else if (act === 'hpskill') { const h = C.heroById(hpageId); openModal(`<div class="sktip"><div class="sk-h"><img src="${ART['id_' + h.id] || portrait(h.id)}" alt=""><div><small>기술</small><b>${h.skill.name}</b></div><span>재사용 ${h.skill.cd}초</span></div><p>${skillText(h)}</p><div class="mbtns"><button class="btn" data-close>확인</button></div></div>`); }
     else if (act === 'hpbulk') { bulk = bulk === 1 ? 10 : bulk === 10 ? 0 : 1; fillHeroDetail(); }
     else if (act === 'hpjoin') {
@@ -4912,6 +5377,10 @@ function onAct(e) {
       partyChanged(); renderPanel(); writeSave(); toast('전투력이 높은 요원으로 편성했어요');
     }
     else if (act === 'cdxagents') openModal(cdxHtml());
+    else if (act === 'cdxtitle') return openTitles();
+    else if (act === 'cdxcos') { cosOnly = ''; return openModal(cosHtml()); }
+    else if (['tmcard', 'tmback', 'cdtab', 'cdauto', 'cdstar', 'cdbox', 'cdmix', 'cdmixall', 'cdgrade', 'cdrate', 'cdhelp'].includes(act)) return cardAct(act, b);
+    else if (act.startsWith('hp') && ['hpstats', 'hpstat', 'hpatk', 'hppas', 'hplore', 'hpcos', 'hpsd', 'hpawk', 'hpreset'].includes(act)) return hpAct(act, b);
     else if (act === 'cdxlock') toast(`스테이지 ${b.dataset.v} 달성 시 열려요`);
     else if (act === 'hsort') { hsort = (hsort + 1) % HSORT.length; try { localStorage.setItem('aiu-hsort', hsort); } catch (e) {} renderPanel(); toast(`${HSORT[hsort]} 정렬`); }
     else if (act === 'party' || act === 'pswap') {
@@ -5154,7 +5623,7 @@ function doSummon(n, kind) {
 
 /* ---------- 모달 ---------- */
 /** 창 열기. 같은 창을 다시 그릴 때(보상 받기 뒤 새로 고침 등)는 스크롤 위치를 그대로 둠 */
-const SCROLLERS = '.mbody,.ps,.road,.book,.cxl,.mlist,.ai-log';
+const SCROLLERS = '.mbody,.ps,.road,.book,.cxl,.mlist,.ai-log,.tt-list,.cxrs,.cosl,.hstw,.pf2,.lore-p';
 function openModal(html, onClose) {
   const m = $('modal'), was = m.classList.contains('on') ? (m.querySelector('.mbody h2') || {}).textContent : null;
   const keep = was ? [...m.querySelectorAll(SCROLLERS)].map(e => e.scrollTop) : null;
@@ -5356,24 +5825,6 @@ modalEl.addEventListener('click', e => {
 });
 
 /* ---------- 프로필 창: 대표 얼굴 바꾸기, 수사팀 능력치 ---------- */
-function openProfile() {
-  const own = C.HEROES.filter(h => S.heroes[h.id].owned), cur = S.face || (team()[0] || {}).id;
-  const chap = Math.floor((S.stage - 1) / 10);
-  openModal(`<h2>프로필</h2><div class="pfw-h"><img src="${ART['id_' + cur] || portrait(cur)}" alt=""><div><b>AIU 수사팀</b><small>Lv.${S.stage} ${RANKS[Math.min(chap, RANKS.length - 1)]}</small></div></div>
-    <div class="optg">대표 얼굴</div><div class="pfw-g">${own.map(h => `<button data-face="${h.id}" class="${h.id === cur ? 'on' : ''}" aria-label="${h.name}"><img src="${ART['id_' + h.id] || portrait(h.id)}" alt=""></button>`).join('')}</div>
-    <div class="optg">수사팀 능력치</div><div class="pfw-s">
-      <div><span>전투력</span><b>${C.formatNum(teamPower())}</b></div>
-      <div><span>보유 요원</span><b>${own.length} / ${C.HEROES.length}</b></div>
-      <div><span>사격 훈련</span><b>Lv.${S.up.atk}</b></div><div><span>현상금 협상</span><b>Lv.${S.up.gold}</b></div><div><span>급소 노리기</span><b>Lv.${S.up.crit}</b></div>
-      <div><span>균열 심층</span><b>${S.tower}층</b></div></div>
-    <div class="mbtns"><button class="btn" data-close>닫기</button></div>`);
-}
-$('prof').addEventListener('click', openProfile);
-modalEl.addEventListener('click', e => {
-  const f = e.target.closest('[data-face]'); if (!f) return;
-  S.face = f.dataset.face; writeSave(); updateUI(); openProfile();
-});
-
 /* ---------- 구역 근원체 첫 등장 이야기 ---------- */
 const STORY = [
   [['op_nf', '나이트폴', '빗속에 우산을 쓴 남자가 서 있다. 저게 이 골목 균열의 근원이다.'], ['op_blaze', '블레이즈', '비 오는 날 우산이라… 태우기 딱 좋네요.']],
@@ -5409,22 +5860,378 @@ function pwUp(before) {
 }
 
 /* ---------- 요원 도감: 레벨 달성 보상 ---------- */
-function cdxHtml() {
-  const any = C.HEROES.some(h => (C.codexNext(S, h.id) || {}).ready);
-  return `<h2>요원 도감</h2><p class="hint">요원 레벨 10마다 보석을 받아요. 모은 요원 ${owned().length} / ${C.HEROES.length}</p><div class="cxl">${C.HEROES.map(h => {
-    const d = S.heroes[h.id], n = C.codexNext(S, h.id), face = `<img src="${ART['id_' + h.id] || portrait(h.id)}" alt="" style="--gc:${GRADE_COL[C.heroGrade(S, h.id)]}">`;
-    if (!d.owned) return `<div class="cx off">${face}<div><b>${h.name}</b><small>아직 만나지 못한 요원</small></div></div>`;
-    if (!n) return `<div class="cx">${face}<div><b>${h.name}</b><small>도감 보상을 모두 받았어요</small></div></div>`;
-    return `<div class="cx">${face}<div><b>${h.name}</b><small>레벨 ${n.lv} 달성 (현재 ${d.lv})</small><div class="rd-bar"><i style="width:${Math.min(100, d.lv / n.lv * 100)}%"></i></div></div>
-      <button class="btn sm" data-cx="${h.id}" ${n.ready ? '' : 'disabled'}>${icon('gem')}${n.gems}</button></div>`;
-  }).join('')}</div><div class="mbtns"><button class="btn ghost" data-close>닫기</button><button class="btn" data-cx="all" ${any ? '' : 'disabled'}>모두 받기</button></div>`;
-}
 modalEl.addEventListener('click', e => {
   const b = e.target.closest('[data-cx]'); if (!b) return;
-  const g = C.codexClaim(S, b.dataset.cx === 'all' ? undefined : b.dataset.cx); if (!g) return;
-  writeSave(); modalEl.classList.remove('on'); renderPanel(); showResult('gift', '보상 획득', rwTiles({ gems: g }));
+  const all = b.dataset.cx === 'all', g = C.codexClaim(S, all ? undefined : b.dataset.cx) + (all ? C.codexStarClaim(S) : 0); if (!g) return;
+  writeSave(); modalEl.classList.remove('on'); refreshMods(); renderPanel(); showResult('gift', '보상 획득', rwTiles({ gems: g }));
 });
 
+
+/* ---------- 요원 기록 (요원 상세의 기록 책): 한 편 읽으면 보석 한 번 ---------- */
+const LORE = {
+  dark: '비 오는 밤에만 나타난다는 해결사. AIU를 처음 만든 사람 중 하나지만 자기 이야기는 하지 않는다.\n\n그의 그림자는 주인보다 반 박자 먼저 움직인다. 근원체를 쫓을 때면 늘 혼자 앞서 나가, 동료들이 도착했을 땐 이미 끝나 있곤 한다.',
+  mage: '소방관 출신 폭파 전문가. 불을 끄던 손으로 이제는 불을 붙인다.\n\n화재 현장에서 처음 이상체를 마주친 날, 소방 호스 대신 화염병을 집어 들었다. 그 뒤로 나이트폴이 직접 데려왔다는 소문이 있다.',
+  archer: '옥상 위의 눈. 2킬로미터 밖 표적도 놓치지 않는 저격수.\n\n말수가 적고 커피를 많이 마신다. 근원체가 나타나면 누구보다 먼저 자리를 잡고, 마지막 한 발은 꼭 자기가 쏜다.',
+  knight: '팀의 방패. 진압 기동대에서 10년을 버틴 사람.\n\n앞에 서는 것이 당연하다고 생각한다. 동료가 다치는 걸 보느니 자기가 맞는 편이 낫다며 늘 맨 앞으로 걸어 나간다.',
+  priest: '응급실 간호사였다. 지금은 현장에서 가장 바쁜 요원.\n\n이상체에게 다친 상처는 병원에서 낫지 않는다는 걸 알고 AIU에 들어왔다. 피곤해도 웃는 얼굴을 잃지 않는다.',
+  scanner: '드론과 센서를 다루는 탐지 담당. 화면 너머로 균열을 본다.\n\n현장에 직접 나가는 걸 썩 좋아하지 않지만, 그가 찍은 표식이 없으면 아무도 근원체를 찾지 못한다.',
+  breaker: '닫힌 문은 그에게 의미가 없다. 돌파 전문 요원.\n\n건설 현장에서 일하다 무너진 건물 아래서 이상체를 처음 봤다. 그날 이후 망치를 놓지 않는다.',
+  echo: '소리로 싸우는 교란 담당. 음향 엔지니어 출신.\n\n이상체가 특정 주파수에 약하다는 걸 처음 알아낸 사람이다. 헤드폰을 벗은 모습을 본 동료는 거의 없다.',
+  requiem: '마지막 기도를 올리는 퇴마사. 장례식장에서 일했다.\n\n떠나지 못한 것들을 보내 주는 게 자기 일이라고 말한다. 근원체 앞에서도 목소리가 떨리지 않는다.',
+  ironside: '움직이는 요새. 강철 방벽을 세우는 방호 요원.\n\n원래는 항만 크레인 기사였다. 컨테이너를 들어 올리던 힘으로 이제는 동료들을 지킨다.',
+  blackbox: '무엇이든 상자에 가둔다. 격리 전문 요원.\n\n그가 가둔 이상체가 어디로 가는지는 아무도 모른다. 본인도 모른다고 하지만, 아무도 그 말을 믿지 않는다.',
+  ghost: '보이지 않는 처형자. 기록이 남지 않는 요원.\n\nAIU 명단에 이름이 없던 시절도 있었다. 지금도 회의에는 나오지 않고, 일이 끝나면 조용히 사라진다.',
+  patrol: '골목마다 얼굴이 알려진 순찰 경관.\n\n동네 할머니들이 그를 부르면 무슨 일이든 달려간다. 경찰봉 하나로 이상체를 막아 낸 이야기는 이제 지구대의 전설이다.',
+  sniff: '냄새로 균열을 찾는 추적 요원.\n\n이상체가 지나간 자리엔 비 냄새가 난다고 한다. 비 오는 날이면 그의 코는 쉴 틈이 없다.',
+  rookie: '이제 막 배치된 신입. 의욕만큼은 누구에게도 지지 않는다.\n\n사격 점수는 아직 평범하지만, 탄창을 가는 속도만큼은 롱샷도 인정했다.',
+  flare: '어둠을 걷어 내는 조명 담당.\n\n이상체는 빛을 싫어한다. 그래서 그는 늘 조명탄을 넉넉히 챙긴다. 밤하늘을 밝히는 순간을 가장 좋아한다.',
+  medic: '전장의 구급 요원. 진통제와 붕대를 가방 가득 들고 다닌다.\n\n헤일로를 선배로 모신다. 언젠가 선배처럼 웃으며 동료를 살리는 게 꿈이다.',
+  bulwark: '방패 벽을 세우는 경비 요원.\n\n은행 경비원으로 일하다 금고 앞에서 이상체를 막아 낸 뒤 AIU의 연락을 받았다.',
+  wire: '와이어 덫을 까는 함정 전문가.\n\n등산 동호회 출신이라 매듭이라면 자신 있다. 그가 지나간 골목은 이상체에게 거미줄이다.',
+  tracer: '끝까지 쫓아가는 추격 요원.\n\n육상 선수였다. 도망치는 이상체를 놓쳐 본 적이 없다는 게 자랑이다.',
+  static: '전기를 다루는 요원. 테이저 그물로 이상체를 묶는다.\n\n전기 기사 시절 감전 사고를 겪은 뒤로 몸에 정전기가 끊이지 않는다고 한다.',
+  crowbar: '지렛대 하나로 무엇이든 뜯어내는 해체 전문가.\n\n폐건물에 숨은 이상체를 꺼내는 게 그의 일이다. 공구 가방은 늘 묵직하다.',
+  lens: '현장 감식 요원. 아무도 못 본 흔적을 찾아낸다.\n\n그의 조명 아래서는 이상체의 약점까지 드러난다. 사진 찍는 게 취미다.',
+  hound: '사냥개처럼 물면 놓지 않는 요원.\n\n어릴 적 유기견들과 함께 자랐다고 한다. 동물들은 이상하게 그를 따른다.',
+  smoke: '연막 속에서 움직이는 요원.\n\n연막이 걷히면 이상체는 이미 정리되어 있다. 본인은 담배를 피우지 않는다고 늘 강조한다.',
+  salt: '소금탄을 쏘는 정화 요원. 할머니에게 배운 비법이라고 한다.\n\n다들 미신이라고 웃었지만, 그의 소금탄은 이상체에게 확실히 통한다.',
+  viper: '독침을 쓰는 협력관. 전직은 비밀로 하고 있다.\n\n조용히 다가가 한 번 찌르고 물러난다. 누구도 그가 다가오는 걸 눈치채지 못한다.',
+  thunder: '하늘에서 번개를 내리꽂는 전격 요원.\n\n기상청 연구원이었다. 번개가 이상체를 지운다는 걸 직접 보고 연구실을 나왔다.',
+  warden: '교도소에서 파견 온 교도관.\n\n가장 위험한 수감자들을 다루던 사람이다. 이상체라고 다를 건 없다고 말한다.',
+  chapel: '축복을 내리는 성직자. 작은 성당의 신부.\n\n신도들이 하나둘 사라지는 사건을 쫓다 AIU를 만났다. 동료들을 위해 매일 밤 기도한다.',
+  frost: '액체 질소로 모든 걸 얼리는 냉각 요원.\n\n화학 연구소 출신. 차가운 표정과 달리 동료들 생일은 하나도 빼먹지 않는다.',
+  raven: '까마귀 떼를 부리는 정찰 요원.\n\n도시의 까마귀들이 그녀를 따른다. 그녀가 모르는 골목은 이 도시에 없다.',
+  anchor: '바다에서 온 잠수 요원. 닻을 무기로 쓴다.\n\n해경 특수구조대 출신이다. 깊은 물속 균열을 처음 막아 낸 사람이다.',
+  cipher: '암호와 약점을 해독하는 분석 요원.\n\n이상체에도 패턴이 있다고 믿는다. 그녀의 노트에는 아무도 읽지 못하는 기호가 가득하다.',
+  jackal: '현상금 사냥꾼 출신 추적자.\n\n돈 때문에 시작했지만 지금은 다른 이유로 남아 있다. 그 이유는 아직 말하지 않았다.',
+  mirror: '거울 속에 이상체를 가두는 요원.\n\n골동품 거울 가게를 운영했다. 가게의 거울 하나가 아직도 가끔 혼자 흐려진다고 한다.',
+  inferno: '화염 방사기를 든 협력관. 블레이즈와는 오랜 경쟁 상대다.\n\n누가 더 많이 태우는지 내기를 하다 둘 다 경고를 받은 적이 있다.',
+  saint: '성수탄을 쏘는 퇴마 사격수.\n\n신학교를 중퇴하고 사격장에서 일했다. 두 가지를 합치니 이 일에 딱 맞았다.',
+  dozer: '장갑을 두른 돌격 요원. 불도저처럼 밀고 들어간다.\n\n중장비 기사 출신. 멈추는 법을 모른다는 말을 칭찬으로 듣는다.',
+  pulse: '심박을 읽어 동료를 살리는 의료 요원.\n\n심장내과 의사였다. 동료들의 심장 소리를 전부 외우고 있다.',
+  vortex: '중력을 비트는 요원. 원리는 본인도 설명하지 못한다.\n\n균열에 휘말렸다 살아 돌아온 뒤로 주변 물건이 가끔 떠오른다.',
+  judge: '최종 판결을 내리는 심판자. 전직 판사.\n\n법정에서 다룰 수 없는 죄인들을 쫓아 AIU에 들어왔다. 그의 판결에는 항소가 없다.',
+  aegis: '절대 방벽을 세우는 방호 요원.\n\n그의 방패가 깨진 적은 단 한 번도 없다. 그래서 동료들은 그의 뒤에서 마음 놓고 싸운다.',
+  oracle: '앞날을 보는 예지 요원.\n\n그녀가 고개를 저으면 작전은 바로 취소된다. 다만 자기 미래만은 보이지 않는다고 한다.',
+  eclipse: '해를 가리는 일식의 요원.\n\n그가 나타나면 한낮에도 거리가 어두워진다. 어둠 속에서 이상체만 정확히 지워 낸다.',
+  reaper: '사신의 낫을 든 수확자.\n\n근원체를 가장 많이 거둔 요원이라는 기록을 갖고 있다. 낫에는 지금까지 거둔 수만큼 금이 새겨져 있다.',
+  vault: '봉인 금고를 다루는 요원. 은행 금고 설계자였다.\n\n그가 잠근 금고는 아무도 열지 못한다. 근원체마저도.',
+  phantom: '환영으로 싸우는 요원. 진짜가 어느 쪽인지 아무도 모른다.\n\n마술사로 무대에 섰었다. 관객 대신 이상체를 속이는 지금이 더 재미있다고 한다.',
+  titan: '땅을 울리는 거인. 한 걸음에 거리가 흔들린다.\n\n씨름 선수 출신. 큰 몸집과 달리 고양이를 무서워한다.',
+  exorcist: '도시 전체를 정화하는 대퇴마사.\n\nAIU에서 가장 오래된 기록에 이름이 남아 있다. 그가 다시 나섰다는 건 그만큼 큰 일이 벌어졌다는 뜻이다.',
+};
+
+/* ============================================================
+ * 수집 시스템 화면: 칭호, 요원 도감(소속, 레벨, 승급), 복장, 증거 카드, 요원 기록, 프로필, 요원 상세 추가 기능
+ * 규칙과 계산은 전부 core.js (C.*) 에 있고 여기서는 그리기와 버튼만
+ * ============================================================ */
+const pct = v => { const x = Math.round(v * 10000) / 100; return (x >= 10 ? x.toFixed(1) : x.toFixed(2)).replace(/\.0+$|(\.\d*?)0+$/, '$1') + '%'; };   // 0.3 → 30%, 0.0015 → 0.15%
+const BURST = '<svg class="ic" viewBox="0 0 24 24"><path d="M12 2l2 6 6-3-3 6 6 2-6 2 3 6-6-3-2 6-2-6-6 3 3-6-6-2 6-2-3-6 6 3z" fill="#ff8a5b"/></svg>';
+const stIc = k => k === 'atk' ? icon('s_atk') : k === 'hp' ? icon('s_hp') : k === 'crit' ? icon('s_crit') : k === 'cdmg' ? BURST : k === 'boss' ? (ART.ic_e_boss ? `<img class="ic" src="${ART.ic_e_boss}" alt="">` : BURST) : icon('gold');
+const fxLine = o => Object.entries(o).map(([k, v]) => `${C.STATS[k].name} +${pct(v)}`).join(', ');
+const CARD_COL = { 일반: '#9aa6c2', 희귀: '#4aa3ff', 영웅: '#b07cff', 전설: '#ffcf4a' };
+function refreshMods() { syncHeroes(false); updateUI(); }
+function accXp(n) { if (C.accAdd(S, n)) { banner(`수사팀 레벨 ${S.acc.lv}`); sfx('levelup', 0.6, 0.5); } }
+function dropCard(x, y) {
+  const id = C.cardRoll(Math.random), c = C.cardById(id); C.cardAdd(S, id);
+  if (x != null) addText(x, y, `증거 카드 ${c.name}`, CARD_COL[c.grade], true); else toast(`증거 카드 ${c.name} 획득`);
+  sfx('card', 0.6, 0.3);
+}
+// 칭호: 조건을 채우면 자동으로 얻음 (얻는 순간 가운데 알림)
+setInterval(() => {
+  try {
+    const nw = C.titleCheck(S); if (!nw.length) return;
+    sfx('reward', 0.6, 0.5); banner(`칭호 획득  ${nw[0].name}${nw.length > 1 ? ` 외 ${nw.length - 1}개` : ''}`);
+    refreshMods(); writeSave();
+  } catch (e) { console.error(e); }
+}, 1500);
+if (new Date().getHours() < 5) S.st.night = 1;   // 히든 칭호: 새벽에 접속
+if (!S.uid) { S.uid = C.makeUid(Math.random); writeSave(); }
+
+/* ---------- 프로필 ---------- */
+let pfSrc = '전체';
+function profHtml() {
+  const own = C.HEROES.filter(h => S.heroes[h.id].owned), cur = S.face || (team()[0] || {}).id;
+  const t = C.titleById(S.ttEq), b = C.statBonus(S), src = pfSrc === '전체' ? b : b.src[pfSrc], need = C.accNeed(S.acc.lv);
+  const rows = Object.keys(C.STATS).map(k => `<div><span>${stIc(k)}${C.STATS[k].name}</span><b>+${pct(src[k])}</b></div>`).join('');
+  return `<h2>프로필</h2><div class="pf2">
+    <div class="pf2-h"><img src="${ART['id_' + cur] || portrait(cur)}" alt=""><div class="pf2-i"><div class="pf2-n"><small>Lv.${S.acc.lv}</small><b>${esc(S.tname)}</b></div>
+      <button class="pf2-t ${t ? '' : 'none'}" data-pf="title">${t ? esc(t.name) : '칭호 없음'}</button>
+      <div class="pf2-x"><i style="width:${Math.min(100, S.acc.xp / need * 100)}%"></i><span>${C.formatNum(S.acc.xp)} / ${C.formatNum(need)}</span></div>
+      <small class="pf2-id">수사팀 번호 ${S.uid}</small></div></div>
+    <div class="pf2-b"><button class="btn blue" data-pf="face">대표 얼굴 변경</button><button class="btn blue" data-pf="name">수사팀 이름 변경</button></div>
+    <div class="pf2-s"><div class="pf2-sh"><b>수사팀 능력치</b><button class="pf2-sel" data-pf="src">${pfSrc}<i>▾</i></button></div>
+      <div class="pf2-g">${rows}</div>
+      <div class="pf2-g sub"><div><span>전투력</span><b>${C.formatNum(teamPower())}</b></div><div><span>보유 요원</span><b>${own.length} / ${C.HEROES.length}</b></div><div><span>칭호</span><b>${S.tt.length} / ${C.TITLES.length}</b></div><div><span>균열 심층</span><b>${S.tower}층</b></div></div></div></div>
+    <div class="mbtns"><button class="btn" data-close>닫기</button></div>`;
+}
+function openProfile() { openModal(profHtml()); }
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }
+function faceHtml() {
+  const own = C.HEROES.filter(h => S.heroes[h.id].owned), cur = S.face || (team()[0] || {}).id;
+  return `<h2>대표 얼굴 변경</h2><div class="pfw-g">${own.map(h => `<button data-face="${h.id}" class="${h.id === cur ? 'on' : ''}" aria-label="${h.name}"><img src="${ART['id_' + h.id] || portrait(h.id)}" alt=""></button>`).join('')}</div><div class="mbtns"><button class="btn" data-pf="back">확인</button></div>`;
+}
+function nameHtml(err) {
+  return `<h2>수사팀 이름 변경</h2><div class="nmw"><input id="tnIn" maxlength="8" value="${esc(S.tname)}" autocomplete="off" spellcheck="false"><p class="nm-e">${err || ''}</p>
+    <p class="hint">2~8자, 한글, 영문, 숫자만 쓸 수 있어요.<br>바꾼 뒤 24시간이 지나야 다시 바꿀 수 있어요.</p></div>
+    <div class="mbtns"><button class="btn ghost" data-pf="back">취소</button><button class="btn" data-pf="rename">변경</button></div>`;
+}
+function srcHtml() {
+  return `<h2>능력치 보기</h2><div class="srcw">${['전체', '칭호', '도감', '증거 카드', '복장', '고유 능력'].map(k => `<button class="${pfSrc === k ? 'on' : ''}" data-pfsrc="${k}">${k}</button>`).join('')}</div><div class="mbtns"><button class="btn ghost" data-pf="back">닫기</button></div>`;
+}
+modalEl.addEventListener('click', e => {
+  const f = e.target.closest('[data-face]'); if (f) { S.face = f.dataset.face; writeSave(); updateUI(); openModal(faceHtml()); return; }
+  const sr = e.target.closest('[data-pfsrc]'); if (sr) { pfSrc = sr.dataset.pfsrc; openProfile(); return; }
+  const b = e.target.closest('[data-pf]'); if (!b) return;
+  const k = b.dataset.pf;
+  if (k === 'back') openProfile();
+  else if (k === 'face') openModal(faceHtml());
+  else if (k === 'name') openModal(nameHtml());
+  else if (k === 'src') openModal(srcHtml());
+  else if (k === 'title') openTitles();
+  else if (k === 'rename') {
+    const v = $('tnIn').value;
+    try { C.teamRename(S, v, Date.now()); writeSave(); updateUI(); toast('수사팀 이름을 바꿨어요'); openProfile(); }
+    catch (err) { modalEl.querySelector('.nm-e').textContent = err.message; sfx('error', 0.5, 0.2); }
+  }
+});
+$('prof').addEventListener('click', openProfile);
+
+/* ---------- 칭호 도감 ---------- */
+let ttCat = '', ttQ = '';
+function titlesHtml() {
+  const lv = C.titleLevel(S), n = S.tt.length, nextNeed = Math.min(C.TITLE_LV_MAX, lv + 1) * C.TITLE_LV_NEED;
+  const list = C.TITLES.filter(t => (!ttCat || t.cat === ttCat) && (!ttQ || (S.tt.includes(t.id) || !t.hidden) && t.name.includes(ttQ)))
+    .sort((a, b) => (S.tt.includes(b.id) - S.tt.includes(a.id)) || 0);
+  return `<h2>칭호 도감</h2><div class="ttw">
+    <div class="tt-top"><div class="tt-ring" style="--p:${lv >= C.TITLE_LV_MAX ? 100 : Math.min(100, (n - lv * C.TITLE_LV_NEED) / C.TITLE_LV_NEED * 100)}"><b>Lv.${lv}</b><small>${lv >= C.TITLE_LV_MAX ? '최고' : `${n} / ${nextNeed}`}</small></div>
+      <div class="tt-fx"><div class="tt-fxh">도감 레벨 효과</div><div class="tt-fxl">${C.TITLE_LV_FX.map(f => `<div class="${f.lv <= lv ? 'on' : ''}"><i>${f.lv}</i><span>${C.STATS[f.stat].name} +${pct(f.v)}</span></div>`).join('')}</div></div></div>
+    <div class="tt-bar"><span>보유 ${n} / ${C.TITLES.length}</span><button data-tt="cat">${ttCat || '전체'}<i>▾</i></button><button data-tt="find" aria-label="칭호 검색"><svg viewBox="0 0 24 24" width="16" height="16"><circle cx="10" cy="10" r="6" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M15 15l5 5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button><button data-tt="sum">누적 효과</button></div>
+    ${ttQ ? `<div class="tt-q">"${esc(ttQ)}" 검색 결과 <button data-tt="qx">지우기</button></div>` : ''}
+    <div class="tt-list">${list.map(t => { const on = S.tt.includes(t.id), eq = S.ttEq === t.id;
+      return `<button class="tt ${on ? 'on' : 'off'} ${eq ? 'eq' : ''}" data-tti="${t.id}"><small>${t.cat}</small><b>${!on && t.hidden ? '???' : t.name}</b>${eq ? '<em>장착</em>' : on ? '' : '<i class="lk"></i>'}</button>`; }).join('') || '<p class="hint">찾는 칭호가 없어요</p>'}</div></div>
+    <div class="mbtns"><button class="btn" data-close>닫기</button></div>`;
+}
+function openTitles() { openModal(titlesHtml()); }
+function titleInfoHtml(id) {
+  const t = C.titleById(id), on = S.tt.includes(id), p = Math.min(t.n, C.titleProgress(S, t)), eq = S.ttEq === id;
+  const cond = { stage: `스테이지 ${t.n} 달성`, tower: `균열 심층 ${t.n}층 돌파`, own: `요원 ${t.n}명 보유`, legend: `전설 요원 ${t.n}명 보유`, awaken: `요원 ${t.n}명 각성`, cards: `증거 카드 ${t.n}종 수집`, att: `출석 ${t.n}일`, lore: `요원 기록 ${t.n}편 읽기`,
+    kill: `이상체 ${C.formatNum(t.n)}개체 처리`, boss: `근원체 ${t.n}개체 처치`, lvup: `요원 레벨업 ${C.formatNum(t.n)}회`, star: `요원 승급 ${t.n}회`, train: `훈련 ${t.n}회`, summon: `요원 호출 ${C.formatNum(t.n)}회`, dungeon: `작전 ${t.n}회 완료`,
+    night: '새벽에 접속하기', lose: `근원체에게 ${t.n}번 지기`, reset: '요원 레벨 초기화하기', rename: '수사팀 이름 바꾸기' }[t.k];
+  return `<h2>칭호 정보</h2><div class="tti"><div class="tti-n ${on ? '' : 'off'}"><small>${t.cat}</small><b>${!on && t.hidden ? '???' : t.name}</b></div>
+    <div class="tti-r"><span>보유 효과</span><b>${fxLine(t.hold)}</b></div><div class="tti-r"><span>장착 효과</span><b>${fxLine(t.eq)}</b></div>
+    <div class="tti-c"><span>획득 조건</span><b>${!on && t.hidden ? '조건이 숨겨져 있어요' : cond}</b>${!on && t.hidden ? '' : `<div class="rd-bar"><i style="width:${p / t.n * 100}%"></i></div><small>${C.formatNum(p)} / ${C.formatNum(t.n)}</small>`}</div>
+    <p class="hint">보유 효과는 장착하지 않아도 모든 요원에게 적용돼요.</p></div>
+    <div class="mbtns"><button class="btn ghost" data-tt="list">목록</button><button class="btn" data-tteq="${id}" ${eq ? 'disabled' : ''}>${eq ? '장착 중' : '장착'}</button></div>`;
+}
+function titleSumHtml() {
+  const z = { atk: 0, hp: 0, crit: 0, cdmg: 0, boss: 0, gold: 0 };
+  for (const id of S.tt) { const t = C.titleById(id); for (const k in t.hold) z[k] += t.hold[k]; }
+  for (const f of C.TITLE_LV_FX) if (f.lv <= C.titleLevel(S)) z[f.stat] += f.v;
+  return `<h2>누적 보유 효과</h2><div class="pf2-g">${Object.keys(z).map(k => `<div><span>${stIc(k)}${C.STATS[k].name}</span><b>+${pct(z[k])}</b></div>`).join('')}</div>
+    <p class="hint">얻은 칭호의 보유 효과와 도감 레벨 효과를 더한 값이에요.</p><div class="mbtns"><button class="btn" data-tt="list">확인</button></div>`;
+}
+modalEl.addEventListener('click', e => {
+  const i = e.target.closest('[data-tti]'); if (i) return openModal(titleInfoHtml(i.dataset.tti));
+  const q = e.target.closest('[data-tteq]');
+  if (q) { try { C.titleEquip(S, q.dataset.tteq); sfx('button', 0.5); toast('칭호를 장착했어요'); refreshMods(); writeSave(); openModal(titleInfoHtml(q.dataset.tteq)); } catch (err) { toast('보유하지 않은 칭호예요'); sfx('error', 0.5, 0.2); } return; }
+  const c = e.target.closest('[data-ttcat]'); if (c) { ttCat = c.dataset.ttcat; return openTitles(); }
+  const b = e.target.closest('[data-tt]'); if (!b) return;
+  const k = b.dataset.tt;
+  if (k === 'list') openTitles();
+  else if (k === 'sum') openModal(titleSumHtml());
+  else if (k === 'qx') { ttQ = ''; openTitles(); }
+  else if (k === 'cat') openModal(`<h2>칭호 필터</h2><div class="srcw">${['', ...C.TITLE_CATS].map(c => `<button class="${ttCat === c ? 'on' : ''}" data-ttcat="${c}">${c || '전체'}</button>`).join('')}</div><div class="mbtns"><button class="btn ghost" data-ttcat="">초기화</button></div>`);
+  else if (k === 'find') { openModal(`<h2>칭호 검색</h2><div class="nmw"><input id="ttIn" maxlength="10" value="${esc(ttQ)}" placeholder="검색어를 입력해 주세요" autocomplete="off"></div><div class="mbtns"><button class="btn ghost" data-tt="list">취소</button><button class="btn" data-tt="go">검색</button></div>`); setTimeout(() => { const x = $('ttIn'); x && x.focus(); }, 50); }
+  else if (k === 'go') { ttQ = ($('ttIn').value || '').trim(); openTitles(); }
+});
+
+/* ---------- 요원 도감: 소속별, 요원마다 레벨/승급 단계 ---------- */
+function cdxReady(id) { return !!((C.codexNext(S, id) || {}).ready || (C.codexStarNext(S, id) || {}).ready); }
+function cdxHtml() {
+  const any = C.HEROES.some(h => cdxReady(h.id));
+  return `<h2>요원 도감</h2><p class="hint">레벨과 승급 단계를 채우면 보석과 영구 능력치를 받아요. 모은 요원 ${owned().length} / ${C.HEROES.length}</p><div class="cxl">${C.SQUADS.map(q => {
+    const got = q.ids.filter(id => S.heroes[id].owned).length;
+    return `<div class="sq-h"><div class="sq-f">${q.ids.slice(0, 4).map(id => `<img src="${ART['id_' + id] || portrait(id)}" alt="">`).join('')}</div><div><b>${q.name}</b><small>${q.sub}</small></div><span>${got} / ${q.ids.length}</span></div>` +
+      q.ids.map(id => { const h = C.heroById(id), d = S.heroes[id], n = C.codexNext(S, id), face = `<img src="${ART['id_' + id] || portrait(id)}" alt="" style="--gc:${GRADE_COL[C.heroGrade(S, id)]}">`;
+        if (!d.owned) return `<button class="cx off" data-cxd="${id}">${face}<div><b>${h.name}</b><small>아직 만나지 못한 요원</small></div></button>`;
+        return `<button class="cx" data-cxd="${id}">${face}<div><b>${h.name}</b><small>${n ? `다음 단계 레벨 ${n.lv}, 현재 Lv.${d.lv}` : '레벨 단계 모두 달성'}</small><div class="rd-bar"><i style="width:${n ? Math.min(100, d.lv / n.lv * 100) : 100}%"></i></div></div>${cdxReady(id) ? '<i class="dot on"></i>' : ''}</button>`; }).join('');
+  }).join('')}</div><div class="mbtns"><button class="btn ghost" data-close>닫기</button><button class="btn" data-cx="all" ${any ? '' : 'disabled'}>모두 받기</button></div>`;
+}
+let cxTab = 'lv';
+function cdxHeroHtml(id) {
+  const h = C.heroById(id), d = S.heroes[id], k = C.codexStat(id), got = S.cdx[id] || 0, gs = S.cdxs[id] || 0;
+  const rows = cxTab === 'lv'
+    ? Array.from({ length: C.CODEX_TIERS }, (_, i) => { const t = i + 1, lv = t * C.CODEX_STEP, done = got >= t, ready = d.owned && !done && got === i && d.lv >= lv;
+        return `<div class="cxr ${done ? 'done' : ''}"><span class="cxg">${icon('gem')}${20 * t}</span><div><b>${h.name} 레벨 ${lv} 달성하기</b><small>${C.STATS[k].name} +${pct(C.CODEX_VAL[k])}</small></div>${done ? '<i class="ok">✓</i>' : ready ? `<button class="btn sm" data-cx="${id}">받기</button>` : `<button class="btn sm ghost" data-cxgo="${id}">바로가기</button>`}</div>`; })
+    : Array.from({ length: C.maxStars(h.grade) - 1 }, (_, i) => { const t = i + 1, star = t + 1, done = gs >= t, ready = d.owned && !done && gs === i && d.stars >= star;
+        return `<div class="cxr ${done ? 'done' : ''}"><span class="cxg">${icon('gem')}${30 * t}</span><div><b>${h.name} ${star === C.AWAKE_STAR ? '각성' : `★${star}`} 달성하기</b><small>${C.STATS[k].name} +${pct(C.CODEX_STAR_VAL[k])}</small></div>${done ? '<i class="ok">✓</i>' : ready ? `<button class="btn sm" data-cxs="${id}">받기</button>` : `<button class="btn sm ghost" data-cxgo="${id}">바로가기</button>`}</div>`; });
+  return `<div class="cxh"><img src="${bigArt(id)}" alt=""><div><small>${C.squadOf(id).name}</small><b>${h.name}</b></div></div>
+    <div class="seg cx-seg"><button class="${cxTab === 'lv' ? 'on' : ''}" data-cxt="lv">레벨</button><button class="${cxTab === 'st' ? 'on' : ''}" data-cxt="st">승급</button></div>
+    <div class="cxrs">${rows.join('')}</div><div class="mbtns"><button class="btn ghost" data-act="cdxagents">목록</button></div>`;
+}
+modalEl.addEventListener('click', e => {
+  const d = e.target.closest('[data-cxd]'); if (d) { cxHero = d.dataset.cxd; return openModal(cdxHeroHtml(cxHero)); }
+  const t = e.target.closest('[data-cxt]'); if (t) { cxTab = t.dataset.cxt; return openModal(cdxHeroHtml(cxHero)); }
+  const g = e.target.closest('[data-cxgo]'); if (g) { modalEl.classList.remove('on'); return openHeroDetail(g.dataset.cxgo); }
+  const s = e.target.closest('[data-cxs]'); if (s) { const n = C.codexStarClaim(S, s.dataset.cxs); if (n) { writeSave(); refreshMods(); showResult('gift', '보상 획득', rwTiles({ gems: n })); } return; }
+});
+let cxHero = '';
+
+/* ---------- 복장 도감, 복장 창 ---------- */
+function cosHtml(only) {
+  const L = C.COSTUMES.filter(c => !only || c.hero === only);
+  const row = c => { const h = C.heroById(c.hero), own = S.cos.includes(c.id), art = ART['cos_' + c.id], wear = S.cosEq[c.hero] === c.id;
+    return `<div class="cos ${own ? 'own' : ''}"><img src="${art || bigArt(c.hero)}" alt="" class="${art ? '' : 'pre'}">${art ? '' : '<em>그림 준비 중</em>'}<div><small>${h.name}</small><b>${c.name}</b><span>보유 효과 ${fxLine(c.hold)}</span></div>
+      ${own ? `<button class="btn sm ${wear ? 'ghost' : ''}" data-cosw="${c.id}">${wear ? '벗기' : '입기'}</button>` : `<button class="btn sm" data-cosb="${c.id}" ${art ? '' : 'disabled'}>${icon('gem')}${C.formatNum(c.price)}</button>`}</div>`; };
+  const base = only ? `<div class="cos own"><img src="${ART['big_' + only] || bigArt(only)}" alt=""><div><small>${C.heroById(only).name}</small><b>기본 복장</b><span>보유 효과 없음</span></div><button class="btn sm ${S.cosEq[only] ? '' : 'ghost'}" data-cosw="" data-cosh="${only}" ${S.cosEq[only] ? '' : 'disabled'}>${S.cosEq[only] ? '입기' : '입는 중'}</button></div>` : '';
+  return `<h2>${only ? '복장' : '복장 도감'}</h2><p class="hint">${only ? '복장을 사면 입지 않아도 보유 효과가 모든 요원에게 적용돼요.' : `모은 복장 ${S.cos.length} / ${C.COSTUMES.length}`}</p>
+    <div class="cosl">${base}${L.map(row).join('') || '<p class="hint">이 요원은 아직 복장이 없어요</p>'}</div><div class="mbtns"><button class="btn" data-close>닫기</button></div>`;
+}
+let cosOnly = '';
+modalEl.addEventListener('click', e => {
+  const b = e.target.closest('[data-cosb]');
+  if (b) { const c = C.costumeById(b.dataset.cosb); openModal(`<h2>복장 구매</h2><p><b>${c.name}</b><br>보석 ${C.formatNum(c.price)}개로 살까요?</p><div class="mbtns"><button class="btn ghost" data-cosback>취소</button><button class="btn" data-cosok="${c.id}">구매</button></div>`); return; }
+  if (e.target.closest('[data-cosback]')) return openModal(cosHtml(cosOnly));
+  const ok = e.target.closest('[data-cosok]');
+  if (ok) { try { C.costumeBuy(S, ok.dataset.cosok); sfx('reward', 0.6); toast('복장을 샀어요'); refreshMods(); writeSave(); } catch (err) { toast(err.message); sfx('error', 0.5, 0.2); } return openModal(cosHtml(cosOnly)); }
+  const w = e.target.closest('[data-cosw]');
+  if (w) { const cid = w.dataset.cosw, hid = cid ? C.costumeById(cid).hero : w.dataset.cosh, off = cid && S.cosEq[hid] === cid;
+    C.costumeWear(S, hid, off ? '' : cid); writeSave(); if (hpageId) renderHeroPage(); openModal(cosHtml(cosOnly)); }
+});
+
+/* ---------- 도감 탭: 요원 도감, 칭호 도감, 복장 도감 ---------- */
+function codexHtml() {
+  const rd = C.HEROES.some(h => cdxReady(h.id)), faces = ids => ids.map(id => `<img src="${ART['id_' + id] || portrait(id)}" alt="">`).join('');
+  return `<button class="cdx2" data-act="cdxagents"><div class="cdx2-f">${faces(['dark', 'mage', 'reaper', 'judge', 'oracle'])}</div><b>요원 도감</b><span>모은 요원 ${owned().length} / ${C.HEROES.length}</span>${rd ? '<i class="dot on"></i>' : ''}</button>
+    <button class="cdx2" data-act="cdxtitle"><div class="cdx2-f tts">${C.TITLES.slice(0, 6).map(t => `<em class="${S.tt.includes(t.id) ? 'on' : ''}">${S.tt.includes(t.id) ? t.name : '???'}</em>`).join('')}</div><b>칭호 도감</b><span>도감 Lv.${C.titleLevel(S)}  보유 ${S.tt.length} / ${C.TITLES.length}</span></button>
+    <button class="cdx2" data-act="cdxcos"><div class="cdx2-f">${faces(['dark', 'mage', 'archer', 'knight', 'priest'])}</div><b>복장 도감</b><span>모은 복장 ${S.cos.length} / ${C.COSTUMES.length}</span></button>`;
+}
+
+/* ---------- 수사팀 탭: 평판(잠김), 봉인 파편(잠김), 증거 카드 ---------- */
+let teamView = '', cardTab = 'deck', mixSel = [], mixGrade = '일반';
+function cardFace(id, opt = {}) {
+  const c = C.cardById(id), own = S.cards[id], g = CARD_COL[c.grade];
+  const need = own ? C.cardStarNeed(own) : 0;
+  return `<button class="ecard ${own ? '' : 'off'} ${opt.sel ? 'sel' : ''} ${S.deck.includes(id) ? 'in' : ''}" style="--cc:${g}" data-card="${id}"><i class="ec-g">${c.grade}</i><span class="ec-ic">${stIc(c.stat)}</span><b>${c.name}</b>
+    ${own ? `<small class="ec-s">${'★'.repeat(own.s)}</small><small class="ec-n ${need !== Infinity && own.n - 1 >= need ? 'ok' : ''}">${need === Infinity ? '최고' : `${own.n - 1}/${need}`}</small>` : '<small class="ec-s">미보유</small>'}</button>`;
+}
+function teamHtml() {
+  if (teamView === 'card') return cardHtml();
+  return `<div class="tmw"><button class="tm lock" data-act="cdxlock" data-v="201"><b>평판</b><span>스테이지 201 달성 시 열려요</span></button>
+    <button class="tm lock" data-act="cdxlock" data-v="301"><b>봉인 파편</b><span>스테이지 301 달성 시 열려요</span></button>
+    <button class="tm ev" data-act="tmcard"><b>증거 카드</b><span>카드 ${Object.keys(S.cards).length} / ${C.CARDS.length}종  편성 ${S.deck.length} / ${C.CARD_SLOTS}</span></button></div>`;
+}
+function cardHtml() {
+  const on = C.deckOn(S), have = C.CARDS.filter(c => S.cards[c.id]);
+  const top = cardTab === 'deck'
+    ? `<div class="ecd ${on ? 'on' : ''}"><div class="ecd-g">${Array.from({ length: C.CARD_SLOTS }, (_, i) => S.deck[i] ? cardFace(S.deck[i]) : '<span class="ec-e">+</span>').join('')}</div>
+        ${on ? `<div class="ecd-fx">${(() => { const z = {}; for (const id of S.deck) { const c = C.cardById(id); z[c.stat] = (z[c.stat] || 0) + C.cardValue(id, S.cards[id].s); } return fxLine(z); })()}</div>` : `<div class="ecd-msg">카드 ${C.CARD_SLOTS}장을 편성하면 효과가 켜져요 (${S.deck.length} / ${C.CARD_SLOTS})</div>`}
+        <div class="ecd-b"><button class="btn sm blue" data-act="cdauto">자동 편성</button><button class="btn sm blue" data-act="cdstar">일괄 승급</button><button class="btn sm" data-act="cdbox">${icon('gem')}100 증거 상자</button></div></div>`
+    : `<div class="ecm"><button class="ecm-i" data-act="cdrate">확률 정보</button><div class="ecm-g">${[0, 1, 2].map(i => mixSel[i] ? cardFace(mixSel[i], { sel: 1 }) : '<span class="ec-e">+</span>').join('')}</div>
+        <div class="ecm-msg">같은 등급 카드 3장을 넣으면 ${pct(C.COMBINE_UP)} 확률로 위 등급 카드가 나와요. 편성용 1장은 남겨요</div>
+        <div class="ecd-b"><button class="btn sm blue" data-act="cdmixall">일괄 합성 (${mixGrade})</button><button class="btn sm blue" data-act="cdgrade">등급 바꾸기</button><button class="btn sm" data-act="cdmix" ${mixSel.length === 3 ? '' : 'disabled'}>합성</button></div></div>`;
+  return `<div class="ecw"><div class="ec-top"><button class="ec-back" data-act="tmback" aria-label="뒤로">‹</button><div class="seg"><button class="${cardTab === 'deck' ? 'on' : ''}" data-act="cdtab" data-v="deck">편성</button><button class="${cardTab === 'mix' ? 'on' : ''}" data-act="cdtab" data-v="mix">합성</button></div><button class="ec-help" data-act="cdhelp" aria-label="도움말">?</button></div>
+    ${top}<div class="ec-cnt">보유 ${have.length} / ${C.CARDS.length}종</div>
+    <div class="ec-all">${C.CARDS.filter(c => cardTab === 'deck' || c.grade === mixGrade).map(c => cardFace(c.id)).join('')}</div></div>`;
+}
+function cardInfoHtml(id) {
+  const c = C.cardById(id), own = S.cards[id], s = own ? own.s : 1, need = own ? C.cardStarNeed(own) : 0;
+  return `<h2>증거 카드</h2><div class="eci"><div class="eci-c">${cardFace(id)}</div><div class="eci-r"><span>발동 효과</span><b>${C.STATS[c.stat].name} +${pct(C.cardValue(id, s))}</b></div>
+    ${own && s < C.CARD_MAX ? `<div class="eci-r"><span>다음 별</span><b>${C.STATS[c.stat].name} +${pct(C.cardValue(id, s + 1))}</b></div>` : ''}
+    <p class="hint">${own ? `보유 ${own.n}장. 편성한 카드가 ${C.CARD_SLOTS}장일 때만 효과가 켜져요.` : '보유하지 않은 카드예요. 근원체 처치, 균열 심층, 증거 상자에서 얻을 수 있어요.'}</p></div>
+    <div class="mbtns"><button class="btn ghost" data-close>닫기</button>${own ? `<button class="btn blue" data-cdup="${id}" ${need !== Infinity && own.n - 1 >= need ? '' : 'disabled'}>승급</button><button class="btn" data-cdin="${id}">${S.deck.includes(id) ? '편성 해제' : '편성'}</button>` : ''}</div>`;
+}
+modalEl.addEventListener('click', e => {
+  const u = e.target.closest('[data-cdup]'); if (u) { if (C.cardStarUp(S, u.dataset.cdup)) { sfx('levelup', 0.6); toast('카드 승급 성공'); refreshMods(); writeSave(); renderPanel(); } return openModal(cardInfoHtml(u.dataset.cdup)); }
+  const i = e.target.closest('[data-cdin]'); if (i) { const r = C.deckToggle(S, i.dataset.cdin); if (r === 'full') toast(`편성 칸이 가득 찼어요. 먼저 한 장을 빼 주세요`); refreshMods(); writeSave(); renderPanel(); modalEl.classList.remove('on'); }
+  const g = e.target.closest('[data-cdg]'); if (g) { mixGrade = g.dataset.cdg; mixSel = []; modalEl.classList.remove('on'); renderPanel(); }
+});
+// 패널 안 카드 버튼
+$('panel').addEventListener('click', e => {
+  const c = e.target.closest('[data-card]'); if (!c || tab !== 'hero' || hsub !== 'team') return;
+  const id = c.dataset.card;
+  if (cardTab === 'mix') {
+    const at = mixSel.indexOf(id);
+    if (c.classList.contains('sel') && at >= 0) { mixSel.splice(at, 1); return renderPanel(); }
+    if (!S.cards[id]) return toast('보유하지 않은 카드예요');
+    if (C.cardSpare(S, id) <= mixSel.filter(x => x === id).length) return toast('남는 카드가 없어요. 편성용 1장은 남겨요');
+    if (mixSel.length >= 3) return toast('카드는 3장까지 넣을 수 있어요');
+    mixSel.push(id); return renderPanel();
+  }
+  openModal(cardInfoHtml(id));
+});
+function cardAct(act, b) {
+  if (act === 'tmcard') { teamView = 'card'; mixSel = []; }
+  else if (act === 'tmback') teamView = '';
+  else if (act === 'cdtab') { cardTab = b.dataset.v; mixSel = []; }
+  else if (act === 'cdauto') { if (!C.deckAuto(S)) return toast('보유한 카드가 없어요'); toast('효과가 높은 카드로 편성했어요'); refreshMods(); }
+  else if (act === 'cdstar') { const n = C.cardStarAll(S); if (!n) return toast('승급할 카드가 없어요'); sfx('levelup', 0.6); toast(`카드 ${n}회 승급`); refreshMods(); }
+  else if (act === 'cdbox') {
+    if (!C.spendGems(S, 100)) { sfx('error', 0.5, 0.2); return toast('보석이 부족해요'); }
+    const id = C.cardRoll(Math.random), c = C.cardById(id); C.cardAdd(S, id); sfx('card', 0.7);
+    showResult('gift', '증거 상자', `<div class="eci-c">${cardFace(id)}</div><div class="rs-sub" style="color:${CARD_COL[c.grade]}">${c.grade} 카드 ${c.name}</div>`);
+  }
+  else if (act === 'cdmix') {
+    try { const r = C.cardCombine(S, mixSel, Math.random), c = C.cardById(r.id); mixSel = []; sfx(r.up ? 'reward' : 'card', 0.7);
+      showResult('gift', r.up ? '합성 성공' : '합성 결과', `<div class="eci-c">${cardFace(r.id)}</div><div class="rs-sub" style="color:${CARD_COL[c.grade]}">${r.up ? '한 등급 위 카드가 나왔어요' : '같은 등급 카드가 나왔어요'}</div>`); }
+    catch (err) { toast(err.message); }
+  }
+  else if (act === 'cdmixall') {
+    if (mixGrade === '전설') return toast('전설 카드는 합성할 수 없어요');
+    const r = C.cardCombineAll(S, mixGrade, Math.random); mixSel = [];
+    if (!r.length) return toast(`남는 ${mixGrade} 카드가 3장보다 적어요`);
+    sfx('reward', 0.7); showResult('gift', '일괄 합성', `<div class="rs-sub">${r.length}번 합성, 위 등급 ${r.filter(x => x.up).length}장</div><div class="eci-many">${r.map(x => cardFace(x.id)).join('')}</div>`);
+  }
+  else if (act === 'cdgrade') return openModal(`<h2>합성 등급</h2><div class="srcw">${C.CARD_GRADES.slice(0, 3).map(g => `<button class="${mixGrade === g ? 'on' : ''}" data-cdg="${g}">${g}</button>`).join('')}</div><div class="mbtns"><button class="btn ghost" data-close>닫기</button></div>`);
+  else if (act === 'cdrate') {
+    const nx = C.CARD_GRADES[C.CARD_GRADES.indexOf(mixGrade) + 1], up = C.CARDS.filter(c => c.grade === nx), same = C.CARDS.filter(c => c.grade === mixGrade);
+    return openModal(`<h2>확률 정보</h2><p class="hint">${mixGrade} 카드 3장을 합성할 때 나오는 카드예요.</p><div class="ecr"><div class="ecr-h"><span>성공 (${nx})</span><b>${pct(C.COMBINE_UP)}</b></div><div class="ecr-g">${up.map(c => `<div>${c.name}<small>${pct(C.COMBINE_UP / up.length)}</small></div>`).join('')}</div>
+      <div class="ecr-h"><span>실패 (${mixGrade})</span><b>${pct(1 - C.COMBINE_UP)}</b></div><div class="ecr-g">${same.map(c => `<div>${c.name}<small>${pct((1 - C.COMBINE_UP) / same.length)}</small></div>`).join('')}</div></div>
+      <div class="mbtns"><button class="btn" data-close>확인</button></div>`);
+  }
+  else if (act === 'cdhelp') return helpList('증거 카드', ['카드 10장을 편성하면 효과가 켜져요. 9장 이하면 효과가 없어요', '근원체를 처치하면 가끔, 균열 심층을 한 층 돌파할 때마다 카드를 얻어요', '같은 카드가 더 있으면 승급해서 효과를 키울 수 있어요', '같은 등급 카드 3장을 합성하면 30% 확률로 한 등급 위 카드가 나와요']);
+  writeSave(); renderPanel();
+}
+
+/* ---------- 요원 상세 추가 기능 ---------- */
+let hpSd = false, hpAwk = false;   // 보기 전환(현장 모습), 각성 미리 보기
+function statRowsHtml(id, stars) {
+  const h = C.heroById(id), d = S.heroes[id], st = stars || d.stars, b = C.statBonus(S), m = C.battleMods(S);
+  const R2 = [['atk', '공격력', C.formatNum(C.heroAtk(id, d.lv, st, S.up.atk) * m.atk)], ['hp', '체력', C.formatNum(C.heroHp(id, d.lv, st) * m.hp)],
+    ['crit', '치명타 확률', pct(Math.min(0.75, C.critChance(S.up.crit) + b.crit))], ['cdmg', '치명타 피해', pct(C.CRIT_DMG + b.cdmg)],
+    ['boss', '근원체 피해', '+' + pct(b.boss)], ['gold', '골드 획득', '+' + pct(b.gold)],
+    ['spd', '공격 속도', h.atkSpd.toFixed(1) + '회/초'], ['rng', '공격 거리', h.range === 'melee' ? '근거리' : '원거리'], ['cd', '기술 재사용', (h.skill.cd * m.cd).toFixed(1) + '초']];
+  return R2.map(([k, n, v]) => `<button class="hst" data-hst="${k}"><span>${C.STATS[k] ? stIc(k) : ''}${n}</span><b>${v}</b></button>`).join('');
+}
+const STAT_DESC = { ...Object.fromEntries(Object.entries(C.STATS).map(([k, v]) => [k, v.desc])), spd: '1초에 몇 번 공격하는지예요.', rng: '근거리는 붙어서, 원거리는 떨어져서 공격해요.', cd: '기술을 다시 쓰기까지 걸리는 시간이에요. 지원형 요원을 함께 편성하면 줄어요.' };
+const STAT_NAME = { spd: '공격 속도', rng: '공격 거리', cd: '기술 재사용' };
+function hpAct(act, b) {
+  const id = hpageId, h = C.heroById(id), d = S.heroes[id];
+  if (act === 'hpstats') openModal(`<h2>${h.name} 능력치</h2><div class="hstw">${statRowsHtml(id)}</div><p class="hint">항목을 누르면 설명을 볼 수 있어요.</p><div class="mbtns"><button class="btn" data-close>닫기</button></div>`);
+  else if (act === 'hpstat') { const k = b.dataset.k; openModal(`<div class="sktip"><div class="sk-h">${C.STATS[k] ? stIc(k) : ''}<div><small>능력치</small><b>${(C.STATS[k] || {}).name || STAT_NAME[k]}</b></div></div><p>${STAT_DESC[k]}</p><div class="mbtns"><button class="btn" data-close>확인</button></div></div>`); }
+  else if (act === 'hpatk') openModal(`<div class="sktip"><div class="sk-h"><img src="${ART['id_' + id] || portrait(id)}" alt=""><div><small>일반 공격</small><b>${h.range === 'melee' ? '근접 공격' : '사격'}</b></div><span>${h.atkSpd.toFixed(1)}회/초</span></div><p>${h.range === 'melee' ? '가장 가까운 적에게 다가가 공격력의 100% 피해를 줘요.' : '사거리 안의 가장 가까운 적을 공격력의 100% 피해로 공격해요.'}</p><div class="mbtns"><button class="btn" data-close>확인</button></div></div>`);
+  else if (act === 'hppas') { const p = C.passiveOf(S, id); openModal(`<div class="sktip"><div class="sk-h">${stIc(p.stat)}<div><small>고유 능력</small><b>${p.name}</b></div><span>${p.on ? '열림' : '잠김'}</span></div><p>출전하면 팀 전체 ${C.STATS[p.stat].name} +${pct(p.v)}. 등급이 높을수록 효과가 커져요.</p>${p.on ? '' : `<p class="hint">스테이지 ${p.open} 달성 시 열려요</p>`}<div class="mbtns"><button class="btn" data-close>확인</button></div></div>`); }
+  else if (act === 'hplore') {
+    const read = S.lore.includes(id);
+    openModal(`<div class="lore"><div class="lore-h"><img src="${ART['id_' + id] || portrait(id)}" alt=""><div><small>${C.squadOf(id).name}</small><b>${h.name}</b></div></div><div class="lore-p">${(LORE[id] || '').split('\n\n').map(x => `<p>${x}</p>`).join('')}</div></div>
+      <div class="mbtns">${read ? '<button class="btn" data-close>닫기</button>' : `<button class="btn" data-lore="${id}">${icon('gem')}${C.LORE_GEMS} 받기</button>`}</div>`);
+  }
+  else if (act === 'hpcos') { cosOnly = id; openModal(cosHtml(id)); }
+  else if (act === 'hpsd') { hpSd = !hpSd; renderHeroPage(); }
+  else if (act === 'hpawk') { hpAwk = !hpAwk; renderHeroPage(); }
+  else if (act === 'hpreset') {
+    if (!d.owned || d.lv <= 1) return toast('Lv.1 요원은 초기화할 수 없어요');
+    openModal(`<h2>요원 레벨 초기화</h2><p>${h.name}의 레벨을 Lv.1로 되돌리고<br>쓴 경험치를 모두 돌려받아요.</p><div class="gq"><div class="sum"><span>돌려받는 경험치</span><b>${icon('exp')}${C.formatNum(C.heroLvRefund(d.lv))}</b></div></div>
+      <div class="mbtns"><button class="btn ghost" data-close>취소</button><button class="btn" data-lvreset="${id}">초기화</button></div>`);
+  }
+}
+modalEl.addEventListener('click', e => {
+  const l = e.target.closest('[data-lore]'); if (l) { const g = C.loreRead(S, l.dataset.lore); writeSave(); modalEl.classList.remove('on'); if (g) showResult('gift', '보상 획득', rwTiles({ gems: g })); if (hpageId) renderHeroPage(); return; }
+  const r = e.target.closest('[data-lvreset]');
+  if (r) { const back = C.heroLvReset(S, r.dataset.lvreset); C.progress(S, 'reset', 1); modalEl.classList.remove('on'); syncHeroes(false); writeSave(); renderHeroPage(); renderPanel(); toast(`경험치 ${C.formatNum(back)}을 돌려받았어요`); }
+  const h = e.target.closest('.hst'); if (h) { const k = h.dataset.hst; openModal(`<div class="sktip"><div class="sk-h">${C.STATS[k] ? stIc(k) : ''}<div><small>능력치</small><b>${(C.STATS[k] || {}).name || STAT_NAME[k]}</b></div></div><p>${STAT_DESC[k]}</p><div class="mbtns"><button class="btn" data-act="hpstats">돌아가기</button></div></div>`); }
+});
 
 /* ---------- 스테이지 클리어 띠 ---------- */
 let clrT = 0;
@@ -5958,6 +6765,7 @@ function helpOnce(key) {
   seen[key] = 1; try { localStorage.setItem('aiu-help', JSON.stringify(seen)); } catch (e) {}
   showHelp(key);
 }
+function helpList(t, L) { openModal(`<div class="help"><h2><i>?</i>${t}</h2><ul>${L.map(x => `<li>${x}</li>`).join('')}</ul><div class="mbtns"><button class="btn" data-close>확인</button></div></div>`); }
 function showHelp(key) {
   const [t, L] = HELP[key];
   openModal(`<div class="help"><h2><i>?</i>${t}</h2><ul>${L.map(x => `<li>${x}</li>`).join('')}</ul><div class="mbtns"><button class="btn" data-close>확인</button></div></div>`);
@@ -6005,6 +6813,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.31.0', '11월 28일', ['칭호가 생겼어요. 조건을 채우면 얻고, 보유 효과와 장착 효과, 칭호 도감 레벨 효과를 받아요', '요원 도감을 소속별로 나누고, 레벨 단계(10~100)와 승급 단계마다 보석과 영구 능력치를 받아요', '요원 창에 수사팀 탭이 생겼어요. 증거 카드 10장을 편성하면 효과가 켜지고, 3장을 합성해 위 등급 카드를 노릴 수 있어요', '복장 도감과 복장이 생겼어요 (그림은 준비 중)', '요원 상세에 능력치, 기록, 복장, 보기 전환, 레벨 초기화, 일반 공격, 고유 능력, 각성 정보 보기를 넣었어요', '프로필에서 수사팀 이름을 바꾸고 수사팀 레벨, 수사팀 번호, 출처별 능력치를 볼 수 있어요']],
   ['0.30.5', '11월 28일', ['패스, 수첩, 도감, 우편함 목록을 내리면 위로 튕겨 올라가던 문제를 고쳤어요', '원래 멤버 5명 얼굴을 정면 프로필 그림으로 바꿨어요', '숙제 도우미, 우편함, 임무 칸에서 글이 겹치던 문제를 고쳤어요']],
   ['0.30.4', '11월 28일', ['새 요원 9명의 얼굴을 정면 프로필 그림으로 바꿨어요 (도감, 출전 칸, 프로필, 대사)']],
   ['0.30.3', '11월 28일', ['엑소시스트 요원 그림을 넣었어요 (카드, 전신, 공격, 걷기)']],

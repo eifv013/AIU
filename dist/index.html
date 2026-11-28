@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <title>AIU</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;600;700&family=Nanum+Gothic+Coding:wght@400;700&display=swap" rel="stylesheet">
 <style>
 /* VOICE: 수사 3팀과 같은 누아르, 비 오는 밤의 범죄 액션, 모바일 방치형
    IDEA: 이상현상 전담수사팀 요원들이 비 내리는 도시 구역을 돌아다니며 이상체를 처리
@@ -528,15 +528,25 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 #op .pane.on .boss{transform:translateX(-50%) scale(1)}
 #op .pane.flash .boss{animation:bossFlash 4.5s ease-out}
 @keyframes bossFlash{0%,8%{filter:brightness(.25) drop-shadow(0 0 40px rgba(120,60,255,.9))}10%{filter:brightness(1.15) drop-shadow(0 0 60px #fff)}20%,100%{filter:brightness(.42) drop-shadow(0 0 40px rgba(120,60,255,.9))}}
-/* 사건 파일 */
-#op .file{position:absolute;left:50%;top:24%;width:min(76vw,300px);padding:20px 20px 24px;transform:translate(-50%,60px) rotate(-4deg);opacity:0;background:linear-gradient(#e2d8c0,#cfc4aa);color:#2a2418;border-radius:2px;box-shadow:0 30px 60px rgba(0,0,0,.8);transition:transform .8s cubic-bezier(.2,.9,.3,1.15),opacity .5s}
-#op .pane.on .file{transform:translate(-50%,0) rotate(-4deg);opacity:1}
-#op .file small{display:block;font:700 10px 'IBM Plex Sans KR';letter-spacing:.3em;color:#6b5f48}
-#op .file b{display:block;margin:8px 0 2px;font:400 42px/1 "Black Han Sans"}
-#op .file i{display:block;font:400 24px "Black Han Sans";font-style:normal;color:#5a1e1e}
-#op .file p{margin:12px 0 0;font:500 12px/1.7 'IBM Plex Sans KR';color:#4a4232;border-top:1px dashed #8d8168;padding-top:10px}
-#op .stamp{position:absolute;right:-12px;top:50%;padding:4px 10px;border:3px solid #c4232a;border-radius:4px;color:#c4232a;font:400 21px "Black Han Sans";transform:rotate(14deg) scale(2.6);opacity:0;mix-blend-mode:multiply;transition:transform .22s cubic-bezier(.5,0,.8,.4) 1.2s,opacity .05s 1.2s}
-#op .pane.on .stamp{transform:rotate(14deg) scale(1);opacity:.92}
+/* 사건 파일: 기밀 서류철, 증거 사진, 클립, 가린 글자, 도장 */
+#op .fogb{position:absolute;left:0;right:0;top:50%;bottom:0;background:linear-gradient(rgba(4,3,10,0),rgba(4,3,10,.82) 35%,#040309 55%)}
+#op .folder{position:absolute;left:50%;top:17%;width:min(84vw,330px);transform:translate(-50%,70px) rotate(-3deg);opacity:0;transition:transform .9s cubic-bezier(.2,.9,.3,1.12),opacity .5s}
+#op .pane.on .folder{transform:translate(-50%,0) rotate(-3deg);opacity:1}
+#op .folder .tab{position:absolute;left:14px;top:-22px;height:24px;padding:3px 16px 0;border-radius:6px 6px 0 0;background:#b48f4f;color:#3b2a10;font:700 11px 'Nanum Gothic Coding',monospace;letter-spacing:.15em}
+#op .sheet{position:relative;padding:18px 18px 20px;background:#e7dcc2;background-image:radial-gradient(circle at 80% 20%,rgba(120,80,30,.14),transparent 30%),radial-gradient(circle at 15% 85%,rgba(120,80,30,.12),transparent 35%),linear-gradient(#ece2c9,#d8caa8);color:#2b2418;border-radius:2px;box-shadow:0 0 0 7px #a9834a,0 30px 60px rgba(0,0,0,.85);font-family:'Nanum Gothic Coding',monospace}
+#op .fh small{display:block;font:700 10px 'Nanum Gothic Coding',monospace;letter-spacing:.08em;color:#6d5e43}
+#op .fh b{display:block;margin:6px 0 0;font:400 40px/1 "Black Han Sans";letter-spacing:.02em}
+#op .fh i{display:block;margin-top:2px;font:400 22px "Black Han Sans";font-style:normal;color:#7a1f1f}
+#op .sheet dl{display:grid;grid-template-columns:44px 1fr;gap:4px 8px;margin:12px 0 0;padding-top:10px;border-top:1px solid #9b8a66;font-size:12px}
+#op .sheet dt{color:#7b6a4a;font-weight:700}#op .sheet dd{margin:0}
+#op .sheet s{text-decoration:none;color:#151210;background:#151210;letter-spacing:-.1em}
+#op .memo{margin:12px 0 0;padding:8px 10px;border-left:3px solid #7a1f1f;background:rgba(122,31,31,.07);font-size:12px;line-height:1.6;color:#3a2e1d}
+#op .stamp{position:absolute;right:12px;top:16px;padding:3px 9px;border:3px double #c4232a;border-radius:4px;color:#c4232a;font:400 18px "Black Han Sans";transform:rotate(12deg) scale(2.6);opacity:0;mix-blend-mode:multiply;transition:transform .22s cubic-bezier(.5,0,.8,.4) 1.4s,opacity .05s 1.4s}
+#op .pane.on .stamp{transform:rotate(12deg) scale(1);opacity:.9}
+#op .photo{position:absolute;right:-8px;bottom:-118px;width:38%;padding:6px 6px 22px;background:#f2f0ea;box-shadow:0 10px 24px rgba(0,0,0,.6);transform:rotate(7deg)}
+#op .photo img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;object-position:50% 10%;background:#1a1626;filter:grayscale(.6) contrast(1.2) brightness(.8)}
+#op .photo span{position:absolute;left:0;right:0;bottom:4px;text-align:center;font:700 10px 'Nanum Gothic Coding',monospace;color:#555}
+#op .clip{position:absolute;left:46%;top:-14px;width:16px;transform:rotate(8deg);filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
 /* 인물 이름: 그림 위 왼쪽 아래에 크게 */
 #op .who{position:absolute;left:22px;bottom:22%;z-index:1;font:400 46px/1 "Black Han Sans";letter-spacing:.04em;color:#fff;text-shadow:0 0 24px var(--sc),0 2px 0 #000;opacity:0;transform:translateX(-20px);transition:opacity .6s .5s,transform .8s cubic-bezier(.2,.8,.2,1) .5s}
 #op .who small{display:block;margin-bottom:6px;font:700 12px 'IBM Plex Sans KR';letter-spacing:.3em;color:var(--sc)}
@@ -2786,7 +2796,7 @@ function sortHeroes(list, pids) {
     return hsort === 1 ? byLv(a, b) : byGrade(a, b);
   });
 }
-const APP_VERSION = '0.16.0';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.16.1';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 /** 기술 설명 (상세 창) */
 function skillText(h) {
@@ -3460,14 +3470,14 @@ window.addEventListener('pagehide', writeSave);
  * 장면마다 고해상도 그림 한 장(op_key 키 아트, op_nf 나이트폴, op_blaze 블레이즈)을 카메라가 천천히 움직이며 보여 줌.
  * kb: [시작, 끝] 확대 배율, org: 카메라가 바라보는 자리(그림 안 위치). 자막은 한 글자씩, 누르면 바로 다 나오고 한 번 더 누르면 다음 장면 */
 const OP_SCENES = [
-  { img: 'op_key', org: '50% 4%',  kb: [2.1, 1.8], cap: '그날 밤부터, 비는 그치지 않았다.', t: 4300 },
-  { img: 'op_key', org: '54% 22%', kb: [3.0, 2.75], cap: '도시 위 하늘에 금이 갔다.', t: 4300, flash: 1 },
+  { img: 'op_key', org: '6% 16%', kb: [2.5, 2.25], fog: 1, cap: '그날 밤부터, 비는 그치지 않았다.', t: 4300 },
+  { img: 'op_key', org: '54% 32%', kb: [2.75, 2.5], fog: 1, cap: '도시 위 하늘에 금이 갔다.', t: 4300, flash: 1 },
   { img: 'op_key', org: '50% 45%', kb: [1.5, 1.35], dim: 1, s: 'mobs', cap: '그 틈으로 <b>이상체</b>가 흘러나왔다.', t: 4400 },
   { img: 'op_key', org: '50% 25%', kb: [1.6, 1.45], dim: 1, s: 'boss', cap: '그리고 그 중심에는, <b>근원체</b>가 있다.', t: 4800 },
   { img: 'op_key', org: '50% 60%', kb: [1.4, 1.3], dim: 1, s: 'file', cap: '경찰도 군대도 손댈 수 없는 사건.', t: 4200 },
   { img: 'op_nf',  org: '62% 0%', ty: 11, kb: [1.24, 1.06], who: '나이트폴', role: 'AIU 팀장', col: '#b98cff', say: '…늦었군. 균열이 열렸다.', t: 3900 },
   { img: 'op_blaze', org: '56% 0%', ty: 10, kb: [1.26, 1.08], who: '블레이즈', role: '신입 수사관', col: '#ff8a3e', say: '제가 갈게요. 혼자서라도.', t: 3900 },
-  { img: 'op_nf',  org: '30% 72%', kb: [1.6, 1.35], col: '#b98cff', name: '나이트폴', say: '좋아. 오늘부터 넌 AIU다.', t: 3900 },
+  { img: 'op_nf',  org: '66% 0%', ty: 12, kb: [1.75, 1.5], col: '#b98cff', name: '나이트폴', say: '좋아. 오늘부터 넌 AIU다.', t: 3900 },
   { img: 'op_key', org: '50% 92%', kb: [1.3, 1.0], s: 'ttl', t: 4200 },
 ];
 const OP = { on: false, i: -1, timer: 0, typing: 0, done: null, drops: [], flash: 0 };
@@ -3476,7 +3486,14 @@ function opPane(sc) {
   let h = ART[sc.img] ? `<img class="ph" src="${ART[sc.img]}" alt="">` : '';
   if (sc.s === 'mobs') h += [['op_shade', 4, 40, 0], ['op_crawler', 30, 17, 0.5], ['op_shade', 60, 33, 0.9]].map(([k, x, hh, dl], i) => ART[k] ? `<img class="mob" src="${ART[k]}" style="left:${x}%;height:${hh}%;transition-delay:${dl}s${i === 2 ? ';scale:-1 1' : ''}" alt="">` : '').join('');
   if (sc.s === 'boss' && ART.op_boss) h += `<img class="boss" src="${ART.op_boss}" alt="">`;
-  if (sc.s === 'file') h += `<div class="file"><small>AIU 사건 파일</small><b>사건 001</b><i>오메가</i><p>발생: 도심 전역<br>상태: 미해결<br>담당: 이상현상 전담수사팀</p><span class="stamp">위험 등급 Ω</span></div>`;
+  if (sc.fog) h += '<div class="fogb"></div>';   // 아래쪽 안개: 그림 아래 인물이 비치지 않게
+  if (sc.s === 'file') h += `<div class="folder"><span class="tab">AIU 기밀</span>
+      <div class="sheet"><div class="fh"><small>이상현상 전담수사팀 사건 기록</small><b>사건 001</b><i>오메가</i></div>
+        <dl><dt>발생</dt><dd>도심 전역</dd><dt>상태</dt><dd>미해결</dd><dt>대상</dt><dd>근원체 1, 이상체 다수</dd><dt>목격</dt><dd><s>████████</s> 외 <s>███</s>명</dd></dl>
+        <p class="memo">비는 72시간째 그치지 않음.<br>하늘 균열 확인. 즉시 봉쇄할 것.</p>
+        <span class="stamp">위험 등급 Ω</span></div>
+      <div class="photo">${ART.op_boss ? `<img src="${ART.op_boss}" alt="">` : ''}<span>증거 01</span></div>
+      <svg class="clip" viewBox="0 0 20 52"><path d="M6 46V10a4 4 0 0 1 8 0v34a6 6 0 0 1-12 0V8a8 8 0 0 1 16 0v30" fill="none" stroke="#b8bec9" stroke-width="2.4" stroke-linecap="round"/></svg></div>`;
   if (sc.who) h += `<div class="who" style="--sc:${sc.col}"><small>${sc.role}</small>${sc.who}</div>`;
   if (sc.s === 'ttl') h += `<div class="ttl"><div class="ttl-logo">${ART.logo_title ? `<img src="${ART.logo_title}" alt="AIU 이상현상 전담수사팀">` : ''}</div><div class="tag">${[...'추적하고, 격리하고, 봉쇄한다.'].map((ch, i) => `<span style="transition-delay:${0.9 + i * 0.08}s">${ch === ' ' ? '&nbsp;' : ch}</span>`).join('')}</div></div>`;
   if (sc.s === 'ttl') h += '<div style="position:absolute;inset:0;background:linear-gradient(rgba(2,2,5,.85),rgba(2,2,5,.2) 45%,transparent 70%)"></div>';
@@ -3512,6 +3529,7 @@ function opNext() {
   const sc = OP_SCENES[OP.i], el = $('op'), box = el.querySelector('.panes');
   // 장면 바꾸기: 새 그림 판을 위에 깔고 서서히 밝히고, 이전 판은 1.2초 뒤에 치움
   const old = [...box.children], pane = opPane(sc); box.appendChild(pane);
+  old.forEach(o => o.classList.remove('on'));   // 이전 장면은 바로 어두워지며 빠짐 (이름표가 겹쳐 보이지 않게)
   requestAnimationFrame(() => requestAnimationFrame(() => pane.classList.add('on')));
   setTimeout(() => old.forEach(o => o.remove()), 1300);
   if (sc.flash) setTimeout(() => { OP.flash = 1; }, 500);

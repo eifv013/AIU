@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.29.3';
+window.AIU_VER = '0.29.4';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1527,6 +1527,24 @@ img.rs-emb{width:76px;height:76px;top:-42px}
 .ac.g-각성 .ap::before{background-image:var(--ui-card-l);filter:hue-rotate(-50deg) saturate(1.8) brightness(1.05) drop-shadow(0 0 5px rgba(255,60,80,.8))}
 .ac .ap img{padding:5% 6% 0}
 .ac .anm{bottom:13%!important}.ac .ast{bottom:2.5%!important}
+
+/* ---------- 메뉴 틀 그림: 나머지 칸 전부 (0.29.4) ---------- */
+#bbar .pw{white-space:nowrap}
+#phead .pill,#bbar .pill,.wallet>span{border:0!important;border-style:solid!important;border-width:4px 8px!important;border-image:var(--ui-row) 30 40 fill / 4px 8px stretch!important;white-space:nowrap;background:none!important;box-shadow:none!important;border-radius:0!important}
+#phBack,#curBtn{border:0!important;border-style:solid!important;border-width:8px 10px!important;border-image:var(--ui-btn-navy) 40 60 fill / 8px 10px stretch!important;background:none!important;border-radius:0!important;box-shadow:none!important}
+.hp-name{border:0!important;border-style:solid!important;border-width:12px 16px!important;border-image:var(--ui-row) 30 40 fill / 12px 16px stretch!important;background:none!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important}
+.hp-name b{border-bottom:1px solid rgba(210,171,85,.35)!important;padding:0 0 4px!important}
+.hp-name div{padding:4px 4px 0!important}
+.hp-skill{border:0!important;border-style:solid!important;border-width:10px 18px!important;border-image:var(--ui-btn-navy) 40 60 fill / 10px 18px stretch!important;background:none!important;box-shadow:none!important;padding:0 6px!important}
+.hp-skill::before,.hp-skill::after{display:none!important}
+.hp-stats span{border:0!important;border-style:solid!important;border-width:8px 10px!important;border-image:var(--ui-row) 30 40 fill / 8px 10px stretch!important;background:none!important;border-radius:0!important;box-shadow:none!important;padding:0 2px!important}
+.hp-b{border:0!important;border-style:solid!important;border-width:7px 9px!important;border-image:var(--ui-btn-navy) 40 60 fill / 7px 9px stretch!important;white-space:nowrap;background:none!important;border-radius:0!important;box-shadow:none!important;padding:0!important}
+.hp-b.lv:not(:disabled){border-image:var(--ui-btn-gold) 40 60 fill / 7px 9px stretch!important;background:none!important}
+.hp-b.star:not(:disabled){filter:hue-rotate(20deg) saturate(1.5) brightness(1.15)}
+.hp-b.star.awk:not(:disabled){background:none!important;filter:hue-rotate(-115deg) saturate(2.2) brightness(1.1)}
+.hp-b.sm.on{border-image:var(--ui-btn-gold) 40 60 fill / 7px 9px stretch!important;background:none!important;color:#2a2005!important;filter:saturate(.7) brightness(.85)}
+.hp-b:disabled{filter:grayscale(.8) brightness(.7)}
+.rd,.ml,.hw,.cx,.setrow,.sh-it,.sh-gem,.att,.ps-st,.ps-c,.urow,.gw-c,.syn,.bk,.adbox,.fp-r,.rd-r,.cb-r{border:0!important;border-style:solid!important;border-width:10px 14px!important;border-image:var(--ui-row) 30 40 fill / 10px 14px stretch!important;background:none!important;border-radius:0!important;box-shadow:none!important}
 </style>
 </head>
 <body>
@@ -5955,6 +5973,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.29.4', '11월 28일', ['요원 상세, 위아래 재화 칸, 목록 칸까지 새 그림 틀로 바꿨어요']],
   ['0.29.3', '11월 28일', ['레벨업, 재화 부족 소리를 원본 음질로 바꿨어요']],
   ['0.29.2', '11월 28일', ['레벨업, 승급 때 도장 소리, 재화가 부족할 때 빈 총 소리를 넣었어요']],
   ['0.29.1', '11월 28일', ['각성 등급 문장을 새 그림으로 바꿨어요']],

@@ -922,6 +922,26 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 .bk span{position:relative;flex:1;padding-left:14px}.bk b{display:block;font:400 17px "Black Han Sans";text-shadow:0 1px 3px #000}
 .bk small{font:600 12px 'IBM Plex Sans KR';color:#c9d3ee;text-shadow:0 1px 3px #000}
 .bk i{position:relative;font-style:normal;color:var(--gold)}
+
+/* ---------- 전투력 변화 ---------- */
+#pwup{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 64px);z-index:58;display:none;transform:translateX(-50%);padding:6px 18px;border-radius:16px;background:rgba(10,14,24,.88);border:1px solid rgba(242,201,76,.5);font:400 16px "Black Han Sans";white-space:nowrap;pointer-events:none}
+#pwup.on{display:block;animation:pwIn 1.6s ease forwards}
+#pwup em{font-style:normal;color:#6ff0c8;margin-left:6px}
+@keyframes pwIn{0%{opacity:0;transform:translate(-50%,8px)}12%{opacity:1;transform:translate(-50%,0)}80%{opacity:1}100%{opacity:0}}
+/* ---------- 기술 설명 ---------- */
+.sk-h{display:flex;align-items:center;gap:10px}.sk-h img{width:52px;height:52px;border-radius:8px;object-fit:cover;object-position:50% 20%}
+.sk-h div{flex:1;text-align:left}.sk-h small{font:600 11px 'IBM Plex Sans KR';color:var(--dim)}.sk-h b{display:block;font:400 19px "Black Han Sans";color:var(--gold)}
+.sk-h span{font:700 12px 'IBM Plex Sans KR';color:#9fc3ff}
+.sktip p{text-align:left;margin:12px 0 4px;font-size:14px;line-height:1.6}
+/* ---------- 요원 도감 달성 보상 ---------- */
+.cdx{position:relative}.cdx .dot{right:8px;top:8px}
+.cxl{display:grid;gap:6px;max-height:58vh;overflow:auto;margin:8px 0}
+.cx{display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;background:#1b2236;border:1px solid var(--line)}
+.cx img{width:42px;height:42px;border-radius:6px;object-fit:cover;object-position:50% 20%;border:2px solid var(--gc)}
+.cx.off img{filter:grayscale(1) brightness(.5)}
+.cx div{flex:1;min-width:0;text-align:left}.cx b{display:block;font:400 14px "Black Han Sans"}.cx small{font:600 11px 'IBM Plex Sans KR';color:var(--dim)}
+.cx .rd-bar{margin-top:4px}
+.cx .btn.sm{min-width:62px}
 </style>
 </head>
 <body>
@@ -1022,6 +1042,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   <div id="modal"></div>
   <!-- 결과 띠 창: 보상 획득, 승급 성공, 새 요원 합류 (세나 키우기처럼 가운데 넓은 띠 + 문장 + 터치하여 닫기) -->
   <div id="res"></div>
+  <div id="pwup"></div>
   <!-- 구역 근원체 첫 등장 이야기 (세나 키우기 보스 등장 대화처럼) -->
   <div id="story"><img id="stImg" alt=""><div class="st-box"><b id="stName"></b><p id="stLine"></p><i class="st-next">▼</i></div><button id="stSkip">SKIP ▸▸</button></div>
   <!-- 절전 모드: 화면을 검게 끄고 전투는 계속 (세나 키우기처럼 밀어서 해제) -->
@@ -2514,7 +2535,8 @@ function formHtml() {
 }
 function codexHtml() {
   const n = owned().length;
-  return `<button class="cdx" data-act="cdxagents"><img src="${ART.op_key || ''}" alt=""><b>요원 도감</b><span>모은 요원 ${n} / ${C.HEROES.length}</span></button>
+  const rd = C.HEROES.some(h => (C.codexNext(S, h.id) || {}).ready);
+  return `<button class="cdx" data-act="cdxagents"><img src="${ART.op_key || ''}" alt=""><b>요원 도감</b><span>모은 요원 ${n} / ${C.HEROES.length}</span>${rd ? '<i class="dot on"></i>' : ''}</button>
     <button class="cdx lock" data-act="cdxlock" data-v="51"><img src="${ART.op_boss || ''}" alt=""><b>사건 도감</b><span>스테이지 51 달성 시 열려요</span></button>
     <button class="cdx lock" data-act="cdxlock" data-v="121"><img src="${ART.op_nf || ''}" alt=""><b>복장 도감</b><span>스테이지 121 달성 시 열려요</span></button>`;
 }
@@ -2985,7 +3007,7 @@ function onAct(e) {
     else if (act === 'hfil') { hfil = b.dataset.v; renderPanel(); }
     else if (act === 'hfilc') { const L = ['전체', ...C.TYPES]; hfil = L[(L.indexOf(hfil) + 1) % L.length]; renderPanel(); }   // 분류 버튼: 누를 때마다 다음 분류
     else if (act === 'hpnav') { hpageId = detId = b.dataset.h; renderHeroPage(); }
-    else if (act === 'hpskill') toast(skillText(C.heroById(hpageId)));
+    else if (act === 'hpskill') { const h = C.heroById(hpageId); openModal(`<div class="sktip"><div class="sk-h"><img src="${ART['id_' + h.id] || portrait(h.id)}" alt=""><div><small>기술</small><b>${h.skill.name}</b></div><span>재사용 ${h.skill.cd}초</span></div><p>${skillText(h)}</p><div class="mbtns"><button class="btn" data-close>확인</button></div></div>`); }
     else if (act === 'hpbulk') { bulk = bulk === 1 ? 10 : bulk === 10 ? 0 : 1; fillHeroDetail(); }
     else if (act === 'hpjoin') {
       const id = b.dataset.h, r = C.toggleParty(S, id);
@@ -3007,7 +3029,7 @@ function onAct(e) {
       S.party = owned().sort((a, b) => pw(b) - pw(a)).slice(0, C.partySlots(S)).map(h => h.id);
       partyChanged(); renderPanel(); writeSave(); toast('전투력이 높은 요원으로 편성했어요');
     }
-    else if (act === 'cdxagents') { ownOnly = false; hfil = '전체'; hsub = 'manage'; renderPanel(); $('panel').scrollTop = 0; }
+    else if (act === 'cdxagents') openModal(cdxHtml());
     else if (act === 'cdxlock') toast(`스테이지 ${b.dataset.v} 달성 시 열려요`);
     else if (act === 'hsort') { hsort = (hsort + 1) % HSORT.length; try { localStorage.setItem('aiu-hsort', hsort); } catch (e) {} renderPanel(); toast(`${HSORT[hsort]} 정렬`); }
     else if (act === 'party' || act === 'pswap') {
@@ -3047,11 +3069,11 @@ function onAct(e) {
     else if (act === 'lv') {
       const d = S.heroes[b.dataset.h], { n, cost } = lvPlan(d.lv);
       if (cost > S.exp) return toast('경험치가 부족해요. 모의 훈련에서 많이 벌 수 있어요');
-      S.exp -= cost; d.lv += n; syncHeroes(false); C.progress(S, 'lvup', n);
+      const pw0 = teamPower(); S.exp -= cost; d.lv += n; syncHeroes(false); C.progress(S, 'lvup', n); pwUp(pw0);
     } else if (act === 'star') {
       const d = S.heroes[b.dataset.h], need = C.starNeed(d.stars, C.heroById(b.dataset.h).grade);
       if (d.shards < need) return;
-      const before = d.stars; d.shards -= need; d.stars++; C.progress(S, 'star', 1); syncHeroes(false); showStarUp(b.dataset.h, before); renderPanel(); if (hpageId) renderHeroPage();
+      const pw0 = teamPower(), before = d.stars; d.shards -= need; d.stars++; C.progress(S, 'star', 1); setTimeout(() => pwUp(pw0), 0); syncHeroes(false); showStarUp(b.dataset.h, before); renderPanel(); if (hpageId) renderHeroPage();
     } else if (act === 'up') {
       const id = b.dataset.u, cost = C.upgradeCost(id, S.up[id]);
       if (cost > S.gold) return toast('골드가 부족해요');
@@ -3467,6 +3489,33 @@ function stEnd() { clearTimeout(stT); storyOn = false; $('story').classList.remo
 $('story').addEventListener('click', e => { if (e.target.id === 'stSkip') stEnd(); else stNext(); });
 
 
+
+/* ---------- 전투력 변화 표시 (레벨업, 승급) ---------- */
+let pwT = 0;
+function pwUp(before) {
+  const now = teamPower(), d = now - before; if (d <= 0) return;
+  const el = $('pwup'); el.innerHTML = `전투력 ${C.formatNum(now)}<em>▲${C.formatNum(d)}</em>`;
+  el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+  clearTimeout(pwT); pwT = setTimeout(() => el.classList.remove('on'), 1700);
+}
+
+/* ---------- 요원 도감: 레벨 달성 보상 ---------- */
+function cdxHtml() {
+  const any = C.HEROES.some(h => (C.codexNext(S, h.id) || {}).ready);
+  return `<h2>요원 도감</h2><p class="hint">요원 레벨 10마다 보석을 받아요. 모은 요원 ${owned().length} / ${C.HEROES.length}</p><div class="cxl">${C.HEROES.map(h => {
+    const d = S.heroes[h.id], n = C.codexNext(S, h.id), face = `<img src="${ART['id_' + h.id] || portrait(h.id)}" alt="" style="--gc:${GRADE_COL[h.grade]}">`;
+    if (!d.owned) return `<div class="cx off">${face}<div><b>${h.name}</b><small>아직 만나지 못한 요원</small></div></div>`;
+    if (!n) return `<div class="cx">${face}<div><b>${h.name}</b><small>도감 보상을 모두 받았어요</small></div></div>`;
+    return `<div class="cx">${face}<div><b>${h.name}</b><small>레벨 ${n.lv} 달성 (현재 ${d.lv})</small><div class="rd-bar"><i style="width:${Math.min(100, d.lv / n.lv * 100)}%"></i></div></div>
+      <button class="btn sm" data-cx="${h.id}" ${n.ready ? '' : 'disabled'}>${icon('gem')}${n.gems}</button></div>`;
+  }).join('')}</div><div class="mbtns"><button class="btn ghost" data-close>닫기</button><button class="btn" data-cx="all" ${any ? '' : 'disabled'}>모두 받기</button></div>`;
+}
+modalEl.addEventListener('click', e => {
+  const b = e.target.closest('[data-cx]'); if (!b) return;
+  const g = C.codexClaim(S, b.dataset.cx === 'all' ? undefined : b.dataset.cx); if (!g) return;
+  writeSave(); modalEl.classList.remove('on'); renderPanel(); showResult('gift', '보상 획득', rwTiles({ gems: g }));
+});
+
 /* ---------- 근원체 출현 컷인 ---------- */
 function bossCutIn() {
   const el = $('bossin'), t = theme(), img = ART['spr_boss' + (Math.floor((S.stage - 1) / 10) % 3 + 1)] || ART.spr_boss1;
@@ -3560,7 +3609,7 @@ try { if (localStorage.getItem('aiu-side') === '1') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
-  ['0.18.0', '11월 28일', ['수사 수첩, 프로필, 피해량 기록, 일괄 소탕이 생겼어요', '구역 근원체가 처음 나올 때 이야기가 나와요', '요원 창을 요원 관리, 편성, 도감으로 나눴어요', '요원 상세 화면과 승급 성공 연출이 생겼어요', '가이드 보상으로 블레이즈 첫 승급을 할 수 있어요', '근원체 출현 컷인, 요원 대사, 보상 획득 창이 생겼어요', '재화와 메뉴 아이콘을 새로 그렸어요', '절전 모드와 새 설정이 생겼어요']],
+  ['0.18.0', '11월 28일', ['요원 도감 레벨 달성 보상, 기술 설명, 전투력 변화 표시가 생겼어요', '수사 수첩, 프로필, 피해량 기록, 일괄 소탕이 생겼어요', '구역 근원체가 처음 나올 때 이야기가 나와요', '요원 창을 요원 관리, 편성, 도감으로 나눴어요', '요원 상세 화면과 승급 성공 연출이 생겼어요', '가이드 보상으로 블레이즈 첫 승급을 할 수 있어요', '근원체 출현 컷인, 요원 대사, 보상 획득 창이 생겼어요', '재화와 메뉴 아이콘을 새로 그렸어요', '절전 모드와 새 설정이 생겼어요']],
   ['0.17.0', '11월 27일', ['가이드 퀘스트가 생겼어요', '뒤로 가기 버튼을 누르면 종료를 묻도록 바꿨어요', '오프닝 연출을 새로 만들었어요']],
 ];
 function newsHtml() {

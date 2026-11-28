@@ -488,6 +488,25 @@
     { id: 'z8',  name: '네온 유흥가 심층', stage: 81,  rw: { gems: 300 } },
     { id: 'dress', name: '복장 도감 열림', stage: 121, rw: { ptix: 3 } },
   ];
+  /* 요원 도감: 요원 레벨 10마다 한 번씩 보석 (세나 키우기 영웅 도감 달성 보상처럼) */
+  const CODEX_STEP = 10, CODEX_TIERS = 5;
+  const codexGems = tier => 20 * tier;
+  /** 다음에 받을 단계 (모두 받았으면 null) */
+  function codexNext(state, id) {
+    const d = state.heroes[id]; if (!d || !d.owned) return null;
+    const t = (state.cdx[id] || 0) + 1; if (t > CODEX_TIERS) return null;
+    return { tier: t, lv: t * CODEX_STEP, ready: d.lv >= t * CODEX_STEP, gems: codexGems(t) };
+  }
+  /** 받을 수 있는 도감 보상을 모두 받기. 받은 보석 수 */
+  function codexClaim(state, only) {
+    let g = 0;
+    for (const h of HEROES) {
+      if (only && h.id !== only) continue;
+      let n;
+      while ((n = codexNext(state, h.id)) && n.ready) { state.cdx[h.id] = n.tier; g += n.gems; }
+    }
+    state.gems += g; return g;
+  }
   /** 받을 수 있는 수첩 보상 하나 받기 (모두 받기는 반복 호출) */
   function roadClaim(state, id) {
     const r = ROADMAP.find(x => x.id === id);
@@ -641,7 +660,8 @@
       farming: false,     // 근원체에게 진 뒤 반복 사냥 모드
       heroes,
       party: STARTER_IDS.slice(),   // 전투에 나가는 요원 (최대 5명)
-      unl: [],            // 받은 수사 수첩 보상
+      unl: [],
+      cdx: {},            // 요원 도감 받은 단계            // 받은 수사 수첩 보상
       face: '',           // 프로필 얼굴 (비면 첫 출전 요원)
       up: { atk: 0, gold: 0, crit: 0 },
       q: { i: 0, p: 0, g: 1 },  // 퀘스트 번호와 진행 (g: 가이드 퀘스트가 있는 저장)
@@ -703,6 +723,7 @@
       s.daily.got = Array.isArray(raw.daily.got) ? [...new Set(raw.daily.got.filter(i => Number.isInteger(i) && i >= 0 && i < MISSIONS.length))] : [];
       s.daily.bonus = raw.daily.bonus === true && s.daily.got.length === MISSIONS.length;
     }
+    s.cdx = {}; if (raw.cdx && typeof raw.cdx === 'object') for (const h of HEROES) if (isNum(raw.cdx[h.id])) s.cdx[h.id] = clampInt(raw.cdx[h.id], 0, CODEX_TIERS, 0);
     s.unl = Array.isArray(raw.unl) ? raw.unl.filter(x => ROADMAP.some(r => r.id === x)) : [];
     s.face = typeof raw.face === 'string' && HEROES.some(h => h.id === raw.face) ? raw.face : '';
     if (raw.att && typeof raw.att === 'object') s.att = { n: clampInt(raw.att.n, 0, 1e6, 0), last: typeof raw.att.last === 'string' ? raw.att.last.slice(0, 10) : '' };
@@ -739,7 +760,7 @@
   const Core = {
     HEROES, TYPES, STARTER_IDS, partyIds, partySlots, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
-    ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
+    codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,

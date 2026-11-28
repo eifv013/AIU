@@ -333,3 +333,14 @@ test('수사 수첩: 단계 도달 전에는 못 받고, 한 번만 받음', () 
   const t = C.sanitize(JSON.parse(JSON.stringify({ ...s, face: 'mage', unl: ['z2', 'x'] })), 0);
   assert.deepEqual(t.unl, ['z2']); assert.equal(t.face, 'mage');
 });
+
+test('요원 도감: 레벨 10마다 한 번', () => {
+  const s = C.newState(0); const g = s.gems;
+  assert.equal(C.codexClaim(s), 0);
+  s.heroes.mage.lv = 25;
+  assert.equal(C.codexClaim(s), 20 + 40);
+  assert.equal(s.gems, g + 60);
+  assert.equal(C.codexClaim(s), 0);
+  assert.equal(C.codexNext(s, 'mage').lv, 30);
+  assert.equal(C.sanitize(JSON.parse(JSON.stringify(s)), 0).cdx.mage, 2);
+});

@@ -333,7 +333,8 @@
   /** 요원 Lv 강화 비용 (현재 lv → lv+1), 경험치 */
   /** 요원 레벨 상한: ★1 100, 별마다 +50 (★5 300, 각성 350). 초반 스테이지는 막지 않고, 후반에 승급이 필요해지게 */
   // 고정 상한은 후반에 스테이지를 막아서 없앰 (레벨 비용이 점점 커지는 것으로 속도를 조절). 함수는 남겨 둠
-  function heroLvCap(stars) { return 99999; }
+  // 0.38.7: 최대 레벨을 다시 둠 (세나 키우기처럼 'Lv.213 / 450'으로 끝이 보이게). 넉넉하게 ★1 300, 별마다 +150 (★5 900, 각성 1,050)
+  function heroLvCap(stars) { return 300 + 150 * (clampInt(stars, 1, AWAKE_STAR, 1) - 1); }
   function heroLvCost(lv) { return Math.floor(300 * Math.pow(1.06, clampInt(lv, 1, 1e6, 1) - 1)); }
 
   /** lv 에서 n 단계 올리는 총 비용 */

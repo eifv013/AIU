@@ -568,7 +568,7 @@ test('보급품: 팀이 약해도 0이 아닌 보상', () => {
 });
 
 test('요원 레벨: 고정 상한 없음', () => {
-  assert.ok(C.heroLvCap(1) > 10000);
+  assert.equal(C.heroLvCap(1), 300); assert.equal(C.heroLvCap(5), 900);
 });
 
 test('기술 성장: 별이 오를수록 기술 수치가 커지고 원본은 그대로', () => {

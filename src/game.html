@@ -2238,6 +2238,8 @@ html,body{overflow-x:hidden}
 #tabs button,#tabs button.on{background:none!important}
 #tabs button.on:not(.ct) .tb{background:none!important;filter:none!important}
 #tabs button:not(.ct) .tb::before,#tabs button:not(.ct)::after{display:none!important}
+#tabs button:not(.ct) .tb{clip-path:none!important;-webkit-clip-path:none!important;overflow:visible!important}   /* 고른 메뉴 뒤에 육각형 칸이 비치던 것: 칸 모양 자르기를 없애고 아이콘에만 빛 */
+#tabs button.on:not(.ct) .tb img.gi{filter:drop-shadow(0 0 5px rgba(242,201,76,.85)) brightness(1.12)!important}
 #bbar .pw b{font:800 15px "IBM Plex Sans KR"!important;letter-spacing:0}   /* 전투력 숫자가 단위(B)까지 크게 보이던 것 */
 /* 0.38.7 안내 문구: 둥근 검은 알약 대신 세나 키우기처럼 화면 너비 가로 띠 (가장자리는 흐려짐), 얇은 금색 선 */
 #toast{left:0!important;right:0!important;top:40%!important;transform:translateY(-50%)!important;max-width:none!important;width:auto!important;padding:9px 24px!important;border-radius:0!important;background:linear-gradient(90deg,transparent,rgba(6,8,14,.88) 18%,rgba(6,8,14,.88) 82%,transparent)!important;border:0!important;box-shadow:none!important;font:600 13.5px/1.4 'IBM Plex Sans KR'!important;color:#eef1f8!important}
@@ -2277,6 +2279,7 @@ html,body{overflow-x:hidden}
 .gs-row{display:flex;justify-content:center;align-items:center;gap:14px;margin:6px 0 4px;font:600 14px 'IBM Plex Sans KR'}.gs-row .ic{width:26px;height:26px}.gs-row b{color:#fff}.gs-row b.ng{color:#ff7a6b}
 #panel [data-act=sum].short{filter:saturate(.55) brightness(.85)}
 #sfx .sx-end{gap:14px!important}#sfx .sx-auto{margin-bottom:2px}   /* 자동 호출 칸이 아래 단추에 붙어 있던 것 */
+.lvcap{font:600 12px 'IBM Plex Sans KR';color:#8f99ae;letter-spacing:0}
 </style>
 </head>
 <body>
@@ -4728,11 +4731,11 @@ function fillHeroDetail() {
     $('hpStatG').innerHTML = heroStatGrid(id, 1, 1);
     return;
   }
-  $('hpLv').textContent = d.lv; $('hpLv').dataset.cap = C.heroLvCap(d.stars);
+  $('hpLv').innerHTML = `${d.lv}<small class="lvcap"> / ${C.heroLvCap(d.stars)}</small>`;   // 최대 레벨 표시
   const st = hpAwk && h.grade === '전설' ? C.AWAKE_STAR : d.stars;   // 각성 정보 보기: ★6 기준 능력치
   const atk = C.heroAtk(id, d.lv, st, S.up.atk), hp = C.heroHp(id, d.lv, st);
   $('hpPw').textContent = C.formatNum(Math.round(atk * 10 + hp));
-  $('hpStatG').innerHTML = heroStatGrid(id, d.lv, st);
+  { const g = $('hpStatG'), h2 = heroStatGrid(id, d.lv, st); if (g.dataset.sig !== h2) { g.innerHTML = h2; g.dataset.sig = h2; } }   // 값이 바뀔 때만 다시 그림 (레벨업 연타 때 아이콘 그림을 매번 새로 만들어 버벅이던 것)
   const pids = C.partyIds(S), inP = pids.includes(id), pb = $('hpParty');
   pb.dataset.act = inP ? 'party' : 'hpjoin'; pb.textContent = inP ? '출전 중' : '출전'; pb.classList.toggle('on', inP);
   const need = C.starNeed(d.stars, h.grade), max = need === Infinity;
@@ -5916,8 +5919,8 @@ function sumPageHtml() {
   if (!sumBan) sumBan = open ? 'pickup' : 'call';
   const bi = BANS.findIndex(b => b[0] === sumBan), [kind, title, , cv] = BANS[bi];
   const prev = K.SUMMON_LV_PULLS[lv - 1] || 0, next = K.SUMMON_LV_PULLS[lv];
-  const lvBar = `<div class="sl2"><div class="sl2-h"><b>요원 소환 레벨 ${lv}</b></div><button class="sl2-g" data-slvgift aria-label="레벨 보상">${icon('gem')}</button>
-    <div class="sl2-bar"><i style="width:${next ? (100 * (S.pulls.total - prev) / (next - prev)).toFixed(1) : 100}%"></i><span>${next ? `${(S.pulls.total - prev).toLocaleString()} / ${(next - prev).toLocaleString()}` : '최고 레벨'}</span></div></div>`;
+  const lvBar = `<div class="sl2"><div class="sl2-h"><b>요원 소환 레벨 ${lv} <small class="lvcap">/ ${K.SUMMON_LV_PULLS.length}</small></b></div><button class="sl2-g" data-slvgift aria-label="레벨 보상">${icon('gem')}</button>
+    <div class="sl2-bar"><i style="width:${next ? (100 * (S.pulls.total - prev) / (next - prev)).toFixed(1) : 100}%"></i><span>${next ? `${(S.pulls.total - prev).toLocaleString()} / ${(next - prev).toLocaleString()}` : '최고 레벨 달성'}</span></div></div>`;
   const desc = {
     pickup: ['호출 버튼을 누르면 요원이 바로 합류해요.', `누적 ${K.RELAY}회째에 ${pk.name}이 확정으로 나와요.`, `한정 전설 ${pk.name}은 특별 채용에서만 나와요.`],
     elite: ['영웅 이상 요원만 나와요.', `상시 전설이 ${pctTxt(K.PREMIUM_LEGEND)} 확률로 나와요.`, '정예 호출권이 모자라면 보석으로 호출해요.'],

@@ -402,3 +402,20 @@ test('패스: 무료는 바로, 유료는 구매 뒤에만', () => {
   assert.equal(C.passClaim(s, 5, 'free'), null);
   assert.deepEqual(C.passReady(s).map(x => x.join()), ['1,free', '1,paid']);
 });
+
+test('주간, 월간, 반복 임무와 임무 패스', () => {
+  const s = C.newState(0), d = new Date(2026, 10, 28, 10);   // 토요일
+  C.misReset(s, d);
+  assert.equal(s.mis.w.k, '2026-11-23'); assert.equal(s.mis.m.k, '2026-11');
+  C.progress(s, 'boss', 20);
+  assert.ok(C.misClaim(s, 'w', 1)); assert.equal(C.misClaim(s, 'w', 1), null);
+  assert.equal(s.mis.m.pts, 20);
+  // 반복: 근원체 5마다 한 번, 20이면 4번
+  assert.equal(C.repeatReady(s, 1), 4); const g = s.gems; C.misClaim(s, 'r', 1); assert.equal(s.gems, g + 80); assert.equal(C.repeatReady(s, 1), 0);
+  // 다음 주가 되면 주간만 새로
+  C.misReset(s, new Date(2026, 10, 30, 1)); assert.equal(s.mis.w.got.length, 0); assert.equal(s.mis.m.pts, 20);
+  // 패스: 60점 넘으면 1단계 무료
+  s.mis.m.pts = 65; assert.ok(C.mpassClaim(s, 0, 'free')); assert.equal(C.mpassClaim(s, 0, 'paid'), null);
+  s.mis.paid = s.mis.m.k; assert.ok(C.mpassClaim(s, 0, 'paid'));
+  const t = C.sanitize(JSON.parse(JSON.stringify(s)), 0); assert.equal(t.mis.m.pts, 65); assert.deepEqual(t.mis.m.pf, [0]);
+});

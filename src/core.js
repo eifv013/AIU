@@ -664,6 +664,7 @@
     const m = MISSIONS[i];
     if (!m || state.daily.got.includes(i) || (state.daily.p[m.kind] || 0) < m.need) return 0;
     state.daily.got.push(i); state.gems += m.gems;
+    if (state.mis) state.mis.m.pts += MIS_PT_DAILY;
     return m.gems;
   }
   /** 모두 받았으면 보너스 (정예 호출권) */
@@ -672,8 +673,76 @@
     state.daily.bonus = true; state.ptix += CONST.MISSION_BONUS_PTIX;
     return CONST.MISSION_BONUS_PTIX;
   }
-  /** 가이드 퀘스트와 일일 임무를 함께 올림 */
-  function progress(state, kind, amount = 1) { questAdd(state, kind, amount); missionAdd(state, kind, amount); }
+  /* ---------- 주간, 월간, 반복 임무 + 임무 패스 (세나 키우기 미션 창처럼) ----------
+   * 주간은 월요일 0시, 월간은 1일 0시에 새로 시작. 반복은 끝없이 다시 받음.
+   * 일일, 주간, 월간 임무를 받으면 임무 점수가 쌓이고, 점수로 임무 패스 단계가 오름 (매달 새로) */
+  const WEEKLY = [
+    { kind: 'kill',    text: '이상체 처리',    need: 3000, rw: { gems: 100 }, pt: 20 },
+    { kind: 'boss',    text: '근원체 봉쇄',    need: 20,   rw: { gems: 100 }, pt: 20 },
+    { kind: 'lvup',    text: '요원 강화',      need: 50,   rw: { tix: 20 },   pt: 20 },
+    { kind: 'summon',  text: '요원 호출',      need: 60,   rw: { gems: 150 }, pt: 20 },
+    { kind: 'dungeon', text: '일일 작전 완료', need: 15,   rw: { g2: 2, e2: 2 }, pt: 20 },
+    { kind: 'train',   text: '성장 레벨업',    need: 30,   rw: { med: 20 },   pt: 20 },
+  ];
+  const MONTHLY = [
+    { kind: 'kill',    text: '이상체 처리',    need: 15000, rw: { gems: 500 }, pt: 50 },
+    { kind: 'boss',    text: '근원체 봉쇄',    need: 80,    rw: { ptix: 3 },   pt: 50 },
+    { kind: 'summon',  text: '요원 호출',      need: 250,   rw: { gems: 600 }, pt: 50 },
+    { kind: 'dungeon', text: '일일 작전 완료', need: 60,    rw: { tix: 100 },  pt: 50 },
+    { kind: 'star',    text: '요원 승급',      need: 10,    rw: { ptix: 2 },   pt: 50 },
+  ];
+  const REPEAT = [
+    { kind: 'kill',   text: '이상체 처리', need: 500, rw: { tix: 3 } },
+    { kind: 'boss',   text: '근원체 봉쇄', need: 5,   rw: { gems: 20 } },
+    { kind: 'summon', text: '요원 호출',   need: 30,  rw: { gems: 30 } },
+    { kind: 'lvup',   text: '요원 강화',   need: 20,  rw: { g2: 1 } },
+  ];
+  const MIS_PT_DAILY = 10;   // 일일 임무 하나 받을 때 점수
+  const MPASS = Array.from({ length: 12 }, (_, i) => ({ pt: (i + 1) * 60, free: i % 3 === 2 ? { ptix: 1 } : i % 2 ? { tix: 10 } : { gems: 80 }, paid: i % 3 === 2 ? { ptix: 3 } : { gems: 300 } }));
+  const MPASS_PRICE = 5500;
+  function weekKey(now) { const d = new Date(now.getFullYear(), now.getMonth(), now.getDate()); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return dayKey(d); }
+  function monthKey(now) { return dayKey(now).slice(0, 7); }
+  const freshMis = () => ({ w: { k: '', p: {}, got: [] }, m: { k: '', p: {}, got: [], pts: 0, pf: [], pp: [] }, r: { p: {}, got: {} }, paid: '' });
+  /** 주와 달이 바뀌었으면 새로 시작 */
+  function misReset(state, now) {
+    const mi = state.mis, wk = weekKey(now), mk = monthKey(now);
+    if (mi.w.k !== wk) mi.w = { k: wk, p: {}, got: [] };
+    if (mi.m.k !== mk) mi.m = { k: mk, p: {}, got: [], pts: 0, pf: [], pp: [] };
+  }
+  const MIS_LIST = { w: WEEKLY, m: MONTHLY, r: REPEAT };
+  function misAdd(state, kind, amount) {
+    const mi = state.mis; if (!mi) return;
+    for (const per of ['w', 'm']) { const m = MIS_LIST[per].find(x => x.kind === kind); if (m) mi[per].p[kind] = Math.min(m.need, (mi[per].p[kind] || 0) + amount); }
+    if (REPEAT.some(x => x.kind === kind)) mi.r.p[kind] = (mi.r.p[kind] || 0) + amount;
+  }
+  /** 반복 임무: 지금 받을 수 있는 횟수 */
+  function repeatReady(state, i) { const m = REPEAT[i], mi = state.mis; return Math.floor((mi.r.p[m.kind] || 0) / m.need) - (mi.r.got[i] || 0); }
+  /** 주간(w), 월간(m), 반복(r) 임무 받기. 받은 보상 (없으면 null) */
+  function misClaim(state, per, i) {
+    const mi = state.mis, list = MIS_LIST[per], m = list && list[i]; if (!m) return null;
+    if (per === 'r') {
+      const n = repeatReady(state, i); if (n <= 0) return null;
+      mi.r.got[i] = (mi.r.got[i] || 0) + n;
+      const rw = Object.fromEntries(Object.entries(m.rw).map(([k, v]) => [k, v * n])); giveReward(state, rw); return rw;
+    }
+    const box = mi[per]; if (box.got.includes(i) || (box.p[m.kind] || 0) < m.need) return null;
+    box.got.push(i); mi.m.pts += m.pt; giveReward(state, m.rw); return m.rw;
+  }
+  function misReadyCount(state, per) {
+    if (per === 'r') return REPEAT.reduce((a, _, i) => a + (repeatReady(state, i) > 0 ? 1 : 0), 0);
+    const box = state.mis[per]; return MIS_LIST[per].filter((m, i) => !box.got.includes(i) && (box.p[m.kind] || 0) >= m.need).length;
+  }
+  /** 임무 패스 */
+  function mpassClaim(state, i, track) {
+    const r = MPASS[i], mm = state.mis.m; if (!r || mm.pts < r.pt) return null;
+    const paid = track === 'paid'; if (paid && state.mis.paid !== mm.k) return null;
+    const got = paid ? mm.pp : mm.pf; if (got.includes(i)) return null;
+    got.push(i); const rw = paid ? r.paid : r.free; giveReward(state, rw); return rw;
+  }
+  function mpassReady(state) { const mm = state.mis.m, out = []; MPASS.forEach((r, i) => { if (mm.pts < r.pt) return; if (!mm.pf.includes(i)) out.push([i, 'free']); if (state.mis.paid === mm.k && !mm.pp.includes(i)) out.push([i, 'paid']); }); return out; }
+
+  /** 가이드 퀘스트와 일일, 주간, 월간, 반복 임무를 함께 올림 */
+  function progress(state, kind, amount = 1) { questAdd(state, kind, amount); missionAdd(state, kind, amount); misAdd(state, kind, amount); }
 
   /** 출석 보상 받을 수 있는지 / 받기 (오늘 이미 받았으면 null) */
   function canAttend(state, now) { return state.att.last !== dayKey(now); }
@@ -767,6 +836,7 @@
       unl: [],
       mail: [],
       bag: {},
+      mis: freshMis(),    // 주간, 월간, 반복 임무와 임무 패스
       pass: { paid: false, f: [], p: [] },   // 수사 패스
       owned: [],          // 산 패키지 (한 번만)
       shop: { day: '', n: {} },   // 상점 오늘 산 횟수
@@ -848,6 +918,15 @@
     const okIdx = a => Array.isArray(a) ? [...new Set(a.filter(i => Number.isInteger(i) && i >= 0 && i < PASS.length))] : [];
     s.pass = { paid: !!(raw.pass && raw.pass.paid === true), f: okIdx(raw.pass && raw.pass.f), p: okIdx(raw.pass && raw.pass.p) };
     s.owned = Array.isArray(raw.owned) ? raw.owned.filter(x => typeof x === 'string').slice(0, 50) : [];
+    s.mis = freshMis();
+    if (raw.mis && typeof raw.mis === 'object') {
+      const R2 = raw.mis, okP = (o, list) => { const out = {}; if (o && typeof o === 'object') for (const m of list) if (isNum(o[m.kind])) out[m.kind] = clampInt(o[m.kind], 0, 1e9, 0); return out; };
+      const okI = (a, n) => Array.isArray(a) ? [...new Set(a.filter(i => Number.isInteger(i) && i >= 0 && i < n))] : [];
+      if (R2.w) s.mis.w = { k: String(R2.w.k || '').slice(0, 10), p: okP(R2.w.p, WEEKLY), got: okI(R2.w.got, WEEKLY.length) };
+      if (R2.m) s.mis.m = { k: String(R2.m.k || '').slice(0, 7), p: okP(R2.m.p, MONTHLY), got: okI(R2.m.got, MONTHLY.length), pts: isNum(R2.m.pts) ? clampInt(R2.m.pts, 0, 1e6, 0) : 0, pf: okI(R2.m.pf, MPASS.length), pp: okI(R2.m.pp, MPASS.length) };
+      if (R2.r) { s.mis.r.p = okP(R2.r.p, REPEAT); if (R2.r.got && typeof R2.r.got === 'object') for (let i = 0; i < REPEAT.length; i++) if (isNum(R2.r.got[i])) s.mis.r.got[i] = clampInt(R2.r.got[i], 0, 1e9, 0); }
+      s.mis.paid = typeof R2.paid === 'string' ? R2.paid.slice(0, 7) : '';
+    }
     s.bag = {}; if (raw.bag && typeof raw.bag === 'object') for (const k of Object.keys(ITEMS)) if (isNum(raw.bag[k])) s.bag[k] = clampInt(raw.bag[k], 0, 1e6, 0);
     s.mail = Array.isArray(raw.mail) ? raw.mail.filter(x => MAILS.some(m => m.id === x)) : [];
     s.unl = Array.isArray(raw.unl) ? raw.unl.filter(x => ROADMAP.some(r => r.id === x)) : [];
@@ -886,7 +965,7 @@
   const Core = {
     HEROES, TYPES, STARTER_IDS, partyIds, partySlots, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
-    PASS, PASS_PRICE, passClaim, passReady, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
+    WEEKLY, MONTHLY, REPEAT, MPASS, MPASS_PRICE, misReset, misClaim, misReadyCount, repeatReady, mpassClaim, mpassReady, weekKey, monthKey, PASS, PASS_PRICE, passClaim, passReady, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,

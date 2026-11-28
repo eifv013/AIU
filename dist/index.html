@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.22.3';
+window.AIU_VER = '0.23.0';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1414,6 +1414,15 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 #adBtn .ad-ev{top:-10px!important}
 #side:not(.fold) #attBtn,#side:not(.fold) #passBtn{display:none!important}
 #tabs .ct .ct-b{display:none}#app.hdopen #tabs .ct .ct-b{display:block!important}#app.hdopen #tabs .ct .ct-x{display:none!important}
+.sp-ver{position:absolute;right:14px;top:calc(env(safe-area-inset-top) + 10px);z-index:5;font:600 12px 'IBM Plex Sans KR';color:rgba(232,236,246,.75);text-shadow:0 1px 3px #000;letter-spacing:.04em}
+
+.mtabs{grid-template-columns:repeat(5,1fr)!important;margin:2px 0 10px!important}
+.mtabs button{position:relative;font-size:12px!important}
+.mt-dot{position:absolute;top:2px;right:6px;width:7px;height:7px;border-radius:50%;background:#ff4a3a}
+.mpt{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px;margin:0 0 8px;padding:8px 12px;border-radius:6px;background:rgba(210,171,85,.1);border:1px solid rgba(210,171,85,.35);text-align:left;font:700 13px 'IBM Plex Sans KR'}
+.mpt b{font:400 20px "Black Han Sans";color:var(--gold)}.mpt small{width:100%;font:600 11px 'IBM Plex Sans KR';color:var(--dim)}
+.mrow .rw .ic{width:18px;height:18px}.mrow .rw span{font:400 13px "Black Han Sans"}
+.mx2{font-style:normal;color:var(--gold);font-size:12px}
 </style>
 </head>
 <body>
@@ -1570,6 +1579,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   <div id="splash" role="img" aria-label="Loop &amp; Lamp Studio 의 AIU 이상현상 전담수사팀, 불러오는 중">
     <!-- 시작 화면 배경: 요원 다섯 명 그림(가로 폭에 맞춰 아래에 붙임) + 그 위로 내리는 비와 균열 빛 (캔버스) -->
     <canvas id="spbg" aria-hidden="true"></canvas>
+    <span class="sp-ver" id="spVer"></span>
     <div class="sp-game" aria-hidden="true">
       <!-- AIU 로고: 스텐실 글자 + 균열(이상현상) + 정식 명칭 + 기밀 도장. 그림은 SVG 로 직접 그림 -->
       <div class="aiu">
@@ -2288,6 +2298,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     const m = MISSIONS[i];
     if (!m || state.daily.got.includes(i) || (state.daily.p[m.kind] || 0) < m.need) return 0;
     state.daily.got.push(i); state.gems += m.gems;
+    if (state.mis) state.mis.m.pts += MIS_PT_DAILY;
     return m.gems;
   }
   /** 모두 받았으면 보너스 (정예 호출권) */
@@ -2296,8 +2307,76 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     state.daily.bonus = true; state.ptix += CONST.MISSION_BONUS_PTIX;
     return CONST.MISSION_BONUS_PTIX;
   }
-  /** 가이드 퀘스트와 일일 임무를 함께 올림 */
-  function progress(state, kind, amount = 1) { questAdd(state, kind, amount); missionAdd(state, kind, amount); }
+  /* ---------- 주간, 월간, 반복 임무 + 임무 패스 (세나 키우기 미션 창처럼) ----------
+   * 주간은 월요일 0시, 월간은 1일 0시에 새로 시작. 반복은 끝없이 다시 받음.
+   * 일일, 주간, 월간 임무를 받으면 임무 점수가 쌓이고, 점수로 임무 패스 단계가 오름 (매달 새로) */
+  const WEEKLY = [
+    { kind: 'kill',    text: '이상체 처리',    need: 3000, rw: { gems: 100 }, pt: 20 },
+    { kind: 'boss',    text: '근원체 봉쇄',    need: 20,   rw: { gems: 100 }, pt: 20 },
+    { kind: 'lvup',    text: '요원 강화',      need: 50,   rw: { tix: 20 },   pt: 20 },
+    { kind: 'summon',  text: '요원 호출',      need: 60,   rw: { gems: 150 }, pt: 20 },
+    { kind: 'dungeon', text: '일일 작전 완료', need: 15,   rw: { g2: 2, e2: 2 }, pt: 20 },
+    { kind: 'train',   text: '성장 레벨업',    need: 30,   rw: { med: 20 },   pt: 20 },
+  ];
+  const MONTHLY = [
+    { kind: 'kill',    text: '이상체 처리',    need: 15000, rw: { gems: 500 }, pt: 50 },
+    { kind: 'boss',    text: '근원체 봉쇄',    need: 80,    rw: { ptix: 3 },   pt: 50 },
+    { kind: 'summon',  text: '요원 호출',      need: 250,   rw: { gems: 600 }, pt: 50 },
+    { kind: 'dungeon', text: '일일 작전 완료', need: 60,    rw: { tix: 100 },  pt: 50 },
+    { kind: 'star',    text: '요원 승급',      need: 10,    rw: { ptix: 2 },   pt: 50 },
+  ];
+  const REPEAT = [
+    { kind: 'kill',   text: '이상체 처리', need: 500, rw: { tix: 3 } },
+    { kind: 'boss',   text: '근원체 봉쇄', need: 5,   rw: { gems: 20 } },
+    { kind: 'summon', text: '요원 호출',   need: 30,  rw: { gems: 30 } },
+    { kind: 'lvup',   text: '요원 강화',   need: 20,  rw: { g2: 1 } },
+  ];
+  const MIS_PT_DAILY = 10;   // 일일 임무 하나 받을 때 점수
+  const MPASS = Array.from({ length: 12 }, (_, i) => ({ pt: (i + 1) * 60, free: i % 3 === 2 ? { ptix: 1 } : i % 2 ? { tix: 10 } : { gems: 80 }, paid: i % 3 === 2 ? { ptix: 3 } : { gems: 300 } }));
+  const MPASS_PRICE = 5500;
+  function weekKey(now) { const d = new Date(now.getFullYear(), now.getMonth(), now.getDate()); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return dayKey(d); }
+  function monthKey(now) { return dayKey(now).slice(0, 7); }
+  const freshMis = () => ({ w: { k: '', p: {}, got: [] }, m: { k: '', p: {}, got: [], pts: 0, pf: [], pp: [] }, r: { p: {}, got: {} }, paid: '' });
+  /** 주와 달이 바뀌었으면 새로 시작 */
+  function misReset(state, now) {
+    const mi = state.mis, wk = weekKey(now), mk = monthKey(now);
+    if (mi.w.k !== wk) mi.w = { k: wk, p: {}, got: [] };
+    if (mi.m.k !== mk) mi.m = { k: mk, p: {}, got: [], pts: 0, pf: [], pp: [] };
+  }
+  const MIS_LIST = { w: WEEKLY, m: MONTHLY, r: REPEAT };
+  function misAdd(state, kind, amount) {
+    const mi = state.mis; if (!mi) return;
+    for (const per of ['w', 'm']) { const m = MIS_LIST[per].find(x => x.kind === kind); if (m) mi[per].p[kind] = Math.min(m.need, (mi[per].p[kind] || 0) + amount); }
+    if (REPEAT.some(x => x.kind === kind)) mi.r.p[kind] = (mi.r.p[kind] || 0) + amount;
+  }
+  /** 반복 임무: 지금 받을 수 있는 횟수 */
+  function repeatReady(state, i) { const m = REPEAT[i], mi = state.mis; return Math.floor((mi.r.p[m.kind] || 0) / m.need) - (mi.r.got[i] || 0); }
+  /** 주간(w), 월간(m), 반복(r) 임무 받기. 받은 보상 (없으면 null) */
+  function misClaim(state, per, i) {
+    const mi = state.mis, list = MIS_LIST[per], m = list && list[i]; if (!m) return null;
+    if (per === 'r') {
+      const n = repeatReady(state, i); if (n <= 0) return null;
+      mi.r.got[i] = (mi.r.got[i] || 0) + n;
+      const rw = Object.fromEntries(Object.entries(m.rw).map(([k, v]) => [k, v * n])); giveReward(state, rw); return rw;
+    }
+    const box = mi[per]; if (box.got.includes(i) || (box.p[m.kind] || 0) < m.need) return null;
+    box.got.push(i); mi.m.pts += m.pt; giveReward(state, m.rw); return m.rw;
+  }
+  function misReadyCount(state, per) {
+    if (per === 'r') return REPEAT.reduce((a, _, i) => a + (repeatReady(state, i) > 0 ? 1 : 0), 0);
+    const box = state.mis[per]; return MIS_LIST[per].filter((m, i) => !box.got.includes(i) && (box.p[m.kind] || 0) >= m.need).length;
+  }
+  /** 임무 패스 */
+  function mpassClaim(state, i, track) {
+    const r = MPASS[i], mm = state.mis.m; if (!r || mm.pts < r.pt) return null;
+    const paid = track === 'paid'; if (paid && state.mis.paid !== mm.k) return null;
+    const got = paid ? mm.pp : mm.pf; if (got.includes(i)) return null;
+    got.push(i); const rw = paid ? r.paid : r.free; giveReward(state, rw); return rw;
+  }
+  function mpassReady(state) { const mm = state.mis.m, out = []; MPASS.forEach((r, i) => { if (mm.pts < r.pt) return; if (!mm.pf.includes(i)) out.push([i, 'free']); if (state.mis.paid === mm.k && !mm.pp.includes(i)) out.push([i, 'paid']); }); return out; }
+
+  /** 가이드 퀘스트와 일일, 주간, 월간, 반복 임무를 함께 올림 */
+  function progress(state, kind, amount = 1) { questAdd(state, kind, amount); missionAdd(state, kind, amount); misAdd(state, kind, amount); }
 
   /** 출석 보상 받을 수 있는지 / 받기 (오늘 이미 받았으면 null) */
   function canAttend(state, now) { return state.att.last !== dayKey(now); }
@@ -2391,6 +2470,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
       unl: [],
       mail: [],
       bag: {},
+      mis: freshMis(),    // 주간, 월간, 반복 임무와 임무 패스
       pass: { paid: false, f: [], p: [] },   // 수사 패스
       owned: [],          // 산 패키지 (한 번만)
       shop: { day: '', n: {} },   // 상점 오늘 산 횟수
@@ -2472,6 +2552,15 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     const okIdx = a => Array.isArray(a) ? [...new Set(a.filter(i => Number.isInteger(i) && i >= 0 && i < PASS.length))] : [];
     s.pass = { paid: !!(raw.pass && raw.pass.paid === true), f: okIdx(raw.pass && raw.pass.f), p: okIdx(raw.pass && raw.pass.p) };
     s.owned = Array.isArray(raw.owned) ? raw.owned.filter(x => typeof x === 'string').slice(0, 50) : [];
+    s.mis = freshMis();
+    if (raw.mis && typeof raw.mis === 'object') {
+      const R2 = raw.mis, okP = (o, list) => { const out = {}; if (o && typeof o === 'object') for (const m of list) if (isNum(o[m.kind])) out[m.kind] = clampInt(o[m.kind], 0, 1e9, 0); return out; };
+      const okI = (a, n) => Array.isArray(a) ? [...new Set(a.filter(i => Number.isInteger(i) && i >= 0 && i < n))] : [];
+      if (R2.w) s.mis.w = { k: String(R2.w.k || '').slice(0, 10), p: okP(R2.w.p, WEEKLY), got: okI(R2.w.got, WEEKLY.length) };
+      if (R2.m) s.mis.m = { k: String(R2.m.k || '').slice(0, 7), p: okP(R2.m.p, MONTHLY), got: okI(R2.m.got, MONTHLY.length), pts: isNum(R2.m.pts) ? clampInt(R2.m.pts, 0, 1e6, 0) : 0, pf: okI(R2.m.pf, MPASS.length), pp: okI(R2.m.pp, MPASS.length) };
+      if (R2.r) { s.mis.r.p = okP(R2.r.p, REPEAT); if (R2.r.got && typeof R2.r.got === 'object') for (let i = 0; i < REPEAT.length; i++) if (isNum(R2.r.got[i])) s.mis.r.got[i] = clampInt(R2.r.got[i], 0, 1e9, 0); }
+      s.mis.paid = typeof R2.paid === 'string' ? R2.paid.slice(0, 7) : '';
+    }
     s.bag = {}; if (raw.bag && typeof raw.bag === 'object') for (const k of Object.keys(ITEMS)) if (isNum(raw.bag[k])) s.bag[k] = clampInt(raw.bag[k], 0, 1e6, 0);
     s.mail = Array.isArray(raw.mail) ? raw.mail.filter(x => MAILS.some(m => m.id === x)) : [];
     s.unl = Array.isArray(raw.unl) ? raw.unl.filter(x => ROADMAP.some(r => r.id === x)) : [];
@@ -2510,7 +2599,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   const Core = {
     HEROES, TYPES, STARTER_IDS, partyIds, partySlots, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
-    PASS, PASS_PRICE, passClaim, passReady, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
+    WEEKLY, MONTHLY, REPEAT, MPASS, MPASS_PRICE, misReset, misClaim, misReadyCount, repeatReady, mpassClaim, mpassReady, weekKey, monthKey, PASS, PASS_PRICE, passClaim, passReady, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,
@@ -4074,7 +4163,7 @@ function updatePanel() {
   // 탭 알림 점: 할 수 있는 강화가 있을 때
   $('dotHero').style.display = team().some(h => C.heroLvCost(S.heroes[h.id].lv) <= S.exp || S.heroes[h.id].shards >= C.starNeed(S.heroes[h.id].stars, h.grade)) && !$('app').classList.contains('herofull') ? 'block' : 'none';
   $('dotRun').style.display = runAlert() && (tab !== 'run' || $('app').classList.contains('folded')) ? 'block' : 'none';
-  $('dotMis').style.display = misAlert() ? 'block' : 'none';
+  C.misReset(S, new Date()); $('dotMis').style.display = misAlertAll() ? 'block' : 'none';
   $('dotAtt').style.display = C.canAttend(S, new Date()) ? 'block' : 'none';
   if ($('sideMis')) updateRun(modalEl);   // 임무 창이 열려 있으면 진행 갱신
   $('dotTrain').style.display = C.UPGRADES.some(u => C.upgradeCost(u.id, S.up[u.id]) <= S.gold) && (tab !== 'train' || $('app').classList.contains('folded')) ? 'block' : 'none';
@@ -4108,7 +4197,7 @@ function renderRun(P) {
 }
 /* 일일 임무, 출석: 전투 화면 왼쪽 아이콘을 누르면 창으로 (세나 키우기 미션, 출석 아이콘과 같은 자리) */
 function misHtml() {
-  return `<div id="sideMis"><h2>일일 임무</h2>` + C.MISSIONS.map((m, i) => `<div class="mrow" data-m="${i}"><div class="mt"><b>${m.text}</b><div class="bar"><i></i></div></div>
+  return `<div id="sideMis"><h2>임무</h2>${misTabs('d')}` + C.MISSIONS.map((m, i) => `<div class="mrow" data-m="${i}"><div class="mt"><b>${m.text}</b><div class="bar"><i></i></div></div>
       <span class="mp"></span><span class="rw">${icon('gem')}${m.gems}</span><button class="btn sm" data-act="mget" data-m="${i}">받기</button></div>`).join('') +
     `<div class="mrow bonus"><div class="mt"><b>일일 임무 모두 완료</b><div class="bar"><i></i></div></div><span class="mp"></span><span class="rw">${icon('ptix')}${C.CONST.MISSION_BONUS_PTIX}</span><button class="btn sm rift" data-act="mbonus">받기</button></div>
     <p class="hint" style="margin:10px 2px">일일 임무는 매일 0시에 새로 시작해요.</p><div class="mbtns"><button class="btn ghost" data-close>닫기</button><button class="btn" data-act="mall" id="misAll">모두 받기</button></div></div>`;
@@ -4123,9 +4212,62 @@ function attHtml() {
     <p class="hint" style="margin:10px 2px">하루 한 번 받을 수 있어요. 7일째를 받으면 다시 1일부터예요.</p><div class="mbtns"><button class="btn ghost" data-close>닫기</button></div></div>`;
 }
 function openSide(kind) {
+  if (kind === 'mis') { C.misReset(S, new Date()); misTab = 'd'; }
   openModal(kind === 'mis' ? misHtml() : attHtml());
   if (kind === 'mis') updateRun(modalEl);
 }
+/* ---------- 임무 창 탭: 일일, 주간, 월간, 반복, 임무 패스 ---------- */
+let misTab = 'd';
+function misTabs(cur) {
+  const T = [['d', '일일', misAlert()], ['w', '주간', C.misReadyCount(S, 'w') > 0], ['m', '월간', C.misReadyCount(S, 'm') > 0], ['r', '반복', C.misReadyCount(S, 'r') > 0], ['p', '패스', C.mpassReady(S).length > 0]];
+  return `<div class="seg mtabs">${T.map(([k, n, dot]) => `<button data-mtab="${k}" class="${k === cur ? 'on' : ''}">${n}${dot ? '<i class="mt-dot"></i>' : ''}</button>`).join('')}</div>`;
+}
+function misListHtml(per) {
+  const list = { w: C.WEEKLY, m: C.MONTHLY, r: C.REPEAT }[per], mi = S.mis;
+  const left = per === 'w' ? '매주 월요일 0시에 새로 시작해요.' : per === 'm' ? '매달 1일 0시에 새로 시작해요.' : '조건을 채울 때마다 계속 받을 수 있어요.';
+  const rows = list.map((m, i) => {
+    let p, need = m.need, done = false, can;
+    if (per === 'r') { const tot = mi.r.p[m.kind] || 0; p = tot - (mi.r.got[i] || 0) * m.need; can = C.repeatReady(S, i) > 0; }
+    else { p = mi[per].p[m.kind] || 0; done = mi[per].got.includes(i); can = !done && p >= need; }
+    const go = !can && !done && MIS_GO[m.kind];
+    return `<div class="mrow ${done ? 'done' : ''}"><div class="mt"><b>${m.text}${per === 'r' && C.repeatReady(S, i) > 1 ? ` <em class="mx2">×${C.repeatReady(S, i)}</em>` : ''}</b><div class="bar"><i style="width:${Math.min(100, p / need * 100)}%"></i></div></div>
+      <span class="mp">${C.formatNum(Math.min(p, need))} / ${C.formatNum(need)}</span><span class="rw">${rdTile(m.rw)}</span>
+      <button class="btn sm ${go ? 'ghost' : ''}" ${can ? `data-mis="${per}" data-i="${i}"` : go ? `data-act="mgo" data-m="${C.MISSIONS.findIndex(x => x.kind === m.kind)}" data-kind="${m.kind}"` : ''} ${!can && !go ? 'disabled' : ''}>${done ? '완료' : can ? '받기' : go ? '이동' : '받기'}</button></div>`;
+  }).join('');
+  const pts = per === 'r' ? '' : `<div class="mpt">임무 점수 <b>${mi.m.pts}</b><small>${per === 'w' ? '주간' : '월간'} 임무 하나 ${list[0].pt}점, 일일 임무 하나 10점. 점수로 임무 패스가 올라요</small></div>`;
+  return `<div id="sideMis2"><h2>임무</h2>${misTabs(per)}${pts}${rows}<p class="hint" style="margin:10px 2px">${left}</p>
+    <div class="mbtns"><button class="btn ghost" data-close>닫기</button><button class="btn" data-misall="${per}" ${C.misReadyCount(S, per) ? '' : 'disabled'}>모두 받기</button></div></div>`;
+}
+function mpassHtml() {
+  const mm = S.mis.m, paid = S.mis.paid === mm.k;
+  const row = (r, i) => {
+    const ok = mm.pts >= r.pt, cell = (track, rw, got, can) => `<button class="ps-c ${got ? 'got' : can ? 'ready' : ''}" ${can && !got ? `data-mp="${i}" data-tr="${track}"` : 'disabled'}>${rwTiles(rw)}${track === 'paid' && !paid ? '<i class="ps-lock"></i>' : ''}</button>`;
+    return `<div class="ps-r"><span class="ps-st ${ok ? 'on' : ''}">${r.pt}</span>${cell('free', r.free, mm.pf.includes(i), ok)}${cell('paid', r.paid, mm.pp.includes(i), ok && paid)}</div>`;
+  };
+  return `<h2>임무</h2>${misTabs('p')}<div class="mpt">임무 점수 <b>${mm.pts}</b><small>이번 달 임무 패스. 매달 1일에 새로 시작해요</small></div>
+    <div class="ps-h"><span>점수</span><span>무료</span><span>패스</span></div><div class="ps">${C.MPASS.map(row).join('')}</div>
+    <div class="mbtns"><button class="btn ghost" data-close>닫기</button>${paid ? `<button class="btn" data-mpall ${C.mpassReady(S).length ? '' : 'disabled'}>모두 받기</button>` : `<button class="btn" data-mpbuy>임무 패스 ${C.MPASS_PRICE.toLocaleString()}원</button>`}</div>`;
+}
+function misOpen(t) { misTab = t; if (t === 'd') { openModal(misHtml()); updateRun(modalEl); } else openModal(t === 'p' ? mpassHtml() : misListHtml(t)); }
+modalEl.addEventListener('click', async e => {
+  const tb = e.target.closest('[data-mtab]'); if (tb) return misOpen(tb.dataset.mtab);
+  const one = e.target.closest('[data-mis]'), all = e.target.closest('[data-misall]');
+  if (one || all) {
+    const per = (one || all).dataset[one ? 'mis' : 'misall'], got = {};
+    const idx = one ? [+one.dataset.i] : { w: C.WEEKLY, m: C.MONTHLY, r: C.REPEAT }[per].map((_, i) => i);
+    for (const i of idx) { const w = C.misClaim(S, per, i); if (w) for (const [k, v] of Object.entries(w)) got[k] = (got[k] || 0) + v; }
+    writeSave(); misOpen(per); if (Object.keys(got).length) showResult('gift', '보상 획득', rwTiles(got));
+    return;
+  }
+  const mp = e.target.closest('[data-mp]'), mpall = e.target.closest('[data-mpall]'), mpbuy = e.target.closest('[data-mpbuy]');
+  if (mpbuy) { modalEl.classList.remove('on'); if (await Pay.buy('mpass', C.MPASS_PRICE, '임무 패스')) { S.mis.paid = S.mis.m.k; writeSave(); } return misOpen('p'); }
+  if (mp || mpall) {
+    const got = {};
+    for (const [i, tr] of (mp ? [[+mp.dataset.mp, mp.dataset.tr]] : C.mpassReady(S))) { const w = C.mpassClaim(S, i, tr); if (w) for (const [k, v] of Object.entries(w)) got[k] = (got[k] || 0) + v; }
+    writeSave(); misOpen('p'); if (Object.keys(got).length) showResult('gift', '보상 획득', rwTiles(got));
+  }
+});
+const misAlertAll = () => misAlert() || C.misReadyCount(S, 'w') > 0 || C.misReadyCount(S, 'm') > 0 || C.misReadyCount(S, 'r') > 0 || C.mpassReady(S).length > 0;
 const misAlert = () => C.MISSIONS.some((m, i) => !S.daily.got.includes(i) && (S.daily.p[m.kind] || 0) >= m.need) || (!S.daily.bonus && S.daily.got.length === C.MISSIONS.length);
 /* 일일 출동 창: 단계 고르기, 보상, 난이도, 소탕과 도전 */
 let sheetId = null;
@@ -4486,7 +4628,7 @@ function onAct(e) {
       writeSave(); modalEl.classList.remove('on'); showResult('gift', '보상 획득', rwTiles({ gems: g, ptix: p }));
     } else if (act === 'mgo') {
       // 임무 바로가기: 해당 메뉴로 이동
-      const k = C.MISSIONS[+b.dataset.m].kind; modalEl.classList.remove('on');
+      const k = b.dataset.kind || C.MISSIONS[+b.dataset.m].kind; modalEl.classList.remove('on');
       if (k === 'lvup') return openHeroWin();
       const t = MIS_GO[k]; if (t === 'boss') return $('bossBtn').click();
       const tb = $('tabs').querySelector(`[data-tab="${t}"]`); if (tb && tab !== t) tb.click();
@@ -4845,7 +4987,7 @@ function rwTiles(r) {
 }
 
 /* ---------- 임무 바로가기 ---------- */
-const MIS_GO = { kill: null, boss: 'boss', lvup: 'hero', summon: 'summon', dungeon: 'run', tower: 'run' };
+const MIS_GO = { kill: null, boss: 'boss', lvup: 'hero', summon: 'summon', dungeon: 'run', tower: 'run', train: 'train', star: 'hero' };
 
 /* ---------- 사건 기록: 지난 이야기 다시 보기 (세나 키우기 서재처럼) ---------- */
 function bookHtml() {
@@ -5110,7 +5252,7 @@ modalEl.addEventListener('click', e => {
  * 지금은 '시험 모드': 결제는 실제 돈이 나가지 않는 시험 결제, 광고는 3초 시험 화면
  * ===================================================================== */
 const PRODUCTS = {   // 스토어에 등록할 상품 ID (구글 플레이 콘솔의 인앱 상품 ID 와 같게)
-  p_new: 'aiu_pack_new', p_lv: 'aiu_pack_summon', p_month: 'aiu_monthly', p_noad: 'aiu_no_ads', pass: 'aiu_pass_s1',
+  mpass: 'aiu_mission_pass', p_new: 'aiu_pack_new', p_lv: 'aiu_pack_summon', p_month: 'aiu_monthly', p_noad: 'aiu_no_ads', pass: 'aiu_pass_s1',
   g0: 'aiu_gem_60', g1: 'aiu_gem_300', g2: 'aiu_gem_650', g3: 'aiu_gem_1350', g4: 'aiu_gem_2800', g5: 'aiu_gem_6000',
 };
 const AD_UNITS = { gold: 'ad_gold_buff', shop: 'ad_shop_reward', mail: 'ad_mail' };   // 광고 자리 ID
@@ -5390,6 +5532,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.23.0', '11월 28일', ['주간, 월간, 반복 임무가 생겼어요', '임무 점수와 임무 패스 (매달 새로)', '시작 화면 오른쪽 위에 버전이 나와요']],
   ['0.22.3', '11월 28일', ['임무 모두 받기', '요원 상세에서는 가운데 버튼이 뒤로 가기예요', '아래 메뉴 아이콘을 한 가지 모양으로 맞췄어요', '보급품과 구급상자 그림이 상점과 우편에 나와요', '성장 단계 이름을 수사력으로 바꿨어요']],
   ['0.22.2', '11월 28일', ['요원 상세 화면을 새로 다듬었어요', '어색한 안내 문장을 고쳤어요']],
   ['0.22.0', '11월 28일', ['요원 호출 연출을 새로 만들었어요: 균열이 열리고 요원 기록 파일이 날아와 뒤집혀요. 전설은 금빛 번개']],
@@ -5469,6 +5612,7 @@ async function hotCheck(manual) {
 }
 setTimeout(() => hotCheck(false), 4000);
 
+$('spVer').textContent = window.AIU_VER;
 /* ---------- 시작 ---------- */
 const pending = firstRun ? null : C.offlineReward(S, (Date.now() - S.lastSeen) / 1000);
 syncHeroes(true); renderPanel(); updateUI();

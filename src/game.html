@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.19.1';
+window.AIU_VER = '0.19.2';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -63,7 +63,7 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 #side{position:absolute;left:10px;top:50px;z-index:2;display:grid;gap:6px}
 #side button{position:relative;display:grid;justify-items:center;gap:1px;width:42px;padding:4px 0 3px;border:1px solid var(--line);border-radius:var(--r);background:rgba(15,20,34,.86);color:var(--ink);font:700 10px 'IBM Plex Sans KR'}
 #side svg{width:22px;height:22px}
-#side .dot{right:-3px;top:-3px}
+#side .dot{right:0;top:-2px}
 #bossAuto{position:absolute;left:10px;top:10px;z-index:2;height:26px;padding:0 9px;border:1px solid var(--line);border-radius:var(--r);background:rgba(15,20,34,.86);color:var(--dim);font:700 12px 'IBM Plex Sans KR'}
 #bossAuto[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
 #bossAuto::before{content:"";display:inline-block;width:7px;height:7px;margin-right:5px;border-radius:50%;background:currentColor;vertical-align:1px}
@@ -241,7 +241,9 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 #tabs button{height:54px;border:0;background:none;color:var(--dim);font:700 15px 'IBM Plex Sans KR';position:relative}
 #tabs button.on{color:var(--gold);background:linear-gradient(rgba(242,201,76,.08),rgba(242,201,76,0))}
 #tabs button.on::after{content:"";position:absolute;left:30%;right:30%;top:-1px;height:2px;background:var(--gold)}
-.dot{position:absolute;top:10px;right:calc(50% - 30px);width:7px;height:7px;border-radius:50%;background:var(--red);display:none}
+.dot{position:absolute;top:6px;right:calc(50% - 30px);z-index:3;width:15px;height:15px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff8a7a,#e8261c 60%,#a5120b);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.6);display:none;pointer-events:none}
+.dot::after{content:'!';position:absolute;inset:0;display:grid;place-items:center;font:900 10px/1 'IBM Plex Sans KR',sans-serif;color:#fff}
+.dot.on{display:block!important}
 
 /* 강화 횟수 고르기: 한 덩어리 막대 */
 .seg{display:grid;grid-template-columns:repeat(3,1fr);margin-bottom:10px;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
@@ -641,7 +643,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 #tabs .tb svg{width:26px;height:26px}
 #tabs button.on .tb{background:linear-gradient(#f2c94c,#8a6a14)}
 #tabs button.on::after{display:none}
-#tabs .dot{top:6px;right:calc(50% - 24px)}
+#tabs .dot{top:2px;right:calc(50% - 27px)}
 /* 메뉴 창: 전투 화면 아래쪽 위로 올라오는 창 (요원 말고 성장, 출동, 호출) */
 #app:not(.folded):not(.herofull) #panel{position:absolute;left:0;right:0;bottom:var(--bottomH,110px);z-index:5;height:auto;max-height:min(66%,600px);overflow-y:auto;border-top:1px solid #34405e;border-radius:14px 14px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.55);animation:sheetUp .22s ease-out}
 @keyframes sheetUp{from{transform:translateY(24px);opacity:.4}}
@@ -851,7 +853,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 #side .sd-list button{height:35px}
 #sideTg svg{width:24px!important;height:24px!important}
 #side.fold .sd-list{display:none}
-#sideTg{position:relative}#sideTg.alert::after{content:'';position:absolute;right:2px;top:0;width:8px;height:8px;border-radius:50%;background:#ff4a3a}
+#sideTg{position:relative}#sideTg.alert::after{content:'!';position:absolute;right:0;top:-2px;width:15px;height:15px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff8a7a,#e8261c 60%,#a5120b);border:1.5px solid #fff;font:900 10px/1 'IBM Plex Sans KR',sans-serif;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.6)}
 #side.fold #sideTg svg path:last-child{d:path("M7.5 9h9M7.5 12h9M7.5 15h9")}
 #sideTg .dot{right:2px;top:0}
 /* ---------- 절전 모드 ---------- */
@@ -1077,8 +1079,8 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     <div id="side"><button id="sideTg" aria-label="메뉴 접기"><svg viewBox="0 0 24 24"><path d="M12 1.5L22.5 12 12 22.5 1.5 12z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></button>
       <div class="sd-list">
       <button data-side="road"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="url(#mSteel)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><circle cx="12" cy="12" r="7.6" fill="#26304c" stroke="#141a2b" stroke-width=".9"/><path d="M12 5.2l2 6.8-2 6.8-2-6.8z" fill="url(#mGold)" stroke="#5a3504" stroke-width=".6"/><path d="M12 12l2-.0" /><path d="M5.2 12l6.8-2 6.8 2-6.8 2z" fill="#9fb3e8" opacity=".85"/><circle cx="12" cy="12" r="1.4" fill="#fff"/></svg><span>수첩</span><i class="dot" id="dotRoad"></i></button>
-      <button data-side="mail"><svg viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="19" height="13" rx="1.6" fill="#eef2fb" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M2.8 6.2L12 13l9.2-6.8" fill="none" stroke="#141a2b" stroke-width="1.2" stroke-linejoin="round"/><path d="M3.5 6.5L12 12.6l8.5-6.1" fill="url(#mGold)" opacity=".9"/><circle cx="18.5" cy="15.5" r="3.6" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M18.5 13.7v2.2" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><circle cx="18.5" cy="17.4" r=".8" fill="#fff"/></svg><span>우편</span><i class="dot" id="dotMail"></i></button>
-      <button data-side="bag"><svg viewBox="0 0 24 24"><path d="M8 7V5.5a4 4 0 0 1 8 0V7" fill="none" stroke="#141a2b" stroke-width="2.6"/><path d="M8 7V5.5a4 4 0 0 1 8 0V7" fill="none" stroke="#c9a46a" stroke-width="1.4"/><rect x="3.5" y="7" width="17" height="14" rx="3" fill="#8a5a2b" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M3.5 12h17" stroke="#141a2b" stroke-width="1.1"/><rect x="10" y="10.5" width="4" height="3.5" rx=".8" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/></svg><span>가방</span></button>
+      <button data-side="mail"><svg viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="19" height="13" rx="1.6" fill="#eef2fb" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M2.8 6.2L12 13l9.2-6.8" fill="none" stroke="#141a2b" stroke-width="1.2" stroke-linejoin="round"/><path d="M3.5 6.5L12 12.6l8.5-6.1" fill="url(#mGold)" opacity=".9"/></svg><span>우편</span><i class="dot" id="dotMail"></i></button>
+      <button data-side="bag"><svg viewBox="0 0 24 24"><path d="M8 7V5.5a4 4 0 0 1 8 0V7" fill="none" stroke="#141a2b" stroke-width="2.6"/><path d="M8 7V5.5a4 4 0 0 1 8 0V7" fill="none" stroke="#c9a46a" stroke-width="1.4"/><rect x="3.5" y="7" width="17" height="14" rx="3" fill="#8a5a2b" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M3.5 12h17" stroke="#141a2b" stroke-width="1.1"/><rect x="10" y="10.5" width="4" height="3.5" rx=".8" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/></svg><span>가방</span><i class="dot" id="dotBag"></i></button>
       <button data-side="mis"><svg viewBox="0 0 24 24"><rect x="4.5" y="4" width="15" height="18" rx="2" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><rect x="6.5" y="6.5" width="11" height="13.5" rx="1" fill="#eef2fb"/><rect x="8.5" y="2.5" width="7" height="4" rx="1" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8 11l1.5 1.5 2.6-2.8M8 16l1.5 1.5 2.6-2.8" fill="none" stroke="#1fa868" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.8 11.3h2.2M13.8 16.3h2.2" stroke="#7c87a6" stroke-width="1.5" stroke-linecap="round"/></svg><span>임무</span><i class="dot" id="dotMis"></i></button>
       <button data-side="att"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" fill="#eef2fb" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3H3z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8 3v4M16 3v4" stroke="#141a2b" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="15.3" r="4" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M10.3 15.3l1.2 1.2 2.3-2.4" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>출석</span><i class="dot" id="dotAtt"></i></button>
       <button data-side="book"><svg viewBox="0 0 24 24"><path d="M3 5.5c3-1.2 6-1.2 9 .6v14c-3-1.8-6-1.8-9-.6z" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M21 5.5c-3-1.2-6-1.2-9 .6v14c3-1.8 6-1.8 9-.6z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M5 8.5c1.8-.6 3.6-.5 5 .3M5 11.5c1.8-.6 3.6-.5 5 .3M14 8.8c1.4-.8 3.2-.9 5-.3" stroke="#eef2fb" stroke-width=".9" stroke-linecap="round" opacity=".8"/><path d="M15.5 12l.9 1.9 2 .3-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.3z" fill="url(#mGold)"/></svg><span>기록</span></button>
@@ -3792,6 +3794,7 @@ try { if (localStorage.getItem('aiu-side') === '1') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.19.2', '11월 28일', ['받을 것이 있으면 빨간 원 안에 느낌표가 떠요', '우편, 수첩, 소식에 알림이 안 뜨던 문제를 고쳤어요']],
   ['0.19.1', '11월 28일', ['오프닝 대사를 화면 아래 검은 띠에서 그림 위로 올렸어요']],
   ['0.19.0', '11월 28일', ['앱이 스스로 새 버전을 받아요 (다시 설치할 필요 없음)', '편성에 핵심 버프: 같은 유형 요원을 함께 내보내면 능력치가 올라요', '성장 창이 ×1, ×10, ×100 레벨업으로 바뀌었어요', '가방과 보급품이 생겼어요', '앱 아이콘이 바뀌었어요']],
   ['0.18.0', '11월 28일', ['우편함, 스테이지 창, 스테이지 클리어, 새 기능 열림 알림, 호출 카드 뒤집기가 생겼어요', '요원 도감 레벨 달성 보상, 기술 설명, 전투력 변화 표시가 생겼어요', '수사 수첩, 프로필, 피해량 기록, 일괄 소탕이 생겼어요', '구역 근원체가 처음 나올 때 이야기가 나와요', '요원 창을 요원 관리, 편성, 도감으로 나눴어요', '요원 상세 화면과 승급 성공 연출이 생겼어요', '가이드 보상으로 블레이즈 첫 승급을 할 수 있어요', '근원체 출현 컷인, 요원 대사, 보상 획득 창이 생겼어요', '재화와 메뉴 아이콘을 새로 그렸어요', '절전 모드와 새 설정이 생겼어요']],
@@ -3803,7 +3806,7 @@ function newsHtml() {
 const newsSeen = () => { try { return localStorage.getItem('aiu-news') === NEWS[0][0]; } catch (e) { return true; } };
 $('dotNews').classList.toggle('on', !newsSeen());
 $('dotMail').classList.toggle('on', C.MAILS.some(m => !S.mail.includes(m.id)));
-setInterval(() => { $('dotRoad').classList.toggle('on', C.roadReady(S).length > 0); $('sideTg').classList.toggle('alert', $('side').classList.contains('fold') && !!$('side').querySelector('.dot.on')); }, 1000);
+setInterval(() => { $('dotRoad').classList.toggle('on', C.roadReady(S).length > 0); $('dotBag').classList.toggle('on', Object.values(S.bag).some(n => n > 0)); $('dotMail').classList.toggle('on', C.MAILS.some(m => !S.mail.includes(m.id))); $('sideTg').classList.toggle('alert', $('side').classList.contains('fold') && [...$('side').querySelectorAll('.dot')].some(d => d.classList.contains('on') || d.style.display === 'block')); }, 1000);
 
 /* ---------- 절전 모드: 화면은 검게, 전투와 보상은 계속 ---------- */
 let sleeping = false, slBase = null, idleT = 0;

@@ -492,7 +492,7 @@
     if (state.keys[id] <= 0) throw new RangeError('오늘 입장 횟수를 다 썼어요');
     state.keys[id]--;
     state.dbest[id] = Math.max(state.dbest[id] || 0, L);
-    missionAdd(state, 'dungeon', 1);
+    progress(state, 'dungeon', 1);
     return giveReward(state, dungeonReward(id, L, state.up.gold));
   }
   /** 소탕: 깬 최고 단계 보상을 싸우지 않고 바로 받음 (입장 1회) */
@@ -504,7 +504,7 @@
   /** 균열 심층 다음 층 돌파 */
   function clearTower(state) {
     state.tower = (state.tower || 0) + 1;
-    missionAdd(state, 'tower', 1);
+    progress(state, 'tower', 1);
     return giveReward(state, towerReward(state.tower));
   }
 
@@ -555,11 +555,24 @@
     { kind: 'boss',   text: '근원체 봉쇄',   need: 3,  gems: 250 },
     { kind: 'kill',   text: '이상체 처리',   need: 150, gems: 200 },
   ];
-  /** i 번째 퀘스트 (한 바퀴 돌 때마다 목표 2배, 보상 1.5배) */
+  /* 처음 시작용 가이드 퀘스트 (세나 키우기 [가이드-n] 처럼). 블레이즈 혼자 시작 → 강화 → 근원체 → 두 번째 요원(램파트) → 출전 → 호출 → 성장 → 작전.
+   * rw: 보상 (hero 는 요원 한 명. 이미 있으면 조각 1개). 다 끝나면 아래 QUESTS 를 계속 돎 */
+  const GUIDE = [
+    { kind: 'kill',    text: '이상체 처리',       need: 10, rw: { gems: 100 } },
+    { kind: 'lvup',    text: '블레이즈 강화',     need: 3,  rw: { exp: 300 } },
+    { kind: 'boss',    text: '근원체 봉쇄',       need: 1,  rw: { hero: 'knight' } },
+    { kind: 'party',   text: '요원 2명 출전',     need: 2,  rw: { tix: 10 } },
+    { kind: 'summon',  text: '요원 호출',         need: 10, rw: { gems: 200 } },
+    { kind: 'train',   text: '성장 강화',         need: 3,  rw: { gold: 500 } },
+    { kind: 'dungeon', text: '일일 작전',         need: 1,  rw: { gems: 200 } },
+    { kind: 'boss',    text: '근원체 봉쇄',       need: 3,  rw: { ptix: 1 } },
+  ];
+  /** i 번째 퀘스트. 처음 GUIDE 를 지나면 QUESTS 를 돎 (한 바퀴 돌 때마다 목표 2배, 보상 1.5배). guide: 가이드 번호(1부터) 또는 0 */
   function questAt(i) {
     if (!Number.isInteger(i) || i < 0) throw new RangeError('퀘스트 번호가 올바르지 않습니다: ' + i);
-    const q = QUESTS[i % QUESTS.length], lap = Math.floor(i / QUESTS.length);
-    return { kind: q.kind, text: q.text, need: q.need * Math.pow(2, lap), gems: Math.round(q.gems * Math.pow(1.5, lap)) };
+    if (i < GUIDE.length) { const q = GUIDE[i]; return { kind: q.kind, text: q.text, need: q.need, rw: { ...q.rw }, gems: q.rw.gems || 0, guide: i + 1 }; }
+    const j = i - GUIDE.length, q = QUESTS[j % QUESTS.length], lap = Math.floor(j / QUESTS.length), gems = Math.round(q.gems * Math.pow(1.5, lap));
+    return { kind: q.kind, text: q.text, need: q.need * Math.pow(2, lap), rw: { gems }, gems, guide: 0 };
   }
   /** 행동이 일어났을 때 진행 올리기. 현재 퀘스트와 종류가 같을 때만 (상태를 직접 바꿈) */
   function questAdd(state, kind, amount = 1) {
@@ -567,15 +580,28 @@
     if (!isNum(amount) || amount <= 0) return false;
     const q = questAt(state.q.i);
     if (q.kind !== kind || state.q.p >= q.need) return false;
-    state.q.p = Math.min(q.need, state.q.p + amount);
+    // 출전 인원처럼 '현재 몇 명인지'를 세는 퀘스트는 더하지 않고 큰 값으로
+    state.q.p = Math.min(q.need, kind === 'party' ? Math.max(state.q.p, amount) : state.q.p + amount);
     return true;
   }
-  /** 다 찼으면 보상을 주고 다음 퀘스트로. 안 찼으면 0 */
+  /** 다 찼으면 보상을 주고 다음 퀘스트로. 받은 보상(요원이면 hero, isNew) 반환, 안 찼으면 null */
   function questClaim(state) {
     const q = questAt(state.q.i);
-    if (state.q.p < q.need) return 0;
-    state.gems += q.gems; state.q = { i: state.q.i + 1, p: 0 };
-    return q.gems;
+    if (state.q.p < q.need) return null;
+    const r = { ...q.rw };
+    if (r.hero) {
+      const h = state.heroes[r.hero];
+      if (h.owned) { h.shards += 1; r.isNew = false; }
+      else {
+        h.owned = true; r.isNew = true;
+        const p = partyIds(state); if (p.length < partySlots(state)) state.party = [...p, r.hero];   // 빈 출전 칸에 바로 합류
+      }
+    }
+    giveReward(state, r);
+    state.q = { i: state.q.i + 1, p: 0, g: 1 };
+    // 다음 퀘스트가 출전 인원이면 현재 인원부터 셈
+    if (questAt(state.q.i).kind === 'party') questAdd(state, 'party', partyIds(state).length);
+    return r;
   }
 
   function newState(now) {
@@ -594,7 +620,7 @@
       heroes,
       party: STARTER_IDS.slice(),   // 전투에 나가는 요원 (최대 5명)
       up: { atk: 0, gold: 0, crit: 0 },
-      q: { i: 0, p: 0 },        // 가이드 퀘스트 번호와 진행
+      q: { i: 0, p: 0, g: 1 },  // 퀘스트 번호와 진행 (g: 가이드 퀘스트가 있는 저장)
       pulls: { total: 0, relay: 0 },    // 요원 호출 누적(소환 레벨), 특별 채용 릴레이
       tix: CONST.START_TICKETS, tixPart: 0,   // 호출권
       ptix: 0,                          // 정예 호출권
@@ -628,6 +654,7 @@
     s.farming = raw.farming === true;
     if (raw.q && typeof raw.q === 'object') {
       s.q.i = clampInt(raw.q.i, 0, 1e6, 0);
+      if (raw.q.g !== 1 && s.q.i > 0) s.q.i += GUIDE.length;   // 가이드가 생기기 전 저장: 가이드는 건너뛰고 원래 퀘스트 그대로
       s.q.p = clampInt(raw.q.p, 0, questAt(s.q.i).need, 0);
     }
     s.autoSkill = raw.autoSkill !== false;
@@ -690,7 +717,7 @@
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,
-    newState, cloneState, sanitize, loadFromString, QUESTS, questAt, questAdd, questClaim,
+    newState, cloneState, sanitize, loadFromString, QUESTS, GUIDE, questAt, questAdd, questClaim,
     DUNGEONS, MISSIONS, ATTEND, dayKey, dailyReset, dungeonById, dungeonStage, dungeonReward, towerStage, towerReward,
     chalHp, chalAtk, clearDungeon, sweepDungeon, clearTower, missionAdd, missionClaim, missionBonus, progress, canAttend, attend,
   };

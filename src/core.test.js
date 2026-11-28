@@ -147,22 +147,32 @@ test('특별 채용 남은 기간: 2주 단위, 목요일 오전 9시에 바뀜'
 
 test('가이드 퀘스트: 같은 종류만 쌓이고, 다 차야 보상', () => {
   const s = C.newState(0);
-  assert.equal(C.questAt(0).kind, 'lvup');
-  assert.equal(C.questAdd(s, 'kill', 3), false);
-  C.questAdd(s, 'lvup', 3); assert.equal(C.questClaim(s), 0);
-  C.questAdd(s, 'lvup', 10); assert.equal(s.q.p, 5);
+  assert.equal(C.questAt(0).kind, 'kill'); assert.equal(C.questAt(0).guide, 1);
+  assert.equal(C.questAdd(s, 'lvup', 3), false);
+  C.questAdd(s, 'kill', 3); assert.equal(C.questClaim(s), null);
+  C.questAdd(s, 'kill', 30); assert.equal(s.q.p, 10);
   const g = s.gems; const r = C.questClaim(s);
-  assert.equal(r, 100); assert.equal(s.gems, g + 100); assert.deepEqual(s.q, { i: 1, p: 0 });
+  assert.equal(r.gems, 100); assert.equal(s.gems, g + 100); assert.equal(s.q.i, 1);
 });
-test('가이드 퀘스트: 한 바퀴 돌면 목표 2배, 잘못된 번호는 오류', () => {
-  const n = C.QUESTS.length;
-  assert.equal(C.questAt(n).need, C.QUESTS[0].need * 2);
+test('가이드 퀘스트: 근원체 봉쇄 보상으로 램파트 합류, 다음 퀘스트(2명 출전)는 바로 참', () => {
+  const s = C.newState(0); s.q = { i: 2, p: 1, g: 1 };
+  const r = C.questClaim(s);
+  assert.equal(r.hero, 'knight'); assert.equal(r.isNew, true); assert.equal(s.heroes.knight.owned, true);
+  assert.deepEqual(C.partyIds(s), ['mage', 'knight']);
+  assert.equal(C.questAt(s.q.i).kind, 'party'); assert.equal(s.q.p, 2);
+});
+test('가이드 퀘스트: 가이드가 끝나면 원래 퀘스트를 돌고, 한 바퀴 돌면 목표 2배', () => {
+  const g = C.GUIDE.length, n = C.QUESTS.length;
+  assert.equal(C.questAt(g).kind, C.QUESTS[0].kind); assert.equal(C.questAt(g).guide, 0);
+  assert.equal(C.questAt(g + n).need, C.QUESTS[0].need * 2);
   assert.throws(() => C.questAt(-1), RangeError);
 });
-test('저장 복구: 퀘스트, 자동 기술, 배속', () => {
-  const s = C.sanitize({ q: { i: 2, p: 999 }, autoSkill: false, speed: 7 }, 0);
+test('저장 복구: 퀘스트, 자동 기술, 배속 / 가이드 전 저장은 가이드 건너뜀', () => {
+  const s = C.sanitize({ q: { i: 2, p: 999, g: 1 }, autoSkill: false, speed: 7 }, 0);
   assert.equal(s.q.p, C.questAt(2).need); assert.equal(s.autoSkill, false); assert.equal(s.speed, 1);
   assert.equal(C.sanitize({}, 0).autoSkill, true);
+  assert.equal(C.sanitize({ q: { i: 3, p: 0 } }, 0).q.i, 3 + C.GUIDE.length);
+  assert.equal(C.sanitize({ q: { i: 0, p: 0 } }, 0).q.i, 0);
 });
 
 

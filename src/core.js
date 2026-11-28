@@ -1925,8 +1925,23 @@
     state.sys.sealP -= need; state.sys.seal[id] = lv + 1; return lv + 1;
   }
 
+  /* ---------- 행운 돌림판 (세나 키우기 돌림판처럼): 돌림판 열쇠로 돌림. 열쇠는 하루 3개 무료, 더 돌리려면 보석 ---------- */
+  const WHEEL = [
+    { rw: { gems: 50 }, w: 20 }, { rw: { tix: 20 }, w: 20 }, { rw: { ptix: 1 }, w: 10 }, { rw: { gems: 100 }, w: 12 },
+    { rw: { snack: 20 }, w: 14 }, { rw: { med: 5 }, w: 14 }, { rw: { ptix: 3 }, w: 4 }, { rw: { gems: 500 }, w: 2 },
+    { rw: { g2: 1 }, w: 2 }, { rw: { e2: 1 }, w: 2 },
+  ];
+  const WHEEL_FREE = 3, WHEEL_GEMS = 100;
+  function wheelLeft(state, now) { const k = dayKey(toDate(now)); if (state.sys.wheel.day !== k) { state.sys.wheel.day = k; state.sys.wheel.n = 0; } return WHEEL_FREE - state.sys.wheel.n; }
+  function wheelSpin(state, now, rng = Math.random) {
+    if (wheelLeft(state, now) > 0) state.sys.wheel.n++;
+    else if (!spendGems(state, WHEEL_GEMS)) throw new RangeError('보석이 부족해요');
+    const tot = WHEEL.reduce((a, x) => a + x.w, 0); let r = rng() * tot, i = 0;
+    for (; i < WHEEL.length - 1; i++) { r -= WHEEL[i].w; if (r < 0) break; }
+    return { i, rw: giveReward(state, { ...WHEEL[i].rw }) };
+  }
   /** 새 상태 / 저장 불러오기 */
-  function newSys() { return { snack: 0, gearInv: [], gearEq: {}, gearN: 0, trait: {}, gear: {}, lab: { lv: {}, cur: null, end: 0 }, aid: { lv: 0, xp: 0, day: '', n: 0 }, food: { id: null, end: 0, ad: false },
+  function newSys() { return { wheel: { day: '', n: 0 }, snack: 0, gearInv: [], gearEq: {}, gearN: 0, trait: {}, gear: {}, lab: { lv: {}, cur: null, end: 0 }, aid: { lv: 0, xp: 0, day: '', n: 0 }, food: { id: null, end: 0, ad: false },
     hunt: { day: '', ids: [], p: {}, got: [] }, rep: 0, search: {}, spec: { day: '', keys: { shard: SPEC_KEYS, elite: SPEC_KEYS }, best: {} },
     duel: { day: '', keys: DUEL_KEYS, score: 1000, win: 0 }, pet: { own: {}, eq: null }, relic: {}, seal: {}, sealP: 0 }; }
   function sanitizeSys(raw) {
@@ -1944,6 +1959,7 @@
     if (raw.duel) s.duel = { day: String(raw.duel.day || ''), keys: clampInt(raw.duel.keys, 0, DUEL_KEYS, DUEL_KEYS), score: clampInt(raw.duel.score, 0, 1e6, 1000), win: clampInt(raw.duel.win, 0, 1e6, 0) };
     if (raw.pet && raw.pet.own) { for (const p of PETS) { const o = raw.pet.own[p.id]; if (o && isNum(o.lv)) s.pet.own[p.id] = { lv: clampInt(o.lv, 1, PET_MAX, 1), plv: clampInt(o.plv, 1, PET_LV_MAX, 1) }; } s.pet.eq = s.pet.own[raw.pet.eq] ? raw.pet.eq : null; }
     s.snack = clampInt(raw.snack, 0, 1e9, 0);
+    if (raw.wheel) s.wheel = { day: String(raw.wheel.day || ''), n: clampInt(raw.wheel.n, 0, WHEEL_FREE, 0) };
     s.sealP = clampInt(raw.sealP, 0, 1e9, 0);
     const okIt = x => x && GEAR.some(g => g.id === x.slot) && isNum(x.grade) && GEAR_OPT.includes(x.opt) && isNum(x.ov) && isNum(x.u);
     const fixIt = x => ({ u: clampInt(x.u, 1, 1e9, 1), slot: x.slot, grade: clampInt(x.grade, 0, 4, 0), opt: x.opt, ov: Math.min(1, Math.max(0, x.ov)) });
@@ -1975,7 +1991,7 @@
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     SYS_OPEN, sysOpen, corePower, corePowerAt, TRAITS, traitPoints, traitSpent, traitLeft, traitUp, traitReset, GEAR, GEAR_TIER, gearTier, GEAR_GRADES, GEAR_MUL, GEAR_INV_MAX, gearDrop, gearEquipped, gearEquip, gearScrap, gearScrapValue, gearSlotBonus, gearCost, gearUp, gearVal,
     LABS, labTime, labCost, labStart, labTick, labRushCost, labRush, AID, AID_DAY, aidNeed, aidGoldCost, aidLeft, aidGive, FOODS, FOOD_MS, foodOn, foodReady, foodEat,
-    specStage, specCheck, specClear, specSweep, duelStage, duelCheck, duelResult, HUNTS, huntReset, huntReward, huntClaim, REP_STEP, repLv, repTitle, SEARCHES, searchReward, searchStart, searchClaim, SPECS, SPEC_KEYS, specReq, specKeys, specReward, specRun,
+    WHEEL, WHEEL_FREE, WHEEL_GEMS, wheelLeft, wheelSpin, specStage, specCheck, specClear, specSweep, duelStage, duelCheck, duelResult, HUNTS, huntReset, huntReward, huntClaim, REP_STEP, repLv, repTitle, SEARCHES, searchReward, searchStart, searchClaim, SPECS, SPEC_KEYS, specReq, specKeys, specReward, specRun,
     DUEL_KEYS, DUEL_TIERS, duelTier, duelKeys, duelFoes, duelFight, PETS, PET_RATE, PET_COST, PET_MAX, PET_LV_MAX, petVal, petSnackNeed, petLevelUp, petSummon, petEquip, RELICS, RELIC_RATE, RELIC_COST, RELIC_MAX, relicVal, relicSummon,
     SEALS, sealNeed, sealDrop, sealUp, newSys, sanitizeSys, sysBonus,
     skillGrow, skillOf, SKILL_GROW, heroLvCap, heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, upCap, upCost, tstepOf, tstepProg, tstepCost, tstepUp, TSTEP, starNeed, STAR_NEED,

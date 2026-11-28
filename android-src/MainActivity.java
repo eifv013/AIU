@@ -9,6 +9,7 @@ import com.getcapacitor.BridgeActivity;
 
 /**
  * 1) 전체 화면(몰입 모드): 위 상태 표시줄과 아래 내비게이션 바를 숨김. 끝에서 쓸어 넘기면 잠깐 나왔다 다시 숨음.
+ * 3) 시작 화면 배경 음악이 터치 전에도 나오게 미디어 자동 재생을 허용함.
  * 2) 뒤로 가기: 바로 꺼지지 않게 안드로이드 쪽에서 직접 받아 게임(window.aiuBack)에 물어봄.
  *    게임이 열린 창을 닫거나 "게임을 종료하시겠어요?" 창을 띄우고, 그 창에서 한 번 더 누르거나 종료를 누를 때만 앱을 닫음.
  */
@@ -17,6 +18,8 @@ public class MainActivity extends BridgeActivity {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     hideSystemBars();
+    // 3) 시작 화면 음악: 화면을 누르기 전에도 소리가 나게 (웹뷰 기본값은 터치 후에만 재생)
+    try { getBridge().getWebView().getSettings().setMediaPlaybackRequiresUserGesture(false); } catch (Exception e) { }
     // 나중에 등록한 콜백이 먼저 불리므로 Capacitor 기본 뒤로 가기보다 앞에서 받음
     getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
       @Override

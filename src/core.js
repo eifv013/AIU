@@ -325,6 +325,15 @@
 
   /* ---------- 가방: 시간 보급품 (쓰면 그 시간만큼 사냥한 보상) ---------- */
   const ITEMS = { g2: { name: '골드 보급품', sub: '2시간 사냥 골드', key: 'gold' }, e2: { name: '경험치 보급품', sub: '2시간 사냥 경험치', key: 'exp' } };
+  /** 편성 프리셋 바꾸기: 현재 편성을 지금 칸에 저장하고, 고른 칸의 편성을 불러옴 (빈 칸이면 현재 편성 그대로) */
+  function switchPreset(state, i) {
+    const k = clampInt(i, 0, 2, 0);
+    state.pre[state.preI] = partyIds(state).slice();
+    state.preI = k;
+    if (state.pre[k] && state.pre[k].length) state.party = state.pre[k].slice();
+    state.party = partyIds(state);
+    return state.party;
+  }
   function useItem(state, id, n = 1) {
     const it = ITEMS[id]; const k = clampInt(n, 1, 999, 1);
     if (!it || (state.bag[id] || 0) < k) return null;
@@ -546,6 +555,7 @@
     { id: 'u018', from: 'AIU 본부', title: '0.18 업데이트 기념 선물', rw: { tix: 10 } },
     { id: 'rain', from: '나이트폴', title: '비 오는 날의 보급품', rw: { ptix: 1 } },
     { id: 'supply', from: 'AIU 본부', title: '현장 보급품 지급', rw: { g2: 3, e2: 3 } },
+    { id: 'medkit', from: '헤일로', title: '구급상자 보급', rw: { med: 30 } },
   ];
   function mailClaim(state, id) {
     const m = MAILS.find(x => x.id === id);
@@ -567,6 +577,7 @@
     if (r.tix) state.tix += r.tix;
     if (r.ptix) state.ptix += r.ptix;
     for (const k of Object.keys(ITEMS)) if (r[k]) state.bag[k] = (state.bag[k] || 0) + r[k];
+    if (r.med) state.med = (state.med || 0) + clampInt(r.med, 0, 1e6, 0);   // 구급상자
     if (r.shard && state.heroes[r.shard]) state.heroes[r.shard].shards += clampInt(r.n, 0, 1e6, 0);   // 요원 조각
     return r;
   }
@@ -708,7 +719,10 @@
       party: STARTER_IDS.slice(),   // 전투에 나가는 요원 (최대 5명)
       unl: [],
       mail: [],
-      bag: {},            // 가방 (보급품 개수)           // 받은 우편
+      bag: {},
+      med: 20,            // 구급상자 (자동 회복)
+      medOn: true, medHp: 50,   // 자동 사용, 체력 % 이하일 때
+      pre: [null, null, null], preI: 0,   // 편성 프리셋 3개            // 가방 (보급품 개수)           // 받은 우편
       cdx: {},            // 요원 도감 받은 단계            // 받은 수사 수첩 보상
       face: '',           // 프로필 얼굴 (비면 첫 출전 요원)
       up: { atk: 0, gold: 0, crit: 0 },
@@ -772,6 +786,11 @@
       s.daily.bonus = raw.daily.bonus === true && s.daily.got.length === MISSIONS.length;
     }
     s.cdx = {}; if (raw.cdx && typeof raw.cdx === 'object') for (const h of HEROES) if (isNum(raw.cdx[h.id])) s.cdx[h.id] = clampInt(raw.cdx[h.id], 0, CODEX_TIERS, 0);
+    s.med = isNum(raw.med) ? clampInt(raw.med, 0, 1e6, 0) : base.med;
+    s.medOn = raw.medOn !== false;
+    s.medHp = [30, 50, 70].includes(raw.medHp) ? raw.medHp : 50;
+    s.pre = [0, 1, 2].map(i => Array.isArray(raw.pre) && Array.isArray(raw.pre[i]) ? raw.pre[i].filter(id => HEROES.some(h => h.id === id)).slice(0, CONST.PARTY_MAX) : null);
+    s.preI = clampInt(raw.preI, 0, 2, 0);
     s.bag = {}; if (raw.bag && typeof raw.bag === 'object') for (const k of Object.keys(ITEMS)) if (isNum(raw.bag[k])) s.bag[k] = clampInt(raw.bag[k], 0, 1e6, 0);
     s.mail = Array.isArray(raw.mail) ? raw.mail.filter(x => MAILS.some(m => m.id === x)) : [];
     s.unl = Array.isArray(raw.unl) ? raw.unl.filter(x => ROADMAP.some(r => r.id === x)) : [];
@@ -810,7 +829,7 @@
   const Core = {
     HEROES, TYPES, STARTER_IDS, partyIds, partySlots, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
-    SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
+    switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,

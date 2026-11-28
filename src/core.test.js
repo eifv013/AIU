@@ -368,3 +368,18 @@ test('가방: 보급품을 쓰면 줄고 골드가 늘어남', () => {
   assert.equal(C.useItem(s, 'g2', 5), null);
   assert.equal(C.sanitize(JSON.parse(JSON.stringify(s)), 0).bag.g2, 1);
 });
+
+test('편성 프리셋: 칸마다 따로 저장', () => {
+  const s = C.newState(0); s.stage = 21;
+  for (const id of ['knight', 'archer']) s.heroes[id].owned = true;
+  s.party = ['mage', 'knight'];
+  C.switchPreset(s, 1); assert.equal(s.preI, 1); assert.deepEqual(s.party, ['mage', 'knight']);
+  s.party = ['archer'];
+  C.switchPreset(s, 0); assert.deepEqual(s.party, ['mage', 'knight']);
+  C.switchPreset(s, 1); assert.deepEqual(s.party, ['archer']);
+  const t = C.sanitize(JSON.parse(JSON.stringify(s)), 0); assert.equal(t.preI, 1); assert.deepEqual(t.pre[0], ['mage', 'knight']);
+});
+test('구급상자: 우편으로 받음, 저장 유지', () => {
+  const s = C.newState(0); const m = s.med; C.mailClaim(s, 'medkit'); assert.equal(s.med, m + 30);
+  s.medHp = 70; assert.equal(C.sanitize(JSON.parse(JSON.stringify(s)), 0).medHp, 70);
+});

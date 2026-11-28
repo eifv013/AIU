@@ -206,10 +206,12 @@
   }
 
   /** 큰 숫자 축약: 1234 → 1.23K, 1.5e9 → 1.50B. 음수/비정상 값은 0 처리 */
+  // 단위: K M B T 다음은 aa, ab ... az, ba ... zz (방치형 게임 표기). 후반 큰 수도 4~5글자로
+  const FMT_UNITS = ['K', 'M', 'B', 'T'].concat(Array.from({ length: 26 * 26 }, (_, i) => String.fromCharCode(97 + Math.floor(i / 26), 97 + i % 26)));
   function formatNum(n) {
     if (!isNum(n) || n < 0) return '0';
     if (n < 1000) return String(Math.floor(n));
-    const units = ['K', 'M', 'B', 'T', 'aa', 'ab', 'ac', 'ad'];
+    const units = FMT_UNITS;
     let i = -1;
     while (n >= 1000 && i < units.length - 1) { n /= 1000; i++; }
     const digits = n >= 100 ? 0 : n >= 10 ? 1 : 2;
@@ -985,7 +987,7 @@
   function mpassReady(state) { const mm = state.mis.m, out = []; MPASS.forEach((r, i) => { if (mm.pts < r.pt) return; if (!mm.pf.includes(i)) out.push([i, 'free']); if (state.mis.paid === mm.k && !mm.pp.includes(i)) out.push([i, 'paid']); }); return out; }
 
   /** 가이드 퀘스트와 일일, 주간, 월간, 반복 임무를 함께 올림 */
-  function progress(state, kind, amount = 1) { if (state.st && isNum(amount) && amount > 0) state.st[kind] = (state.st[kind] || 0) + amount; questAdd(state, kind, amount); missionAdd(state, kind, amount); misAdd(state, kind, amount); }
+  function progress(state, kind, amount = 1) { if (state.st && isNum(amount) && amount > 0) state.st[kind] = (state.st[kind] || 0) + amount; questAdd(state, kind, amount); missionAdd(state, kind, amount); misAdd(state, kind, amount); if (isNum(amount) && amount > 0) huntAdd(state, kind, amount); }
 
   /** 출석 보상 받을 수 있는지 / 받기 (오늘 이미 받았으면 null) */
   function canAttend(state, now) { return state.att.last !== dayKey(now); }
@@ -1068,6 +1070,7 @@
       heroes[h.id] = { owned: STARTER_IDS.includes(h.id), lv: 1, stars: 1, shards: 0 };
     }
     return {
+      sys: newSys(),
       v: CONST.SAVE_VERSION,
       gold: 0,
       exp: CONST.START_EXP,     // 요원 경험치 (요원 레벨업)
@@ -1235,6 +1238,7 @@
     // 파티: 보유한 요원만, 중복 없이 최대 5명. 예전 저장(파티 없음)은 보유 요원 앞에서부터
     s.party = Array.isArray(raw.party) ? raw.party.filter(id => typeof id === 'string') : null;
     s.party = partyIds(s);
+    s.sys = sanitizeSys(raw.sys);
     return s;
   }
 
@@ -1527,6 +1531,7 @@
     for (const id of state.cos) { const c = costumeById(id); if (c) for (const k in c.hold) add(src.복장, k, c.hold[k]); }
     // 고유 능력: 출전 요원
     for (const id of partyIds(state)) { const p = passiveOf(state, id); if (p.on) add(src['고유 능력'], p.stat, p.v); }
+    if (state.sys) { const sb = sysBonus(state); for (const n in sb) { src[n] = z(); for (const k in sb[n]) if (k in src[n]) src[n][k] += sb[n][k]; } }
     const all = z(); for (const s of Object.values(src)) for (const k in s) all[k] += s[k];
     return { ...all, src };
   }
@@ -1545,11 +1550,339 @@
     catch (e) { return { state: newState(now), ok: false }; }
   }
 
+  /* =====================================================================
+   * 0.38.0 새 콘텐츠 (세븐나이츠 키우기에 있는데 AIU에서 '준비 중'이던 것들)
+   *  - 수사력 탭: 특성, 장비, 연구, 후원
+   *  - 작전 탭: 특수 작전, 모의 대련
+   *  - 임무 탭: 아지트(심야 식당), 현상 의뢰, 수색
+   *  - 호출: 파트너, 유물 / 수사팀: 평판, 봉인 파편
+   * 모든 상태는 state.sys 아래에 모아 두고, 능력치는 statBonus 출처로 합산
+   * ===================================================================== */
+  const SYS_OPEN = { trait: 51, gear: 121, lab: 201, aid: 301, spec: 151, duel: 251, base: 101, hunt: 181, search: 261, pet: 401, relic: 301, rep: 1, seal: 301 };
+  function sysOpen(state, k) { return (state.stage || 1) >= (SYS_OPEN[k] || 1); }
+  /** 팀 전투력 (화면과 같은 공식) */
+  function corePower(state) {
+    const y = battleMods(state);
+    return Math.round(partyIds(state).reduce((a, id) => { const d = state.heroes[id]; return a + heroAtk(id, d.lv, d.stars, state.up.atk) * y.atk * 10 + heroHp(id, d.lv, d.stars) * y.hp; }, 0));
+  }
+
+  /* ---------- 특성: 스테이지를 넘을수록 특성 포인트가 생기고, 원하는 능력치에 찍음 ---------- */
+  const TRAITS = [
+    { id: 'atk',  name: '집중 사격',   stat: 'atk',  per: 0.02, max: 100 },
+    { id: 'hp',   name: '강인한 체력', stat: 'hp',   per: 0.02, max: 100 },
+    { id: 'cdmg', name: '급소 파악',   stat: 'cdmg', per: 0.03, max: 100 },
+    { id: 'boss', name: '근원체 연구', stat: 'boss', per: 0.02, max: 100 },
+    { id: 'gold', name: '현상금 감각', stat: 'gold', per: 0.02, max: 100 },
+  ];
+  /** 받은 특성 포인트: 스테이지 51부터 2스테이지마다 1 */
+  function traitPoints(state) { return Math.max(0, Math.floor(((state.stage || 1) - SYS_OPEN.trait) / 2) + (sysOpen(state, 'trait') ? 1 : 0)); }
+  function traitSpent(state) { return TRAITS.reduce((a, t) => a + (state.sys.trait[t.id] || 0), 0); }
+  function traitLeft(state) { return traitPoints(state) - traitSpent(state); }
+  function traitUp(state, id, n = 1) {
+    const t = TRAITS.find(x => x.id === id); if (!t) throw new Error('알 수 없는 특성');
+    if (!sysOpen(state, 'trait')) throw new RangeError(`스테이지 ${SYS_OPEN.trait} 달성 시 열려요`);
+    const lv = state.sys.trait[id] || 0, k = Math.min(clampInt(n, 1, 1000, 1), t.max - lv, traitLeft(state));
+    if (k <= 0) throw new RangeError(lv >= t.max ? '최대 레벨이에요' : '특성 포인트가 부족해요');
+    state.sys.trait[id] = lv + k; return k;
+  }
+  /** 특성 초기화: 보석 100, 포인트 전부 돌려받음 */
+  function traitReset(state) { if (!spendGems(state, 100)) throw new RangeError('보석이 부족해요'); state.sys.trait = {}; }
+
+  /* ---------- 장비: 팀 공용 장비 4칸을 골드로 강화. 10레벨마다 등급이 오르고 효과가 커짐 ---------- */
+  const GEAR = [
+    { id: 'wpn',   name: '제식 권총',   stat: 'atk',  per: 0.01, base: 5000, growth: 1.12 },
+    { id: 'vest',  name: '방탄 코트',   stat: 'hp',   per: 0.01, base: 5000, growth: 1.12 },
+    { id: 'glove', name: '전술 장갑',   stat: 'cdmg', per: 0.015, base: 8000, growth: 1.12 },
+    { id: 'radio', name: '현장 무전기', stat: 'boss', per: 0.01, base: 8000, growth: 1.12 },
+  ];
+  const GEAR_TIER = ['일반', '고급', '희귀', '영웅', '전설', '각성'];
+  function gearTier(lv) { return GEAR_TIER[Math.min(GEAR_TIER.length - 1, Math.floor(lv / 50))]; }
+  /** 골드 비용은 스테이지 골드와 같이 크도록 현재 스테이지 기준으로 정함 */
+  function gearCost(state, id) { const g = GEAR.find(x => x.id === id), lv = state.sys.gear[id] || 0; return Math.floor(g.base * Math.pow(g.growth, lv) * (1 + killGold(state.stage, 0) / 3 / 50)); }
+  function gearUp(state, id) {
+    if (!GEAR.find(x => x.id === id)) throw new Error('알 수 없는 장비');
+    if (!sysOpen(state, 'gear')) throw new RangeError(`스테이지 ${SYS_OPEN.gear} 달성 시 열려요`);
+    const c = gearCost(state, id); if (state.gold < c) throw new RangeError('골드가 부족해요');
+    state.gold -= c; state.sys.gear[id] = (state.sys.gear[id] || 0) + 1; return c;
+  }
+  /** 장비 효과: 레벨당 효과 + 등급마다 2배씩 (일반 1, 고급 2 ...) */
+  function gearVal(id, lv) { const g = GEAR.find(x => x.id === id); return g.per * lv * (1 + Math.floor(lv / 50)); }
+
+  /* ---------- 연구: 골드를 내고 정해진 시간이 지나면 완료 (한 번에 하나) ---------- */
+  const LABS = [
+    { id: 'gold', name: '자금 추적',   stat: 'gold', per: 0.03, min: 5 },
+    { id: 'atk',  name: '탄도학',      stat: 'atk',  per: 0.03, min: 5 },
+    { id: 'hp',   name: '방호 재질',   stat: 'hp',   per: 0.03, min: 5 },
+    { id: 'crit', name: '약점 분석',   stat: 'crit', per: 0.004, min: 10, max: 25 },
+    { id: 'boss', name: '근원 해부학', stat: 'boss', per: 0.03, min: 10 },
+  ];
+  function labTime(id, lv) { const l = LABS.find(x => x.id === id); return Math.round(l.min * 60 * 1000 * Math.pow(1.25, lv)); }   // ms
+  function labCost(state, id) { return Math.floor(gearCost(state, 'wpn') * 3 * Math.pow(1.2, state.sys.lab.lv[id] || 0)); }
+  function labStart(state, id, now) {
+    const l = LABS.find(x => x.id === id); if (!l) throw new Error('알 수 없는 연구');
+    if (!sysOpen(state, 'lab')) throw new RangeError(`스테이지 ${SYS_OPEN.lab} 달성 시 열려요`);
+    if (state.sys.lab.cur) throw new RangeError('진행 중인 연구가 있어요');
+    if (l.max && (state.sys.lab.lv[id] || 0) >= l.max) throw new RangeError('최대 레벨이에요');
+    const c = labCost(state, id); if (state.gold < c) throw new RangeError('골드가 부족해요');
+    state.gold -= c; state.sys.lab.cur = id; state.sys.lab.end = now + labTime(id, state.sys.lab.lv[id] || 0); return c;
+  }
+  /** 끝났으면 레벨 반영. 끝난 연구 id를 돌려줌 */
+  function labTick(state, now) {
+    const L = state.sys.lab; if (!L.cur || now < L.end) return null;
+    const id = L.cur; L.lv[id] = (L.lv[id] || 0) + 1; L.cur = null; L.end = 0; return id;
+  }
+  /** 보석으로 바로 끝내기: 남은 1분마다 보석 1 */
+  function labRushCost(state, now) { return state.sys.lab.cur ? Math.max(1, Math.ceil((state.sys.lab.end - now) / 60000)) : 0; }
+  function labRush(state, now) { const c = labRushCost(state, now); if (!c) return null; if (!spendGems(state, c)) throw new RangeError('보석이 부족해요'); state.sys.lab.end = now; return labTick(state, now); }
+
+  /* ---------- 후원: 하루 세 번 후원하고 후원 레벨을 올림 (레벨마다 팀 공격력, 체력) ---------- */
+  const AID = [
+    { id: 'gold', name: '골드 후원', pay: 'gold', xp: 10 },
+    { id: 'gem',  name: '보석 후원', pay: 'gems', cost: 50, xp: 30 },
+    { id: 'big',  name: '특별 후원', pay: 'gems', cost: 200, xp: 120 },
+  ];
+  const AID_DAY = 3;
+  function aidNeed(lv) { return 100 + lv * 20; }
+  function aidGoldCost(state) { return Math.floor(killGold(state.stage, 0) * 200); }
+  function aidLeft(state, now) { const k = dayKey(now); if (state.sys.aid.day !== k) { state.sys.aid.day = k; state.sys.aid.n = 0; } return AID_DAY - state.sys.aid.n; }
+  function aidGive(state, id, now) {
+    const a = AID.find(x => x.id === id); if (!a) throw new Error('알 수 없는 후원');
+    if (!sysOpen(state, 'aid')) throw new RangeError(`스테이지 ${SYS_OPEN.aid} 달성 시 열려요`);
+    if (aidLeft(state, now) <= 0) throw new RangeError('오늘 후원을 모두 했어요');
+    if (a.pay === 'gold') { const c = aidGoldCost(state); if (state.gold < c) throw new RangeError('골드가 부족해요'); state.gold -= c; }
+    else if (!spendGems(state, a.cost)) throw new RangeError('보석이 부족해요');
+    const A = state.sys.aid; A.n++; A.xp += a.xp; let up = 0;
+    while (A.xp >= aidNeed(A.lv)) { A.xp -= aidNeed(A.lv); A.lv++; up++; }
+    return { xp: a.xp, up };
+  }
+
+  /* ---------- 아지트: 심야 식당. 하루 한 번 요리를 골라 8시간 버프 (광고를 보면 다시 고를 수 있음) ---------- */
+  const FOODS = [
+    { id: 'ramen',  name: '야근 라면',     text: '골드 획득 +10%',  stat: 'gold', v: 0.10 },
+    { id: 'gukbap', name: '해장 국밥',     text: '체력 +10%',       stat: 'hp',   v: 0.10 },
+    { id: 'coffee', name: '진한 블랙커피', text: '공격력 +10%',     stat: 'atk',  v: 0.10 },
+    { id: 'toast',  name: '포장마차 토스트', text: '치명타 피해 +15%', stat: 'cdmg', v: 0.15 },
+    { id: 'soju',   name: '잠복 도시락',   text: '근원체 피해 +10%', stat: 'boss', v: 0.10 },
+  ];
+  const FOOD_MS = 8 * 3600 * 1000;
+  function foodOn(state, now) { const f = state.sys.food; return f.id && now < f.end ? FOODS.find(x => x.id === f.id) : null; }
+  function foodReady(state, now) { return !foodOn(state, now) || state.sys.food.ad; }
+  function foodEat(state, id, now, byAd) {
+    const f = FOODS.find(x => x.id === id); if (!f) throw new Error('알 수 없는 요리');
+    if (!sysOpen(state, 'base')) throw new RangeError(`스테이지 ${SYS_OPEN.base} 달성 시 열려요`);
+    if (foodOn(state, now) && !byAd) throw new RangeError('먹은 요리 효과가 아직 남아 있어요');
+    state.sys.food = { id, end: now + FOOD_MS, ad: false }; return f;
+  }
+
+  /* ---------- 현상 의뢰: 매일 다섯 개. 조건을 채우면 보상과 평판 ---------- */
+  const HUNTS = [
+    { kind: 'kill',    text: '이상체 {n}마리 처리',  n: 500,  rw: { gems: 20 }, rep: 10 },
+    { kind: 'boss',    text: '근원체 {n}번 봉쇄',    n: 5,    rw: { ptix: 1 },  rep: 15 },
+    { kind: 'summon',  text: '요원 {n}번 호출',      n: 30,   rw: { tix: 30 },  rep: 10 },
+    { kind: 'lvup',    text: '요원 {n}번 강화',      n: 30,   rw: { exp: 0 },   rep: 10 },
+    { kind: 'train',   text: '수사력 {n}번 강화',    n: 20,   rw: { gold: 0 },  rep: 10 },
+    { kind: 'dungeon', text: '일일 작전 {n}번 완료', n: 3,    rw: { gems: 30 }, rep: 15 },
+  ];
+  function huntReset(state, now) {
+    const k = dayKey(now); if (state.sys.hunt.day === k) return false;
+    // 날짜로 고르는 다섯 개 (매일 바뀌지만 같은 날은 같음)
+    let seed = [...k].reduce((a, c) => a * 31 + c.charCodeAt(0), 7) >>> 0; const pick = HUNTS.map((h, i) => [i, (seed = (seed * 1103515245 + 12345) >>> 0) % 1000]).sort((a, b) => a[1] - b[1]).slice(0, 5).map(x => x[0]).sort((a, b) => a - b);
+    state.sys.hunt = { day: k, ids: pick, p: {}, got: [] }; return true;
+  }
+  function huntAdd(state, kind, n) { const H = state.sys && state.sys.hunt; if (!H || !H.ids) return; if (H.ids.some(i => HUNTS[i].kind === kind)) H.p[kind] = (H.p[kind] || 0) + n; }
+  function huntReward(state, i) { const h = HUNTS[i], r = { ...h.rw }; if ('exp' in r) r.exp = Math.floor(killExp(state.stage) * 600); if ('gold' in r) r.gold = Math.floor(killGold(state.stage, state.up.gold) * 600); return r; }
+  function huntClaim(state, i, now) {
+    huntReset(state, now); const H = state.sys.hunt, h = HUNTS[i];
+    if (!h || !H.ids.includes(i)) throw new Error('알 수 없는 의뢰');
+    if (!sysOpen(state, 'hunt')) throw new RangeError(`스테이지 ${SYS_OPEN.hunt} 달성 시 열려요`);
+    if (H.got.includes(i)) throw new RangeError('이미 받았어요');
+    if ((H.p[h.kind] || 0) < h.n) throw new RangeError('아직 조건을 채우지 못했어요');
+    H.got.push(i); repAdd(state, h.rep); return giveReward(state, huntReward(state, i));
+  }
+
+  /* ---------- 평판: 현상 의뢰로 쌓임. 단계마다 골드 획득과 공격력 ---------- */
+  const REP_STEP = 100, REP_TITLES = ['무명', '동네 해결사', '믿을 만한 팀', '구역의 수호자', '도시의 전설'];
+  function repAdd(state, n) { state.sys.rep += n; }
+  function repLv(state) { return Math.floor(state.sys.rep / REP_STEP); }
+  function repTitle(state) { return REP_TITLES[Math.min(REP_TITLES.length - 1, Math.floor(repLv(state) / 5))]; }
+
+  /* ---------- 수색: 요원을 몇 시간 보내 두면 보상을 가져옴 (출전 요원은 못 보냄) ---------- */
+  const SEARCHES = [
+    { id: 's1', name: '골목 탐문',   hours: 1, rw: 'gold' },
+    { id: 's2', name: '항구 잠복',   hours: 4, rw: 'exp' },
+    { id: 's3', name: '폐건물 수색', hours: 8, rw: 'gems' },
+  ];
+  function searchReward(state, id, heroId) {
+    const s = SEARCHES.find(x => x.id === id), g = { 희귀: 1, 영웅: 1.5, 전설: 2.2 }[heroById(heroId).grade] || 1;
+    if (s.rw === 'gold') return { gold: Math.floor(killGold(state.stage, state.up.gold) * 1200 * s.hours * g) };
+    if (s.rw === 'exp') return { exp: Math.floor(killExp(state.stage) * 900 * s.hours * g) };
+    return { gems: Math.floor(3 * s.hours * g), ptix: s.hours >= 8 ? 1 : 0 };
+  }
+  function searchStart(state, id, heroId, now) {
+    const s = SEARCHES.find(x => x.id === id); if (!s) throw new Error('알 수 없는 수색');
+    if (!sysOpen(state, 'search')) throw new RangeError(`스테이지 ${SYS_OPEN.search} 달성 시 열려요`);
+    if (state.sys.search[id]) throw new RangeError('이미 수색 중이에요');
+    const h = state.heroes[heroId]; if (!h || !h.owned) throw new RangeError('보유한 요원만 보낼 수 있어요');
+    if (partyIds(state).includes(heroId)) throw new RangeError('출전 중인 요원은 보낼 수 없어요');
+    if (Object.values(state.sys.search).some(x => x && x.hero === heroId)) throw new RangeError('이미 다른 수색에 나가 있어요');
+    state.sys.search[id] = { hero: heroId, end: now + s.hours * 3600 * 1000 }; return state.sys.search[id];
+  }
+  function searchClaim(state, id, now) {
+    const x = state.sys.search[id]; if (!x) throw new RangeError('보낸 요원이 없어요');
+    if (now < x.end) throw new RangeError('아직 수색 중이에요');
+    delete state.sys.search[id]; return giveReward(state, searchReward(state, id, x.hero));
+  }
+
+  /* ---------- 특수 작전: 권장 전투력을 넘으면 돌파. 하루 2번, 요원 조각과 정예 호출권 ---------- */
+  const SPECS = [
+    { id: 'shard', name: '기밀 회수', text: '요원 조각을 얻어요' },
+    { id: 'elite', name: '정예 소탕', text: '정예 호출권을 얻어요' },
+  ];
+  const SPEC_KEYS = 2;
+  function specReq(state, lv) { return Math.floor(corePowerAt(lv * 5)); }   // n단계 = 스테이지 5n 근원체를 잡을 만한 전투력
+  /** 스테이지 기준 표준 전투력 (적 체력에 맞춘 값) */
+  function corePowerAt(stage) { return Math.floor(enemyHp(stage) * 3); }
+  function specKeys(state, now) { const k = dayKey(now); if (state.sys.spec.day !== k) { state.sys.spec.day = k; state.sys.spec.keys = { shard: SPEC_KEYS, elite: SPEC_KEYS }; } return state.sys.spec.keys; }
+  function specReward(state, id, lv) {
+    if (id === 'elite') return { ptix: 1 + Math.floor(lv / 25) };   // 정예 호출권은 과금 재화와 바로 이어져서 적게
+    const owned = HEROES.filter(h => state.heroes[h.id] && state.heroes[h.id].owned);
+    const pick = owned.length ? owned[(lv * 7 + state.stage) % owned.length].id : HEROES[0].id;
+    return { shard: pick, n: 1 + Math.floor(lv / 20) };
+  }
+  function specRun(state, id, now) {
+    if (!SPECS.find(x => x.id === id)) throw new Error('알 수 없는 작전');
+    if (!sysOpen(state, 'spec')) throw new RangeError(`스테이지 ${SYS_OPEN.spec} 달성 시 열려요`);
+    const keys = specKeys(state, now); if (keys[id] <= 0) throw new RangeError('오늘 입장 횟수를 다 썼어요');
+    const b0 = state.sys.spec.best[id] || 0, pw = corePower(state);
+    // 전투력이 닿는 가장 높은 단계까지 한 번에 돌파 (세나 키우기 특수 던전처럼 낮은 단계를 하나씩 밀지 않게)
+    let lv = b0 + 1; const req = specReq(state, lv);
+    if (pw >= req) { while (specReq(state, lv + 1) <= pw && lv < b0 + 1000) lv++; }
+    keys[id]--;
+    if (pw >= req) { state.sys.spec.best[id] = lv; return { win: true, lv, rw: giveReward(state, specReward(state, id, lv)) }; }
+    // 실패: 바로 아래 단계(깬 곳) 보상을 소탕으로
+    const b = state.sys.spec.best[id] || 0;
+    return { win: false, lv, req, rw: b ? giveReward(state, specReward(state, id, b)) : null };
+  }
+
+  /* ---------- 모의 대련: 하루 5번, 비슷한 전투력의 가상 훈련 팀과 대련. 점수로 등급, 이기면 보석 ---------- */
+  const DUEL_KEYS = 5, DUEL_TIERS = [[0, '브론즈'], [1100, '실버'], [1300, '골드'], [1500, '플래티넘'], [1800, '다이아'], [2200, '마스터']];
+  const DUEL_TEAMS = ['훈련 팀 알파', '훈련 팀 브라보', '훈련 팀 찰리', '훈련 팀 델타', '훈련 팀 에코'];
+  function duelTier(score) { let t = DUEL_TIERS[0][1]; for (const [s, n] of DUEL_TIERS) if (score >= s) t = n; return t; }
+  function duelKeys(state, now) { const k = dayKey(now); if (state.sys.duel.day !== k) { state.sys.duel.day = k; state.sys.duel.keys = DUEL_KEYS; } return state.sys.duel.keys; }
+  /** 상대 세 팀: 내 전투력의 85%, 100%, 120% */
+  function duelFoes(state) { const p = Math.max(1, corePower(state)), s = state.sys.duel.score; return [0.85, 1, 1.2].map((m, i) => ({ i, name: DUEL_TEAMS[(Math.floor(s / 50) + i) % DUEL_TEAMS.length], pw: Math.floor(p * m), pts: [10, 20, 35][i] })); }
+  function duelFight(state, i, now, rng = Math.random) {
+    if (!sysOpen(state, 'duel')) throw new RangeError(`스테이지 ${SYS_OPEN.duel} 달성 시 열려요`);
+    if (duelKeys(state, now) <= 0) throw new RangeError('오늘 대련 횟수를 다 썼어요');
+    const f = duelFoes(state)[i]; if (!f) throw new Error('알 수 없는 상대');
+    const p = corePower(state), win = rng() < Math.max(0.1, Math.min(0.95, 0.5 + (p - f.pw) / Math.max(1, f.pw) * 1.5));
+    state.sys.duel.keys--;
+    const d = state.sys.duel; if (win) { d.score += f.pts; d.win++; } else d.score = Math.max(0, d.score - 8);
+    return { win, pts: win ? f.pts : -8, rw: win ? giveReward(state, { gems: 10 + i * 5 }) : null };
+  }
+
+  /* ---------- 파트너: 이상현상과 싸우는 동물 파트너. 하나를 데리고 다니면 효과, 중복은 레벨업 ---------- */
+  const PETS = [
+    { id: 'crow',  name: '까마귀 레이븐',   grade: '희귀', stat: 'gold', v: 0.08 },
+    { id: 'cat',   name: '검은 고양이 노아', grade: '희귀', stat: 'crit', v: 0.02 },
+    { id: 'dog',   name: '경찰견 바운서',   grade: '영웅', stat: 'hp',   v: 0.12 },
+    { id: 'owl',   name: '부엉이 워치',     grade: '영웅', stat: 'cdmg', v: 0.20 },
+    { id: 'fox',   name: '은여우 미스트',   grade: '전설', stat: 'atk',  v: 0.20 },
+    { id: 'wolf',  name: '늑대 하울',       grade: '전설', stat: 'boss', v: 0.25 },
+  ];
+  const PET_RATE = { 희귀: 0.7, 영웅: 0.26, 전설: 0.04 }, PET_COST = 300, PET_MAX = 10;
+  function petVal(id, lv) { const p = PETS.find(x => x.id === id); return p.v * (1 + 0.15 * (lv - 1)); }
+  function rollFrom(list, rate, rng) { const r = rng(); let acc = 0, g = '희귀'; for (const [k, v] of Object.entries(rate)) { acc += v; if (r < acc) { g = k; break; } } const pool = list.filter(x => x.grade === g); return pool[Math.floor(rng() * pool.length)]; }
+  function petSummon(state, n, rng = Math.random) {
+    if (!sysOpen(state, 'pet')) throw new RangeError(`스테이지 ${SYS_OPEN.pet} 달성 시 열려요`);
+    if (!spendGems(state, PET_COST * n)) throw new RangeError('보석이 부족해요');
+    const out = []; for (let i = 0; i < n; i++) { const p = rollFrom(PETS, PET_RATE, rng), o = state.sys.pet.own[p.id]; if (o) o.lv = Math.min(PET_MAX, o.lv + 1); else state.sys.pet.own[p.id] = { lv: 1 }; out.push(p.id); if (!state.sys.pet.eq) state.sys.pet.eq = p.id; }
+    return out;
+  }
+  function petEquip(state, id) { if (!state.sys.pet.own[id]) throw new RangeError('아직 없는 파트너예요'); state.sys.pet.eq = id; }
+
+  /* ---------- 유물: 이상현상 사건의 증거물. 모은 유물 효과가 모두 쌓임 ---------- */
+  const RELICS = [
+    { id: 'umb',    name: '찢어진 우산',     grade: '희귀', stat: 'hp',   v: 0.03 },
+    { id: 'lamp',   name: '꺼지지 않는 등불', grade: '희귀', stat: 'gold', v: 0.03 },
+    { id: 'manq',   name: '마네킹의 손',     grade: '희귀', stat: 'atk',  v: 0.02 },
+    { id: 'tape',   name: '지워진 녹음테이프', grade: '영웅', stat: 'cdmg', v: 0.06 },
+    { id: 'badge',  name: '녹슨 경찰 배지',  grade: '영웅', stat: 'boss', v: 0.05 },
+    { id: 'clock',  name: '거꾸로 가는 시계', grade: '전설', stat: 'atk',  v: 0.10 },
+  ];
+  const RELIC_RATE = { 희귀: 0.72, 영웅: 0.25, 전설: 0.03 }, RELIC_COST = 200, RELIC_MAX = 10;
+  function relicVal(id, lv) { const r = RELICS.find(x => x.id === id); return r.v * lv; }
+  function relicSummon(state, n, rng = Math.random) {
+    if (!sysOpen(state, 'relic')) throw new RangeError(`스테이지 ${SYS_OPEN.relic} 달성 시 열려요`);
+    if (!spendGems(state, RELIC_COST * n)) throw new RangeError('보석이 부족해요');
+    const out = []; for (let i = 0; i < n; i++) { const r = rollFrom(RELICS, RELIC_RATE, rng), o = state.sys.relic[r.id]; state.sys.relic[r.id] = Math.min(RELIC_MAX, (o || 0) + 1); out.push(r.id); }
+    return out;
+  }
+
+  /* ---------- 봉인 파편: 스테이지 301부터 근원체를 잡을 때마다 파편. 봉인 다섯 개를 단계별로 채움 ---------- */
+  const SEALS = [
+    { id: 'rain',  name: '빗물의 봉인',   stat: 'hp',   per: 0.04 },
+    { id: 'fog',   name: '안개의 봉인',   stat: 'gold', per: 0.04 },
+    { id: 'neon',  name: '네온의 봉인',   stat: 'atk',  per: 0.04 },
+    { id: 'echo',  name: '메아리의 봉인', stat: 'cdmg', per: 0.06 },
+    { id: 'abyss', name: '심연의 봉인',   stat: 'boss', per: 0.04 },
+  ];
+  function sealNeed(lv) { return 5 + lv * 3; }
+  function sealDrop(state) { if (sysOpen(state, 'seal')) state.sys.sealP += 1; }
+  function sealUp(state, id) {
+    if (!SEALS.find(x => x.id === id)) throw new Error('알 수 없는 봉인');
+    if (!sysOpen(state, 'seal')) throw new RangeError(`스테이지 ${SYS_OPEN.seal} 달성 시 열려요`);
+    const lv = state.sys.seal[id] || 0, need = sealNeed(lv); if (state.sys.sealP < need) throw new RangeError('봉인 파편이 부족해요');
+    state.sys.sealP -= need; state.sys.seal[id] = lv + 1; return lv + 1;
+  }
+
+  /** 새 상태 / 저장 불러오기 */
+  function newSys() { return { trait: {}, gear: {}, lab: { lv: {}, cur: null, end: 0 }, aid: { lv: 0, xp: 0, day: '', n: 0 }, food: { id: null, end: 0, ad: false },
+    hunt: { day: '', ids: [], p: {}, got: [] }, rep: 0, search: {}, spec: { day: '', keys: { shard: SPEC_KEYS, elite: SPEC_KEYS }, best: {} },
+    duel: { day: '', keys: DUEL_KEYS, score: 1000, win: 0 }, pet: { own: {}, eq: null }, relic: {}, seal: {}, sealP: 0 }; }
+  function sanitizeSys(raw) {
+    const s = newSys(); if (!raw || typeof raw !== 'object') return s;
+    const lvMap = (o, list, max) => { const r = {}; if (o && typeof o === 'object') for (const x of list) if (isNum(o[x.id])) r[x.id] = clampInt(o[x.id], 0, max || 1e6, 0); return r; };
+    s.trait = lvMap(raw.trait, TRAITS, 100); s.gear = lvMap(raw.gear, GEAR); s.seal = lvMap(raw.seal, SEALS); s.relic = lvMap(raw.relic, RELICS, RELIC_MAX);
+    if (raw.lab) { s.lab.lv = lvMap(raw.lab.lv, LABS); s.lab.cur = LABS.some(l => l.id === raw.lab.cur) ? raw.lab.cur : null; s.lab.end = s.lab.cur && isNum(raw.lab.end) ? raw.lab.end : 0; }
+    if (raw.aid) s.aid = { lv: clampInt(raw.aid.lv, 0, 1e6, 0), xp: clampInt(raw.aid.xp, 0, 1e9, 0), day: String(raw.aid.day || ''), n: clampInt(raw.aid.n, 0, AID_DAY, 0) };
+    if (raw.food && FOODS.some(f => f.id === raw.food.id)) s.food = { id: raw.food.id, end: isNum(raw.food.end) ? raw.food.end : 0, ad: raw.food.ad === true };
+    if (raw.hunt && Array.isArray(raw.hunt.ids)) s.hunt = { day: String(raw.hunt.day || ''), ids: raw.hunt.ids.filter(i => HUNTS[i]).slice(0, 5), p: {}, got: Array.isArray(raw.hunt.got) ? raw.hunt.got.filter(i => HUNTS[i]) : [] };
+    if (raw.hunt && raw.hunt.p && typeof raw.hunt.p === 'object') for (const h of HUNTS) if (isNum(raw.hunt.p[h.kind])) s.hunt.p[h.kind] = clampInt(raw.hunt.p[h.kind], 0, 1e9, 0);
+    s.rep = clampInt(raw.rep, 0, 1e9, 0);
+    if (raw.search && typeof raw.search === 'object') for (const x of SEARCHES) { const v = raw.search[x.id]; if (v && HEROES.some(h => h.id === v.hero) && isNum(v.end)) s.search[x.id] = { hero: v.hero, end: v.end }; }
+    if (raw.spec) { s.spec.day = String(raw.spec.day || ''); for (const x of SPECS) { if (raw.spec.keys && isNum(raw.spec.keys[x.id])) s.spec.keys[x.id] = clampInt(raw.spec.keys[x.id], 0, SPEC_KEYS, SPEC_KEYS); if (raw.spec.best && isNum(raw.spec.best[x.id])) s.spec.best[x.id] = clampInt(raw.spec.best[x.id], 0, 1e5, 0); } }
+    if (raw.duel) s.duel = { day: String(raw.duel.day || ''), keys: clampInt(raw.duel.keys, 0, DUEL_KEYS, DUEL_KEYS), score: clampInt(raw.duel.score, 0, 1e6, 1000), win: clampInt(raw.duel.win, 0, 1e6, 0) };
+    if (raw.pet && raw.pet.own) { for (const p of PETS) { const o = raw.pet.own[p.id]; if (o && isNum(o.lv)) s.pet.own[p.id] = { lv: clampInt(o.lv, 1, PET_MAX, 1) }; } s.pet.eq = s.pet.own[raw.pet.eq] ? raw.pet.eq : null; }
+    s.sealP = clampInt(raw.sealP, 0, 1e9, 0);
+    return s;
+  }
+  /** 새 콘텐츠가 주는 능력치 (statBonus 출처) */
+  function sysBonus(state, now = Date.now()) {
+    const o = { 특성: {}, 장비: {}, 연구: {}, 후원: {}, 아지트: {}, 평판: {}, 파트너: {}, 유물: {}, '봉인 파편': {} }, Y = state.sys; if (!Y) return o;
+    const add = (g, k, v) => { if (v) g[k] = (g[k] || 0) + v; };
+    for (const t of TRAITS) add(o.특성, t.stat, t.per * (Y.trait[t.id] || 0));
+    for (const g of GEAR) add(o.장비, g.stat, gearVal(g.id, Y.gear[g.id] || 0));
+    for (const l of LABS) add(o.연구, l.stat, l.per * (Y.lab.lv[l.id] || 0));
+    add(o.후원, 'atk', 0.02 * Y.aid.lv); add(o.후원, 'hp', 0.02 * Y.aid.lv);
+    const f = foodOn(state, now); if (f) add(o.아지트, f.stat, f.v);
+    add(o.평판, 'gold', 0.01 * repLv(state)); add(o.평판, 'atk', 0.01 * repLv(state));
+    if (Y.pet.eq && Y.pet.own[Y.pet.eq]) { const p = PETS.find(x => x.id === Y.pet.eq); add(o.파트너, p.stat, petVal(p.id, Y.pet.own[p.id].lv)); }
+    for (const r of RELICS) if (Y.relic[r.id]) add(o.유물, r.stat, relicVal(r.id, Y.relic[r.id]));
+    for (const s of SEALS) add(o['봉인 파편'], s.stat, s.per * (Y.seal[s.id] || 0));
+    return o;
+  }
+
   const Core = {
     HEROES, TYPES, STARTER_IDS, partyIds, partySlots, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
     AWAKE_STAR, AWAKE_NEED, maxStars, heroGrade, gemTotal, spendGems, FIRST_PAY, firstPayStart, firstPayReady, firstPayClaim, WEEKLY, MONTHLY, REPEAT, MPASS, MPASS_PRICE, misReset, misClaim, misReadyCount, repeatReady, mpassClaim, mpassReady, weekKey, monthKey, PASS, PASS_PRICE, passClaim, passReady, PASSES, pxVal, pxClaim, pxReady, pxBuy, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
+    SYS_OPEN, sysOpen, corePower, corePowerAt, TRAITS, traitPoints, traitSpent, traitLeft, traitUp, traitReset, GEAR, GEAR_TIER, gearTier, gearCost, gearUp, gearVal,
+    LABS, labTime, labCost, labStart, labTick, labRushCost, labRush, AID, AID_DAY, aidNeed, aidGoldCost, aidLeft, aidGive, FOODS, FOOD_MS, foodOn, foodReady, foodEat,
+    HUNTS, huntReset, huntReward, huntClaim, REP_STEP, repLv, repTitle, SEARCHES, searchReward, searchStart, searchClaim, SPECS, SPEC_KEYS, specReq, specKeys, specReward, specRun,
+    DUEL_KEYS, DUEL_TIERS, duelTier, duelKeys, duelFoes, duelFight, PETS, PET_RATE, PET_COST, PET_MAX, petVal, petSummon, petEquip, RELICS, RELIC_RATE, RELIC_COST, RELIC_MAX, relicVal, relicSummon,
+    SEALS, sealNeed, sealDrop, sealUp, newSys, sanitizeSys, sysBonus,
     skillGrow, skillOf, SKILL_GROW, heroLvCap, heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, upCap, upCost, tstepOf, tstepProg, tstepCost, tstepUp, TSTEP, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, summonMaxN, addTickets, shopItem, STREAK, streakClaim, GOLD_PACKS, goldPackCount, goldPackBuy, PLANS, planById, planLeft, planBuy, planClaim, levelReward, applySummon, pickupRemainSec, formatRemain,
     newState, cloneState, sanitize, loadFromString, QUESTS, GUIDE, questAt, questAdd, questClaim,

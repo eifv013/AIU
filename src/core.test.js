@@ -576,3 +576,37 @@ test('기술 성장: 별이 오를수록 기술 수치가 커지고 원본은 �
   assert.equal(C.skillOf(h, C.AWAKE_STAR).cd, h.skill.cd - 1);
   assert.equal(h.skill.mult, 9);   // 원본 데이터는 바뀌지 않음
 });
+
+test('새 콘텐츠: 특성, 장비, 연구, 후원, 식당이 능력치에 더해지고 저장/불러오기가 유지됨', () => {
+  const now = Date.now(), s = C.newState(now); s.stage = 450; s.gold = 1e40; s.gems = 1e6;
+  const s2 = C.newState(now); s2.stage = 10; assert.throws(() => C.traitUp(s2, 'atk', 1), /스테이지 51/);
+  C.traitUp(s, 'atk', 5); C.gearUp(s, 'wpn'); C.labStart(s, 'atk', now); C.labRush(s, now); C.aidGive(s, 'gold', now); C.foodEat(s, 'coffee', now);
+  const b = C.statBonus(s).src;
+  assert.ok(b.특성.atk > 0 && b.장비.atk > 0 && b.연구.atk > 0 && b.아지트.atk > 0);
+  assert.throws(() => C.labStart(s, 'atk', now) && C.labStart(s, 'hp', now), /진행 중/);
+  const r = C.loadFromString(JSON.stringify(s)).state;
+  assert.equal(r.sys.trait.atk, 5); assert.equal(r.sys.gear.wpn, 1); assert.equal(r.sys.food.id, 'coffee');
+});
+test('새 콘텐츠: 현상 의뢰는 조건을 채워야 받고, 평판이 쌓임', () => {
+  const now = new Date(), s = C.newState(+now); s.stage = 200; C.huntReset(s, now);
+  const i = s.sys.hunt.ids[0], h = C.HUNTS[i];
+  assert.throws(() => C.huntClaim(s, i, now), /조건/);
+  C.progress(s, h.kind, h.n); C.huntClaim(s, i, now);
+  assert.equal(s.sys.rep, h.rep); assert.throws(() => C.huntClaim(s, i, now), /이미/);
+});
+test('새 콘텐츠: 수색은 출전 요원을 못 보내고, 시간이 지나야 받음', () => {
+  const now = Date.now(), s = C.newState(now); s.stage = 300;
+  const free = C.HEROES.find(h => s.heroes[h.id].owned && !C.partyIds(s).includes(h.id)) || (s.heroes.echo.owned = true, C.heroById('echo'));
+  assert.throws(() => C.searchStart(s, 's1', C.partyIds(s)[0], now), /출전/);
+  C.searchStart(s, 's1', free.id, now);
+  assert.throws(() => C.searchClaim(s, 's1', now), /아직/);
+  const r = C.searchClaim(s, 's1', now + 3600 * 1000 + 1); assert.ok(r.gold > 0);
+});
+test('새 콘텐츠: 특수 작전은 전투력이 닿는 단계까지 한 번에, 하루 2번', () => {
+  const now = Date.now(), s = C.newState(now); s.stage = 200; s.heroes.mage.owned = true; s.heroes.mage.lv = 300; s.party = ['mage'];
+  const r = C.specRun(s, 'elite', now); assert.ok(r.win && r.lv >= 1);
+  C.specRun(s, 'elite', now); assert.throws(() => C.specRun(s, 'elite', now), /입장/);
+});
+test('숫자 표기: 아주 큰 수도 단위로 짧게', () => {
+  assert.equal(C.formatNum(1.2e15), '1.20aa'); assert.ok(C.formatNum(1e60).length <= 7);
+});

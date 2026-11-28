@@ -488,3 +488,15 @@ test('복장: 보석으로 사고 입기, 고유 능력, 레벨 초기화, 수�
   assert.equal(C.accAdd(s, C.accNeed(1)), 1); assert.equal(s.acc.lv, 2);
   const r = C.sanitize(JSON.parse(JSON.stringify(s)), 0); assert.equal(r.tname, '야간반'); assert.equal(r.cosEq.mage, 'mage_biker');
 });
+
+test('대량 호출: 30회, 최대 호출, 범위 검사', () => {
+  const s = C.newState(0); s.tix = 1234;
+  assert.equal(C.summonMaxN(s, 'call'), 1000);
+  const r = C.doSummon(s, 30, 'call', () => 0.9); assert.equal(r.ids.length, 30); assert.equal(r.state.tix, 1204);
+  const big = C.doSummon(s, 1000, 'call', () => 0.9); assert.equal(big.ids.length, 1000); assert.equal(big.state.tix, 234);
+  assert.throws(() => C.doSummon(s, 0, 'call', Math.random), RangeError);
+  assert.throws(() => C.doSummon(s, 1001, 'call', Math.random), RangeError);
+  assert.throws(() => C.doSummon(s, 2.5, 'call', Math.random), RangeError);
+  const g = C.newState(0); g.ptix = 0; g.gems = 950; assert.equal(C.summonMaxN(g, 'elite'), Math.floor(C.gemTotal(g) / 30));
+  g.ptix = 7; assert.equal(C.summonMaxN(g, 'elite'), 7);
+});

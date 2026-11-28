@@ -140,6 +140,7 @@
      * - 특별 채용: 보석(또는 정예 호출권). 소환 레벨 3부터 열림(세나 키우기 픽업과 같음). 전설 2%는 모두 그 기간의 전설,
      *   누적 RELAY 회째에 그 전설 확정 */
     CALL_COST: 1,            // 요원 호출 1회 = 호출권 1장
+    SUMMON_MAX: 1000,        // 한 번에 호출할 수 있는 최대 횟수 (최대 호출)
     PREMIUM_COST: 30,        // 정예 호출, 특별 채용 1회 = 보석 30 (10회 300)
     PREMIUM_LEGEND: 0.02,    // 정예 호출, 특별 채용 전설 확률
     PICKUP_OPEN_LV: 3,       // 특별 채용이 열리는 소환 레벨
@@ -544,9 +545,16 @@
    * kind: 'call' 요원 호출(호출권) / 'elite' 정예 호출 / 'pickup' 특별 채용 (보석, 정예 호출권이 있으면 먼저 씀)
    * @returns {{state, ids, isNew, relayHit, lvUps: number[], paid: 'tix'|'ptix'|'gems'}}
    */
+  /** 현재 재화로 한 번에 호출할 수 있는 최대 횟수 (정예 호출권이 있으면 그것만, 없으면 보석) */
+  function summonMaxN(state, kind) {
+    const m = kind === 'call' ? Math.floor(state.tix / CONST.CALL_COST) : state.ptix > 0 ? state.ptix : Math.floor(gemTotal(state) / CONST.PREMIUM_COST);
+    return Math.max(0, Math.min(CONST.SUMMON_MAX, m));
+  }
   function doSummon(state, n, kind, rng) {
     if (!['call', 'elite', 'pickup'].includes(kind)) throw new TypeError('뽑기 종류가 올바르지 않습니다: ' + kind);
-    const cnt = n === 10 ? 10 : 1;
+    // 1회, 10회, 30회, 최대(가진 만큼, 1000회까지) 모두 받음. 정수가 아니거나 범위 밖이면 오류
+    if (!Number.isInteger(n) || n < 1 || n > CONST.SUMMON_MAX) throw new RangeError(`호출 횟수는 1에서 ${CONST.SUMMON_MAX} 사이여야 합니다`);
+    const cnt = n;
     const lv0 = summonLevel(state.pulls.total);
     if (kind === 'pickup' && lv0 < CONST.PICKUP_OPEN_LV) throw new RangeError(`특별 채용은 소환 레벨 ${CONST.PICKUP_OPEN_LV}부터 열립니다`);
     let paid;
@@ -1395,7 +1403,7 @@
     AWAKE_STAR, AWAKE_NEED, maxStars, heroGrade, gemTotal, spendGems, FIRST_PAY, firstPayStart, firstPayReady, firstPayClaim, WEEKLY, MONTHLY, REPEAT, MPASS, MPASS_PRICE, misReset, misClaim, misReadyCount, repeatReady, mpassClaim, mpassReady, weekKey, monthKey, PASS, PASS_PRICE, passClaim, passReady, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
-    partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,
+    partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, summonMaxN, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,
     newState, cloneState, sanitize, loadFromString, QUESTS, GUIDE, questAt, questAdd, questClaim,
     DUNGEONS, MISSIONS, ATTEND, dayKey, dailyReset, dungeonById, dungeonStage, dungeonReward, towerStage, towerReward,
     STATS, SQUADS, squadOf, CODEX_STAT, CODEX_VAL, CODEX_STAR_VAL, CODEX_TIERS, CODEX_STEP, codexStat, codexStarNext, codexStarClaim,

@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.20.1';
+window.AIU_VER = '0.21.0';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1178,6 +1178,56 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 #preNo b{font:400 15px "Black Han Sans"}
 .slot.empty.open span{font-size:32px!important}
 #side.fold #sideTg,#side #attBtn{width:44px!important;height:44px!important;display:grid!important;place-items:center;background:linear-gradient(#3a4a6e,#1c2540)!important;border:1.5px solid rgba(201,211,238,.55)!important;box-shadow:0 2px 6px rgba(0,0,0,.6)!important;border-radius:10px!important}
+
+/* ---------- 상점, 패스, 광고, 숙제 도우미, 가이드 위 버튼 ---------- */
+.ssub{margin:0 0 10px}
+.sh .optg small{margin-left:6px;font:600 11px 'IBM Plex Sans KR';color:var(--dim)}
+.sh-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.sh-it{display:grid;justify-items:center;gap:4px;padding:8px 4px;border:1px solid #3a4462;border-radius:8px;background:#1b2236;color:var(--ink)}
+.sh-it.out{opacity:.5}.sh-n{font:700 11px 'IBM Plex Sans KR';text-align:center;min-height:28px}
+.sh-it .rs-items{gap:4px}.sh-it .rs-it{width:44px;height:44px;animation:none}.sh-it .rs-it .ic{width:24px;height:24px}.sh-it .rs-it span{font-size:11px}
+.sh-it small{font:600 10px 'IBM Plex Sans KR';color:var(--dim)}
+.sh-p{display:flex;align-items:center;gap:2px;padding:3px 10px;border-radius:10px;background:var(--gold);color:#1d1606;font:700 11px 'IBM Plex Sans KR'}.sh-p.ad{background:#4f9cff;color:#fff}.sh-p.free{background:#6ff0c8}.sh-p .ic{width:14px;height:14px}
+.sh-pack{position:relative;display:grid;gap:4px;margin-bottom:8px;padding:12px;border-radius:10px;border:1px solid #6e5a2a;background:linear-gradient(135deg,#2a2440,#1b2236)}
+.sh-pack b{font:400 16px "Black Han Sans"}.sh-pack small{font:600 11px 'IBM Plex Sans KR';color:var(--dim)}
+.sh-pack .rs-items{justify-content:flex-start}.sh-pack .rs-it{width:50px;height:50px;animation:none}.sh-pack .rs-it .ic{width:28px;height:28px}
+.sh-tag{position:absolute;right:10px;top:10px;padding:1px 8px;border-radius:8px;background:#e8261c;font:700 10px 'IBM Plex Sans KR'}
+.sh-gems{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.sh-gem{display:grid;justify-items:center;gap:2px;padding:10px 4px 6px;border:1px solid #3a4462;border-radius:8px;background:radial-gradient(circle at 50% 30%,#2a3a6a,#141a2e);color:var(--ink)}
+.sh-gem svg{width:34px;height:34px}.sh-gem b{font:400 15px "Black Han Sans"}.sh-gem span{padding:2px 10px;border-radius:9px;background:var(--gold);color:#1d1606;font:700 11px 'IBM Plex Sans KR'}
+#gemPlus{width:18px;height:18px;margin-left:4px;padding:0;border:0;border-radius:50%;background:#e8ecf6;color:#1c2540;font:900 14px/18px 'IBM Plex Sans KR'}
+#adTest{position:fixed;inset:0;z-index:80;display:none;place-items:center;background:#000;color:#fff;text-align:center}
+#adTest.on{display:grid}#adTest b{display:block;font:400 26px "Black Han Sans"}#adTest small{color:#8a93ab}#adTest span{display:block;margin:20px auto;width:64px;height:64px;border-radius:50%;border:3px solid #4f9cff;font:400 30px/58px "Black Han Sans"}#adTest p{color:#8a93ab;font-size:12px;padding:0 30px}
+.adbox{display:grid;justify-items:center;gap:4px;padding:16px;border-radius:10px;background:#1b2236}.adbox b{font:400 18px "Black Han Sans";color:var(--gold)}.adbox small{color:var(--dim)}
+#adBtn{position:absolute;left:10px;top:calc(env(safe-area-inset-top) + 136px);z-index:3;width:44px;height:44px;padding:0;border:0;background:none;display:grid;place-items:center}
+#adBtn svg{width:36px;height:30px;filter:drop-shadow(0 0 6px rgba(255,60,60,.6))}
+#adBtn .ad-ev{position:absolute;top:-4px;left:0;right:0;font:400 11px "Black Han Sans";color:#fff;text-shadow:0 0 4px #e8261c,0 1px 2px #000}
+#adBtn em{position:absolute;bottom:-8px;left:-6px;right:-6px;text-align:center;font:700 9px 'IBM Plex Sans KR';font-style:normal;color:var(--gold);text-shadow:0 1px 2px #000}
+#adBtn .dot{top:-6px!important;right:-6px!important}
+#adBtn.hide{display:none}
+#side #passBtn{width:44px!important;height:44px!important;display:grid!important;place-items:center;margin-top:2px;background:linear-gradient(#5a2a3a,#2a1420)!important;border:1.5px solid rgba(255,180,170,.55)!important;border-radius:10px!important;box-shadow:0 2px 6px rgba(0,0,0,.6)!important}
+#side #passBtn svg{width:28px;height:28px}
+#side:not(.fold) #passBtn{display:none!important}
+.ps-h,.ps-r{display:grid;grid-template-columns:54px 1fr 1fr;gap:6px;align-items:center}
+.ps-h{font:700 11px 'IBM Plex Sans KR';color:var(--dim);text-align:center;margin:6px 0 4px}
+.ps{display:grid;gap:6px;max-height:48vh;overflow:auto}
+.ps-st{display:grid;place-items:center;height:40px;border-radius:8px;background:#1b2236;font:400 15px "Black Han Sans";color:var(--dim)}.ps-st.on{color:var(--gold)}
+.ps-c{position:relative;display:grid;place-items:center;height:56px;border:1px solid #3a4462;border-radius:8px;background:#141a28;padding:0}
+.ps-c .rs-it{width:46px;height:46px;animation:none}.ps-c .rs-it .ic{width:26px;height:26px}
+.ps-c.ready{border-color:var(--gold);box-shadow:0 0 8px rgba(242,201,76,.5)}.ps-c.got{opacity:.45}
+.ps-lock{position:absolute;inset:0;border-radius:8px;background:rgba(0,0,0,.55) center/18px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='5' y='11' width='14' height='10' rx='2' fill='%23c9d3ee'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3' fill='none' stroke='%23c9d3ee' stroke-width='2.4'/%3E%3C/svg%3E")}
+#pillRow{position:absolute;left:150px;right:70px;bottom:calc(var(--teamH,74px) + 110px);z-index:3;display:flex;gap:6px;justify-content:flex-end}
+#pillRow button{position:relative;width:62px;height:30px;border-radius:15px;display:grid;place-items:center;padding:0;border:1.5px solid rgba(201,211,238,.6);background:linear-gradient(#3a4466,#1c2338)}
+#pillRow button:last-child{background:linear-gradient(#5a5aa8,#2b2b6a)}
+#pillRow svg{width:22px;height:22px}
+#pillRow .dot{top:-6px;right:-4px}
+.hws{display:grid;gap:6px;margin:8px 0}
+.hw{display:flex;align-items:center;gap:8px;height:54px;padding:0 10px 0 6px;border-radius:8px;border:1px solid #3a4462;background:#1b2236;text-align:left}
+.hw img{width:44px;height:44px;object-fit:contain}.hw span{flex:1}.hw b{display:block;font:400 14px "Black Han Sans"}.hw small{font:600 10px 'IBM Plex Sans KR';color:var(--dim)}
+.hw em{font-style:normal;font:700 12px 'IBM Plex Sans KR';color:#6ff0c8}.hw.no em{color:#ff8a7a}.hw.no{opacity:.6}
+.hw-ck{flex:none;width:22px;height:22px;padding:0;border:2px solid #8a93ab;border-radius:4px;background:#0c111f}
+.hw-ck.on{background:var(--gold) center/14px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12l4 4 10-10' fill='none' stroke='%231d1606' stroke-width='3.5'/%3E%3C/svg%3E");border-color:var(--gold)}
+.hw-all{display:flex;align-items:center;justify-content:center;gap:8px;font:700 13px 'IBM Plex Sans KR'}
 </style>
 </head>
 <body>
@@ -1233,8 +1283,8 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     <!-- 오른쪽: 설정, 일일 임무, 출석 -->
     <div id="side"><button id="sideTg" aria-label="메뉴 열고 닫기"><svg class="tg-x" viewBox="0 0 24 24"><path d="M12 1.8L22.2 12 12 22.2 1.8 12z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8.6 8.6l6.8 6.8M15.4 8.6l-6.8 6.8" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg><svg class="tg-m" viewBox="0 0 24 24"><rect x="2.5" y="2.5" width="19" height="19" rx="5" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.1"/><rect x="6.5" y="6.5" width="4.4" height="4.4" rx="1" fill="#eef2fb"/><rect x="13.1" y="6.5" width="4.4" height="4.4" rx="1" fill="#eef2fb"/><rect x="6.5" y="13.1" width="4.4" height="4.4" rx="1" fill="#eef2fb"/><rect x="13.1" y="13.1" width="4.4" height="4.4" rx="1" fill="url(#mGold)"/></svg></button>
       <button id="attBtn" data-side="att" aria-label="출석"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" fill="#eef2fb" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3H3z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8 3v4M16 3v4" stroke="#141a2b" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="15.3" r="4" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M10.3 15.3l1.2 1.2 2.3-2.4" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="dot" id="dotAtt"></i></button>
+      <button id="passBtn" aria-label="수사 패스"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8 5v14" stroke="#fff4e0" stroke-width="1" stroke-dasharray="1.6 1.4"/><path d="M15 8.2l1.1 2.3 2.5.3-1.8 1.7.4 2.5-2.2-1.2-2.2 1.2.4-2.5-1.8-1.7 2.5-.3z" fill="url(#mGold)"/></svg><i class="dot" id="dotPass"></i></button>
       <div class="sd-list">
-      <button data-side="road"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="url(#mSteel)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><circle cx="12" cy="12" r="7.6" fill="#26304c" stroke="#141a2b" stroke-width=".9"/><path d="M12 5.2l2 6.8-2 6.8-2-6.8z" fill="url(#mGold)" stroke="#5a3504" stroke-width=".6"/><path d="M12 12l2-.0" /><path d="M5.2 12l6.8-2 6.8 2-6.8 2z" fill="#9fb3e8" opacity=".85"/><circle cx="12" cy="12" r="1.4" fill="#fff"/></svg><span>수첩</span><i class="dot" id="dotRoad"></i></button>
       <button data-side="mail"><svg viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="19" height="13" rx="1.6" fill="#eef2fb" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M2.8 6.2L12 13l9.2-6.8" fill="none" stroke="#141a2b" stroke-width="1.2" stroke-linejoin="round"/><path d="M3.5 6.5L12 12.6l8.5-6.1" fill="url(#mGold)" opacity=".9"/></svg><span>우편</span><i class="dot" id="dotMail"></i></button>
       <button data-side="book"><svg viewBox="0 0 24 24"><path d="M3 5.5c3-1.2 6-1.2 9 .6v14c-3-1.8-6-1.8-9-.6z" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M21 5.5c-3-1.2-6-1.2-9 .6v14c3-1.8 6-1.8 9-.6z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M5 8.5c1.8-.6 3.6-.5 5 .3M5 11.5c1.8-.6 3.6-.5 5 .3M14 8.8c1.4-.8 3.2-.9 5-.3" stroke="#eef2fb" stroke-width=".9" stroke-linecap="round" opacity=".8"/><path d="M15.5 12l.9 1.9 2 .3-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.3z" fill="url(#mGold)"/></svg><span>기록</span></button>
       <button data-side="news"><svg viewBox="0 0 24 24"><path d="M4 9.5h3.5L16 4.5v15L7.5 14.5H4z" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M6 14.5l1.5 5h2.6l-1.2-5" fill="url(#mSteel)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M18.5 9a4 4 0 0 1 0 6M20.5 7a7 7 0 0 1 0 10" fill="none" stroke="#9fc3ff" stroke-width="1.6" stroke-linecap="round"/></svg><span>소식</span><i class="dot" id="dotNews"></i></button>
@@ -1243,11 +1293,13 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
       </div></div>
     <button id="bossBtn">근원체 추적</button>
     <button id="bossSum"><img id="bsImg" alt=""><span class="bs-t"><small class="bs-arr">◀◀◀</small><b>근원체 소환</b></span></button>
+    <button id="adBtn" aria-label="광고 보상"><span class="ad-ev">Event</span><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="4" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M10 8.5v7l6-3.5z" fill="#fff"/></svg><i class="dot" id="dotAd"></i><em id="adLeft"></em></button>
     <button id="bossOpt"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M8.96 4.82 L9.12 1.59 L14.88 1.59 L15.04 4.82 L16.70 5.78 L19.57 4.30 L22.45 9.29 L19.74 11.04 L19.74 12.96 L22.45 14.71 L19.57 19.70 L16.70 18.22 L15.04 19.18 L14.88 22.41 L9.12 22.41 L8.96 19.18 L7.30 18.22 L4.43 19.70 L1.55 14.71 L4.26 12.96 L4.26 11.04 L1.55 9.29 L4.43 4.30 L7.30 5.78Z M12 8.6a3.4 3.4 0 1 0 0 6.8a3.4 3.4 0 1 0 0-6.8z" fill="#c9d3ee" fill-rule="evenodd"/></svg><span>근원체 소환 옵션</span><em id="bsSub"></em></button>
     <div id="banner"></div>
     <!-- 왼쪽 아래: 피해량, 획득 기록 -->
     <div id="meter"><div class="mt-h"><button data-mt="dps" class="on">피해량</button><button data-mt="log">획득</button><button id="mtX" aria-label="닫기">✕</button></div><div id="mtB"></div></div>
     <button id="bAuto" aria-pressed="true"><svg class="ic"><use href="#i-auto"/></svg><span>AUTO</span></button>
+    <div id="pillRow"><button id="pillRoad" aria-label="수사 수첩"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="#e8ecf6" stroke-width="1.4"/><path d="M12 3.5l2.2 6.3L20.5 12l-6.3 2.2L12 20.5l-2.2-6.3L3.5 12l6.3-2.2z" fill="#e8ecf6"/><circle cx="12" cy="12" r="1.6" fill="#141a2b"/></svg><i class="dot" id="dotRoad2"></i></button><button id="pillHw" aria-label="숙제 도우미"><svg viewBox="0 0 24 24"><path d="M3 15l9 4 9-4v3l-9 4-9-4z" fill="#c9d3ee"/><path d="M3 15l9-4 9 4-9 4z" fill="#eef2fb"/><path d="M8 8l3 3 6-7" fill="none" stroke="#e8ecf6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="dot" id="dotHw"></i></button></div>
     <div id="medRow"><button id="medBtn" aria-label="구급상자"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="3" fill="#eef2fb" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M9 6V4.5h6V6" fill="none" stroke="#141a2b" stroke-width="1.6"/><path d="M12 9.5v7M8.5 13h7" stroke="#e8261c" stroke-width="3" stroke-linecap="round"/></svg><b id="medN">0</b></button><button id="medSet" aria-label="구급상자 설정"><svg viewBox="0 0 24 24"><path d="M8.96 4.82 L9.12 1.59 L14.88 1.59 L15.04 4.82 L16.70 5.78 L19.57 4.30 L22.45 9.29 L19.74 11.04 L19.74 12.96 L22.45 14.71 L19.57 19.70 L16.70 18.22 L15.04 19.18 L14.88 22.41 L9.12 22.41 L8.96 19.18 L7.30 18.22 L4.43 19.70 L1.55 14.71 L4.26 12.96 L4.26 11.04 L1.55 9.29 L4.43 4.30 L7.30 5.78Z M12 8.6a3.4 3.4 0 1 0 0 6.8a3.4 3.4 0 1 0 0-6.8z" fill="#c9d3ee" fill-rule="evenodd"/></svg></button></div>
     <div id="preRow"><button id="preSet" aria-label="편성"><svg viewBox="0 0 24 24"><path d="M8 20h9l-1-3c2-2 2-6-1-8l1-3-4 1c-3-1-6 2-6 5l2 1-1 4z" fill="#c9d3ee" stroke="#141a2b" stroke-width="1"/></svg><svg class="pg" viewBox="0 0 24 24"><path d="M8.96 4.82 L9.12 1.59 L14.88 1.59 L15.04 4.82 L16.70 5.78 L19.57 4.30 L22.45 9.29 L19.74 11.04 L19.74 12.96 L22.45 14.71 L19.57 19.70 L16.70 18.22 L15.04 19.18 L14.88 22.41 L9.12 22.41 L8.96 19.18 L7.30 18.22 L4.43 19.70 L1.55 14.71 L4.26 12.96 L4.26 11.04 L1.55 9.29 L4.43 4.30 L7.30 5.78Z M12 8.6a3.4 3.4 0 1 0 0 6.8a3.4 3.4 0 1 0 0-6.8z" fill="#9fb3e8" fill-rule="evenodd"/></svg></button><button id="preNo" aria-label="편성 바꾸기"><svg viewBox="0 0 24 24"><path d="M8 20h9l-1-3c2-2 2-6-1-8l1-3-4 1c-3-1-6 2-6 5l2 1-1 4z" fill="#fff"/></svg><b id="preN">1</b></button></div>
     <div id="bctl"><button id="bCam" aria-pressed="false" aria-label="카메라"><svg class="ic" viewBox="0 0 24 24"><rect x="2" y="7" width="14" height="11" rx="2" fill="currentColor"/><path d="M16 11l6-3v9l-6-3z" fill="currentColor"/><circle cx="6" cy="5" r="2.2" fill="currentColor"/><circle cx="11.5" cy="5" r="2.2" fill="currentColor"/></svg><span>카메라</span></button><button id="bMeter" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1" fill="currentColor"/><rect x="10" y="8" width="4" height="13" rx="1" fill="currentColor"/><rect x="17" y="3" width="4" height="18" rx="1" fill="currentColor"/></svg><span>기록</span></button></div>
@@ -1273,7 +1325,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   <div id="bottom">
     <div id="bbar"><span class="pw">전투력 <b id="power">0</b></span>
       <span class="pill"><svg class="ic"><use href="#i-gold"/></svg><span id="gold">0</span></span>
-      <span class="pill"><svg class="ic"><use href="#i-gem"/></svg><span id="gems">0</span></span>
+      <span class="pill"><svg class="ic"><use href="#i-gem"/></svg><span id="gems">0</span><button id="gemPlus" aria-label="보석 충전">+</button></span>
       </div>
     <nav id="tabs">
       <button data-tab="hero"><span class="tb"><svg viewBox="0 0 32 32"><path d="M4.5 30c.8-7.5 5.2-11.5 11.5-11.5S26.7 22.5 27.5 30z" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M11.6 19.3L16 26l4.4-6.7" fill="#eef2fb" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M16 22.4l-1.4 3.2 1.4 3 1.4-3z" fill="#e0503e"/><circle cx="16" cy="12" r="6" fill="url(#mSkin)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M9.8 12.2c-.4-4.6 2.4-7.2 6.2-7.2s6.6 2.6 6.2 7.2c-1-2-3.3-2.9-6.2-2.9s-5.2.9-6.2 2.9z" fill="#2b2333" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M20.5 22.3l3.6.9v2.6c0 1.6-1.6 2.8-3.6 3.4-2-.6-3.6-1.8-3.6-3.4v-2.6z" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/></svg></span><span class="tl">요원</span><i class="dot" id="dotHero"></i></button>
@@ -1288,6 +1340,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   <div id="modal"></div>
   <!-- 결과 띠 창: 보상 획득, 승급 성공, 새 요원 합류 (세나 키우기처럼 가운데 넓은 띠 + 문장 + 터치하여 닫기) -->
   <div id="res"></div>
+  <div id="adTest"></div>
   <div id="clear"></div>
   <div id="pwup"></div>
   <!-- 구역 근원체 첫 등장 이야기 (세나 키우기 보스 등장 대화처럼) -->
@@ -1703,6 +1756,53 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 
   /* ---------- 가방: 시간 보급품 (쓰면 그 시간만큼 사냥한 보상) ---------- */
   const ITEMS = { g2: { name: '골드 보급품', sub: '2시간 사냥 골드', key: 'gold' }, e2: { name: '경험치 보급품', sub: '2시간 사냥 경험치', key: 'exp' } };
+  /* ---------- 상점과 광고 자리 (결제, 광고는 출시 전에 실제 연결. 지금은 무료 상품과 광고 보상만 동작) ---------- */
+  const SHOP = {
+    daily: [
+      { id: 'free1', name: '일일 무료 보급', rw: { tix: 5 }, pay: 'free', lim: 1 },
+      { id: 'ad1', name: '광고 보고 보석', rw: { gems: 30 }, pay: 'ad', lim: 3 },
+      { id: 'ad2', name: '광고 보고 호출권', rw: { tix: 10 }, pay: 'ad', lim: 2 },
+      { id: 'gem1', name: '보급품 꾸러미', rw: { g2: 2, e2: 2 }, pay: 'gems', cost: 100, lim: 3 },
+      { id: 'gem2', name: '정예 호출권', rw: { ptix: 1 }, pay: 'gems', cost: 300, lim: 2 },
+      { id: 'gem3', name: '구급상자 묶음', rw: { med: 20 }, pay: 'gems', cost: 80, lim: 3 },
+    ],
+    packs: [
+      { id: 'p_new', name: '신입 수사관 환영 패키지', sub: '한 번만 살 수 있어요', rw: { gems: 1000, ptix: 5, tix: 50 }, price: 1100, tag: '추천' },
+      { id: 'p_lv', name: '호출 레벨 지원 패키지', sub: '호출권을 넉넉하게', rw: { tix: 300, gems: 500 }, price: 9900, tag: '인기' },
+      { id: 'p_month', name: '월정액 보급', sub: '30일 동안 매일 보석 100', rw: { gems: 300 }, price: 5500, tag: '월정액' },
+      { id: 'p_noad', name: '광고 제거', sub: '광고 없이 바로 보상', rw: {}, price: 7500, tag: '광고 제거' },
+    ],
+    gems: [[60, 1200], [300, 5900], [650, 12000], [1350, 25000], [2800, 49000], [6000, 99000]],
+  };
+  /** 오늘 산 횟수 (날이 바뀌면 0) */
+  function shopCount(state, id, now) {
+    const k = dayKey(now); if (state.shop.day !== k) { state.shop.day = k; state.shop.n = {}; }
+    return state.shop.n[id] || 0;
+  }
+  /** 무료, 광고, 보석 상품 사기. 실제 돈 결제(packs, gems)는 여기서 하지 않음 */
+  function shopBuy(state, id, now) {
+    const it = SHOP.daily.find(x => x.id === id); if (!it) throw new RangeError('살 수 없는 상품이에요');
+    if (shopCount(state, id, now) >= it.lim) throw new RangeError('오늘은 다 샀어요');
+    if (it.pay === 'gems') { if (state.gems < it.cost) throw new RangeError('보석이 부족해요'); state.gems -= it.cost; }
+    state.shop.n[id] = (state.shop.n[id] || 0) + 1;
+    giveReward(state, it.rw); return it.rw;
+  }
+  /** 광고 보상 골드 버프: 8시간 동안 골드 +10% (만료 시각 ms) */
+  const AD_BUFF_MS = 8 * 3600e3;
+  function adBuffOn(state, nowMs) { return (state.adBuff || 0) > nowMs; }
+
+  /* 수사 패스: 스테이지 단계마다 무료 보상 + 유료(패스 구매) 보상 */
+  const PASS = [5, 10, 15, 20, 30, 40, 50, 60, 80, 100].map((st, i) => ({ st, free: i % 2 ? { tix: 10 } : { gems: 50 }, paid: i % 3 === 2 ? { ptix: 2 } : { gems: 200 } }));
+  const PASS_PRICE = 9900;
+  function passClaim(state, i, track) {
+    const r = PASS[i]; if (!r || state.stage < r.st) return null;
+    if (track === 'paid' && !state.pass.paid) return null;
+    const got = state.pass[track === 'paid' ? 'p' : 'f']; if (got.includes(i)) return null;
+    got.push(i); giveReward(state, r[track === 'paid' ? 'paid' : 'free']); return r[track === 'paid' ? 'paid' : 'free'];
+  }
+  /** 받을 수 있는 패스 보상 모두 */
+  function passReady(state) { const out = []; PASS.forEach((r, i) => { if (state.stage < r.st) return; if (!state.pass.f.includes(i)) out.push([i, 'free']); if (state.pass.paid && !state.pass.p.includes(i)) out.push([i, 'paid']); }); return out; }
+
   /** 편성 프리셋 바꾸기: 현재 편성을 지금 칸에 저장하고, 고른 칸의 편성을 불러옴 (빈 칸이면 현재 편성 그대로) */
   function switchPreset(state, i) {
     const k = clampInt(i, 0, 2, 0);
@@ -2098,6 +2198,10 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
       unl: [],
       mail: [],
       bag: {},
+      pass: { paid: false, f: [], p: [] },   // 수사 패스
+      owned: [],          // 산 패키지 (한 번만)
+      shop: { day: '', n: {} },   // 상점 오늘 산 횟수
+      adBuff: 0,          // 광고 골드 버프 끝나는 시각
       med: 20,            // 구급상자 (자동 회복)
       medOn: true, medHp: 50,   // 자동 사용, 체력 % 이하일 때
       pre: [null, null, null], preI: 0,   // 편성 프리셋 3개            // 가방 (보급품 개수)           // 받은 우편
@@ -2169,6 +2273,12 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     s.medHp = [30, 50, 70].includes(raw.medHp) ? raw.medHp : 50;
     s.pre = [0, 1, 2].map(i => Array.isArray(raw.pre) && Array.isArray(raw.pre[i]) ? raw.pre[i].filter(id => HEROES.some(h => h.id === id)).slice(0, CONST.PARTY_MAX) : null);
     s.preI = clampInt(raw.preI, 0, 2, 0);
+    s.shop = { day: raw.shop && typeof raw.shop.day === 'string' ? raw.shop.day.slice(0, 10) : '', n: {} };
+    if (raw.shop && raw.shop.n && typeof raw.shop.n === 'object') for (const it of SHOP.daily) if (isNum(raw.shop.n[it.id])) s.shop.n[it.id] = clampInt(raw.shop.n[it.id], 0, 99, 0);
+    s.adBuff = isNum(raw.adBuff) ? raw.adBuff : 0;
+    const okIdx = a => Array.isArray(a) ? [...new Set(a.filter(i => Number.isInteger(i) && i >= 0 && i < PASS.length))] : [];
+    s.pass = { paid: !!(raw.pass && raw.pass.paid === true), f: okIdx(raw.pass && raw.pass.f), p: okIdx(raw.pass && raw.pass.p) };
+    s.owned = Array.isArray(raw.owned) ? raw.owned.filter(x => typeof x === 'string').slice(0, 50) : [];
     s.bag = {}; if (raw.bag && typeof raw.bag === 'object') for (const k of Object.keys(ITEMS)) if (isNum(raw.bag[k])) s.bag[k] = clampInt(raw.bag[k], 0, 1e6, 0);
     s.mail = Array.isArray(raw.mail) ? raw.mail.filter(x => MAILS.some(m => m.id === x)) : [];
     s.unl = Array.isArray(raw.unl) ? raw.unl.filter(x => ROADMAP.some(r => r.id === x)) : [];
@@ -2207,7 +2317,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   const Core = {
     HEROES, TYPES, STARTER_IDS, partyIds, partySlots, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
-    switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
+    PASS, PASS_PRICE, passClaim, passReady, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,
@@ -2862,7 +2972,7 @@ function kill(e) {
     addText(e.x, e.y - e.size, '+' + C.formatNum(gold), '#ffd23a', true);
     writeSave(); renderPanel(); unlockCheck(prevSt);
   } else {
-    S.gold += C.killGold(S.stage, S.up.gold); S.exp += C.killExp(S.stage); C.progress(S, 'kill', 1); C.addTickets(S, 1);
+    S.gold += C.killGold(S.stage, S.up.gold) * (C.adBuffOn(S, Date.now()) ? 1.1 : 1); S.exp += C.killExp(S.stage); C.progress(S, 'kill', 1); C.addTickets(S, 1);
     if (!S.farming && S.kills < C.CONST.WAVE_KILLS) S.kills++;
   }
   for (let i = 0; i < (e.boss ? 26 : 9); i++) { const a = Math.random() * 6.28, v = 20 + Math.random() * (e.boss ? 90 : 50);
@@ -3528,6 +3638,7 @@ function updateUI() {
   const full = S.farming || S.kills >= C.CONST.WAVE_KILLS;
   bs.classList.toggle('on', S.farming); bs.classList.toggle('off', !full);
   $('bsSub').textContent = S.farming ? '끔' : '자동';
+  $('adLeft').textContent = C.adBuffOn(S, Date.now()) ? C.formatRemain(Math.ceil((S.adBuff - Date.now()) / 1000)).replace(/ .*/, '') : ''; $('adBtn').classList.toggle('hide', !!(R.boss || R.chal));
   $('medN').textContent = S.med; $('medBtn').classList.toggle('off', !S.medOn); $('preN').textContent = S.preI + 1;
   $('bossOpt').classList.toggle('hide', !!(R.boss || R.chal));
   $('bossAuto').style.display = R.boss || R.chal ? 'none' : 'grid';
@@ -3665,6 +3776,8 @@ function renderPanel() {
       <div class="gw-tabs"><button class="on">훈련</button><button data-act="cdxlock" data-v="51">특성<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-1px;margin-left:3px"><rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4"/></svg></button><button data-act="cdxlock" data-v="121">장비<svg viewBox="0 0 24 24" width="12" height="12" style="vertical-align:-1px;margin-left:3px"><rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4"/></svg></button></div></div>`;
   } else if (tab === 'run') {
     renderRun(P);
+  } else if (sumSub === 'shop') {
+    P.innerHTML = `<div class="seg ssub"><button data-ss="summon">호출</button><button data-ss="shop" class="on">상점</button></div>` + shopHtml();
   } else {
     const pk = C.heroById('dark'), lv = C.summonLevel(S.pulls.total), rt = C.summonRates(lv), K = C.CONST;
     const open = lv >= K.PICKUP_OPEN_LV;
@@ -3681,7 +3794,7 @@ function renderPanel() {
       return `<tr${lim ? ' class="lim"' : ''}><td>${g} ${h.name}${lim ? ' <em>한정</em>' : ''}</td><td>${call ? pct(call) : '없음'}</td><td>${elite ? pct(elite) : '없음'}</td><td>${pick ? pct(pick) : '없음'}</td></tr>`;
     })).join('');
     const nextNeed = K.SUMMON_LV_PULLS[lv];
-    P.innerHTML = `<div class="wallet"><span>${icon('tix')}호출권 <b id="wTix"></b></span><span>${icon('ptix')}정예 호출권 <b id="wPtix"></b></span></div>
+    P.innerHTML = `<div class="seg ssub"><button data-ss="summon" class="on">호출</button><button data-ss="shop">상점</button></div><div class="wallet"><span>${icon('tix')}호출권 <b id="wTix"></b></span><span>${icon('ptix')}정예 호출권 <b id="wPtix"></b></span></div>
       <div class="sbanner ${open ? '' : 'locked'}"><canvas id="sbc"></canvas><span class="tag">한정</span><span class="left" id="pkLeft"></span>
         <div class="tt"><b>특별 채용</b><span>전설 ${pk.name} 확률 ${pct(K.PREMIUM_LEGEND)}</span><em class="pity" id="pity-pickup"></em></div>
         ${open ? '' : `<div class="lock">소환 레벨 ${K.PICKUP_OPEN_LV}부터 열려요</div>`}</div>
@@ -4788,6 +4901,139 @@ modalEl.addEventListener('click', e => {
   R.camId = b.dataset.cam || null; $('bCam').setAttribute('aria-pressed', !!R.camId); modalEl.classList.remove('on');
   toast(R.camId ? `${C.heroById(R.camId).name}을(를) 따라가요` : '팀 전체를 보여 줘요');
 });
+
+/* =====================================================================
+ * 결제, 광고 연결 지점
+ * 출시 전에 여기 두 곳만 실제 SDK 로 바꾸면 됨 (docs/결제_광고_연결.md 참고)
+ *  - Pay.buy(상품ID): 구글 플레이 결제 (예: cordova-plugin-purchase / @capgo/capacitor-purchases)
+ *  - Ads.show(자리ID): 보상형 광고 (예: @capacitor-community/admob 의 showRewardVideoAd)
+ * 지금은 '시험 모드': 결제는 실제 돈이 나가지 않는 시험 결제, 광고는 3초 시험 화면
+ * ===================================================================== */
+const PRODUCTS = {   // 스토어에 등록할 상품 ID (구글 플레이 콘솔의 인앱 상품 ID 와 같게)
+  p_new: 'aiu_pack_new', p_lv: 'aiu_pack_summon', p_month: 'aiu_monthly', p_noad: 'aiu_no_ads', pass: 'aiu_pass_s1',
+  g0: 'aiu_gem_60', g1: 'aiu_gem_300', g2: 'aiu_gem_650', g3: 'aiu_gem_1350', g4: 'aiu_gem_2800', g5: 'aiu_gem_6000',
+};
+const AD_UNITS = { gold: 'ad_gold_buff', shop: 'ad_shop_reward', mail: 'ad_mail' };   // 광고 자리 ID
+const Pay = {
+  test: true,
+  /** @returns {Promise<boolean>} 결제 완료면 true. 실패나 취소면 false */
+  buy(key, price, name) {
+    return new Promise(res => {
+      openModal(`<h2>결제 확인</h2><p><b>${name}</b><br>${price.toLocaleString()}원</p>
+        <p class="hint">${this.test ? '현재는 시험 결제예요. 실제 돈은 나가지 않아요. (상품 ID ' + PRODUCTS[key] + ')' : ''}</p>
+        <div class="mbtns"><button class="btn ghost" data-close="no">취소</button><button class="btn" data-close="yes">결제</button></div>`, v => res(v === 'yes'));
+    });
+  },
+};
+const Ads = {
+  test: true,
+  /** 보상형 광고 끝까지 보면 true */
+  show(unit) {
+    if (S.owned.includes('p_noad')) return Promise.resolve(true);   // 광고 제거 구매자는 바로 보상
+    return new Promise(res => {
+      const el = $('adTest'); let n = 3;
+      el.innerHTML = `<div><b>광고 자리</b><small>${AD_UNITS[unit] || unit}</small><span id="adCnt">${n}</span><p>시험 모드: 실제 광고가 연결되면 여기에 광고가 나와요</p></div>`;
+      el.classList.add('on');
+      const t = setInterval(() => { n--; const c = $('adCnt'); if (c) c.textContent = n; if (n <= 0) { clearInterval(t); el.classList.remove('on'); res(true); } }, 1000);
+    });
+  },
+};
+
+/* ---------- 광고 보상: 골드 +10% 8시간 (세나 키우기 비밀 지하실 요리처럼) ---------- */
+$('adBtn').addEventListener('click', () => {
+  const on = C.adBuffOn(S, Date.now()), left = on ? C.formatRemain(Math.ceil((S.adBuff - Date.now()) / 1000)) : '';
+  openModal(`<h2>현장 지원</h2><div class="adbox"><svg viewBox="0 0 24 24" width="54" height="54"><use href="#i-gold"/></svg><b>골드 획득량 10% 증가</b><small>8시간 동안</small></div>
+    <p class="hint" style="text-align:center">${on ? `남은 시간 ${left}` : '광고를 보면 바로 적용돼요'}</p>
+    <div class="mbtns"><button class="btn ghost" data-close>닫기</button><button class="btn" id="adGo" ${on ? 'disabled' : ''}>${on ? '적용 중' : '광고 보기'}</button></div>`);
+  const go = $('adGo'); if (go) go.addEventListener('click', async () => { modalEl.classList.remove('on'); if (await Ads.show('gold')) { S.adBuff = Date.now() + C.AD_BUFF_MS; writeSave(); showResult('gift', '현장 지원 적용', '<div class="rs-nm">골드 획득량 10% 증가</div><div class="rs-sub">8시간 동안</div>'); } });
+});
+
+/* ---------- 상점 (호출 탭 안 상점 / 보석 충전) ---------- */
+let sumSub = 'summon';
+function shopHtml() {
+  const now = new Date();
+  const priceTag = it => it.pay === 'free' ? '무료' : it.pay === 'ad' ? '광고' : `${icon('gem')}${it.cost}`;
+  const daily = C.SHOP.daily.map(it => { const n = C.shopCount(S, it.id, now), out = n >= it.lim;
+    return `<button class="sh-it ${out ? 'out' : ''}" data-shop="${it.id}" ${out ? 'disabled' : ''}><span class="sh-n">${it.name}</span><span class="sh-rw">${rwTiles(it.rw)}</span><small>${n} / ${it.lim}</small><span class="sh-p ${it.pay}">${out ? '오늘 완료' : priceTag(it)}</span></button>`; }).join('');
+  const packs = C.SHOP.packs.map(pk => { const own = S.owned.includes(pk.id);
+    return `<div class="sh-pack"><span class="sh-tag">${pk.tag}</span><b>${pk.name}</b><small>${pk.sub}</small>${Object.keys(pk.rw).length ? `<div class="sh-rw">${rwTiles(pk.rw)}</div>` : ''}<button class="btn" data-pack="${pk.id}" ${own ? 'disabled' : ''}>${own ? '구매 완료' : pk.price.toLocaleString() + '원'}</button></div>`; }).join('');
+  const gems = C.SHOP.gems.map(([n, w], i) => `<button class="sh-gem" data-gem="${i}"><svg viewBox="0 0 24 24"><use href="#i-gem"/></svg><b>${n.toLocaleString()}</b><span>${w.toLocaleString()}원</span></button>`).join('');
+  return `<div class="sh"><div class="optg">일일 상점 <small>매일 0시 초기화</small></div><div class="sh-grid">${daily}</div>
+    <div class="optg">추천 패키지</div>${packs}
+    <div class="optg" id="gemShop">보석 충전</div><div class="sh-gems">${gems}</div>
+    <p class="hint">${Pay.test ? '현재는 시험 결제예요. 실제 돈은 나가지 않아요.' : ''}</p></div>`;
+}
+async function shopAct(b) {
+  if (b.dataset.shop) {
+    const it = C.SHOP.daily.find(x => x.id === b.dataset.shop);
+    if (it.pay === 'ad' && !(await Ads.show('shop'))) return;
+    try { const r = C.shopBuy(S, it.id, new Date()); writeSave(); renderPanel(); showResult('gift', '보상 획득', rwTiles(r)); } catch (e) { toast(e.message); }
+  } else if (b.dataset.pack) {
+    const pk = C.SHOP.packs.find(x => x.id === b.dataset.pack);
+    if (!(await Pay.buy(pk.id, pk.price, pk.name))) return;
+    S.owned.push(pk.id); C.giveReward(S, pk.rw); writeSave(); renderPanel();
+    showResult('gift', '구매 완료', Object.keys(pk.rw).length ? rwTiles(pk.rw) : '<div class="rs-nm">광고 제거</div>');
+  } else if (b.dataset.gem) {
+    const [n, w] = C.SHOP.gems[+b.dataset.gem];
+    if (!(await Pay.buy('g' + b.dataset.gem, w, `보석 ${n.toLocaleString()}개`))) return;
+    S.gems += n; writeSave(); renderPanel(); showResult('gift', '구매 완료', rwTiles({ gems: n }));
+  }
+}
+$('gemPlus').addEventListener('click', e => {
+  e.stopPropagation(); sumSub = 'shop';
+  const t = $('tabs').querySelector('[data-tab="summon"]'); if (tab !== 'summon' || $('app').classList.contains('folded')) t.click(); else renderPanel();
+  setTimeout(() => { const g = $('gemShop'); if (g) g.scrollIntoView({ block: 'start' }); }, 60);
+});
+
+/* ---------- 수사 패스 ---------- */
+function passHtml() {
+  const row = (r, i) => {
+    const fOk = S.stage >= r.st, fGot = S.pass.f.includes(i), pGot = S.pass.p.includes(i);
+    const cell = (track, rw, got, can) => `<button class="ps-c ${got ? 'got' : can ? 'ready' : ''}" ${can && !got ? `data-pass="${i}" data-tr="${track}"` : 'disabled'}>${rwTiles(rw)}${track === 'paid' && !S.pass.paid ? '<i class="ps-lock"></i>' : ''}</button>`;
+    return `<div class="ps-r"><span class="ps-st ${fOk ? 'on' : ''}">${r.st}</span>${cell('free', r.free, fGot, fOk)}${cell('paid', r.paid, pGot, fOk && S.pass.paid)}</div>`;
+  };
+  return `<h2>수사 패스</h2><p class="hint">스테이지를 넘을 때마다 보상을 받아요. 패스를 사면 오른쪽 줄 보상도 받아요.</p>
+    <div class="ps-h"><span>스테이지</span><span>무료</span><span>패스</span></div><div class="ps">${C.PASS.map(row).join('')}</div>
+    <div class="mbtns"><button class="btn ghost" data-close>닫기</button>${S.pass.paid ? `<button class="btn" data-passall ${C.passReady(S).length ? '' : 'disabled'}>모두 받기</button>` : `<button class="btn" data-passbuy>패스 구매 ${C.PASS_PRICE.toLocaleString()}원</button>`}</div>`;
+}
+$('passBtn').addEventListener('click', () => openModal(passHtml()));
+modalEl.addEventListener('click', async e => {
+  const one = e.target.closest('[data-pass]'), all = e.target.closest('[data-passall]'), buy = e.target.closest('[data-passbuy]');
+  if (buy) { modalEl.classList.remove('on'); if (await Pay.buy('pass', C.PASS_PRICE, '수사 패스')) { S.pass.paid = true; writeSave(); } return openModal(passHtml()); }
+  if (!one && !all) return;
+  const got = {};
+  for (const [i, tr] of (one ? [[+one.dataset.pass, one.dataset.tr]] : C.passReady(S))) { const w = C.passClaim(S, i, tr); if (w) for (const [k, v] of Object.entries(w)) got[k] = (got[k] || 0) + v; }
+  writeSave(); modalEl.classList.remove('on'); if (Object.keys(got).length) showResult('gift', '보상 획득', rwTiles(got));
+});
+
+/* ---------- 가이드 위 버튼: 나침반(수사 수첩), 숙제 도우미(일일 작전 한꺼번에) ---------- */
+$('pillRoad').addEventListener('click', () => openModal(roadHtml()));
+let hwSel = null;
+function hwHtml() {
+  if (!hwSel) hwSel = Object.fromEntries(C.DUNGEONS.map(d => [d.id, true]));
+  const rows = C.DUNGEONS.map(d => {
+    const can = S.keys[d.id] > 0 && S.dbest[d.id] > 0;
+    return `<div class="hw ${can ? '' : 'no'}"><button class="hw-ck ${hwSel[d.id] ? 'on' : ''}" data-hw="${d.id}"></button><img src="${ART[BOSS_ART[d.id]] || ''}" alt=""><span><b>${d.name}</b><small>${S.dbest[d.id] ? `${S.dbest[d.id]}단계 소탕` : '한 번 깨야 소탕할 수 있어요'}</small></span><em>${can ? `${S.keys[d.id]}회` : '진행 불가'}</em></div>`;
+  }).join('');
+  const all = C.DUNGEONS.every(d => hwSel[d.id]);
+  return `<h2>숙제 도우미</h2><div class="hws">${rows}</div><label class="hw-all"><button class="hw-ck ${all ? 'on' : ''}" data-hw="all"></button>전체 선택</label>
+    <div class="mbtns"><button class="btn ghost" data-close>닫기</button><button class="btn" data-hwgo ${runAlert() ? '' : 'disabled'}>숙제 시작</button></div>`;
+}
+$('pillHw').addEventListener('click', () => openModal(hwHtml()));
+modalEl.addEventListener('click', e => {
+  const c = e.target.closest('[data-hw]');
+  if (c) { if (c.dataset.hw === 'all') { const v = !C.DUNGEONS.every(d => hwSel[d.id]); for (const d of C.DUNGEONS) hwSel[d.id] = v; } else hwSel[c.dataset.hw] = !hwSel[c.dataset.hw]; return openModal(hwHtml()); }
+  if (!e.target.closest('[data-hwgo]')) return;
+  const got = {};
+  for (const d of C.DUNGEONS) if (hwSel[d.id]) while (S.keys[d.id] > 0 && S.dbest[d.id] > 0) { const r = C.sweepDungeon(S, d.id); for (const k of ['gold', 'tix', 'exp']) if (r[k]) got[k] = (got[k] || 0) + r[k]; }
+  writeSave(); modalEl.classList.remove('on'); renderPanel();
+  if (Object.keys(got).length) showResult('gift', '숙제 완료', rwTiles(got)); else toast('선택한 작전 중 소탕할 수 있는 게 없어요');
+});
+
+$('panel').addEventListener('click', e => {
+  const ss = e.target.closest('[data-ss]'); if (ss) { sumSub = ss.dataset.ss; renderPanel(); $('panel').scrollTop = 0; return; }
+  const b = e.target.closest('[data-shop],[data-pack],[data-gem]'); if (b && !b.disabled) shopAct(b);
+});
 /* ---------- 근원체 출현 컷인 ---------- */
 function bossCutIn() {
   const el = $('bossin'), t = theme(), img = ART['spr_boss' + (Math.floor((S.stage - 1) / 10) % 3 + 1)] || ART.spr_boss1;
@@ -4881,6 +5127,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.21.0', '11월 28일', ['상점: 일일 상점, 추천 패키지, 보석 충전 (현재 시험 결제)', '수사 패스', '광고 보상 자리: 골드 +10% 8시간 (현재 시험 광고)', '가이드 위 나침반(수사 수첩), 숙제 도우미(일일 작전 한꺼번에) 버튼']],
   ['0.20.1', '11월 28일', ['가이드를 누르면 해야 할 곳으로 바로 가요', '구급상자: 체력이 낮아지면 자동으로 팀을 회복해요 (설정 가능)', '편성 프리셋 3개 (오른쪽 아래 1, 2, 3)', '카메라: 화면이 따라갈 요원을 고를 수 있어요', '출석은 메뉴 버튼 아래에 따로 있어요', '알림 느낌표가 잘리던 것을 고쳤어요']],
   ['0.20.0', '11월 28일', ['아래 메뉴를 세나 키우기처럼 7칸으로: 요원, 성장, 호출, 가운데, 작전, 임무, 가방', '메뉴를 열면 가운데가 닫기 버튼으로 바뀌어요', '빈 출전 칸과 잠긴 칸이 방패 모양이에요', '배속 버튼을 없앴어요']],
   ['0.19.5', '11월 28일', ['메인 화면을 세나 키우기 배치에 더 가깝게 맞췄어요', '오른쪽 아래 AUTO 버튼이 기술 자동 사용이에요', '근원체 자동 소환은 근원체 소환 옵션에서 켜고 꺼요']],
@@ -4898,7 +5145,7 @@ function newsHtml() {
 const newsSeen = () => { try { return localStorage.getItem('aiu-news') === NEWS[0][0]; } catch (e) { return true; } };
 $('dotNews').classList.toggle('on', !newsSeen());
 $('dotMail').classList.toggle('on', C.MAILS.some(m => !S.mail.includes(m.id)));
-setInterval(() => { $('dotRoad').classList.toggle('on', C.roadReady(S).length > 0); $('dotBag').classList.toggle('on', Object.values(S.bag).some(n => n > 0)); $('dotMail').classList.toggle('on', C.MAILS.some(m => !S.mail.includes(m.id))); $('sideTg').classList.toggle('alert', $('side').classList.contains('fold') && [...$('side').querySelectorAll('.dot')].some(d => d.classList.contains('on') || d.style.display === 'block')); }, 1000);
+setInterval(() => { $('dotRoad2').classList.toggle('on', C.roadReady(S).length > 0); $('dotHw').classList.toggle('on', runAlert()); $('dotPass').classList.toggle('on', C.passReady(S).length > 0); $('dotAd').classList.toggle('on', !C.adBuffOn(S, Date.now())); $('dotBag').classList.toggle('on', Object.values(S.bag).some(n => n > 0)); $('dotMail').classList.toggle('on', C.MAILS.some(m => !S.mail.includes(m.id))); $('sideTg').classList.toggle('alert', $('side').classList.contains('fold') && [...$('side').querySelectorAll('.dot')].some(d => d.classList.contains('on') || d.style.display === 'block')); }, 1000);
 
 /* ---------- 절전 모드: 화면은 검게, 전투와 보상은 계속 ---------- */
 let sleeping = false, slBase = null, idleT = 0;

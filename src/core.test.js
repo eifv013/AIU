@@ -383,3 +383,22 @@ test('구급상자: 우편으로 받음, 저장 유지', () => {
   const s = C.newState(0); const m = s.med; C.mailClaim(s, 'medkit'); assert.equal(s.med, m + 30);
   s.medHp = 70; assert.equal(C.sanitize(JSON.parse(JSON.stringify(s)), 0).medHp, 70);
 });
+
+test('상점: 하루 횟수 제한, 보석 차감, 날이 바뀌면 다시', () => {
+  const s = C.newState(0), d1 = new Date(2026, 10, 28, 10), d2 = new Date(2026, 10, 29, 10);
+  C.shopBuy(s, 'free1', d1);
+  assert.throws(() => C.shopBuy(s, 'free1', d1));
+  const g = s.gems; C.shopBuy(s, 'gem1', d1); assert.equal(s.gems, g - 100); assert.equal(s.bag.g2, 2);
+  C.shopBuy(s, 'free1', d2);
+  s.gems = 0; assert.throws(() => C.shopBuy(s, 'gem2', d2));
+  assert.equal(C.sanitize(JSON.parse(JSON.stringify(s)), 0).shop.n.free1, 1);
+});
+
+test('패스: 무료는 바로, 유료는 구매 뒤에만', () => {
+  const s = C.newState(0); s.stage = 12;
+  assert.ok(C.passClaim(s, 0, 'free')); assert.equal(C.passClaim(s, 0, 'free'), null);
+  assert.equal(C.passClaim(s, 0, 'paid'), null);
+  s.pass.paid = true; assert.ok(C.passClaim(s, 0, 'paid'));
+  assert.equal(C.passClaim(s, 5, 'free'), null);
+  assert.deepEqual(C.passReady(s).map(x => x.join()), ['1,free', '1,paid']);
+});

@@ -325,6 +325,53 @@
 
   /* ---------- 가방: 시간 보급품 (쓰면 그 시간만큼 사냥한 보상) ---------- */
   const ITEMS = { g2: { name: '골드 보급품', sub: '2시간 사냥 골드', key: 'gold' }, e2: { name: '경험치 보급품', sub: '2시간 사냥 경험치', key: 'exp' } };
+  /* ---------- 상점과 광고 자리 (결제, 광고는 출시 전에 실제 연결. 지금은 무료 상품과 광고 보상만 동작) ---------- */
+  const SHOP = {
+    daily: [
+      { id: 'free1', name: '일일 무료 보급', rw: { tix: 5 }, pay: 'free', lim: 1 },
+      { id: 'ad1', name: '광고 보고 보석', rw: { gems: 30 }, pay: 'ad', lim: 3 },
+      { id: 'ad2', name: '광고 보고 호출권', rw: { tix: 10 }, pay: 'ad', lim: 2 },
+      { id: 'gem1', name: '보급품 꾸러미', rw: { g2: 2, e2: 2 }, pay: 'gems', cost: 100, lim: 3 },
+      { id: 'gem2', name: '정예 호출권', rw: { ptix: 1 }, pay: 'gems', cost: 300, lim: 2 },
+      { id: 'gem3', name: '구급상자 묶음', rw: { med: 20 }, pay: 'gems', cost: 80, lim: 3 },
+    ],
+    packs: [
+      { id: 'p_new', name: '신입 수사관 환영 패키지', sub: '한 번만 살 수 있어요', rw: { gems: 1000, ptix: 5, tix: 50 }, price: 1100, tag: '추천' },
+      { id: 'p_lv', name: '호출 레벨 지원 패키지', sub: '호출권을 넉넉하게', rw: { tix: 300, gems: 500 }, price: 9900, tag: '인기' },
+      { id: 'p_month', name: '월정액 보급', sub: '30일 동안 매일 보석 100', rw: { gems: 300 }, price: 5500, tag: '월정액' },
+      { id: 'p_noad', name: '광고 제거', sub: '광고 없이 바로 보상', rw: {}, price: 7500, tag: '광고 제거' },
+    ],
+    gems: [[60, 1200], [300, 5900], [650, 12000], [1350, 25000], [2800, 49000], [6000, 99000]],
+  };
+  /** 오늘 산 횟수 (날이 바뀌면 0) */
+  function shopCount(state, id, now) {
+    const k = dayKey(now); if (state.shop.day !== k) { state.shop.day = k; state.shop.n = {}; }
+    return state.shop.n[id] || 0;
+  }
+  /** 무료, 광고, 보석 상품 사기. 실제 돈 결제(packs, gems)는 여기서 하지 않음 */
+  function shopBuy(state, id, now) {
+    const it = SHOP.daily.find(x => x.id === id); if (!it) throw new RangeError('살 수 없는 상품이에요');
+    if (shopCount(state, id, now) >= it.lim) throw new RangeError('오늘은 다 샀어요');
+    if (it.pay === 'gems') { if (state.gems < it.cost) throw new RangeError('보석이 부족해요'); state.gems -= it.cost; }
+    state.shop.n[id] = (state.shop.n[id] || 0) + 1;
+    giveReward(state, it.rw); return it.rw;
+  }
+  /** 광고 보상 골드 버프: 8시간 동안 골드 +10% (만료 시각 ms) */
+  const AD_BUFF_MS = 8 * 3600e3;
+  function adBuffOn(state, nowMs) { return (state.adBuff || 0) > nowMs; }
+
+  /* 수사 패스: 스테이지 단계마다 무료 보상 + 유료(패스 구매) 보상 */
+  const PASS = [5, 10, 15, 20, 30, 40, 50, 60, 80, 100].map((st, i) => ({ st, free: i % 2 ? { tix: 10 } : { gems: 50 }, paid: i % 3 === 2 ? { ptix: 2 } : { gems: 200 } }));
+  const PASS_PRICE = 9900;
+  function passClaim(state, i, track) {
+    const r = PASS[i]; if (!r || state.stage < r.st) return null;
+    if (track === 'paid' && !state.pass.paid) return null;
+    const got = state.pass[track === 'paid' ? 'p' : 'f']; if (got.includes(i)) return null;
+    got.push(i); giveReward(state, r[track === 'paid' ? 'paid' : 'free']); return r[track === 'paid' ? 'paid' : 'free'];
+  }
+  /** 받을 수 있는 패스 보상 모두 */
+  function passReady(state) { const out = []; PASS.forEach((r, i) => { if (state.stage < r.st) return; if (!state.pass.f.includes(i)) out.push([i, 'free']); if (state.pass.paid && !state.pass.p.includes(i)) out.push([i, 'paid']); }); return out; }
+
   /** 편성 프리셋 바꾸기: 현재 편성을 지금 칸에 저장하고, 고른 칸의 편성을 불러옴 (빈 칸이면 현재 편성 그대로) */
   function switchPreset(state, i) {
     const k = clampInt(i, 0, 2, 0);
@@ -720,6 +767,10 @@
       unl: [],
       mail: [],
       bag: {},
+      pass: { paid: false, f: [], p: [] },   // 수사 패스
+      owned: [],          // 산 패키지 (한 번만)
+      shop: { day: '', n: {} },   // 상점 오늘 산 횟수
+      adBuff: 0,          // 광고 골드 버프 끝나는 시각
       med: 20,            // 구급상자 (자동 회복)
       medOn: true, medHp: 50,   // 자동 사용, 체력 % 이하일 때
       pre: [null, null, null], preI: 0,   // 편성 프리셋 3개            // 가방 (보급품 개수)           // 받은 우편
@@ -791,6 +842,12 @@
     s.medHp = [30, 50, 70].includes(raw.medHp) ? raw.medHp : 50;
     s.pre = [0, 1, 2].map(i => Array.isArray(raw.pre) && Array.isArray(raw.pre[i]) ? raw.pre[i].filter(id => HEROES.some(h => h.id === id)).slice(0, CONST.PARTY_MAX) : null);
     s.preI = clampInt(raw.preI, 0, 2, 0);
+    s.shop = { day: raw.shop && typeof raw.shop.day === 'string' ? raw.shop.day.slice(0, 10) : '', n: {} };
+    if (raw.shop && raw.shop.n && typeof raw.shop.n === 'object') for (const it of SHOP.daily) if (isNum(raw.shop.n[it.id])) s.shop.n[it.id] = clampInt(raw.shop.n[it.id], 0, 99, 0);
+    s.adBuff = isNum(raw.adBuff) ? raw.adBuff : 0;
+    const okIdx = a => Array.isArray(a) ? [...new Set(a.filter(i => Number.isInteger(i) && i >= 0 && i < PASS.length))] : [];
+    s.pass = { paid: !!(raw.pass && raw.pass.paid === true), f: okIdx(raw.pass && raw.pass.f), p: okIdx(raw.pass && raw.pass.p) };
+    s.owned = Array.isArray(raw.owned) ? raw.owned.filter(x => typeof x === 'string').slice(0, 50) : [];
     s.bag = {}; if (raw.bag && typeof raw.bag === 'object') for (const k of Object.keys(ITEMS)) if (isNum(raw.bag[k])) s.bag[k] = clampInt(raw.bag[k], 0, 1e6, 0);
     s.mail = Array.isArray(raw.mail) ? raw.mail.filter(x => MAILS.some(m => m.id === x)) : [];
     s.unl = Array.isArray(raw.unl) ? raw.unl.filter(x => ROADMAP.some(r => r.id === x)) : [];
@@ -829,7 +886,7 @@
   const Core = {
     HEROES, TYPES, STARTER_IDS, partyIds, partySlots, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
-    switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
+    PASS, PASS_PRICE, passClaim, passReady, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,

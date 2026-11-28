@@ -199,9 +199,9 @@ test('요원 호출: 호출권 차감, 소환 레벨 상승 보상', () => {
   const poor = C.newState(0); poor.tix = 0; assert.throws(() => C.doSummon(poor, 1, 'call', Math.random), RangeError);
 });
 test('정예 호출: 희귀 없음, 전설 0.5%, 정예 호출권 먼저 사용', () => {
-  const s = C.newState(0); s.gems = 1000; s.ptix = 1;
-  const a = C.doSummon(s, 1, 'elite', () => 0.004); assert.equal(C.heroById(a.ids[0]).grade, '전설'); assert.equal(a.paid, 'ptix'); assert.equal(a.state.gems, 1000);
-  const b = C.doSummon(a.state, 10, 'elite', () => 0.99); assert.equal(b.paid, 'gems'); assert.equal(b.state.gems, 1000 - 300);
+  const s = C.newState(0); s.gems = 2000; s.ptix = 1;
+  const a = C.doSummon(s, 1, 'elite', () => 0.004); assert.equal(C.heroById(a.ids[0]).grade, '전설'); assert.equal(a.paid, 'ptix'); assert.equal(a.state.gems, 2000);
+  const b = C.doSummon(a.state, 10, 'elite', () => 0.99); assert.equal(b.paid, 'gems'); assert.equal(b.state.gems, 2000 - 1500);
   assert.ok(b.ids.every(id => C.heroById(id).grade !== '희귀'));
   assert.equal(b.state.pulls.total, 11);   // 정예 호출도 소환 레벨에 쌓임
 });
@@ -497,7 +497,7 @@ test('대량 호출: 30회, 최대 호출, 범위 검사', () => {
   assert.throws(() => C.doSummon(s, 0, 'call', Math.random), RangeError);
   assert.throws(() => C.doSummon(s, 1001, 'call', Math.random), RangeError);
   assert.throws(() => C.doSummon(s, 2.5, 'call', Math.random), RangeError);
-  const g = C.newState(0); g.ptix = 0; g.gems = 950; assert.equal(C.summonMaxN(g, 'elite'), Math.floor(C.gemTotal(g) / 30));
+  const g = C.newState(0); g.ptix = 0; g.gems = 950; assert.equal(C.summonMaxN(g, 'elite'), Math.floor(C.gemTotal(g) / C.CONST.PREMIUM_COST));
   g.ptix = 7; assert.equal(C.summonMaxN(g, 'elite'), 7);
 });
 

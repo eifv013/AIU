@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.35.8';
+window.AIU_VER = '0.35.9';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -2380,7 +2380,7 @@ html,body{overflow-x:hidden}
   const CONST = {
     WAVE_KILLS: 10,          // 근원체 등장까지 처치 수
     BOSS_TIME: 30,           // 근원체 제한 시간(초)
-    BOSS_GEMS: 100,          // 근원체 처치 보석 (10회 호출 1번)
+    BOSS_GEMS: 5,            // 근원체 처치 보석 (조금씩. 보석은 임무, 패스, 상점이 주 공급원)
     /* 뽑기 세 가지
      * - 요원 호출: 호출권으로 뽑음(전투에서 계속 쌓임). 소환 레벨은 여기서만 오르고, 희귀 요원은 여기서만 나옴
      * - 정예 호출: 보석(또는 정예 호출권). 희귀 없이 영웅 이상, 전설 2%. 소환 레벨과 상관없음
@@ -2388,7 +2388,7 @@ html,body{overflow-x:hidden}
      *   누적 RELAY 회째에 그 전설 확정 */
     CALL_COST: 1,            // 요원 호출 1회 = 호출권 1장
     SUMMON_MAX: 1000,        // 한 번에 호출할 수 있는 최대 횟수 (최대 호출)
-    PREMIUM_COST: 30,        // 정예 호출, 특별 채용 1회 = 보석 30 (10회 300)
+    PREMIUM_COST: 150,       // 정예 호출, 특별 채용 1회 = 보석 150 (10회 1,500)
     PREMIUM_LEGEND: 0.005,   // 정예 호출, 특별 채용 전설 확률 0.5% (특별 채용은 200회 확정이 따로 있음)
     PICKUP_OPEN_LV: 3,       // 특별 채용이 열리는 소환 레벨
     TICKETS_PER_KILL: 0.1,   // 이상체 10마리에 호출권 1장
@@ -3226,14 +3226,15 @@ html,body{overflow-x:hidden}
   /* ---------- 가이드 퀘스트 (세나 키우기의 왼쪽 퀘스트 줄처럼 하나씩 차례로) ----------
    * kind 별로 진행이 쌓이고, 다 차면 눌러서 보석을 받음. 목록을 다 돌면 처음으로 돌아가 목표만 커짐 */
   const QUESTS = [
-    { kind: 'lvup',   text: '요원 강화',     need: 5,  gems: 100 },
-    { kind: 'kill',   text: '이상체 처리',   need: 30, gems: 100 },
-    { kind: 'boss',   text: '근원체 봉쇄',   need: 1,  gems: 200 },
-    { kind: 'train',  text: '훈련소 강화',   need: 3,  gems: 100 },
-    { kind: 'summon', text: '요원 호출',     need: 1,  gems: 100 },
-    { kind: 'lvup',   text: '요원 강화',     need: 20, gems: 150 },
-    { kind: 'boss',   text: '근원체 봉쇄',   need: 3,  gems: 250 },
-    { kind: 'kill',   text: '이상체 처리',   need: 150, gems: 200 },
+    // 반복 퀘스트 보석은 조금씩 (예전 100~250은 정예 호출을 공짜로 돌릴 만큼 많았음)
+    { kind: 'lvup',   text: '요원 강화',     need: 5,  gems: 10 },
+    { kind: 'kill',   text: '이상체 처리',   need: 30, gems: 10 },
+    { kind: 'boss',   text: '근원체 봉쇄',   need: 1,  gems: 20 },
+    { kind: 'train',  text: '훈련소 강화',   need: 3,  gems: 10 },
+    { kind: 'summon', text: '요원 호출',     need: 1,  gems: 10 },
+    { kind: 'lvup',   text: '요원 강화',     need: 20, gems: 15 },
+    { kind: 'boss',   text: '근원체 봉쇄',   need: 3,  gems: 30 },
+    { kind: 'kill',   text: '이상체 처리',   need: 150, gems: 20 },
   ];
   /* 처음 시작용 가이드 퀘스트 (세나 키우기 [가이드-n] 처럼). 블레이즈 혼자 시작 → 강화 → 근원체 → 두 번째 요원(램파트) → 출전 → 호출 → 성장 → 작전.
    * rw: 보상 (hero 는 요원 한 명. 이미 있으면 조각 1개). 다 끝나면 아래 QUESTS 를 계속 돎 */
@@ -7714,6 +7715,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.35.9', '11월 28일', ['정예 호출과 특별 채용이 1회에 보석 150개(10회 1,500개)로 바뀌었어요', '근원체 처치 보석은 5개, 반복 퀘스트 보석은 10~30개로 줄었어요']],
   ['0.35.8', '11월 28일', ['정예 호출과 특별 채용의 전설 확률을 2%에서 0.5%로 낮췄어요. 특별 채용 200회 확정은 그대로예요', '전설 요원 승급에 필요한 조각을 늘렸어요 (★2부터 2, 4, 8, 15개)']],
   ['0.35.7', '11월 28일', ['창 오른쪽 위 닫기 버튼이 잘리던 문제를 고쳤어요', '소식 창 제목을 가운데로 맞췄어요']],
   ['0.35.6', '11월 28일', ['설정, 소식 같은 긴 창이 휴대폰에서 아래로 내려가지 않던 문제를 고쳤어요', '소식 글을 왼쪽 정렬로 읽기 쉽게 바꿨어요', '근원체를 바로 잡으면 출현 띠와 처치 도장이 겹치던 문제를 고쳤어요', '균열 심층에 들어가면 빈 화면과 오류가 뜨던 문제를 고쳤어요', '카메라, 정렬, 출전, 자동 기술처럼 화면에 이미 보이는 걸 다시 알려 주던 안내 문구를 뺐어요']],

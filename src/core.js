@@ -133,7 +133,7 @@
   const CONST = {
     WAVE_KILLS: 10,          // 근원체 등장까지 처치 수
     BOSS_TIME: 30,           // 근원체 제한 시간(초)
-    BOSS_GEMS: 100,          // 근원체 처치 보석 (10회 호출 1번)
+    BOSS_GEMS: 5,            // 근원체 처치 보석 (조금씩. 보석은 임무, 패스, 상점이 주 공급원)
     /* 뽑기 세 가지
      * - 요원 호출: 호출권으로 뽑음(전투에서 계속 쌓임). 소환 레벨은 여기서만 오르고, 희귀 요원은 여기서만 나옴
      * - 정예 호출: 보석(또는 정예 호출권). 희귀 없이 영웅 이상, 전설 2%. 소환 레벨과 상관없음
@@ -141,7 +141,7 @@
      *   누적 RELAY 회째에 그 전설 확정 */
     CALL_COST: 1,            // 요원 호출 1회 = 호출권 1장
     SUMMON_MAX: 1000,        // 한 번에 호출할 수 있는 최대 횟수 (최대 호출)
-    PREMIUM_COST: 30,        // 정예 호출, 특별 채용 1회 = 보석 30 (10회 300)
+    PREMIUM_COST: 150,       // 정예 호출, 특별 채용 1회 = 보석 150 (10회 1,500)
     PREMIUM_LEGEND: 0.005,   // 정예 호출, 특별 채용 전설 확률 0.5% (특별 채용은 200회 확정이 따로 있음)
     PICKUP_OPEN_LV: 3,       // 특별 채용이 열리는 소환 레벨
     TICKETS_PER_KILL: 0.1,   // 이상체 10마리에 호출권 1장
@@ -979,14 +979,15 @@
   /* ---------- 가이드 퀘스트 (세나 키우기의 왼쪽 퀘스트 줄처럼 하나씩 차례로) ----------
    * kind 별로 진행이 쌓이고, 다 차면 눌러서 보석을 받음. 목록을 다 돌면 처음으로 돌아가 목표만 커짐 */
   const QUESTS = [
-    { kind: 'lvup',   text: '요원 강화',     need: 5,  gems: 100 },
-    { kind: 'kill',   text: '이상체 처리',   need: 30, gems: 100 },
-    { kind: 'boss',   text: '근원체 봉쇄',   need: 1,  gems: 200 },
-    { kind: 'train',  text: '훈련소 강화',   need: 3,  gems: 100 },
-    { kind: 'summon', text: '요원 호출',     need: 1,  gems: 100 },
-    { kind: 'lvup',   text: '요원 강화',     need: 20, gems: 150 },
-    { kind: 'boss',   text: '근원체 봉쇄',   need: 3,  gems: 250 },
-    { kind: 'kill',   text: '이상체 처리',   need: 150, gems: 200 },
+    // 반복 퀘스트 보석은 조금씩 (예전 100~250은 정예 호출을 공짜로 돌릴 만큼 많았음)
+    { kind: 'lvup',   text: '요원 강화',     need: 5,  gems: 10 },
+    { kind: 'kill',   text: '이상체 처리',   need: 30, gems: 10 },
+    { kind: 'boss',   text: '근원체 봉쇄',   need: 1,  gems: 20 },
+    { kind: 'train',  text: '훈련소 강화',   need: 3,  gems: 10 },
+    { kind: 'summon', text: '요원 호출',     need: 1,  gems: 10 },
+    { kind: 'lvup',   text: '요원 강화',     need: 20, gems: 15 },
+    { kind: 'boss',   text: '근원체 봉쇄',   need: 3,  gems: 30 },
+    { kind: 'kill',   text: '이상체 처리',   need: 150, gems: 20 },
   ];
   /* 처음 시작용 가이드 퀘스트 (세나 키우기 [가이드-n] 처럼). 블레이즈 혼자 시작 → 강화 → 근원체 → 두 번째 요원(램파트) → 출전 → 호출 → 성장 → 작전.
    * rw: 보상 (hero 는 요원 한 명. 이미 있으면 조각 1개). 다 끝나면 아래 QUESTS 를 계속 돎 */

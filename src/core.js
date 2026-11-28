@@ -290,8 +290,8 @@
   }
 
   /** 요원 Lv 강화 비용 (현재 lv → lv+1), 경험치 */
-  /** 요원 레벨 상한: ★1 20, ★2 40 ... ★5 100, 각성 120. 승급해야 더 올릴 수 있음 */
-  function heroLvCap(stars) { return 20 * clampInt(stars, 1, 6, 1); }
+  /** 요원 레벨 상한: ★1 100, 별마다 +50 (★5 300, 각성 350). 초반 스테이지는 막지 않고, 후반에 승급이 필요해지게 */
+  function heroLvCap(stars) { return 100 + 50 * (clampInt(stars, 1, 6, 1) - 1); }
   function heroLvCost(lv) { return Math.floor(10 * Math.pow(1.13, clampInt(lv, 1, 1e6, 1) - 1)); }
 
   /** lv 에서 n 단계 올리는 총 비용 */

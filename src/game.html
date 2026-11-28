@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.37.0';
+window.AIU_VER = '0.37.2';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1750,7 +1750,7 @@ button.cx{width:100%;color:#fff;position:relative}button.cx .dot{position:absolu
 .stop{display:grid!important;grid-template-columns:repeat(4,1fr);margin:0 0 8px!important}.stop button{min-width:0;white-space:nowrap;font-size:13px!important}
 .soon{min-height:240px;display:grid;place-content:center;text-align:center}.soon b{font:400 22px "Black Han Sans";color:#f3e6c4}.soon p{margin:6px 0 0;font:600 13px 'IBM Plex Sans KR';color:var(--dim)}
 .sh-gem .ic{width:44px!important;height:44px!important;margin:0 auto}.stop button.lk{opacity:.45}
-.bagw{min-height:220px}.bagg{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.bagw{min-height:0;padding-bottom:6px}.bagg{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .bagi{position:relative;aspect-ratio:1;border:0;background:var(--ui-slot) center/100% 100% no-repeat;display:grid;place-items:center;padding:8px}
 .bagi .ic{width:70%;height:70%}.bagi b{position:absolute;right:6px;bottom:4px;font:400 14px "Black Han Sans";color:#fff;text-shadow:0 1px 2px #000,0 0 3px #000}.bagi .dot{position:absolute;right:-2px;top:-2px}
 .bagd{display:flex;gap:14px;align-items:center;margin:6px 0 10px}.bagd .ic{width:72px;height:72px;flex:none}.bagd b{font:400 18px "Black Han Sans"}.bagd p{margin:4px 0 0;font:500 13px/1.5 'IBM Plex Sans KR';color:#c9d3ee}
@@ -2057,6 +2057,8 @@ html,body{overflow-x:hidden}
 #hpLv[data-cap]::after{content:' / ' attr(data-cap);font:400 13px "Black Han Sans";color:#8f99ae}
 .slot.dead::after{content:attr(data-rev);position:absolute;left:0;right:0;top:34%;z-index:5;text-align:center;font:400 22px "Black Han Sans";color:#fff;text-shadow:0 0 6px #000,0 0 2px #000;pointer-events:none}
 .gw-st{display:block;margin-top:2px;font:700 11.5px 'IBM Plex Sans KR';font-style:normal;color:#d4ab55}
+.sx-front b{color:#fff!important;z-index:2}.sx-front small{z-index:2}
+.sx-front::after{content:'';position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(transparent,rgba(5,7,12,.92));pointer-events:none}
 </style>
 </head>
 <body>
@@ -3290,7 +3292,7 @@ function update(dt) {
   const near = R.enemies.filter(e => e.aggro);
   if (near.length) { let ex = 0, ey = 0; for (const e of near) { ex += e.x; ey += e.y - e.size * 0.4; } lx = (R.A.x + ex / near.length) / 2; ly = (R.A.y + ey / near.length) / 2; }
   R.cam.x += (lx - R.cam.x) * Math.min(1, dt * 2.5); R.cam.y += (ly - R.cam.y) * Math.min(1, dt * 2.5);
-  R.cam.x = clampN(R.cam.x, -MAPW / 2 + 120, MAPW / 2 - 120); R.cam.y = clampN(R.cam.y, -MAPH / 2 + 110, MAPH / 2 - 110);
+  R.cam.x = clampN(R.cam.x, -MAPW / 2 + 120, MAPW / 2 - 120); R.cam.y = clampN(R.cam.y, -MAPH / 2 + 110, MAPH / 2 - 110);   // 카메라는 요원을 따라감 (바닥은 화면 전체에 깔림)
 }
 const angDiff = (a, b) => { let d = a - b; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2; return d; };
 /** 유닛끼리 겹치지 않게 살짝 밀어냄 */
@@ -3313,11 +3315,12 @@ function draw() {
   const cy0 = R.boss ? 0.64 : 0.58;   // 보스전: 위쪽 체력 바만큼 화면을 내림
   const sk = R.shake || 0;
   g.translate(W / 2 + (Math.random() - 0.5) * sk * 2, H * cy0 + (Math.random() - 0.5) * sk * 2); g.scale(u * camZ * (1 + (R.zoom || 0)), u * camZ * (1 + (R.zoom || 0))); g.translate(-R.cam.x, -R.cam.y);
-  const vw = W / (u * camZ), vh = H / (u * camZ), x0 = R.cam.x - vw / 2 - 60, x1 = R.cam.x + vw / 2 + 60, y0 = R.cam.y - vh * cy0 - 80, y1 = R.cam.y + vh * (1 - cy0) + 60;
+  const vw = W / (u * camZ), vh = H / (u * camZ); R.view = { vw, vh, cy0 };   // 카메라가 지도 밖(검은 곳)을 비추지 않게 업데이트에서 씀
+  const x0 = R.cam.x - vw / 2 - 60, x1 = R.cam.x + vw / 2 + 60, y0 = R.cam.y - vh * cy0 - 80, y1 = R.cam.y + vh * (1 - cy0) + 60;
   // 지도 바닥 (경계 안만) + 장식은 경계 안으로 잘라 그림
   // 바닥 그림(floor1~3)이 있으면 바둑판처럼 반복해 깔기. 한 장이 지도 단위 260 크기
   const fk = 'floor' + (Math.floor((S.stage - 1) / 10) % FIELD.length + 1);
-  const bx0 = Math.max(-MAPW / 2, x0), by0 = Math.max(-MAPH / 2, y0), bx1 = Math.min(MAPW / 2, x1), by1 = Math.min(MAPH / 2, y1);
+  const bx0 = x0, by0 = y0, bx1 = x1, by1 = y1;   // 바닥은 화면 전체에 깔기 (축소해도 지도 밖이 검게 보이지 않게)
   if (imgOk(fk)) {
     const px = Math.max(16, Math.round(260 * u * DPR));   // 바닥 한 장의 실제 화면 픽셀 크기
     if (!R.pat || R.patKey !== fk + px) {
@@ -3649,6 +3652,10 @@ function portrait(id) {
   if (ART['id_' + id]) return ART['id_' + id];   // 정면 프로필 얼굴 (출전 칸, 대사, 목록 얼굴)
   if (ART['card_' + id]) return ART['card_' + id];   // 그림 카드
   if (portraitCache[id]) return portraitCache[id];
+  // 그림이 아직 없는 요원: 임시 얼굴 대신 누아르 실루엣 (등급색 테두리 빛, 비 오는 어두운 배경)
+  { const g = C.heroById(id).grade, gc = ({ 희귀: '#5f97e0', 영웅: '#b06cf0', 전설: '#e9b23c' })[g] || '#8f99ae';
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 120"><defs><radialGradient id="b" cx=".5" cy=".3" r=".8"><stop offset="0" stop-color="#232a3d"/><stop offset="1" stop-color="#07090e"/></radialGradient><linearGradient id="r" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${gc}" stop-opacity=".0"/><stop offset=".5" stop-color="${gc}" stop-opacity=".55"/><stop offset="1" stop-color="${gc}" stop-opacity="0"/></linearGradient></defs><rect width="96" height="120" fill="url(#b)"/><g stroke="#9aa6c4" stroke-opacity=".18" stroke-width=".8">${Array.from({ length: 9 }, (_, i) => `<line x1="${8 + i * 10}" y1="${(i * 13) % 40}" x2="${4 + i * 10}" y2="${(i * 13) % 40 + 14}"/>`).join('')}</g><path d="M48 30c9 0 15 7 15 16s-6 17-15 17-15-8-15-17 6-16 15-16z" fill="#05070b"/><path d="M30 34c5-9 31-9 36 0l-4 3H34z" fill="#05070b"/><path d="M14 120c2-24 14-42 34-48 20 6 32 24 34 48z" fill="#05070b"/><path d="M48 72l-7 14 7 34 7-34z" fill="#10141f"/><path d="M14 120c2-24 14-42 34-48 20 6 32 24 34 48" fill="none" stroke="url(#r)" stroke-width="1.6"/><text x="48" y="58" text-anchor="middle" font-family="Black Han Sans,sans-serif" font-size="14" fill="${gc}" fill-opacity=".7">?</text></svg>`;
+    return (portraitCache[id] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg)); }
   if (SIL[id]) {
     const bg = SIL_BG[C.heroById(id).grade];
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 120"><defs><radialGradient id="b" cx=".5" cy=".35" r=".7"><stop offset="0" stop-color="${bg}"/><stop offset="1" stop-color="#0d1019"/></radialGradient></defs><rect width="96" height="120" fill="url(#b)"/>${SIL.base('#d7dbe8')}${SIL[id]()}</svg>`;
@@ -4537,7 +4544,7 @@ $('hpage').addEventListener('click', onAct);   // 요원 상세, 일일 출동 �
 let heroBack = null;
 function openHeroWin() {
   const app = $('app');
-  heroBack = null;   // 요원 창을 닫으면 전투 화면으로
+  heroBack = null; hsub = 'manage';   // 요원 창을 닫으면 전투 화면으로. 열 때는 항상 첫 화면(요원 관리)부터
   app.classList.remove('folded'); app.classList.add('herofull');
   helpOnce('hero');
   tab = 'hero'; hsub = 'manage'; for (const x of $('tabs').children) x.classList.toggle('on', x.dataset.tab === 'hero'); renderPanel(); $('panel').scrollTop = 0; updateUI();
@@ -4586,7 +4593,9 @@ $('tabs').addEventListener('click', e => {
   // 세나 키우기처럼: 열린 메뉴를 한 번 더 누르면 메뉴 칸이 접히고 전투 화면이 커짐. 접힌 상태에서 아무 메뉴나 누르면 다시 펼침
   const app = $('app');
   if (!app.classList.contains('folded') && b.dataset.tab === tab) { app.classList.add('folded'); for (const x of $('tabs').children) x.classList.remove('on'); return; }
+  const wasFolded = app.classList.contains('folded');
   app.classList.remove('folded');
+  if (tab !== b.dataset.tab || wasFolded) { const first = SUBS[b.dataset.tab] && SUBS[b.dataset.tab][0]; if (first) { subSel[b.dataset.tab] = first[0]; if (b.dataset.tab === 'summon') sumSub = first[0]; } if (b.dataset.tab === 'mis') misTab = 'd'; }   // 메뉴를 새로 열면 첫 화면부터
   tab = b.dataset.tab;
   for (const x of $('tabs').children) x.classList.toggle('on', x === b);
   renderPanel(); $('panel').scrollTop = 0; helpOnce(tab);
@@ -6223,7 +6232,8 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
-  ['0.37.0', '11월 28일', ['요원 레벨에 상한이 생겼어요. ★1은 Lv.20, ★5는 Lv.100, 각성은 Lv.120까지예요. 승급해야 더 올릴 수 있어요', '스테이지가 오를 때 골드와 경험치가 너무 빨리 늘던 걸 줄였어요', '수사력 단계를 승급하면 보석 대신 팀 공격력과 체력이 5%씩 영구로 올라요', '쓰러진 요원은 8초 뒤 다시 일어나 싸워요. 얼굴 칸에 남은 초가 나와요', '수사력 칸마다 무엇이 오르는지(공격력, 골드 획득, 치명타 확률) 적어 뒀어요']],
+  ['0.37.2', '11월 28일', ['요원 레벨 상한을 ★1 Lv.100부터 별마다 50씩으로 바꿨어요 (Lv.20은 너무 낮았어요)', '메뉴를 새로 열면 항상 첫 화면부터 보여요', '카메라를 축소해도 지도 바깥 검은 곳이 보이지 않아요', '가방 창이 내용만큼만 열려요', '그림이 아직 없는 요원은 임시 얼굴 대신 어두운 실루엣으로 나와요', '호출 결과 카드의 이름이 잘 보이게 바꿨어요']],
+  ['0.37.0', '11월 28일', ['요원 레벨에 상한이 생겼어요. ★1은 Lv.100이고 별마다 50씩 늘어요(★5 Lv.300, 각성 Lv.350)', '스테이지가 오를 때 골드와 경험치가 너무 빨리 늘던 걸 줄였어요', '수사력 단계를 승급하면 보석 대신 팀 공격력과 체력이 5%씩 영구로 올라요', '쓰러진 요원은 8초 뒤 다시 일어나 싸워요. 얼굴 칸에 남은 초가 나와요', '수사력 칸마다 무엇이 오르는지(공격력, 골드 획득, 치명타 확률) 적어 뒀어요']],
   ['0.36.3', '11월 28일', ['요원 화면의 등급 문장을 그림 얼굴을 가리지 않게 왼쪽 위로 옮겼어요']],
   ['0.36.2', '11월 28일', ['요원 화면 큰 그림을 자르지 않고 전체가 보이게 화면 폭에 맞췄어요. 남는 곳은 같은 그림을 흐리게 깔아요', '그림이 아직 없는 요원은 임시 얼굴 대신 어두운 배경과 그림 준비 중 표시가 나와요', '출전 중 버튼을 눌러야 하는 버튼처럼 보이지 않게 바꿨어요', '역할 표시가 유형 아이콘을 반복하지 않게 바꿨어요']],
   ['0.36.0', '11월 28일', ['가이드와 퀘스트로 나뉘던 이름을 가이드 하나로 합치고 번호를 이어서 세요', '훈련소, 성장 같은 예전 이름을 수사력으로 통일했어요']],

@@ -667,10 +667,10 @@
     const lv0 = summonLevel(state.pulls.total);
     if (kind === 'pickup' && lv0 < CONST.PICKUP_OPEN_LV) throw new RangeError(`특별 채용은 소환 레벨 ${CONST.PICKUP_OPEN_LV}부터 열립니다`);
     let paid;
-    if (kind === 'call') { if (state.tix < cnt * CONST.CALL_COST) throw new RangeError('호출권이 부족합니다'); paid = 'tix'; }
+    if (kind === 'call') { if (state.tix < cnt * CONST.CALL_COST) throw new RangeError('호출권이 부족해요'); paid = 'tix'; }
     else if (state.ptix >= cnt) paid = 'ptix';
     else if (gemTotal(state) >= cnt * CONST.PREMIUM_COST) paid = 'gems';
-    else throw new RangeError('보석이 부족합니다');
+    else throw new RangeError('보석이 부족해요');
     const ids = [];
     let total = state.pulls.total, relay = state.pulls.relay, relayHit = false;
     for (let i = 0; i < cnt; i++) {

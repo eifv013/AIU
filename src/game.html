@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.29.9';
+window.AIU_VER = '0.30.0';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1373,7 +1373,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 #sfx.done #sxSkip{display:none}
 
 /* ---------- 요원 상세 화면 (누아르 마감) ---------- */
-#hpage::after{content:'';position:absolute;left:0;right:0;bottom:0;height:300px;background:linear-gradient(transparent,rgba(8,10,18,.7) 35%,rgba(8,10,18,.96) 70%);pointer-events:none;z-index:0}
+#hpage::after{content:'';position:absolute;left:0;right:0;top:auto;bottom:0;height:300px;background:linear-gradient(transparent,rgba(8,10,18,.7) 35%,rgba(8,10,18,.96) 70%);pointer-events:none;z-index:0}
 #hpage>*:not(.hp-bg){z-index:1}
 .hp-tags .tic{background:radial-gradient(circle at 50% 35%,#2a3558,#10162a)!important;border:2px solid transparent!important;background-clip:padding-box;box-shadow:0 0 0 2px #8a93ab,0 2px 6px rgba(0,0,0,.6)}
 .hp-tags span{font:400 15px "Black Han Sans"!important;letter-spacing:.03em}
@@ -4887,6 +4887,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.30.0', '11월 28일', ['요원 상세 화면 위쪽 절반이 어둡게 가려지던 문제를 고쳤어요', '볼트 요원 그림을 넣었어요']],
   ['0.29.9', '11월 28일', ['이클립스, 리퍼 요원 그림을 넣었어요', '새 요원 그림을 더 선명하게 바꿨어요']],
   ['0.29.7', '11월 28일', ['오라클 요원 그림을 넣었어요 (카드, 전신, 공격, 걷기)']],
   ['0.29.6', '11월 28일', ['이지스 요원 그림을 넣었어요 (카드, 전신, 공격, 걷기)']],

@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.33.3';
+window.AIU_VER = '0.33.4';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -2160,7 +2160,7 @@ const Snd = (() => {
 })();
 const sfx = (k, v, gap, rate) => Snd.play(k, v, gap, rate);
 /* ---------- 배경 음악 ----------
- * 순찰(main)과 근원체(boss) 두 곡. 근원체가 나오면 1초 동안 서로 섞어 바꿈(크로스페이드).
+ * 시작 화면과 오프닝(title), 순찰(main), 근원체(boss) 세 곡. 화면이 바뀌면 1초 동안 서로 섞어 바꿈(크로스페이드).
  * 아이폰은 audio.volume 을 못 바꾸므로 Web Audio 음량(gain)으로 조절. 오프닝 중, 화면을 내렸을 때는 멈춤 */
 const BGM_SRC = /*BGM*/{};
 const Bgm = (() => {
@@ -2178,9 +2178,10 @@ const Bgm = (() => {
     } catch (e) { ctx = null; }
   }
   /** 지금 틀 곡: 오프닝이 떠 있거나 숨김이면 없음, 근원체가 있으면 boss */
+  const shown = id => { const e = document.getElementById(id); if (!e || !e.isConnected) return false; const cs = getComputedStyle(e); return cs.display !== 'none' && cs.visibility !== 'hidden' && +cs.opacity > 0.05; };
   function want() {
-    const op = document.getElementById('op');
-    if (!ctx || document.hidden || GQ.bgm === false || (op && op.offsetParent !== null && getComputedStyle(op).display !== 'none')) return null;
+    if (!ctx || document.hidden || GQ.bgm === false) return null;
+    if (tr.title && (shown('op') || shown('splash'))) return 'title';   // 시작 화면, 오프닝
     return typeof R !== 'undefined' && R.boss && tr.boss ? 'boss' : 'main';
   }
   setInterval(() => {
@@ -2190,7 +2191,7 @@ const Bgm = (() => {
       const to = k === w ? L : 0;
       t.v += Math.sign(to - t.v) * Math.min(Math.abs(to - t.v), L / 10 || 0.05);   // 1초에 걸쳐 바뀜
       t.g.gain.value = t.v;
-      if (to > 0 && t.a.paused) { if (k === 'boss') t.a.currentTime = 0; t.a.play().catch(() => {}); }
+      if (to > 0 && t.a.paused) { if (k !== 'main') t.a.currentTime = 0; t.a.play().catch(() => {}); }
       if (to === 0 && t.v <= 0.001 && !t.a.paused) t.a.pause();
     }
   }, 100);
@@ -5875,6 +5876,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.33.4', '11월 28일', ['시작 화면과 오프닝에 시네마틱 범죄 분위기 음악을 넣었어요. 게임에 들어가면 순찰 음악으로 자연스럽게 바뀌어요']],
   ['0.33.3', '11월 28일', ['호출 배너를 흐린 띠 그림 대신 고화질 원본 그림으로 바꾸고, 배너 칸을 세나 키우기처럼 넉넉하게 키웠어요']],
   ['0.33.2', '11월 28일', ['호출 배너 그림이 세로로 늘어나 얼굴만 크게 잘려 보이던 문제를 고쳐 그림 전체가 보이게 했어요', '상점 창 아래 작은 탭이 늘 창 맨 아래에 붙게 했어요']],
   ['0.33.1', '11월 28일', ['배경 음악을 넣었어요. 순찰 중에는 어두운 비트, 근원체가 나오면 사이버펑크 전투 곡으로 자연스럽게 바뀌어요', '설정에서 배경 음악을 끄고 켤 수 있어요']],

@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.33.6';
+window.AIU_VER = '0.33.7';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1870,6 +1870,20 @@ button.cx{width:100%;color:#fff;position:relative}button.cx .dot{position:absolu
 /* 상점 창: 아래 작은 탭은 늘 창 맨 아래 (내용이 짧아도 가운데 뜨지 않게) */
 #app.shopfull:not(.folded):not(.herofull) #panel{display:flex;flex-direction:column}
 #app.shopfull:not(.folded):not(.herofull) #panel>*{flex-shrink:0}#app.shopfull:not(.folded):not(.herofull) #panel>.psub{margin-top:auto}
+
+/* ---------- 우편함 다시: 보낸 이, 제목, 보상 칸 전부, 받기 ---------- */
+.ml2-n{margin:-2px 0 6px;text-align:center;font:700 12px 'IBM Plex Sans KR';color:var(--dim)}.ml2-n b{color:var(--gold)}
+.ml2{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;background:linear-gradient(90deg,#1c2440,#121829);border:1px solid #34405e}
+.ml2-f{flex:none;width:44px;height:44px;border-radius:50%;overflow:hidden;border:2px solid #c9b07a;background:#0d1220;display:grid;place-items:center}
+.ml2-f img{width:100%;height:100%;object-fit:cover}.ml2-hq{font:400 13px "Black Han Sans";font-style:normal;color:var(--gold)}
+.ml2-c{flex:1;min-width:0;display:grid;gap:2px;text-align:left;justify-items:start}
+.ml2-c b{font:400 14.5px "Black Han Sans";color:#f3e6c4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ml2-c small{font:600 11px 'IBM Plex Sans KR';color:var(--dim)}
+.ml2-r{display:flex;gap:5px;margin-top:3px}
+.ml2-i{position:relative;width:38px;height:38px;border-radius:6px;border:1px solid #6d7fae;background:radial-gradient(circle at 50% 35%,#34477a,#141b31 75%);display:grid;place-items:center}
+.ml2-i .ic{width:26px;height:26px}
+.ml2-i em{position:absolute;right:2px;bottom:0;font:400 11px "Black Han Sans";font-style:normal;color:#fff;text-shadow:0 0 2px #000,0 0 2px #000,0 1px 2px #000}
+.ml2-b{flex:none;min-width:64px;padding:8px 10px}
 </style>
 </head>
 <body>
@@ -2859,7 +2873,7 @@ button.cx{width:100%;color:#fff;position:relative}button.cx .dot{position:absolu
   /* 우편함: 운영 선물 (받으면 끝) */
   const MAILS = [
     { id: 'welcome', from: 'AIU 본부', title: '신입 수사관 환영 선물', rw: { gems: 300 } },
-    { id: 'u018', from: 'AIU 본부', title: '0.18 업데이트 기념 선물', rw: { tix: 10 } },
+    { id: 'u033', from: 'AIU 본부', title: '상점 개편 기념 선물', rw: { tix: 30, gems: 200 } },
     { id: 'rain', from: '나이트폴', title: '비 오는 날의 보급품', rw: { ptix: 1 } },
     { id: 'supply', from: 'AIU 본부', title: '현장 보급품 지급', rw: { g2: 3, e2: 3 } },
     { id: 'medkit', from: '헤일로', title: '구급상자 보급', rw: { med: 30 } },
@@ -6764,8 +6778,14 @@ modalEl.addEventListener('click', e => {
 
 /* ---------- 우편함 ---------- */
 function mailHtml() {
+  // 세나 키우기 우편함처럼: 왼쪽 보낸 이 얼굴(요원이 보낸 우편) 또는 본부 표시, 가운데 제목과 보상 칸(전부), 오른쪽 받기
   const left = C.MAILS.filter(m => !S.mail.includes(m.id));
-  return `<h2>우편함</h2><div class="mlist">${left.length ? left.map(m => `<div class="ml"><div class="rd-r">${rdTile(m.rw)}</div><div><b>${m.title}</b><small>${m.from}</small></div><button class="btn sm" data-mail="${m.id}">받기</button></div>`).join('') : '<p class="empty">받을 우편이 없어요</p>'}</div>
+  const I = { gems: 'gem', tix: 'tix', ptix: 'ptix', gold: 'gold', exp: 'exp', g2: 'g2', e2: 'e2', med: 'med' };
+  const fromIc = m => { const h = C.HEROES.find(x => x.name === m.from); return h ? `<img src="${ART['id_' + h.id] || portrait(h.id)}" alt="">` : '<i class="ml2-hq">AIU</i>'; };
+  const row = m => `<div class="ml2"><div class="ml2-f">${fromIc(m)}</div><div class="ml2-c"><b>${m.title}</b><small>${m.from}</small>
+      <div class="ml2-r">${Object.entries(m.rw).filter(([k]) => I[k]).map(([k, v]) => `<span class="ml2-i">${icon(I[k])}<em>${C.formatNum(v)}</em></span>`).join('')}</div></div>
+      <button class="btn ml2-b" data-mail="${m.id}">받기</button></div>`;
+  return `<h2>우편함</h2><p class="ml2-n">받을 우편 <b>${left.length}</b>통</p><div class="mlist">${left.length ? left.map(row).join('') : '<p class="empty">받을 우편이 없어요</p>'}</div>
     <div class="mbtns"><button class="btn ghost" data-close>닫기</button><button class="btn" data-mail="all" ${left.length ? '' : 'disabled'}>모두 받기</button></div>`;
 }
 modalEl.addEventListener('click', e => {
@@ -7372,6 +7392,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.33.7', '11월 28일', ['우편함을 다시 꾸몄어요. 보낸 사람 얼굴, 제목, 보상을 한 칸씩 모두 보여 주고 숫자가 그림을 가리지 않아요', '지난 업데이트 기념 우편을 뺐어요']],
   ['0.33.6', '11월 28일', ['앱을 켤 때 작은 AIU 글자가 잠깐 먼저 보이던 문제를 고쳐, 시작 화면이 다 준비된 뒤 한 번에 서서히 나타나요', '시작 화면에서 음악이 안 나오던 문제를 고쳤어요. 휴대폰에서 첫 터치에 소리가 바로 나요', '앱에서는 화면을 누르기 전부터 시작 화면 음악이 나와요 (새 앱을 받은 뒤부터)']],
   ['0.33.5', '11월 28일', ['안내 문구가 화면 위쪽 프로필과 스테이지 막대를 가리지 않게 화면 가운데에 뜨도록 바꿨어요']],
   ['0.33.4', '11월 28일', ['시작 화면과 오프닝에 시네마틱 범죄 분위기 음악을 넣었어요. 게임에 들어가면 순찰 음악으로 자연스럽게 바뀌어요']],

@@ -774,7 +774,7 @@
   /* 우편함: 운영 선물 (받으면 끝) */
   const MAILS = [
     { id: 'welcome', from: 'AIU 본부', title: '신입 수사관 환영 선물', rw: { gems: 300 } },
-    { id: 'u018', from: 'AIU 본부', title: '0.18 업데이트 기념 선물', rw: { tix: 10 } },
+    { id: 'u033', from: 'AIU 본부', title: '상점 개편 기념 선물', rw: { tix: 30, gems: 200 } },
     { id: 'rain', from: '나이트폴', title: '비 오는 날의 보급품', rw: { ptix: 1 } },
     { id: 'supply', from: 'AIU 본부', title: '현장 보급품 지급', rw: { g2: 3, e2: 3 } },
     { id: 'medkit', from: '헤일로', title: '구급상자 보급', rw: { med: 30 } },

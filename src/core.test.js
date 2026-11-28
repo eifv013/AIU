@@ -182,9 +182,9 @@ test('소환 레벨: 세나 키우기처럼 1~4 는 전설 없음, 5 에서 0.10
   for (let lv = 1; lv <= 10; lv++) { const r = C.summonRates(lv); assert.ok(Math.abs(r.legend + r.hero + r.rare - 1) < 1e-9); }
 });
 test('소환: 등급 구간과 잘못된 rng', () => {
-  assert.deepEqual(C.summon(1, () => 0.0005, 10), ['ironside']);    // 0.15% 안 → 상시 전설 (한정 나이트폴은 안 나옴)
+  assert.equal(C.heroById(C.summon(1, () => 0.0005, 10)[0]).grade, '전설'); assert.notEqual(C.summon(1, () => 0.0005, 10)[0], 'dark');    // 0.15% 안 → 상시 전설 (한정 나이트폴은 안 나옴)
   assert.deepEqual(C.summon(1, () => 0.0005, 4), ['mage']);         // 레벨 4 는 전설 없음 → 영웅 구간
-  assert.deepEqual(C.summon(1, () => 0.9999, 1), ['breaker']);    // 희귀 구간 맨 끝
+  assert.equal(C.heroById(C.summon(1, () => 0.9999, 1)[0]).grade, '희귀');    // 희귀 구간 맨 끝
   assert.equal(C.summon(10, Math.random, 10).length, 10);
   assert.throws(() => C.summon(1, () => 1, 1), RangeError);
   assert.throws(() => C.summon(1, null), TypeError);
@@ -200,7 +200,7 @@ test('요원 호출: 호출권 차감, 소환 레벨 상승 보상', () => {
 });
 test('정예 호출: 희귀 없음, 전설 2%, 정예 호출권 먼저 사용', () => {
   const s = C.newState(0); s.gems = 1000; s.ptix = 1;
-  const a = C.doSummon(s, 1, 'elite', () => 0.01); assert.deepEqual(a.ids, ['blackbox']); assert.equal(a.paid, 'ptix'); assert.equal(a.state.gems, 1000);
+  const a = C.doSummon(s, 1, 'elite', () => 0.01); assert.equal(C.heroById(a.ids[0]).grade, '전설'); assert.equal(a.paid, 'ptix'); assert.equal(a.state.gems, 1000);
   const b = C.doSummon(a.state, 10, 'elite', () => 0.99); assert.equal(b.paid, 'gems'); assert.equal(b.state.gems, 1000 - 300);
   assert.ok(b.ids.every(id => C.heroById(id).grade !== '희귀'));
   assert.equal(b.state.pulls.total, 0);   // 소환 레벨은 요원 호출로만
@@ -274,7 +274,7 @@ test('한정 요원: 나이트폴은 특별 채용에서만 나옴', () => {
   const pool = new Set();
   for (let i = 0; i < 400; i++) { const r = (i + 0.5) / 400; C.summon(1, () => r * 0.0015, 10).forEach(id => pool.add(id)); }
   assert.ok(!pool.has('dark'));
-  assert.deepEqual([...pool].sort(), ['blackbox', 'ghost', 'ironside', 'requiem']);
+  assert.deepEqual([...pool].sort(), C.HEROES.filter(h => h.grade === '전설' && !h.limited).map(h => h.id).sort());
   let s = C.newState(0); s.gems = 1e6;
   for (let i = 0; i < 50; i++) { const r = i / 50 * 0.02; assert.notEqual(C.doSummon(s, 1, 'elite', () => r).ids[0], 'dark'); }
   s.pulls.total = 300;

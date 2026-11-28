@@ -507,6 +507,17 @@
     }
     state.gems += g; return g;
   }
+  /* 우편함: 운영 선물 (받으면 끝) */
+  const MAILS = [
+    { id: 'welcome', from: 'AIU 본부', title: '신입 수사관 환영 선물', rw: { gems: 300 } },
+    { id: 'u018', from: 'AIU 본부', title: '0.18 업데이트 기념 선물', rw: { tix: 10 } },
+    { id: 'rain', from: '나이트폴', title: '비 오는 날의 보급품', rw: { ptix: 1 } },
+  ];
+  function mailClaim(state, id) {
+    const m = MAILS.find(x => x.id === id);
+    if (!m || state.mail.includes(id)) return null;
+    state.mail.push(id); giveReward(state, m.rw); return m.rw;
+  }
   /** 받을 수 있는 수첩 보상 하나 받기 (모두 받기는 반복 호출) */
   function roadClaim(state, id) {
     const r = ROADMAP.find(x => x.id === id);
@@ -661,6 +672,7 @@
       heroes,
       party: STARTER_IDS.slice(),   // 전투에 나가는 요원 (최대 5명)
       unl: [],
+      mail: [],           // 받은 우편
       cdx: {},            // 요원 도감 받은 단계            // 받은 수사 수첩 보상
       face: '',           // 프로필 얼굴 (비면 첫 출전 요원)
       up: { atk: 0, gold: 0, crit: 0 },
@@ -724,6 +736,7 @@
       s.daily.bonus = raw.daily.bonus === true && s.daily.got.length === MISSIONS.length;
     }
     s.cdx = {}; if (raw.cdx && typeof raw.cdx === 'object') for (const h of HEROES) if (isNum(raw.cdx[h.id])) s.cdx[h.id] = clampInt(raw.cdx[h.id], 0, CODEX_TIERS, 0);
+    s.mail = Array.isArray(raw.mail) ? raw.mail.filter(x => MAILS.some(m => m.id === x)) : [];
     s.unl = Array.isArray(raw.unl) ? raw.unl.filter(x => ROADMAP.some(r => r.id === x)) : [];
     s.face = typeof raw.face === 'string' && HEROES.some(h => h.id === raw.face) ? raw.face : '';
     if (raw.att && typeof raw.att === 'object') s.att = { n: clampInt(raw.att.n, 0, 1e6, 0), last: typeof raw.att.last === 'string' ? raw.att.last.slice(0, 10) : '' };
@@ -760,7 +773,7 @@
   const Core = {
     HEROES, TYPES, STARTER_IDS, partyIds, partySlots, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
-    codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
+    MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,

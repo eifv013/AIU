@@ -344,3 +344,11 @@ test('요원 도감: 레벨 10마다 한 번', () => {
   assert.equal(C.codexNext(s, 'mage').lv, 30);
   assert.equal(C.sanitize(JSON.parse(JSON.stringify(s)), 0).cdx.mage, 2);
 });
+
+test('우편함: 한 번만 받음', () => {
+  const s = C.newState(0), g = s.gems;
+  assert.deepEqual(C.mailClaim(s, 'welcome'), { gems: 300 });
+  assert.equal(s.gems, g + 300);
+  assert.equal(C.mailClaim(s, 'welcome'), null);
+  assert.deepEqual(C.sanitize(JSON.parse(JSON.stringify({ ...s, mail: ['welcome', 'zz'] })), 0).mail, ['welcome']);
+});

@@ -17,4 +17,8 @@ const need = ['key', 'spr_shade', 'spr_crawler', 'spr_boss1', 'spr_boss2', 'spr_
 const miss = need.filter(k => !art[k]); if (miss.length) throw new Error('빠진 그림: ' + miss.join(', '));
 const out = html.replace('/*ART*/{}', () => JSON.stringify(art)).replace('/*CORE*/', () => core).replace('LOGO_SVG', () => logo);
 fs.writeFileSync(path.join(__dirname, 'dist/index.html'), out);
+// 앱 자동 업데이트용: 현재 버전 (앱이 깃허브에서 이 파일을 보고 새 게임 파일을 받음)
+const ver = (out.match(/window\.AIU_VER = '([\d.]+)'/) || [])[1];
+if (!ver) throw new Error('AIU_VER 를 찾지 못했습니다');
+fs.writeFileSync(path.join(__dirname, 'dist/version.json'), JSON.stringify({ v: ver }) + '\n');
 console.log(`built dist/index.html (${(out.length / 1024).toFixed(0)} KB, 그림 ${Object.keys(art).length}장)`);

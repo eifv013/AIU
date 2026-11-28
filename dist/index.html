@@ -2,6 +2,25 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<script>
+/* ---------- 앱 자동 업데이트 (부팅) ----------
+ * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
+ * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
+window.AIU_VER = '0.18.0';
+window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
+(function () {
+  var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
+  if (!app || window.__aiuHot) return;
+  var hv = null; try { hv = localStorage.getItem('aiu-hotv'); } catch (e) {}
+  if (!hv || !window.aiuVerGt(hv, window.AIU_VER) || !window.caches) return;
+  window.__aiuHot = 1;
+  document.write('<plaintext style="display:none">');   // 이 문서의 나머지는 읽지 않음
+  caches.open('aiu-hot').then(function (c) { return c.match('/aiu-hot.html'); }).then(function (r) { return r ? r.text() : null; }).then(function (h) {
+    if (!h || h.indexOf("window.AIU_VER = '" + hv + "'") < 0) throw new Error('bad');
+    document.open(); document.write(h); document.close();
+  }).catch(function () { try { localStorage.removeItem('aiu-hotv'); } catch (e) {} location.reload(); });
+})();
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <title>AIU</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -942,6 +961,43 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 .cx div{flex:1;min-width:0;text-align:left}.cx b{display:block;font:400 14px "Black Han Sans"}.cx small{font:600 11px 'IBM Plex Sans KR';color:var(--dim)}
 .cx .rd-bar{margin-top:4px}
 .cx .btn.sm{min-width:62px}
+
+/* ---------- 스테이지 클리어 (가운데 띠, 저절로 사라짐) ---------- */
+#clear{position:fixed;left:0;right:0;top:36%;z-index:9;display:none;pointer-events:none;text-align:center}
+#clear.on{display:block;animation:bossIn 2s ease forwards}
+#clear b{display:block;font:400 34px "Black Han Sans";color:#fff;letter-spacing:.04em;text-shadow:0 0 14px rgba(140,180,255,.9),0 3px 0 #1d2740;animation:bossTx .45s cubic-bezier(.3,1.6,.5,1)}
+#clear div{display:flex;justify-content:center;gap:12px;margin-top:6px;padding:10px 0;background:linear-gradient(90deg,transparent,rgba(28,36,56,.92) 25%,rgba(28,36,56,.92) 75%,transparent)}
+#clear span{display:flex;align-items:center;gap:4px;font:400 16px "Black Han Sans";text-shadow:0 1px 3px #000}#clear .ic{width:22px;height:22px}
+/* ---------- 스테이지 창 ---------- */
+#stageBox{cursor:pointer}
+.stw-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.stw-h button{width:34px;height:34px;border:0;border-radius:8px;background:#22294a;color:#fff;font:400 18px "Black Han Sans"}.stw-h button:disabled{opacity:.3}
+.stw-h div{text-align:center}.stw-h b{display:block;font:400 20px "Black Han Sans"}.stw-h small{font:600 12px 'IBM Plex Sans KR';color:var(--dim)}
+.stw-img{position:relative;height:130px;margin:10px 0 8px;border-radius:8px;overflow:hidden;border:1px solid #3a4462}
+.stw-img img{width:100%;height:100%;object-fit:cover;object-position:50% 45%}
+.stw-img.lock img{filter:grayscale(1) brightness(.4)}
+.stw-img span{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;font:700 14px 'IBM Plex Sans KR';text-shadow:0 1px 3px #000}
+.stw-strip{display:grid;grid-template-columns:repeat(10,1fr);gap:3px}
+.stw-strip i{display:grid;place-items:center;height:30px;border-radius:4px;background:#1b2236;font:400 13px "Black Han Sans";font-style:normal;color:var(--dim)}
+.stw-strip i.clr{background:#26365e;color:#c9d3ee}.stw-strip i.cur{background:var(--gold);color:#1d1606;transform:scale(1.12)}
+.stw-strip i.boss{box-shadow:inset 0 -3px #e0503e}
+.stw-mob{display:flex;align-items:flex-end;justify-content:center;gap:14px;margin:10px 0 4px;padding:8px;border-radius:8px;background:#141a28}
+.stw-mob figure{margin:0;text-align:center}.stw-mob img{height:52px;object-fit:contain}.stw-mob figure.bs img{height:70px}
+.stw-mob figcaption{font:600 11px 'IBM Plex Sans KR';color:var(--dim)}.stw-mob figure.bs figcaption{color:#ff8a7a}
+/* ---------- 우편함 ---------- */
+.mlist{display:grid;gap:7px;margin:8px 0;max-height:56vh;overflow:auto}
+.ml{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:#1b2236;border:1px solid var(--line);text-align:left}
+.ml.got{opacity:.5}.ml div{flex:1;min-width:0}.ml b{display:block;font:400 14px "Black Han Sans"}.ml small{font:600 11px 'IBM Plex Sans KR';color:var(--dim)}
+.mlist .empty{padding:30px 0;text-align:center;color:var(--dim)}
+/* ---------- 호출 카드 뒤집기 ---------- */
+.rc{perspective:400px}
+.rc.fd{cursor:pointer;background:repeating-linear-gradient(45deg,#1d2740 0 6px,#232f4f 6px 12px)!important;border-color:#6e86c4!important}
+.rc.fd>*{visibility:hidden}
+.rc.fd::after{content:'';position:absolute;inset:22%;background:center/contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l8 3v6c0 5-3.5 9-8 11c-4.5-2-8-6-8-11V5z' fill='%23c9d3ee' opacity='.55'/%3E%3C/svg%3E")}
+.rc.flip{opacity:1;transform:none;animation:rcFlip .35s ease-out;animation-delay:0s!important}
+@keyframes rcFlip{0%{transform:rotateY(90deg)}100%{transform:none}}
+.rc.flip.leg{box-shadow:0 0 18px rgba(255,210,122,.9)}
+.sp-ver{position:absolute;right:12px;top:calc(env(safe-area-inset-top) + 8px);font:600 11px 'IBM Plex Sans KR';color:rgba(255,255,255,.6);z-index:3}
 </style>
 </head>
 <body>
@@ -997,6 +1053,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     <div id="side"><button id="sideTg" aria-label="메뉴 접기"><svg viewBox="0 0 24 24"><path d="M12 1.5L22.5 12 12 22.5 1.5 12z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></button>
       <div class="sd-list">
       <button data-side="road"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="url(#mSteel)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><circle cx="12" cy="12" r="7.6" fill="#26304c" stroke="#141a2b" stroke-width=".9"/><path d="M12 5.2l2 6.8-2 6.8-2-6.8z" fill="url(#mGold)" stroke="#5a3504" stroke-width=".6"/><path d="M12 12l2-.0" /><path d="M5.2 12l6.8-2 6.8 2-6.8 2z" fill="#9fb3e8" opacity=".85"/><circle cx="12" cy="12" r="1.4" fill="#fff"/></svg><span>수첩</span><i class="dot" id="dotRoad"></i></button>
+      <button data-side="mail"><svg viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="19" height="13" rx="1.6" fill="#eef2fb" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M2.8 6.2L12 13l9.2-6.8" fill="none" stroke="#141a2b" stroke-width="1.2" stroke-linejoin="round"/><path d="M3.5 6.5L12 12.6l8.5-6.1" fill="url(#mGold)" opacity=".9"/><circle cx="18.5" cy="15.5" r="3.6" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M18.5 13.7v2.2" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><circle cx="18.5" cy="17.4" r=".8" fill="#fff"/></svg><span>우편</span><i class="dot" id="dotMail"></i></button>
       <button data-side="mis"><svg viewBox="0 0 24 24"><rect x="4.5" y="4" width="15" height="18" rx="2" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><rect x="6.5" y="6.5" width="11" height="13.5" rx="1" fill="#eef2fb"/><rect x="8.5" y="2.5" width="7" height="4" rx="1" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8 11l1.5 1.5 2.6-2.8M8 16l1.5 1.5 2.6-2.8" fill="none" stroke="#1fa868" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.8 11.3h2.2M13.8 16.3h2.2" stroke="#7c87a6" stroke-width="1.5" stroke-linecap="round"/></svg><span>임무</span><i class="dot" id="dotMis"></i></button>
       <button data-side="att"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" fill="#eef2fb" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3H3z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8 3v4M16 3v4" stroke="#141a2b" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="15.3" r="4" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M10.3 15.3l1.2 1.2 2.3-2.4" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>출석</span><i class="dot" id="dotAtt"></i></button>
       <button data-side="book"><svg viewBox="0 0 24 24"><path d="M3 5.5c3-1.2 6-1.2 9 .6v14c-3-1.8-6-1.8-9-.6z" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M21 5.5c-3-1.2-6-1.2-9 .6v14c3-1.8 6-1.8 9-.6z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M5 8.5c1.8-.6 3.6-.5 5 .3M5 11.5c1.8-.6 3.6-.5 5 .3M14 8.8c1.4-.8 3.2-.9 5-.3" stroke="#eef2fb" stroke-width=".9" stroke-linecap="round" opacity=".8"/><path d="M15.5 12l.9 1.9 2 .3-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.3z" fill="url(#mGold)"/></svg><span>기록</span></button>
@@ -1042,6 +1099,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   <div id="modal"></div>
   <!-- 결과 띠 창: 보상 획득, 승급 성공, 새 요원 합류 (세나 키우기처럼 가운데 넓은 띠 + 문장 + 터치하여 닫기) -->
   <div id="res"></div>
+  <div id="clear"></div>
   <div id="pwup"></div>
   <!-- 구역 근원체 첫 등장 이야기 (세나 키우기 보스 등장 대화처럼) -->
   <div id="story"><img id="stImg" alt=""><div class="st-box"><b id="stName"></b><p id="stLine"></p><i class="st-next">▼</i></div><button id="stSkip">SKIP ▸▸</button></div>
@@ -1638,6 +1696,17 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     }
     state.gems += g; return g;
   }
+  /* 우편함: 운영 선물 (받으면 끝) */
+  const MAILS = [
+    { id: 'welcome', from: 'AIU 본부', title: '신입 수사관 환영 선물', rw: { gems: 300 } },
+    { id: 'u018', from: 'AIU 본부', title: '0.18 업데이트 기념 선물', rw: { tix: 10 } },
+    { id: 'rain', from: '나이트폴', title: '비 오는 날의 보급품', rw: { ptix: 1 } },
+  ];
+  function mailClaim(state, id) {
+    const m = MAILS.find(x => x.id === id);
+    if (!m || state.mail.includes(id)) return null;
+    state.mail.push(id); giveReward(state, m.rw); return m.rw;
+  }
   /** 받을 수 있는 수첩 보상 하나 받기 (모두 받기는 반복 호출) */
   function roadClaim(state, id) {
     const r = ROADMAP.find(x => x.id === id);
@@ -1792,6 +1861,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
       heroes,
       party: STARTER_IDS.slice(),   // 전투에 나가는 요원 (최대 5명)
       unl: [],
+      mail: [],           // 받은 우편
       cdx: {},            // 요원 도감 받은 단계            // 받은 수사 수첩 보상
       face: '',           // 프로필 얼굴 (비면 첫 출전 요원)
       up: { atk: 0, gold: 0, crit: 0 },
@@ -1855,6 +1925,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
       s.daily.bonus = raw.daily.bonus === true && s.daily.got.length === MISSIONS.length;
     }
     s.cdx = {}; if (raw.cdx && typeof raw.cdx === 'object') for (const h of HEROES) if (isNum(raw.cdx[h.id])) s.cdx[h.id] = clampInt(raw.cdx[h.id], 0, CODEX_TIERS, 0);
+    s.mail = Array.isArray(raw.mail) ? raw.mail.filter(x => MAILS.some(m => m.id === x)) : [];
     s.unl = Array.isArray(raw.unl) ? raw.unl.filter(x => ROADMAP.some(r => r.id === x)) : [];
     s.face = typeof raw.face === 'string' && HEROES.some(h => h.id === raw.face) ? raw.face : '';
     if (raw.att && typeof raw.att === 'object') s.att = { n: clampInt(raw.att.n, 0, 1e6, 0), last: typeof raw.att.last === 'string' ? raw.att.last.slice(0, 10) : '' };
@@ -1891,7 +1962,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   const Core = {
     HEROES, TYPES, STARTER_IDS, partyIds, partySlots, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
-    codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
+    MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,
@@ -2538,10 +2609,11 @@ function kill(e) {
   else if (e.boss) {
     const gold = C.bossGold(S.stage, S.up.gold);
     S.gold += gold; S.gems += C.CONST.BOSS_GEMS; S.exp += C.bossExp(S.stage);
-    banner('봉쇄 완료');
+    const prevSt = S.stage;
+    stageClear({ gold, gems: C.CONST.BOSS_GEMS, exp: C.bossExp(S.stage) });
     S.stage++; S.kills = 0; R.boss = null; S.farming = false; C.progress(S, 'boss', 1); C.addTickets(S, 0, 1);
     addText(e.x, e.y - e.size, '+' + C.formatNum(gold), '#ffd23a', true);
-    writeSave(); renderPanel();
+    writeSave(); renderPanel(); unlockCheck(prevSt);
   } else {
     S.gold += C.killGold(S.stage, S.up.gold); S.exp += C.killExp(S.stage); C.progress(S, 'kill', 1); C.addTickets(S, 1);
     if (!S.farming && S.kills < C.CONST.WAVE_KILLS) S.kills++;
@@ -3245,7 +3317,7 @@ function sortHeroes(list, pids) {
     return hsort === 1 ? byLv(a, b) : byGrade(a, b);
   });
 }
-const APP_VERSION = '0.18.0';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = window.AIU_VER;   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 /** 보상 글자: '보석 100', '경험치 300' 처럼 */
 function rwText(r) { const L = { gold: '골드', exp: '경험치', gems: '보석', tix: '호출권', ptix: '정예 호출권' }; return Object.entries(r).filter(([k, v]) => L[k] && v).map(([k, v]) => `${L[k]} ${C.formatNum(v)}`).join(', '); }
@@ -3955,6 +4027,7 @@ $('side').addEventListener('click', e => {
   if (b.dataset.side === 'sleep') return sleepOn();
   if (b.dataset.side === 'road') return openModal(roadHtml());
   if (b.dataset.side === 'book') return openModal(bookHtml());
+  if (b.dataset.side === 'mail') return openModal(mailHtml());
   if (b.dataset.side === 'news') { try { localStorage.setItem('aiu-news', NEWS[0][0]); } catch (e) {} $('dotNews').classList.remove('on'); return openModal(newsHtml()); }
   openSide(b.dataset.side);
 });
@@ -3986,7 +4059,7 @@ function gfxRows() {
 $('btnSet').addEventListener('click', () => {
   openModal(`<h2>설정</h2>
     <div id="gfxRows">${gfxRows()}</div>
-    <div class="setrow"><div><div class="ut">버전</div><div class="uv">AIU ${APP_VERSION}</div></div></div>
+    <div class="setrow"><div><div class="ut">버전</div><div class="uv">AIU ${APP_VERSION}</div></div><button class="btn sm ghost" data-set="hot">업데이트 확인</button></div>
     <div class="setrow"><div><div class="ut">자리 비움 보상 시험</div><div class="uv">1시간 비운 것처럼 받아 보기</div></div><button class="btn sm ghost" data-set="off">받아 보기</button></div>
     <div class="setrow"><div><div class="ut">오프닝 다시 보기</div><div class="uv">처음 시작할 때 나온 이야기를 다시 봐요</div></div><button class="btn sm ghost" data-set="opening">보기</button></div>
     <div class="setrow"><div><div class="ut">처음부터 다시</div><div class="uv">저장된 진행을 모두 지워요</div></div><button class="btn sm ghost" data-set="reset">초기화</button></div>
@@ -4004,6 +4077,7 @@ modalEl.addEventListener('click', e => {
   const b = e.target.closest('[data-set]'); if (!b) return;
   if (b.dataset.set === 'off') { modalEl.classList.remove('on'); showOffline(C.offlineReward(S, 3600)); }
   else if (b.dataset.set === 'reset') { modalEl.classList.remove('on'); confirmReset(); }
+  else if (b.dataset.set === 'hot') { modalEl.classList.remove('on'); hotCheck(true); }
   else if (b.dataset.set === 'opening') { modalEl.classList.remove('on'); playOpening(); }
 });
 $('bossBtn').addEventListener('click', () => { S.farming = false; S.kills = C.CONST.WAVE_KILLS; R.enemies = []; R.boss = null; updateUI(); });
@@ -4020,8 +4094,8 @@ function doSummon(n, kind) {
   syncHeroes(false); writeSave();
   openModal(`<h2>${pickup ? '채용 결과' : kind === 'elite' ? '정예 호출 결과' : '호출 결과'}</h2><div class="res ${n === 1 ? 'one' : ''}">${ids.map((id, i) => {
     const h = C.heroById(id);
-    return `<div class="rc ${h.grade === '전설' ? 'leg' : ''}" style="animation-delay:${i * 0.07}s"><img src="${portrait(id)}" alt=""><small>${h.name}</small>${res.isNew[i] ? '<span class="new">NEW</span>' : ''}</div>`;
-  }).join('')}</div><p>${res.relayHit ? `누적 ${C.CONST.RELAY}회 달성, ${C.heroById('dark').name} 확정 합류` : lvMsg ? lvMsg : res.isNew.some(Boolean) ? '새 요원이 AIU에 합류했어요' : '조각은 요원 탭에서 승급에 써요'}</p><div class="mbtns"><button class="btn" data-close>확인</button></div>`);
+    return `<div class="rc ${h.grade === '전설' ? 'leg' : ''} ${n > 1 ? 'fd' : ''}" style="animation-delay:${i * 0.07}s"><img src="${portrait(id)}" alt=""><small>${h.name}</small>${res.isNew[i] ? '<span class="new">NEW</span>' : ''}</div>`;
+  }).join('')}</div><p>${res.relayHit ? `누적 ${C.CONST.RELAY}회 달성, ${C.heroById('dark').name} 확정 합류` : lvMsg ? lvMsg : res.isNew.some(Boolean) ? '새 요원이 AIU에 합류했어요' : '조각은 요원 탭에서 승급에 써요'}</p><div class="mbtns">${n > 1 ? '<button class="btn ghost" data-flipall>모두 열기</button>' : ''}<button class="btn" data-close>확인</button></div>`);
   renderPanel();
 }
 
@@ -4290,6 +4364,68 @@ modalEl.addEventListener('click', e => {
   writeSave(); modalEl.classList.remove('on'); renderPanel(); showResult('gift', '보상 획득', rwTiles({ gems: g }));
 });
 
+
+/* ---------- 스테이지 클리어 띠 ---------- */
+let clrT = 0;
+function stageClear(rw) {
+  const el = $('clear');
+  el.innerHTML = `<b>스테이지 클리어</b><div>${Object.entries(rw).filter(([, v]) => v).map(([k, v]) => `<span>${icon({ gold: 'gold', gems: 'gem', exp: 'exp', tix: 'tix' }[k])}+${C.formatNum(v)}</span>`).join('')}</div>`;
+  el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+  clearTimeout(clrT); clrT = setTimeout(() => el.classList.remove('on'), 2000);
+}
+/** 수첩 항목이 막 열렸으면 알림 (세나 키우기 신규 컨텐츠 해금처럼) */
+function unlockCheck(prev) {
+  const opened = C.ROADMAP.filter(r => prev < r.stage && S.stage >= r.stage);
+  if (!opened.length) return;
+  resDone = null;
+  setTimeout(() => {
+    showResult('star', '새 기능 열림', `${opened.map(r => `<div class="rs-nm">${r.name}</div>`).join('')}<div class="rs-sub">수사 수첩에서 보상을 받을 수 있어요</div><button class="btn" id="rsGo" style="margin-top:8px">바로 가기</button>`);
+    $('rsGo').addEventListener('click', ev => { ev.stopPropagation(); $('res').classList.remove('on'); openModal(roadHtml()); });
+  }, 1800);
+}
+
+/* ---------- 스테이지 창: 구역 둘러보기, 단계, 등장 이상체, 자동 추적 ---------- */
+let stwCh = 0;
+function stageWin(ch) {
+  const cur = Math.floor((S.stage - 1) / 10), maxCh = cur;
+  stwCh = Math.max(0, Math.min(ch, maxCh + 1));
+  const t = THEMES[stwCh % THEMES.length], lock = stwCh > cur, base = stwCh * 10;
+  const strip = Array.from({ length: 10 }, (_, i) => { const st = base + i + 1; return `<i class="${st < S.stage ? 'clr' : st === S.stage ? 'cur' : ''} ${i === 9 ? 'boss' : ''}">${i + 1}</i>`; }).join('');
+  const mob = (k, n, bs) => ART[k] ? `<figure class="${bs ? 'bs' : ''}"><img src="${ART[k]}" alt=""><figcaption>${n}</figcaption></figure>` : '';
+  openModal(`<div class="stw"><div class="stw-h"><button data-stw="-1" ${stwCh <= 0 ? 'disabled' : ''}>◀</button><div><b>${stwCh + 1}구역 ${t.name}</b><small>스테이지 ${base + 1} ~ ${base + 10}</small></div><button data-stw="1" ${stwCh > maxCh ? 'disabled' : ''}>▶</button></div>
+    <div class="stw-img ${lock ? 'lock' : ''}"><img src="${ART['spr_boss' + (stwCh % 3 + 1)] ? ART.op_key : ''}" alt="">${lock ? `<span>스테이지 ${base + 1} 달성 시 열려요</span>` : ''}</div>
+    <div class="stw-strip">${strip}</div>
+    <div class="optg">등장 이상체</div><div class="stw-mob">${mob('spr_shade', '그림자')}${mob('spr_crawler', '기어오는 것')}${mob('spr_boss' + (stwCh % 3 + 1), t.boss, 1)}</div>
+    <div class="setrow"><div><div class="ut">근원체 자동 추적</div><div class="uv">처치가 다 차면 근원체를 쫓아가요</div></div><button class="tgl ${S.farming ? '' : 'on'}" data-stauto></button></div>
+    <div class="mbtns"><button class="btn" data-close>닫기</button></div></div>`);
+}
+$('stageBox').addEventListener('click', () => stageWin(Math.floor((S.stage - 1) / 10)));
+modalEl.addEventListener('click', e => {
+  const n = e.target.closest('[data-stw]'); if (n) return stageWin(stwCh + +n.dataset.stw);
+  if (e.target.closest('[data-stauto]')) { S.farming = !S.farming; writeSave(); updateUI(); stageWin(stwCh); }
+});
+
+/* ---------- 우편함 ---------- */
+function mailHtml() {
+  const left = C.MAILS.filter(m => !S.mail.includes(m.id));
+  return `<h2>우편함</h2><div class="mlist">${left.length ? left.map(m => `<div class="ml"><div class="rd-r">${rdTile(m.rw)}</div><div><b>${m.title}</b><small>${m.from}</small></div><button class="btn sm" data-mail="${m.id}">받기</button></div>`).join('') : '<p class="empty">받을 우편이 없어요</p>'}</div>
+    <div class="mbtns"><button class="btn ghost" data-close>닫기</button><button class="btn" data-mail="all" ${left.length ? '' : 'disabled'}>모두 받기</button></div>`;
+}
+modalEl.addEventListener('click', e => {
+  const b = e.target.closest('[data-mail]'); if (!b) return;
+  const got = {};
+  for (const m of (b.dataset.mail === 'all' ? C.MAILS : C.MAILS.filter(x => x.id === b.dataset.mail))) { const w = C.mailClaim(S, m.id); if (w) for (const [k, v] of Object.entries(w)) got[k] = (got[k] || 0) + v; }
+  writeSave(); modalEl.classList.remove('on'); $('dotMail').classList.toggle('on', C.MAILS.some(m => !S.mail.includes(m.id)));
+  if (Object.keys(got).length) showResult('gift', '보상 획득', rwTiles(got));
+});
+
+/* ---------- 호출 카드 뒤집기 ---------- */
+function rcFlip(c) { if (!c.classList.contains('fd')) return; c.classList.remove('fd'); c.classList.add('flip'); }
+modalEl.addEventListener('click', e => {
+  const c = e.target.closest('.rc.fd'); if (c) return rcFlip(c);
+  if (e.target.closest('[data-flipall]')) { [...modalEl.querySelectorAll('.rc.fd')].forEach((c, i) => setTimeout(() => rcFlip(c), i * 60)); const b = modalEl.querySelector('[data-flipall]'); b.remove(); }
+});
+
 /* ---------- 근원체 출현 컷인 ---------- */
 function bossCutIn() {
   const el = $('bossin'), t = theme(), img = ART['spr_boss' + (Math.floor((S.stage - 1) / 10) % 3 + 1)] || ART.spr_boss1;
@@ -4383,7 +4519,7 @@ try { if (localStorage.getItem('aiu-side') === '1') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
-  ['0.18.0', '11월 28일', ['요원 도감 레벨 달성 보상, 기술 설명, 전투력 변화 표시가 생겼어요', '수사 수첩, 프로필, 피해량 기록, 일괄 소탕이 생겼어요', '구역 근원체가 처음 나올 때 이야기가 나와요', '요원 창을 요원 관리, 편성, 도감으로 나눴어요', '요원 상세 화면과 승급 성공 연출이 생겼어요', '가이드 보상으로 블레이즈 첫 승급을 할 수 있어요', '근원체 출현 컷인, 요원 대사, 보상 획득 창이 생겼어요', '재화와 메뉴 아이콘을 새로 그렸어요', '절전 모드와 새 설정이 생겼어요']],
+  ['0.18.0', '11월 28일', ['우편함, 스테이지 창, 스테이지 클리어, 새 기능 열림 알림, 호출 카드 뒤집기가 생겼어요', '요원 도감 레벨 달성 보상, 기술 설명, 전투력 변화 표시가 생겼어요', '수사 수첩, 프로필, 피해량 기록, 일괄 소탕이 생겼어요', '구역 근원체가 처음 나올 때 이야기가 나와요', '요원 창을 요원 관리, 편성, 도감으로 나눴어요', '요원 상세 화면과 승급 성공 연출이 생겼어요', '가이드 보상으로 블레이즈 첫 승급을 할 수 있어요', '근원체 출현 컷인, 요원 대사, 보상 획득 창이 생겼어요', '재화와 메뉴 아이콘을 새로 그렸어요', '절전 모드와 새 설정이 생겼어요']],
   ['0.17.0', '11월 27일', ['가이드 퀘스트가 생겼어요', '뒤로 가기 버튼을 누르면 종료를 묻도록 바꿨어요', '오프닝 연출을 새로 만들었어요']],
 ];
 function newsHtml() {
@@ -4391,6 +4527,7 @@ function newsHtml() {
 }
 const newsSeen = () => { try { return localStorage.getItem('aiu-news') === NEWS[0][0]; } catch (e) { return true; } };
 $('dotNews').classList.toggle('on', !newsSeen());
+$('dotMail').classList.toggle('on', C.MAILS.some(m => !S.mail.includes(m.id)));
 setInterval(() => { $('dotRoad').classList.toggle('on', C.roadReady(S).length > 0); $('sideTg').classList.toggle('alert', $('side').classList.contains('fold') && !!$('side').querySelector('.dot.on')); }, 1000);
 
 /* ---------- 절전 모드: 화면은 검게, 전투와 보상은 계속 ---------- */
@@ -4422,6 +4559,30 @@ function slTick() {
 // 자동 절전: 설정한 시간 동안 손대지 않으면 켜짐
 ['pointerdown', 'keydown'].forEach(t => window.addEventListener(t, () => { idleT = 0; }, true));
 setInterval(() => { if (sleeping || !GQ.autoSleep || paused) return; idleT += 5; if (idleT >= GQ.autoSleep * 60) sleepOn(); }, 5000);
+
+
+/* ---------- 앱 자동 업데이트 (새 버전 받기) ----------
+ * 앱에서만: 깃허브에 올라간 최신 버전(version.json)을 보고, 더 새것이면 게임 파일을 받아 둠.
+ * 다시 시작하면 새 버전으로 열림. 앱(APK)을 다시 깔 필요 없음. */
+const HOT_BASE = 'https://raw.githubusercontent.com/eifv013/AIU/main/dist/';
+async function hotCheck(manual) {
+  const app = location.protocol === 'https:' && location.hostname === 'localhost';
+  if (!app || !window.caches) { if (manual) toast('웹에서는 항상 최신 버전이에요'); return; }
+  try {
+    const v = (await (await fetch(HOT_BASE + 'version.json?t=' + Date.now(), { cache: 'no-store' })).json()).v;
+    if (!v || !aiuVerGt(v, APP_VERSION)) { if (manual) toast(`최신 버전이에요 (${APP_VERSION})`); return; }
+    if (manual) toast(`새 버전 ${v} 받는 중`);
+    const h = await (await fetch(HOT_BASE + 'index.html?t=' + Date.now(), { cache: 'no-store' })).text();
+    if (h.indexOf(`window.AIU_VER = '${v}'`) < 0) throw new Error('받은 파일이 올바르지 않아요');
+    const c = await caches.open('aiu-hot');
+    await c.put('/aiu-hot.html', new Response(h, { headers: { 'Content-Type': 'text/html' } }));
+    localStorage.setItem('aiu-hotv', v);
+    writeSave();
+    openModal(`<h2>업데이트</h2><p>새 버전 <b>${v}</b> 을 받았어요.<br>다시 시작하면 바로 적용돼요.</p><div class="mbtns"><button class="btn ghost" data-close>나중에</button><button class="btn" id="hotGo">다시 시작</button></div>`);
+    $('hotGo').addEventListener('click', () => { writeSave(); location.reload(); });
+  } catch (e) { if (manual) toast('업데이트 확인 실패: 인터넷 연결을 확인해 주세요'); }
+}
+setTimeout(() => hotCheck(false), 4000);
 
 /* ---------- 시작 ---------- */
 const pending = firstRun ? null : C.offlineReward(S, (Date.now() - S.lastSeen) / 1000);
@@ -4516,7 +4677,7 @@ $('splash').addEventListener('click', startGame);
     if (x < 1 || !artDone) { requestAnimationFrame(loadTick); return; }
     // 다 차면 자동으로 넘어가지 않고, 화면을 눌러야 접속
     splashReady = true; msg.textContent = 'READY'; msg.classList.add('ready');
-    const tap = $('sp-tap'); tap.textContent = 'TOUCH TO START'; tap.classList.add('ready');
+    const tap = $('sp-tap'); tap.textContent = '터치하여 시작'; tap.classList.add('ready');
   }
   requestAnimationFrame(loadTick);
 }

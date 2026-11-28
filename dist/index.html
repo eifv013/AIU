@@ -1423,6 +1423,17 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 .mpt b{font:400 20px "Black Han Sans";color:var(--gold)}.mpt small{width:100%;font:600 11px 'IBM Plex Sans KR';color:var(--dim)}
 .mrow .rw .ic{width:18px;height:18px}.mrow .rw span{font:400 13px "Black Han Sans"}
 .mx2{font-style:normal;color:var(--gold);font-size:12px}
+
+#curBtn{flex:none;width:28px;height:28px;padding:0;display:grid;place-items:center;border-radius:50%;border:1.5px solid rgba(201,211,238,.6);background:linear-gradient(#3c4766,#1e263c);color:#e8ecf6}
+#curBtn svg{width:16px;height:16px;transition:transform .2s}#curBtn.on svg{transform:rotate(180deg)}
+#curBox{position:fixed;left:8px;right:8px;bottom:calc(var(--bottomH,110px) + 6px);z-index:30;display:none;padding:10px 12px 12px;border-radius:6px;border:2px solid transparent;
+  background:linear-gradient(#1d2540,#0e1322) padding-box,var(--frame) border-box;box-shadow:0 10px 30px rgba(0,0,0,.75)}
+#curBox.on{display:block;animation:mbIn .18s ease-out}
+.cb-h{margin-bottom:8px;font:400 15px "Black Han Sans";color:#f3e6c4;text-align:center;border-bottom:1px solid rgba(210,171,85,.4);padding-bottom:6px}
+.cb-g{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.cb-r{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:5px;background:linear-gradient(#232c46,#151b2c);border:1px solid rgba(150,166,204,.25)}
+.cb-r .ic{width:24px;height:24px;flex:none}.cb-r span{flex:1;min-width:0;display:grid}.cb-r b{font:700 12px 'IBM Plex Sans KR';white-space:nowrap}.cb-r small{font:600 9.5px 'IBM Plex Sans KR';color:var(--dim);white-space:nowrap}
+.cb-r em{font:400 15px "Black Han Sans";font-style:normal;color:var(--gold)}
 </style>
 </head>
 <body>
@@ -1524,6 +1535,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     <div id="bbar"><span class="pw">전투력 <b id="power">0</b></span>
       <span class="pill"><svg class="ic"><use href="#i-gold"/></svg><span id="gold">0</span></span>
       <span class="pill"><svg class="ic"><use href="#i-gem"/></svg><span id="gems">0</span><button id="gemPlus" aria-label="보석 충전">+</button></span>
+      <button id="curBtn" aria-label="재화 보기"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
     <nav id="tabs">
       <button data-tab="hero"><span class="tb"><svg viewBox="0 0 32 32"><path d="M6 29c.6-6.6 4.6-10 10-10s9.4 3.4 10 10z" fill="url(#mSteel)" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/><path d="M12.2 19.4L16 25l3.8-5.6" fill="#1b2236" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/><circle cx="16" cy="12.6" r="4.6" fill="url(#mSteel)" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/><path d="M7.5 10.6c3-.8 14-.8 17 0l-2.3-.9c-.6-3.6-2.8-5.4-6.2-5.4s-5.6 1.8-6.2 5.4z" fill="#1b2236" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/><path d="M20 22.5l3 .8v2.2c0 1.4-1.3 2.4-3 2.9-1.7-.5-3-1.5-3-2.9v-2.2z" fill="url(#mGold)" stroke="#0e121c" stroke-width="1.4" stroke-linejoin="round"/></svg></span><span class="tl">요원</span><i class="dot" id="dotHero"></i></button>
@@ -1538,6 +1550,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
   <div id="modal"></div>
   <!-- 결과 띠 창: 보상 획득, 승급 성공, 새 요원 합류 (세나 키우기처럼 가운데 넓은 띠 + 문장 + 터치하여 닫기) -->
   <div id="res"></div>
+  <div id="curBox"></div>
   <!-- 요원 호출 연출: 어둠 속 균열이 열리고 요원 기록 파일이 날아와 뒤집힘 -->
   <div id="sfx"><canvas id="sfxC"></canvas><div class="sx-rift"><i></i><i></i><i></i></div><div class="sx-title" id="sxTitle"></div><div class="sx-cards" id="sxCards"></div><div class="sx-msg" id="sxMsg"></div>
     <div class="sx-btns"><button class="btn ghost" id="sxAll">모두 열기</button><button class="btn" id="sxAgain"></button><button class="btn" id="sxOk">확인</button></div><button id="sxSkip">SKIP ▸▸</button></div>
@@ -5438,6 +5451,19 @@ function sxRain() {
   };
   cancelAnimationFrame(sxRaf); sxRaf = requestAnimationFrame(tick);
 }
+
+/* ---------- 재화 보기 (세나 키우기 아래 재화 줄 ^ 버튼처럼) ---------- */
+function curHtml() {
+  const R2 = [['gold', '골드', S.gold, '전투, 현상수배'], ['gem', '보석', S.gems, '임무, 상점'], ['exp', '경험치', S.exp, '전투, 모의 훈련'], ['tix', '호출권', S.tix, '전투, 단서 추적'], ['ptix', '정예 호출권', S.ptix, '임무, 패스'],
+    ['med', '구급상자', S.med, '우편, 상점'], ['g2', '골드 보급품', S.bag.g2 || 0, '가방에서 사용'], ['e2', '경험치 보급품', S.bag.e2 || 0, '가방에서 사용']];
+  return `<div class="cb-h">보유 재화</div><div class="cb-g">${R2.map(([ic, n, v, src]) => `<div class="cb-r">${icon(ic)}<span><b>${n}</b><small>${src}</small></span><em>${C.formatNum(v)}</em></div>`).join('')}</div>`;
+}
+$('curBtn').addEventListener('click', e => {
+  e.stopPropagation();
+  const b = $('curBox'), on = !b.classList.contains('on');
+  b.innerHTML = curHtml(); b.classList.toggle('on', on); $('curBtn').classList.toggle('on', on);
+});
+document.addEventListener('click', e => { if (!e.target.closest('#curBox,#curBtn')) { $('curBox').classList.remove('on'); $('curBtn').classList.remove('on'); } });
 /* ---------- 근원체 출현 컷인 ---------- */
 function bossCutIn() {
   const el = $('bossin'), t = theme(), img = ART['spr_boss' + (Math.floor((S.stage - 1) / 10) % 3 + 1)] || ART.spr_boss1;
@@ -5532,7 +5558,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
-  ['0.23.0', '11월 28일', ['주간, 월간, 반복 임무가 생겼어요', '임무 점수와 임무 패스 (매달 새로)', '시작 화면 오른쪽 위에 버전이 나와요']],
+  ['0.23.0', '11월 28일', ['주간, 월간, 반복 임무가 생겼어요', '임무 점수와 임무 패스 (매달 새로)', '시작 화면 오른쪽 위에 버전이 나와요', '아래 재화 줄 오른쪽 ^ 버튼으로 모든 재화를 볼 수 있어요']],
   ['0.22.3', '11월 28일', ['임무 모두 받기', '요원 상세에서는 가운데 버튼이 뒤로 가기예요', '아래 메뉴 아이콘을 한 가지 모양으로 맞췄어요', '보급품과 구급상자 그림이 상점과 우편에 나와요', '성장 단계 이름을 수사력으로 바꿨어요']],
   ['0.22.2', '11월 28일', ['요원 상세 화면을 새로 다듬었어요', '어색한 안내 문장을 고쳤어요']],
   ['0.22.0', '11월 28일', ['요원 호출 연출을 새로 만들었어요: 균열이 열리고 요원 기록 파일이 날아와 뒤집혀요. 전설은 금빛 번개']],

@@ -248,11 +248,13 @@
 
   /** 일반 적 1마리 골드. goldLv = 현상금 협상 레벨 */
   function killGold(stage, goldLv) {
-    return 3 * Math.pow(1.15, clampInt(stage, 1, 1e6, 1) - 1) * goldMult(goldLv);
+    // 스테이지마다 10%씩 (예전 15%는 80스테이지쯤 이상체 한 마리가 수사력 강화 몇 번 값이라 너무 많았음)
+    return 3 * Math.pow(1.10, clampInt(stage, 1, 1e6, 1) - 1) * goldMult(goldLv);
   }
   function bossGold(stage, goldLv) { return killGold(stage, goldLv) * 10; }
   /** 요원 경험치 (요원 레벨업 재화, 세나 키우기 영웅 경험치와 같음). 골드는 훈련소에만 씀 */
-  function killExp(stage) { return 2 * Math.pow(1.15, clampInt(stage, 1, 1e6, 1) - 1); }
+  // 스테이지마다 8%씩 (예전 15%는 이상체 한 마리가 요원 1레벨 값이었음)
+  function killExp(stage) { return 2 * Math.pow(1.08, clampInt(stage, 1, 1e6, 1) - 1); }
   function bossExp(stage) { return killExp(stage) * 10; }
 
   /* ---------- 4. 성장 공식 ---------- */
@@ -288,6 +290,8 @@
   }
 
   /** 요원 Lv 강화 비용 (현재 lv → lv+1), 경험치 */
+  /** 요원 레벨 상한: ★1 20, ★2 40 ... ★5 100, 각성 120. 승급해야 더 올릴 수 있음 */
+  function heroLvCap(stars) { return 20 * clampInt(stars, 1, 6, 1); }
   function heroLvCost(lv) { return Math.floor(10 * Math.pow(1.13, clampInt(lv, 1, 1e6, 1) - 1)); }
 
   /** lv 에서 n 단계 올리는 총 비용 */
@@ -318,7 +322,7 @@
   /* ---------- 수사력 단계 (세나 키우기 영향력처럼) ----------
    * 단계마다 강화 상한이 있음 (사격, 협상은 단계 x10, 급소는 단계 x3). 세 가지를 모두 상한까지 올리면
    * 골드를 내고 다음 단계로 승급, 상한이 올라가고 보석 보상 */
-  const TSTEP = { LV: 10, CRIT: 3, COST: 3000, GROW: 1.7, GEM: 50 };
+  const TSTEP = { LV: 10, CRIT: 3, COST: 3000, GROW: 1.7, BONUS: 0.05 };   // BONUS: 단계마다 팀 공격력, 체력 +5%
   function tstepOf(state) { return clampInt(state && state.tstep, 1, 9999, 1); }
   /** 현재 단계에서 이 강화의 상한 레벨 */
   function upCap(state, id) { const u = upgradeById(id), t = tstepOf(state); return Math.min(u.max, t * (id === 'crit' ? TSTEP.CRIT : TSTEP.LV)); }
@@ -336,7 +340,7 @@
     if (!tstepProg(state).ready) throw new RangeError('세 가지 강화를 모두 상한까지 올려야 해요');
     const c = tstepCost(state); if (state.gold < c) throw new RangeError('골드가 부족해요');
     state.gold -= c; state.tstep = tstepOf(state) + 1;
-    const gem = TSTEP.GEM * (state.tstep - 1); state.gems += gem; return gem;
+    return TSTEP.BONUS;   // 보석은 주지 않음. 단계마다 팀 공격력과 체력이 영구로 오름
   }
   /** 훈련소 강화 비용. 최대 레벨이면 Infinity */
   function upgradeCost(id, lv) {
@@ -1489,7 +1493,8 @@
   /* ---------- 보너스 합계 (전투에 쓰는 값). src 는 출처별 (프로필 수사팀 능력치 필터) ---------- */
   function statBonus(state) {
     const z = () => ({ atk: 0, hp: 0, crit: 0, cdmg: 0, boss: 0, gold: 0 });
-    const src = { 칭호: z(), 도감: z(), '증거 카드': z(), 복장: z(), '고유 능력': z() };
+    const src = { 칭호: z(), 도감: z(), '증거 카드': z(), 복장: z(), '고유 능력': z(), 수사력: z() };
+    { const t = tstepOf(state) - 1; src.수사력.atk += TSTEP.BONUS * t; src.수사력.hp += TSTEP.BONUS * t; }
     const add = (o, k, v) => { o[k] += v; };
     // 칭호: 보유 효과 전부 + 장착 효과 하나 + 도감 레벨 효과
     for (const id of state.tt) { const t = titleById(id); if (t) for (const k in t.hold) add(src.칭호, k, t.hold[k]); }
@@ -1526,7 +1531,7 @@
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
     AWAKE_STAR, AWAKE_NEED, maxStars, heroGrade, gemTotal, spendGems, FIRST_PAY, firstPayStart, firstPayReady, firstPayClaim, WEEKLY, MONTHLY, REPEAT, MPASS, MPASS_PRICE, misReset, misClaim, misReadyCount, repeatReady, mpassClaim, mpassReady, weekKey, monthKey, PASS, PASS_PRICE, passClaim, passReady, PASSES, pxVal, pxClaim, pxReady, pxBuy, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
-    heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, upCap, upCost, tstepOf, tstepProg, tstepCost, tstepUp, TSTEP, starNeed, STAR_NEED,
+    heroLvCap, heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, upCap, upCost, tstepOf, tstepProg, tstepCost, tstepUp, TSTEP, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, summonMaxN, addTickets, shopItem, STREAK, streakClaim, GOLD_PACKS, goldPackCount, goldPackBuy, PLANS, planById, planLeft, planBuy, planClaim, levelReward, applySummon, pickupRemainSec, formatRemain,
     newState, cloneState, sanitize, loadFromString, QUESTS, GUIDE, questAt, questAdd, questClaim,
     DUNGEONS, MISSIONS, ATTEND, dayKey, dailyReset, dungeonById, dungeonStage, dungeonReward, towerStage, towerReward,

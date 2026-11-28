@@ -542,8 +542,9 @@ test('수사력 단계: 상한까지만 강화, 모두 채우면 승급', () => 
   assert.equal(C.tstepProg(s).ready, true);
   assert.throws(() => C.tstepUp(s), RangeError);   // 골드 부족
   s.gold = C.tstepCost(s); const g0 = s.gems;
-  const gem = C.tstepUp(s);
-  assert.equal(C.tstepOf(s), 2); assert.equal(s.gold, 0); assert.equal(s.gems, g0 + gem);
+  C.tstepUp(s);
+  assert.equal(C.tstepOf(s), 2); assert.equal(s.gold, 0); assert.equal(s.gems, g0);   // 보석 대신 능력치
+  assert.ok(C.statBonus(s).src.수사력.atk > 0.049);
   assert.equal(C.upCap(s, 'atk'), 20); assert.ok(C.upCost(s, 'atk', 10) < Infinity);
   assert.deepEqual(C.tstepProg(s), { cur: 0, need: 23, ready: false });
 });
@@ -554,4 +555,8 @@ test('수사력 단계: 예전 저장은 현재 강화 레벨에 맞는 단계�
 test('보급품: 팀이 약해도 0이 아닌 보상', () => {
   const s = C.sanitize({ v: 2, stage: 60, bag: { g2: 1, e2: 1 }, heroes: { mage: { owned: true, lv: 1 } }, party: ['mage'] });
   assert.ok(C.useItem(s, 'g2', 1).gold > 0); assert.ok(C.useItem(s, 'e2', 1).exp > 0);
+});
+
+test('요원 레벨 상한: 별마다 20', () => {
+  assert.equal(C.heroLvCap(1), 20); assert.equal(C.heroLvCap(5), 100); assert.equal(C.heroLvCap(6), 120);
 });

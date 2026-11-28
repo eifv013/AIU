@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.36.3';
+window.AIU_VER = '0.37.0';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -2054,6 +2054,9 @@ html,body{overflow-x:hidden}
 #hpage .hp-grade b{margin:0!important;font:400 17px "Black Han Sans"!important}
 #hpage .hp-grade small{margin-left:2px}
 #hpage .hp-tags{top:54px!important}
+#hpLv[data-cap]::after{content:' / ' attr(data-cap);font:400 13px "Black Han Sans";color:#8f99ae}
+.slot.dead::after{content:attr(data-rev);position:absolute;left:0;right:0;top:34%;z-index:5;text-align:center;font:400 22px "Black Han Sans";color:#fff;text-shadow:0 0 6px #000,0 0 2px #000;pointer-events:none}
+.gw-st{display:block;margin-top:2px;font:700 11.5px 'IBM Plex Sans KR';font-style:normal;color:#d4ab55}
 </style>
 </head>
 <body>
@@ -3194,6 +3197,10 @@ function update(dt) {
     if (R.wipe <= 0) { syncHeroes(true); R.enemies = R.enemies.filter(e => dist(e, R.A) > 300 && !e.boss); for (const e of R.enemies) e.aggro = false; for (const h of team()) Object.assign(R.heroes[h.id], formSlot(h.id)); }
     return;
   }
+  // 쓰러진 요원은 8초 뒤 체력 절반으로 다시 일어남 (세나 키우기처럼 방치 중에도 계속 싸우게). 도전 콘텐츠 중에는 부활 없음
+  if (!R.chal) for (const h of team()) { const r = R.heroes[h.id]; if (!r) continue;
+    if (r.hp <= 0) { if (r.rev == null) r.rev = 8; r.rev -= dt; if (r.rev <= 0) { const live0 = alive()[0]; r.hp = r.max * 0.5; r.rev = null; if (live0) { r.x = live0.x + (Math.random() - 0.5) * 40; r.y = live0.y + (Math.random() - 0.5) * 40; } fxPic('fx_heal', r.x, r.y - 20, 90, 90, 0.6, { grow: 0.5 }); } }
+    else r.rev = null; }
   R.enemies = R.enemies.filter(e => e.hp > 0);
   const live = R.enemies.length > 0;
   // 이상체 보충: 지도 위 일반 이상체가 줄면 다른 곳에 새 무리. 처치 수가 차면 보스 등장
@@ -3727,6 +3734,7 @@ function updateUI() {
     el.style.setProperty('--hp', (100 * Math.max(0, r.hp / r.max)).toFixed(1) + '%');
     el.classList.toggle('ready', r.cd <= 0.15 && r.hp > 0);
     el.classList.toggle('dead', r.hp <= 0);
+    el.dataset.rev = r.hp <= 0 && r.rev != null ? Math.ceil(r.rev) : '';   // 쓰러진 요원 얼굴 위에 부활까지 남은 초
   }
   updatePanel();
 }
@@ -3836,9 +3844,9 @@ function renderPanel() {
     const ic = { atk: 'sword', gold: 'gold', crit: 'target' };
     P.innerHTML = `<div class="gw"><div class="gw-h"><b id="gwLv"></b><div class="gw-bar"><i id="gwBar"></i></div><small id="gwN"></small></div>
       <button class="btn gw-up" id="gwUp" data-act="tstep" hidden><span>${'단계 승급'}</span><span class="cost">${icon('gold')}<i id="gwUpC"></i></span></button>
-      <p class="gw-hint">세 가지를 모두 단계 상한까지 올리면 승급할 수 있어요. 승급하면 상한이 올라가고 보석도 받아요.</p>
+      <p class="gw-hint">세 가지를 모두 단계 상한까지 올리면 승급할 수 있어요. 승급할 때마다 팀 공격력과 체력이 5%씩 올라요.</p>
       <div class="seg gw-mul">${[1, 10, 100].map(n => `<button data-act="umul" data-n="${n}" class="${uMul === n ? 'on' : ''}">×${n}</button>`).join('')}</div>
-      <div class="gw-cards">${C.UPGRADES.map(u => `<div class="gw-c" data-u="${u.id}"><div class="gw-ic"><svg class="ic"><use href="#i-${ic[u.id]}"/></svg></div><b>${u.name}</b><small class="gw-lv"></small><div class="gw-v"></div>
+      <div class="gw-cards">${C.UPGRADES.map(u => `<div class="gw-c" data-u="${u.id}"><div class="gw-ic"><svg class="ic"><use href="#i-${ic[u.id]}"/></svg></div><b>${u.name}</b><em class="gw-st">${({ atk: '공격력', gold: '골드 획득', crit: '치명타 확률' })[u.id]}</em><small class="gw-lv"></small><div class="gw-v"></div>
         <button class="btn" data-act="up" data-u="${u.id}"><span>레벨업</span><span class="cost">${icon('gold')}<i></i></span></button></div>`).join('')}</div>
       <p class="hint">출전한 요원 모두에게 적용돼요.</p>
       </div>`;
@@ -4340,7 +4348,7 @@ function fillHeroDetail() {
     if ($('hpAtk')) { $('hpAtk').textContent = C.formatNum(atk); $('hpHp').textContent = C.formatNum(hp); }
     return;
   }
-  $('hpLv').textContent = d.lv;
+  $('hpLv').textContent = d.lv; $('hpLv').dataset.cap = C.heroLvCap(d.stars);
   const st = hpAwk && h.grade === '전설' ? C.AWAKE_STAR : d.stars;   // 각성 정보 보기: ★6 기준 능력치
   const atk = C.heroAtk(id, d.lv, st, S.up.atk), hp = C.heroHp(id, d.lv, st);
   $('hpPw').textContent = C.formatNum(Math.round(atk * 10 + hp));
@@ -4350,9 +4358,10 @@ function fillHeroDetail() {
   const need = C.starNeed(d.stars, h.grade), max = need === Infinity;
   $('hpSh').innerHTML = max ? '최고' : `<em class="${d.shards >= need ? 'ok' : ''}">${d.shards}</em>/${need}`;
   $('hpStar').disabled = max || d.shards < need;
-  const { n, cost } = lvPlan(d.lv), up = $('hpUp');
+  const { n, cost, capped } = lvPlan(d.lv, d.stars), up = $('hpUp');
   $('hpUpT').textContent = bulk === 1 ? '레벨업' : `레벨업 +${Math.max(n, bulk === 0 ? 1 : bulk)}`;
-  $('hpCost').textContent = `${C.formatNum(S.exp)} / ${C.formatNum(cost)}`; up.disabled = !(n > 0 && cost <= S.exp);
+  $('hpCost').textContent = capped ? `최대 Lv.${C.heroLvCap(d.stars)}` : `${C.formatNum(S.exp)} / ${C.formatNum(cost)}`; up.disabled = !(n > 0 && cost <= S.exp);
+  if (capped) $('hpUpT').textContent = '승급 필요';
   $('hpBulk').textContent = bulk === 0 ? '최대' : '×' + bulk;
 }
 /** 승급 성공 창 (세나 키우기처럼): 얼굴, 별 전후, 능력치 전후 */
@@ -4368,9 +4377,11 @@ function showStarUp(id, before) {
 }
 
 /** 일괄 강화 계획: 1회/10회는 정해진 단계, 최대는 살 수 있는 만큼 */
-function lvPlan(lv) {
-  if (bulk === 0) { const r = C.heroLvAffordable(lv, S.exp, 1000); return r.n > 0 ? r : { n: 1, cost: C.heroLvCost(lv) }; }
-  return { n: bulk, cost: C.heroLvCostBulk(lv, bulk) };
+// 레벨업 계획: 별에 따른 레벨 상한(★마다 20)까지만. 상한이면 n=0 (승급해야 더 올림)
+function lvPlan(lv, stars) {
+  const room = Math.max(0, C.heroLvCap(stars || 1) - lv); if (!room) return { n: 0, cost: 0, capped: true };
+  if (bulk === 0) { const r = C.heroLvAffordable(lv, S.exp, Math.min(1000, room)); return r.n > 0 ? r : { n: 1, cost: C.heroLvCost(lv) }; }
+  const k = Math.min(bulk, room); return { n: k, cost: C.heroLvCostBulk(lv, k) };
 }
 
 /* ---------- 입력 ---------- */
@@ -4462,7 +4473,8 @@ function onAct(e) {
       if (r) { toast(`출석 ${r.day}일째 보상을 받았어요`); writeSave(); renderPanel(); if ($('sideAtt')) $('modal').querySelector('.mbox').innerHTML = attHtml(); }
     }
     else if (act === 'lv') {
-      const d = S.heroes[b.dataset.h], { n, cost } = lvPlan(d.lv);
+      const d = S.heroes[b.dataset.h], { n, cost, capped } = lvPlan(d.lv, d.stars);
+      if (capped) return toast(`★${d.stars}은 Lv.${C.heroLvCap(d.stars)}까지예요. 승급하면 더 올릴 수 있어요`);
       if (cost > S.exp) return toast('경험치가 부족해요. 모의 훈련에서 많이 벌 수 있어요');
       const pw0 = teamPower(); S.exp -= cost; d.lv += n; syncHeroes(false); C.progress(S, 'lvup', n); pwUp(pw0);
     } else if (act === 'star') {
@@ -4474,7 +4486,7 @@ function onAct(e) {
       if (!n) return; if (cost > S.gold) return toast('골드가 부족해요');
       const pw0 = teamPower(); S.gold -= cost; S.up[id] += n; C.progress(S, 'train', n); pwUp(pw0);
     } else if (act === 'tstep') {
-      try { const g = C.tstepUp(S); sfx('levelup', 0.8); showResult('gift', `수사력 ${C.tstepOf(S)}단계`, rwTiles({ gems: g })); writeSave(); renderPanel(); } catch (e) { toast(e.message); }
+      try { C.tstepUp(S); sfx('levelup', 0.8); showResult('star', `수사력 ${C.tstepOf(S)}단계`, `<div class="rs-sub">팀 공격력과 체력이 영구로 5% 올랐어요. 강화 상한도 올라갔어요.</div>`); refreshMods && refreshMods(); writeSave(); renderPanel(); } catch (e) { toast(e.message); }
     } else if (act === 'umul') { uMul = +b.dataset.n; renderPanel(); }
     else if (act === 'sum') doSummon(+b.dataset.n || C.summonMaxN(S, b.dataset.kind), b.dataset.kind);
     else if (act === 'testOff') showOffline(C.offlineReward(S, 3600));
@@ -5038,7 +5050,7 @@ function nameHtml(err) {
     <div class="mbtns"><button class="btn ghost" data-pf="back">취소</button><button class="btn" data-pf="rename">변경</button></div>`;
 }
 function srcHtml() {
-  return `<h2>능력치 보기</h2><div class="srcw">${['전체', '칭호', '도감', '증거 카드', '복장', '고유 능력'].map(k => `<button class="${pfSrc === k ? 'on' : ''}" data-pfsrc="${k}">${k}</button>`).join('')}</div><div class="mbtns"><button class="btn ghost" data-pf="back">닫기</button></div>`;
+  return `<h2>능력치 보기</h2><div class="srcw">${['전체', '칭호', '도감', '증거 카드', '복장', '고유 능력', '수사력'].map(k => `<button class="${pfSrc === k ? 'on' : ''}" data-pfsrc="${k}">${k}</button>`).join('')}</div><div class="mbtns"><button class="btn ghost" data-pf="back">닫기</button></div>`;
 }
 modalEl.addEventListener('click', e => {
   const f = e.target.closest('[data-face]'); if (f) { S.face = f.dataset.face; writeSave(); updateUI(); openModal(faceHtml()); return; }
@@ -6013,7 +6025,7 @@ function aiTick() {
   // 3단계: 성장
   if (AI.lv >= 3) {
     for (const h of owned()) { const d = S.heroes[h.id]; let need; while ((need = C.starNeed(d.stars, h.grade)) !== Infinity && d.shards >= need) { d.shards -= need; d.stars++; C.progress(S, 'star', 1); done.push(`${h.name} 승급`); } }
-    let n = 0; for (let k = 0; k < 200; k++) { const t = team().map(h => [h, C.heroLvCost(S.heroes[h.id].lv)]).sort((a, b) => a[1] - b[1])[0]; if (!t || t[1] > S.exp) break; S.exp -= t[1]; S.heroes[t[0].id].lv++; C.progress(S, 'lvup', 1); n++; }
+    let n = 0; for (let k = 0; k < 200; k++) { const t = team().filter(h => S.heroes[h.id].lv < C.heroLvCap(S.heroes[h.id].stars)).map(h => [h, C.heroLvCost(S.heroes[h.id].lv)]).sort((a, b) => a[1] - b[1])[0]; if (!t || t[1] > S.exp) break; S.exp -= t[1]; S.heroes[t[0].id].lv++; C.progress(S, 'lvup', 1); n++; }
     if (n) done.push(`요원 레벨업 ${n}회`);
     let u = 0; for (let k = 0; k < 200; k++) { const c = C.UPGRADES.map(x => [x.id, C.upCost(S, x.id, S.up[x.id])]).sort((a, b) => a[1] - b[1])[0]; if (c[1] > S.gold) break; S.gold -= c[1]; S.up[c[0]]++; C.progress(S, 'train', 1); u++; }
     if (u) done.push(`수사력 강화 ${u}회`);
@@ -6211,6 +6223,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.37.0', '11월 28일', ['요원 레벨에 상한이 생겼어요. ★1은 Lv.20, ★5는 Lv.100, 각성은 Lv.120까지예요. 승급해야 더 올릴 수 있어요', '스테이지가 오를 때 골드와 경험치가 너무 빨리 늘던 걸 줄였어요', '수사력 단계를 승급하면 보석 대신 팀 공격력과 체력이 5%씩 영구로 올라요', '쓰러진 요원은 8초 뒤 다시 일어나 싸워요. 얼굴 칸에 남은 초가 나와요', '수사력 칸마다 무엇이 오르는지(공격력, 골드 획득, 치명타 확률) 적어 뒀어요']],
   ['0.36.3', '11월 28일', ['요원 화면의 등급 문장을 그림 얼굴을 가리지 않게 왼쪽 위로 옮겼어요']],
   ['0.36.2', '11월 28일', ['요원 화면 큰 그림을 자르지 않고 전체가 보이게 화면 폭에 맞췄어요. 남는 곳은 같은 그림을 흐리게 깔아요', '그림이 아직 없는 요원은 임시 얼굴 대신 어두운 배경과 그림 준비 중 표시가 나와요', '출전 중 버튼을 눌러야 하는 버튼처럼 보이지 않게 바꿨어요', '역할 표시가 유형 아이콘을 반복하지 않게 바꿨어요']],
   ['0.36.0', '11월 28일', ['가이드와 퀘스트로 나뉘던 이름을 가이드 하나로 합치고 번호를 이어서 세요', '훈련소, 성장 같은 예전 이름을 수사력으로 통일했어요']],

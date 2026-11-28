@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.23.1';
+window.AIU_VER = '0.24.0';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1434,6 +1434,23 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 .cb-r{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:5px;background:linear-gradient(#232c46,#151b2c);border:1px solid rgba(150,166,204,.25)}
 .cb-r .ic{width:24px;height:24px;flex:none}.cb-r span{flex:1;min-width:0;display:grid}.cb-r b{font:700 12px 'IBM Plex Sans KR';white-space:nowrap}.cb-r small{font:600 9.5px 'IBM Plex Sans KR';color:var(--dim);white-space:nowrap}
 .cb-r em{font:400 15px "Black Han Sans";font-style:normal;color:var(--gold)}
+
+.gq{display:grid;gap:4px;margin:6px 0}.gq div{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid rgba(150,166,204,.2);font:700 14px 'IBM Plex Sans KR'}
+.gq b{font:400 17px "Black Han Sans"}.gq .sum b{display:flex;align-items:center;gap:4px;color:var(--gold)}.gq .ic{width:18px;height:18px}
+#side #fpBtn{width:44px!important;height:44px!important;display:grid!important;place-items:center;margin-top:2px;background:linear-gradient(#5a2a3a,#2a1420)!important;border:1.5px solid rgba(255,210,120,.6)!important;border-radius:10px!important;box-shadow:0 2px 6px rgba(0,0,0,.6)!important;position:relative}
+#side #fpBtn svg{width:28px;height:28px}#side:not(.fold) #fpBtn{display:none!important}
+.fp{display:grid;gap:8px;margin:8px 0}.fp-r{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;background:linear-gradient(#232c46,#151b2c);border:1px solid rgba(150,166,204,.3)}
+.fp-r .rs-items{justify-content:flex-start}.fp-r .rs-it{width:46px;height:46px;animation:none}.fp-r .rs-it .ic{width:26px;height:26px}
+.fp-d{width:46px;font:400 14px "Black Han Sans";color:var(--gold)}.fp-r.got{opacity:.45}.fp-r.ready{border-color:var(--gold);box-shadow:0 0 10px rgba(242,201,76,.4)}
+#bAi .ic{width:26px!important;height:20px!important}
+.ai-tabs{grid-template-columns:repeat(3,1fr)!important;margin:8px 0!important}
+.ai-lv{display:flex;align-items:center;gap:10px;width:100%;margin-bottom:6px;padding:8px 10px;border-radius:6px;border:1px solid rgba(150,166,204,.3);background:linear-gradient(#232c46,#151b2c);color:var(--ink);text-align:left}
+.ai-lv i{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#3a4462;font:400 13px "Black Han Sans";font-style:normal}
+.ai-lv span{flex:1;display:grid}.ai-lv b{font:400 14px "Black Han Sans"}.ai-lv b em{font-style:normal;font:700 10px 'IBM Plex Sans KR';padding:0 5px;border-radius:6px;background:#4f9cff;margin-left:4px;vertical-align:2px}.ai-lv small{font:600 11px 'IBM Plex Sans KR';color:var(--dim)}
+.ai-lv.on{border-color:#6ff0c8;box-shadow:inset 0 0 10px rgba(111,240,200,.2)}.ai-lv.on i{background:#6ff0c8;color:#0c1a16}
+.ai-day{display:grid;gap:6px;margin:6px 0 10px}.ai-day div{display:grid;padding:8px 12px;border-left:3px solid var(--gold);background:rgba(255,255,255,.04);text-align:left}.ai-day b{font:400 14px "Black Han Sans";color:var(--gold)}.ai-day span{font:600 12px 'IBM Plex Sans KR';color:#c9d3ee}
+.ai-log{max-height:44vh;overflow:auto;margin:6px 0 10px;text-align:left;font:600 12px/1.7 'IBM Plex Sans KR';color:#c9d3ee}.ai-log div{border-bottom:1px solid rgba(150,166,204,.12)}
+.sh-fp{display:grid;width:100%;margin-bottom:6px;padding:12px 14px;border-radius:8px;border:1px solid rgba(255,210,120,.6);background:linear-gradient(100deg,#5a2a3a,#2a1420 60%,#3a2a10);color:#fff;text-align:left}.sh-fp b{font:400 18px "Black Han Sans";color:#ffd27a}.sh-fp span{font:600 12px 'IBM Plex Sans KR';color:#e8ecf6}
 </style>
 </head>
 <body>
@@ -1492,6 +1509,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     <!-- 오른쪽: 설정, 일일 임무, 출석 -->
     <div id="side"><button id="sideTg" aria-label="메뉴 열고 닫기"><svg class="tg-x" viewBox="0 0 24 24"><path d="M12 1.8L22.2 12 12 22.2 1.8 12z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8.6 8.6l6.8 6.8M15.4 8.6l-6.8 6.8" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg><svg class="tg-m" viewBox="0 0 24 24"><rect x="2.5" y="2.5" width="19" height="19" rx="5" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.1"/><rect x="6.5" y="6.5" width="4.4" height="4.4" rx="1" fill="#eef2fb"/><rect x="13.1" y="6.5" width="4.4" height="4.4" rx="1" fill="#eef2fb"/><rect x="6.5" y="13.1" width="4.4" height="4.4" rx="1" fill="#eef2fb"/><rect x="13.1" y="13.1" width="4.4" height="4.4" rx="1" fill="url(#mGold)"/></svg></button>
       <button id="attBtn" data-side="att" aria-label="출석"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" fill="#eef2fb" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3H3z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8 3v4M16 3v4" stroke="#141a2b" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="15.3" r="4" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M10.3 15.3l1.2 1.2 2.3-2.4" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="dot" id="dotAtt"></i></button>
+      <button id="fpBtn" aria-label="첫 결제 보너스"><svg viewBox="0 0 24 24"><path d="M4 9h16v12H4z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><rect x="3" y="6" width="18" height="4" rx="1" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M12 6v15" stroke="#fff4e0" stroke-width="2"/><path d="M12 6c-2-4-6-3-5 0zM12 6c2-4 6-3 5 0z" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/></svg><i class="dot" id="dotFp"></i></button>
       <button id="passBtn" aria-label="수사 패스"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8 5v14" stroke="#fff4e0" stroke-width="1" stroke-dasharray="1.6 1.4"/><path d="M15 8.2l1.1 2.3 2.5.3-1.8 1.7.4 2.5-2.2-1.2-2.2 1.2.4-2.5-1.8-1.7 2.5-.3z" fill="url(#mGold)"/></svg><i class="dot" id="dotPass"></i></button>
       <div class="sd-list">
       <button data-side="mail"><svg viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="19" height="13" rx="1.6" fill="#eef2fb" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M2.8 6.2L12 13l9.2-6.8" fill="none" stroke="#141a2b" stroke-width="1.2" stroke-linejoin="round"/><path d="M3.5 6.5L12 12.6l8.5-6.1" fill="url(#mGold)" opacity=".9"/></svg><span>우편</span><i class="dot" id="dotMail"></i></button>
@@ -1511,7 +1529,7 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     <div id="pillRow"><button id="pillRoad" aria-label="수사 수첩"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.5" fill="none" stroke="#e8ecf6" stroke-width="1.4"/><path d="M12 3.5l2.2 6.3L20.5 12l-6.3 2.2L12 20.5l-2.2-6.3L3.5 12l6.3-2.2z" fill="#e8ecf6"/><circle cx="12" cy="12" r="1.6" fill="#141a2b"/></svg><i class="dot" id="dotRoad2"></i></button><button id="pillHw" aria-label="숙제 도우미"><svg viewBox="0 0 24 24"><path d="M3 15l9 4 9-4v3l-9 4-9-4z" fill="#c9d3ee"/><path d="M3 15l9-4 9 4-9 4z" fill="#eef2fb"/><path d="M8 8l3 3 6-7" fill="none" stroke="#e8ecf6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><i class="dot" id="dotHw"></i></button></div>
     <div id="medRow"><button id="medBtn" aria-label="구급상자"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="3" fill="#eef2fb" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M9 6V4.5h6V6" fill="none" stroke="#141a2b" stroke-width="1.6"/><path d="M12 9.5v7M8.5 13h7" stroke="#e8261c" stroke-width="3" stroke-linecap="round"/></svg><b id="medN">0</b></button><button id="medSet" aria-label="구급상자 설정"><svg viewBox="0 0 24 24"><path d="M8.96 4.82 L9.12 1.59 L14.88 1.59 L15.04 4.82 L16.70 5.78 L19.57 4.30 L22.45 9.29 L19.74 11.04 L19.74 12.96 L22.45 14.71 L19.57 19.70 L16.70 18.22 L15.04 19.18 L14.88 22.41 L9.12 22.41 L8.96 19.18 L7.30 18.22 L4.43 19.70 L1.55 14.71 L4.26 12.96 L4.26 11.04 L1.55 9.29 L4.43 4.30 L7.30 5.78Z M12 8.6a3.4 3.4 0 1 0 0 6.8a3.4 3.4 0 1 0 0-6.8z" fill="#c9d3ee" fill-rule="evenodd"/></svg></button></div>
     <div id="preRow"><button id="preSet" aria-label="편성"><svg viewBox="0 0 24 24"><path d="M8 20h9l-1-3c2-2 2-6-1-8l1-3-4 1c-3-1-6 2-6 5l2 1-1 4z" fill="#c9d3ee" stroke="#141a2b" stroke-width="1"/></svg><svg class="pg" viewBox="0 0 24 24"><path d="M8.96 4.82 L9.12 1.59 L14.88 1.59 L15.04 4.82 L16.70 5.78 L19.57 4.30 L22.45 9.29 L19.74 11.04 L19.74 12.96 L22.45 14.71 L19.57 19.70 L16.70 18.22 L15.04 19.18 L14.88 22.41 L9.12 22.41 L8.96 19.18 L7.30 18.22 L4.43 19.70 L1.55 14.71 L4.26 12.96 L4.26 11.04 L1.55 9.29 L4.43 4.30 L7.30 5.78Z M12 8.6a3.4 3.4 0 1 0 0 6.8a3.4 3.4 0 1 0 0-6.8z" fill="#9fb3e8" fill-rule="evenodd"/></svg></button><button id="preNo" aria-label="편성 바꾸기"><svg viewBox="0 0 24 24"><path d="M8 20h9l-1-3c2-2 2-6-1-8l1-3-4 1c-3-1-6 2-6 5l2 1-1 4z" fill="#fff"/></svg><b id="preN">1</b></button></div>
-    <div id="bctl"><button id="bCam" aria-pressed="false" aria-label="카메라"><svg class="ic" viewBox="0 0 24 24"><rect x="2" y="7" width="14" height="11" rx="2" fill="currentColor"/><path d="M16 11l6-3v9l-6-3z" fill="currentColor"/><circle cx="6" cy="5" r="2.2" fill="currentColor"/><circle cx="11.5" cy="5" r="2.2" fill="currentColor"/></svg><span>카메라</span></button><button id="bMeter" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1" fill="currentColor"/><rect x="10" y="8" width="4" height="13" rx="1" fill="currentColor"/><rect x="17" y="3" width="4" height="18" rx="1" fill="currentColor"/></svg><span>기록</span></button></div>
+    <div id="bctl"><button id="bAi" aria-pressed="false" aria-label="AI 모드"><svg class="ic" viewBox="0 0 24 24"><text x="12" y="17" text-anchor="middle" font-family="Black Han Sans" font-size="15" fill="currentColor">AI</text></svg><span>AI 모드</span></button><button id="bCam" aria-pressed="false" aria-label="카메라"><svg class="ic" viewBox="0 0 24 24"><rect x="2" y="7" width="14" height="11" rx="2" fill="currentColor"/><path d="M16 11l6-3v9l-6-3z" fill="currentColor"/><circle cx="6" cy="5" r="2.2" fill="currentColor"/><circle cx="11.5" cy="5" r="2.2" fill="currentColor"/></svg><span>카메라</span></button><button id="bMeter" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1" fill="currentColor"/><rect x="10" y="8" width="4" height="13" rx="1" fill="currentColor"/><rect x="17" y="3" width="4" height="18" rx="1" fill="currentColor"/></svg><span>기록</span></button></div>
     <!-- 가운데 아래: 가이드 퀘스트 -->
     <button id="quest" aria-live="polite">
       <span class="q-l"><span class="q-h"><span class="qn" id="qn"></span><span class="qt" id="qt"></span></span>
@@ -2940,7 +2958,7 @@ function updateUI() {
   $('pfBar').style.width = (((S.stage - 1) % 10) * 10 + 10 * Math.min(1, S.kills / C.CONST.WAVE_KILLS)).toFixed(1) + '%';
   $('power').textContent = C.formatNum(teamPower());
   if ($('app').classList.contains('herofull')) { $('phPw').textContent = C.formatNum(teamPower()); $('phExp').textContent = C.formatNum(S.exp); $('phGold').textContent = C.formatNum(S.gold); }
-  $('gems').textContent = C.formatNum(S.gems);
+  $('gems').textContent = C.formatNum(C.gemTotal(S));
   const bar = $('prog').firstElementChild, lab = $('prog').lastElementChild;
   if (C.dailyReset(S, new Date()) && tab === 'run') renderPanel();   // 0시가 지나면 입장 횟수와 임무 새로
   if (R.boss) { bar.className = 'boss'; bar.style.width = (100 * Math.max(0, R.boss.hp / R.boss.max)) + '%'; lab.textContent = R.chal ? '작전' : '봉쇄 작전'; }
@@ -3190,7 +3208,7 @@ function updatePanel() {
       const n = +b.dataset.n, kind = b.dataset.kind, c = b.querySelector('.cost');
       if (kind === 'call') { c.innerHTML = icon('tix') + n * K.CALL_COST; b.disabled = S.tix < n * K.CALL_COST; }
       else if (S.ptix >= n) { c.innerHTML = icon('ptix') + n; b.disabled = kind === 'pickup' && !open; }
-      else { c.innerHTML = icon('gem') + n * K.PREMIUM_COST; b.disabled = S.gems < n * K.PREMIUM_COST || (kind === 'pickup' && !open); }
+      else { c.innerHTML = icon('gem') + n * K.PREMIUM_COST; b.disabled = C.gemTotal(S) < n * K.PREMIUM_COST || (kind === 'pickup' && !open); }
     }
     const wt = $('wTix'); if (wt) { wt.textContent = C.formatNum(S.tix); $('wPtix').textContent = C.formatNum(S.ptix); }
   }
@@ -3294,7 +3312,7 @@ modalEl.addEventListener('click', async e => {
     return;
   }
   const mp = e.target.closest('[data-mp]'), mpall = e.target.closest('[data-mpall]'), mpbuy = e.target.closest('[data-mpbuy]');
-  if (mpbuy) { modalEl.classList.remove('on'); if (await Pay.buy('mpass', C.MPASS_PRICE, '임무 패스')) { S.mis.paid = S.mis.m.k; writeSave(); } return misOpen('p'); }
+  if (mpbuy) { modalEl.classList.remove('on'); if (await Pay.buy('mpass', C.MPASS_PRICE, '임무 패스')) { S.mis.paid = S.mis.m.k; C.firstPayStart(S, new Date()); writeSave(); } return misOpen('p'); }
   if (mp || mpall) {
     const got = {};
     for (const [i, tr] of (mp ? [[+mp.dataset.mp, mp.dataset.tr]] : C.mpassReady(S))) { const w = C.mpassClaim(S, i, tr); if (w) for (const [k, v] of Object.entries(w)) got[k] = (got[k] || 0) + v; }
@@ -4334,7 +4352,7 @@ function shopHtml() {
   const packs = C.SHOP.packs.map(pk => { const own = S.owned.includes(pk.id);
     return `<div class="sh-pack"><span class="sh-tag">${pk.tag}</span><b>${pk.name}</b><small>${pk.sub}</small>${Object.keys(pk.rw).length ? `<div class="sh-rw">${rwTiles(pk.rw)}</div>` : ''}<button class="btn" data-pack="${pk.id}" ${own ? 'disabled' : ''}>${own ? '구매 완료' : pk.price.toLocaleString() + '원'}</button></div>`; }).join('');
   const gems = C.SHOP.gems.map(([n, w], i) => `<button class="sh-gem" data-gem="${i}"><svg viewBox="0 0 24 24"><use href="#i-gem"/></svg><b>${n.toLocaleString()}</b><span>${w.toLocaleString()}원</span></button>`).join('');
-  return `<div class="sh"><div class="optg">일일 상점 <small>매일 0시 초기화</small></div><div class="sh-grid">${daily}</div>
+  return `<div class="sh">${S.fp.got.length < 3 ? `<button class="sh-fp" data-fpopen><b>첫 결제 보너스</b><span>처음 결제하면 3일 동안 매일 보너스</span></button>` : ''}<div class="optg">일일 상점 <small>매일 0시 초기화</small></div><div class="sh-grid">${daily}</div>
     <div class="optg">추천 패키지</div>${packs}
     <div class="optg" id="gemShop">보석 충전</div><div class="sh-gems">${gems}</div>
     <p class="hint">${Pay.test ? '현재는 시험 결제예요. 실제 돈은 나가지 않아요.' : ''}</p></div>`;
@@ -4347,12 +4365,12 @@ async function shopAct(b) {
   } else if (b.dataset.pack) {
     const pk = C.SHOP.packs.find(x => x.id === b.dataset.pack);
     if (!(await Pay.buy(pk.id, pk.price, pk.name))) return;
-    S.owned.push(pk.id); C.giveReward(S, pk.rw); writeSave(); renderPanel();
+    S.owned.push(pk.id); const prw = { ...pk.rw }; if (prw.gems) { S.pgems += prw.gems; delete prw.gems; } C.giveReward(S, prw); C.firstPayStart(S, new Date()); writeSave(); renderPanel();
     showResult('gift', '구매 완료', Object.keys(pk.rw).length ? rwTiles(pk.rw) : '<div class="rs-nm">광고 제거</div>');
   } else if (b.dataset.gem) {
     const [n, w] = C.SHOP.gems[+b.dataset.gem];
     if (!(await Pay.buy('g' + b.dataset.gem, w, `보석 ${n.toLocaleString()}개`))) return;
-    S.gems += n; writeSave(); renderPanel(); showResult('gift', '구매 완료', rwTiles({ gems: n }));
+    S.pgems += n; C.firstPayStart(S, new Date()); writeSave(); renderPanel(); showResult('gift', '구매 완료', rwTiles({ gems: n }));
   }
 }
 $('gemPlus').addEventListener('click', e => {
@@ -4375,7 +4393,7 @@ function passHtml() {
 $('passBtn').addEventListener('click', () => openModal(passHtml()));
 modalEl.addEventListener('click', async e => {
   const one = e.target.closest('[data-pass]'), all = e.target.closest('[data-passall]'), buy = e.target.closest('[data-passbuy]');
-  if (buy) { modalEl.classList.remove('on'); if (await Pay.buy('pass', C.PASS_PRICE, '수사 패스')) { S.pass.paid = true; writeSave(); } return openModal(passHtml()); }
+  if (buy) { modalEl.classList.remove('on'); if (await Pay.buy('pass', C.PASS_PRICE, '수사 패스')) { S.pass.paid = true; C.firstPayStart(S, new Date()); writeSave(); } return openModal(passHtml()); }
   if (!one && !all) return;
   const got = {};
   for (const [i, tr] of (one ? [[+one.dataset.pass, one.dataset.tr]] : C.passReady(S))) { const w = C.passClaim(S, i, tr); if (w) for (const [k, v] of Object.entries(w)) got[k] = (got[k] || 0) + v; }
@@ -4407,6 +4425,7 @@ modalEl.addEventListener('click', e => {
 });
 
 $('panel').addEventListener('click', e => {
+  if (e.target.closest('[data-fpopen]')) return openModal(fpHtml());
   const ss = e.target.closest('[data-ss]'); if (ss) { sumSub = ss.dataset.ss; renderPanel(); $('panel').scrollTop = 0; return; }
   const b = e.target.closest('[data-shop],[data-pack],[data-gem]'); if (b && !b.disabled) shopAct(b);
 });
@@ -4475,7 +4494,7 @@ function sxRain() {
 
 /* ---------- 재화 보기 (세나 키우기 아래 재화 줄 ^ 버튼처럼) ---------- */
 function curHtml() {
-  const R2 = [['gold', '골드', S.gold, '전투, 현상수배'], ['gem', '보석', S.gems, '임무, 상점'], ['exp', '경험치', S.exp, '전투, 모의 훈련'], ['tix', '호출권', S.tix, '전투, 단서 추적'], ['ptix', '정예 호출권', S.ptix, '임무, 패스'],
+  const R2 = [['gold', '골드', S.gold, '전투, 현상수배'], ['gem', '보석', C.gemTotal(S), `유료 ${C.formatNum(S.pgems)} / 무료 ${C.formatNum(S.gems)}`], ['exp', '경험치', S.exp, '전투, 모의 훈련'], ['tix', '호출권', S.tix, '전투, 단서 추적'], ['ptix', '정예 호출권', S.ptix, '임무, 패스'],
     ['med', '구급상자', S.med, '우편, 상점'], ['g2', '골드 보급품', S.bag.g2 || 0, '가방에서 사용'], ['e2', '경험치 보급품', S.bag.e2 || 0, '가방에서 사용']];
   return `<div class="cb-h">보유 재화</div><div class="cb-g">${R2.map(([ic, n, v, src]) => `<div class="cb-r">${icon(ic)}<span><b>${n}</b><small>${src}</small></span><em>${C.formatNum(v)}</em></div>`).join('')}</div>`;
 }
@@ -4485,6 +4504,99 @@ $('curBtn').addEventListener('click', e => {
   b.innerHTML = curHtml(); b.classList.toggle('on', on); $('curBtn').classList.toggle('on', on);
 });
 document.addEventListener('click', e => { if (!e.target.closest('#curBox,#curBtn')) { $('curBox').classList.remove('on'); $('curBtn').classList.remove('on'); } });
+
+/* ---------- 유료/무료 보석 확인 (세나 키우기 루비 누르면 나오는 창) ---------- */
+$('gems').parentElement.addEventListener('click', e => {
+  if (e.target.closest('#gemPlus')) return;
+  openModal(`<h2>유료/무료 보석 확인</h2><div class="gq"><div><span>유료 보석</span><b>${C.formatNum(S.pgems)}</b></div><div><span>무료 보석</span><b>${C.formatNum(S.gems)}</b></div><div class="sum"><span>합계 보석</span><b>${icon('gem')}${C.formatNum(C.gemTotal(S))}</b></div></div>
+    <p class="hint">보석을 쓸 때는 유료 보석부터 써요.</p><div class="mbtns"><button class="btn" data-close>확인</button></div>`);
+});
+
+/* ---------- 첫 결제 보너스: 처음 결제한 날부터 3일 동안 매일 ---------- */
+function fpHtml() {
+  const now = new Date(), rd = C.firstPayReady(S, now), on = !!S.fp.start;
+  return `<h2>첫 결제 보너스</h2><p class="hint">처음 유료 상품을 사면 3일 동안 매일 보너스를 받아요.</p><div class="fp">${C.FIRST_PAY.map((r, i) => `<div class="fp-r ${S.fp.got.includes(i) ? 'got' : rd === i ? 'ready' : ''}"><span class="fp-d">${i + 1}일차</span>${rwTiles(r)}</div>`).join('')}</div>
+    <div class="mbtns"><button class="btn ghost" data-close>닫기</button>${on ? `<button class="btn" data-fpget ${rd >= 0 ? '' : 'disabled'}>${rd >= 0 ? `${rd + 1}일차 받기` : S.fp.got.length >= 3 ? '모두 받았어요' : '내일 다시 받아요'}</button>` : `<button class="btn" data-fpshop>상점 가기</button>`}</div>`;
+}
+$('fpBtn').addEventListener('click', () => openModal(fpHtml()));
+modalEl.addEventListener('click', e => {
+  if (e.target.closest('[data-fpshop]')) { modalEl.classList.remove('on'); sumSub = 'shop'; const t = $('tabs').querySelector('[data-tab="summon"]'); if (tab !== 'summon' || $('app').classList.contains('folded')) t.click(); else renderPanel(); return; }
+  if (!e.target.closest('[data-fpget]')) return;
+  const r = C.firstPayClaim(S, new Date()); if (!r) return; writeSave(); modalEl.classList.remove('on'); showResult('gift', '보상 획득', rwTiles(r));
+});
+
+/* ---------- AI 모드: 켜 두면 받을 보상과 성장을 알아서 처리 (세나 키우기 AI 모드처럼) ---------- */
+const AI_LV = [
+  ['기본 진행', '가이드, 임무, 우편, 출석, 수사 수첩, 도감, 패스 보상 받기'],
+  ['작전 소탕 포함', '일일 작전 입장 횟수를 소탕으로 사용'],
+  ['성장 포함', '요원 레벨업과 승급, 성장 레벨업, 보급품 사용'],
+  ['호출 포함', '호출권이 모이면 요원 호출'],
+];
+let AI = (() => { try { return Object.assign({ on: false, lv: 0, pw: true }, JSON.parse(localStorage.getItem('aiu-ai') || '{}')); } catch (e) { return { on: false, lv: 0, pw: true }; } })();
+const aiLog = [];
+const saveAi = () => { try { localStorage.setItem('aiu-ai', JSON.stringify(AI)); } catch (e) {} };
+function aiNote(t) { const d = new Date(), z = n => String(n).padStart(2, '0'); aiLog.unshift(`${z(d.getHours())}:${z(d.getMinutes())}  ${t}`); if (aiLog.length > 40) aiLog.pop(); }
+function aiTick() {
+  if (!AI.on || !AI.lv || paused || storyOn || modalEl.classList.contains('on') || $('sfx').classList.contains('on') || R.chal) return;
+  const now = new Date(), done = []; const pw0 = teamPower();
+  // 1단계: 받을 보상
+  let r = C.questClaim(S); if (r) { if (r.hero) partyChanged(); done.push('가이드 보상'); }
+  C.MISSIONS.forEach((m, i) => { if (C.missionClaim(S, i)) done.push(`일일 임무: ${m.text}`); }); if (C.missionBonus(S)) done.push('일일 임무 보너스');
+  for (const per of ['w', 'm', 'r']) ({ w: C.WEEKLY, m: C.MONTHLY, r: C.REPEAT })[per].forEach((m, i) => { if (C.misClaim(S, per, i)) done.push(`${({ w: '주간', m: '월간', r: '반복' })[per]} 임무: ${m.text}`); });
+  for (const m of C.MAILS) if (C.mailClaim(S, m.id)) done.push(`우편: ${m.title}`);
+  for (const x of C.roadReady(S)) if (C.roadClaim(S, x.id)) done.push(`수사 수첩: ${x.name}`);
+  if (C.codexClaim(S)) done.push('요원 도감 보상');
+  if (C.attend(S, now)) done.push('출석 보상');
+  for (const [i, tr] of C.passReady(S)) if (C.passClaim(S, i, tr)) done.push('수사 패스 보상');
+  for (const [i, tr] of C.mpassReady(S)) if (C.mpassClaim(S, i, tr)) done.push('임무 패스 보상');
+  if (C.firstPayClaim(S, now)) done.push('첫 결제 보너스');
+  // 2단계: 작전 소탕
+  if (AI.lv >= 2) for (const d of C.DUNGEONS) while (S.keys[d.id] > 0 && S.dbest[d.id] > 0) { C.sweepDungeon(S, d.id); done.push(`${d.name} 소탕`); }
+  // 3단계: 성장
+  if (AI.lv >= 3) {
+    for (const h of owned()) { const d = S.heroes[h.id]; let need; while ((need = C.starNeed(d.stars, h.grade)) !== Infinity && d.shards >= need) { d.shards -= need; d.stars++; C.progress(S, 'star', 1); done.push(`${h.name} 승급`); } }
+    let n = 0; for (let k = 0; k < 200; k++) { const t = team().map(h => [h, C.heroLvCost(S.heroes[h.id].lv)]).sort((a, b) => a[1] - b[1])[0]; if (!t || t[1] > S.exp) break; S.exp -= t[1]; S.heroes[t[0].id].lv++; C.progress(S, 'lvup', 1); n++; }
+    if (n) done.push(`요원 레벨업 ${n}회`);
+    let u = 0; for (let k = 0; k < 200; k++) { const c = C.UPGRADES.map(x => [x.id, C.upgradeCost(x.id, S.up[x.id])]).sort((a, b) => a[1] - b[1])[0]; if (c[1] > S.gold) break; S.gold -= c[1]; S.up[c[0]]++; C.progress(S, 'train', 1); u++; }
+    if (u) done.push(`성장 레벨업 ${u}회`);
+    for (const k of Object.keys(C.ITEMS)) if (S.bag[k] > 0) { C.useItem(S, k, S.bag[k]); done.push(`${C.ITEMS[k].name} 사용`); }
+  }
+  // 4단계: 호출
+  if (AI.lv >= 4) while (S.tix >= 10 * C.CONST.CALL_COST) { try { const res = C.doSummon(S, 10, 'call', Math.random); S = res.state; C.progress(S, 'summon', 10); done.push('요원 호출 10회'); } catch (e) { break; } }
+  if (!done.length) return;
+  syncHeroes(false); writeSave(); renderPanel(); updateUI();
+  const uniq = [...new Set(done)]; uniq.forEach(aiNote);
+  toast(`AI 모드: ${uniq[0]}${uniq.length > 1 ? ` 외 ${uniq.length - 1}건` : ''}`);
+  if (AI.pw) pwUp(pw0);
+}
+setInterval(aiTick, 6000);
+let aiTab = 'set';
+function aiHtml() {
+  const tabs = [['set', '설정'], ['day', '일정'], ['log', '기록']].map(([k, n]) => `<button data-aitab="${k}" class="${aiTab === k ? 'on' : ''}">${n}</button>`).join('');
+  let body = '';
+  if (aiTab === 'set') body = `<div class="optg">AI 단계</div>${AI_LV.map(([n, d], i) => `<button class="ai-lv ${AI.lv === i + 1 ? 'on' : ''}" data-ailv="${i + 1}"><i>${i + 1}</i><span><b>${n}${i === 2 ? ' <em>추천</em>' : ''}</b><small>${d}</small></span></button>`).join('')}
+    <div class="setrow"><div><div class="ut">전투력 상승 표시</div><div class="uv">AI 모드로 성장하면 전투력 변화를 보여 줘요</div></div><button class="tgl ${AI.pw ? 'on' : ''}" data-aipw></button></div>
+    <p class="hint">위 단계를 고르면 그 단계까지 모두 처리해요. 사용한 재화는 되돌릴 수 없어요.</p>`;
+  else if (aiTab === 'day') { const d = new Date(), wd = (8 - d.getDay()) % 7 || 7; body = `<div class="ai-day"><div><b>매일 0시</b><span>일일 임무, 일일 작전 입장, 상점 초기화</span></div><div><b>${wd}일 뒤 월요일 0시</b><span>주간 임무 초기화</span></div><div><b>다음 달 1일 0시</b><span>월간 임무, 임무 패스 초기화</span></div></div>`; }
+  else body = aiLog.length ? `<div class="ai-log">${aiLog.map(x => `<div>${x}</div>`).join('')}</div>` : '<p class="hint" style="padding:20px 0">아직 기록이 없어요</p>';
+  return `<h2>AI 모드</h2><div class="setrow"><div><div class="ut">AI 모드 켜기</div><div class="uv">${AI.lv ? `현재 ${AI.lv}단계 ${AI_LV[AI.lv - 1][0]}` : '단계를 먼저 골라 주세요'}</div></div><button class="tgl ${AI.on ? 'on' : ''}" data-aion></button></div>
+    <div class="seg ai-tabs">${tabs}</div>${body}<div class="mbtns"><button class="btn" data-close>닫기</button></div>`;
+}
+$('bAi').addEventListener('click', () => openModal(aiHtml()));
+modalEl.addEventListener('click', e => {
+  const t = e.target.closest('[data-aitab]'); if (t) { aiTab = t.dataset.aitab; return openModal(aiHtml()); }
+  if (e.target.closest('[data-aion]')) { if (!AI.lv) { toast('AI 단계를 먼저 골라 주세요'); return; } AI.on = !AI.on; saveAi(); $('bAi').setAttribute('aria-pressed', AI.on); aiNote(AI.on ? 'AI 모드 켬' : 'AI 모드 끔'); return openModal(aiHtml()); }
+  if (e.target.closest('[data-aipw]')) { AI.pw = !AI.pw; saveAi(); return openModal(aiHtml()); }
+  const lv = e.target.closest('[data-ailv]');
+  if (lv) {
+    const n = +lv.dataset.ailv;
+    openModal(`<h2>AI 단계 변경</h2><p>AI 단계를 ${n}단계로 바꿀까요?</p><div class="ai-day">${AI_LV.slice(0, n).map(x => `<div><span>${x[1]}</span></div>`).join('')}</div><p class="hint">위 일을 자동으로 해요.<br><b style="color:#ff8a7a">사용한 재화는 되돌릴 수 없어요.</b></p><div class="mbtns"><button class="btn ghost" data-close="no">취소</button><button class="btn" data-close="yes">확인</button></div>`, v => {
+      if (v === 'yes') { AI.lv = n; AI.on = true; saveAi(); $('bAi').setAttribute('aria-pressed', true); aiNote(`AI 단계 ${n}단계로 변경`); }
+      setTimeout(() => openModal(aiHtml()), 0);
+    });
+  }
+});
+$('bAi').setAttribute('aria-pressed', AI.on);
 /* ---------- 근원체 출현 컷인 ---------- */
 function bossCutIn() {
   const el = $('bossin'), t = theme(), img = ART['spr_boss' + (Math.floor((S.stage - 1) / 10) % 3 + 1)] || ART.spr_boss1;
@@ -4542,7 +4654,7 @@ function showHelp(key) {
 /* ---------- 피해량 기록, 획득 기록 ---------- */
 const LOG = { t: 0, base: null };
 let mtTab = 'dps';
-function logReset() { LOG.t = 0; LOG.base = { gold: S.gold, exp: S.exp, gems: S.gems, tix: S.tix, kills: S.killsTotal || 0, stage: S.stage }; }
+function logReset() { LOG.t = 0; LOG.base = { gold: S.gold, exp: S.exp, gems: C.gemTotal(S), tix: S.tix, kills: S.killsTotal || 0, stage: S.stage }; }
 function meterOpen(on) {
   $('meter').classList.toggle('on', on); $('bMeter').setAttribute('aria-pressed', on);
   try { localStorage.setItem('aiu-meter', on ? '1' : '0'); } catch (e) {}
@@ -4560,7 +4672,7 @@ function meterDraw() {
   } else {
     if (!LOG.base) logReset();
     const B = LOG.base, row = (ic, v) => `<div class="mt-r">${icon(ic)}<span>획득</span><b>+${C.formatNum(Math.max(0, v))}</b></div>`;
-    $('mtB').innerHTML = row('gold', S.gold - B.gold) + row('exp', S.exp - B.exp) + row('gem', S.gems - B.gems) + row('tix', S.tix - B.tix)
+    $('mtB').innerHTML = row('gold', S.gold - B.gold) + row('exp', S.exp - B.exp) + row('gem', C.gemTotal(S) - B.gems) + row('tix', S.tix - B.tix)
       + `<div class="mt-f"><span>${fmtT(LOG.t)}</span><button data-mtr="log">초기화</button></div>`;
   }
 }
@@ -4579,6 +4691,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.24.0', '11월 28일', ['AI 모드: 켜 두면 보상 받기, 소탕, 성장, 호출을 알아서 해요 (왼쪽 AI 버튼)', '보석이 유료 보석과 무료 보석으로 나뉘어요. 쓸 때는 유료 보석부터', '첫 결제 보너스 이벤트']],
   ['0.23.1', '11월 28일', ['주간, 월간, 반복 임무가 생겼어요', '임무 점수와 임무 패스 (매달 새로)', '시작 화면 오른쪽 위에 버전이 나와요', '아래 재화 줄 오른쪽 ^ 버튼으로 모든 재화를 볼 수 있어요']],
   ['0.22.3', '11월 28일', ['임무 모두 받기', '요원 상세에서는 가운데 버튼이 뒤로 가기예요', '아래 메뉴 아이콘을 한 가지 모양으로 맞췄어요', '보급품과 구급상자 그림이 상점과 우편에 나와요', '성장 단계 이름을 수사력으로 바꿨어요']],
   ['0.22.2', '11월 28일', ['요원 상세 화면을 새로 다듬었어요', '어색한 안내 문장을 고쳤어요']],
@@ -4603,13 +4716,13 @@ function newsHtml() {
 const newsSeen = () => { try { return localStorage.getItem('aiu-news') === NEWS[0][0]; } catch (e) { return true; } };
 $('dotNews').classList.toggle('on', !newsSeen());
 $('dotMail').classList.toggle('on', C.MAILS.some(m => !S.mail.includes(m.id)));
-setInterval(() => { $('dotRoad2').classList.toggle('on', C.roadReady(S).length > 0); $('dotHw').classList.toggle('on', runAlert()); $('dotPass').classList.toggle('on', C.passReady(S).length > 0); $('dotAd').classList.toggle('on', !C.adBuffOn(S, Date.now())); $('dotBag').classList.toggle('on', Object.values(S.bag).some(n => n > 0)); $('dotMail').classList.toggle('on', C.MAILS.some(m => !S.mail.includes(m.id))); $('sideTg').classList.toggle('alert', $('side').classList.contains('fold') && [...$('side').querySelectorAll('.dot')].some(d => d.classList.contains('on') || d.style.display === 'block')); }, 1000);
+setInterval(() => { $('dotFp').classList.toggle('on', C.firstPayReady(S, new Date()) >= 0); $('dotRoad2').classList.toggle('on', C.roadReady(S).length > 0); $('dotHw').classList.toggle('on', runAlert()); $('dotPass').classList.toggle('on', C.passReady(S).length > 0); $('dotAd').classList.toggle('on', !C.adBuffOn(S, Date.now())); $('dotBag').classList.toggle('on', Object.values(S.bag).some(n => n > 0)); $('dotMail').classList.toggle('on', C.MAILS.some(m => !S.mail.includes(m.id))); $('sideTg').classList.toggle('alert', $('side').classList.contains('fold') && [...$('side').querySelectorAll('.dot')].some(d => d.classList.contains('on') || d.style.display === 'block')); }, 1000);
 
 /* ---------- 절전 모드: 화면은 검게, 전투와 보상은 계속 ---------- */
 let sleeping = false, slBase = null, idleT = 0;
 const TIPS = ['절전 중에도 전투는 계속되고 보상도 쌓여요.', '출전 칸은 구역이 오를수록 늘어나요.', '일일 작전은 매일 0시에 다시 채워져요.', '같은 요원을 또 뽑으면 조각이 쌓여 승급할 수 있어요.'];
 function sleepOn() {
-  if (sleeping) return; sleeping = true; slBase = { gold: S.gold, exp: S.exp, gems: S.gems };
+  if (sleeping) return; sleeping = true; slBase = { gold: S.gold, exp: S.exp, gems: C.gemTotal(S) };
   $('slTip').textContent = TIPS[Math.floor(Math.random() * TIPS.length)];
   $('sleep').classList.add('on'); slTick();
 }
@@ -4620,7 +4733,7 @@ function slTick() {
   $('slClock').textContent = `${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`;
   $('slDate').textContent = `${d.getMonth() + 1}월 ${d.getDate()}일 ${'일월화수목금토'[d.getDay()]}요일`;
   $('slSt').textContent = `${C.stageLabel ? C.stageLabel(S.stage) : S.stage + ' 단계'}  ${theme().name}`;
-  $('slGain').innerHTML = `<span>${icon('gold')}+${C.formatNum(Math.max(0, S.gold - slBase.gold))}</span><span>${icon('exp')}+${C.formatNum(Math.max(0, S.exp - slBase.exp))}</span><span>${icon('gem')}+${C.formatNum(Math.max(0, S.gems - slBase.gems))}</span>`;
+  $('slGain').innerHTML = `<span>${icon('gold')}+${C.formatNum(Math.max(0, S.gold - slBase.gold))}</span><span>${icon('exp')}+${C.formatNum(Math.max(0, S.exp - slBase.exp))}</span><span>${icon('gem')}+${C.formatNum(Math.max(0, C.gemTotal(S) - slBase.gems))}</span>`;
   setTimeout(slTick, 1000);
 }
 // 자물쇠를 위로 밀면 해제

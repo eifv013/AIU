@@ -419,3 +419,15 @@ test('주간, 월간, 반복 임무와 임무 패스', () => {
   s.mis.paid = s.mis.m.k; assert.ok(C.mpassClaim(s, 0, 'paid'));
   const t = C.sanitize(JSON.parse(JSON.stringify(s)), 0); assert.equal(t.mis.m.pts, 65); assert.deepEqual(t.mis.m.pf, [0]);
 });
+
+test('유료 보석부터 쓰고, 첫 결제 보너스는 3일', () => {
+  const s = C.newState(0); s.gems = 100; s.pgems = 50;
+  C.spendGems(s, 80); assert.equal(s.pgems, 0); assert.equal(s.gems, 70);
+  assert.throws(() => C.spendGems(s, 100));
+  const d1 = new Date(2026, 10, 28, 9), d2 = new Date(2026, 10, 29, 9), d5 = new Date(2026, 11, 3, 9);
+  assert.equal(C.firstPayReady(s, d1), -1);
+  C.firstPayStart(s, d1); assert.equal(C.firstPayReady(s, d1), 0); C.firstPayClaim(s, d1); assert.equal(C.firstPayReady(s, d1), -1);
+  assert.equal(C.firstPayReady(s, d2), 1); C.firstPayClaim(s, d2);
+  assert.equal(C.firstPayReady(s, d5), 2); C.firstPayClaim(s, d5); assert.equal(C.firstPayReady(s, d5), -1);
+  const t = C.sanitize(JSON.parse(JSON.stringify(s)), 0); assert.equal(t.fp.got.length, 3);
+});

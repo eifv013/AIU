@@ -348,11 +348,30 @@
     const k = dayKey(now); if (state.shop.day !== k) { state.shop.day = k; state.shop.n = {}; }
     return state.shop.n[id] || 0;
   }
+  /* ---------- 유료 보석과 무료 보석 (세나 키우기 유료/무료 루비처럼). 쓸 때는 유료 보석부터 ---------- */
+  const gemTotal = state => (state.gems || 0) + (state.pgems || 0);
+  function spendGems(state, n) {
+    if (gemTotal(state) < n) throw new RangeError('보석이 부족해요');
+    const a = Math.min(state.pgems || 0, n); state.pgems -= a; state.gems -= n - a; return n;
+  }
+  /* 첫 결제 보너스: 처음 결제한 날부터 3일 동안 하루에 한 번 */
+  const FIRST_PAY = [{ gems: 300, tix: 20 }, { ptix: 3, g2: 3 }, { gems: 500, med: 30 }];
+  function firstPayStart(state, now) { if (!state.fp.start) state.fp.start = dayKey(now); }
+  /** 받을 수 있는 날 번호 (0,1,2) 또는 -1 */
+  function firstPayReady(state, now) {
+    if (!state.fp.start) return -1;
+    const d0 = new Date(state.fp.start + 'T00:00:00'), d = new Date(dayKey(now) + 'T00:00:00');
+    const day = Math.round((d - d0) / 864e5);
+    for (let i = 0; i <= Math.min(day, 2); i++) if (!state.fp.got.includes(i)) return i;
+    return -1;
+  }
+  function firstPayClaim(state, now) { const i = firstPayReady(state, now); if (i < 0) return null; state.fp.got.push(i); giveReward(state, FIRST_PAY[i]); return FIRST_PAY[i]; }
+
   /** 무료, 광고, 보석 상품 사기. 실제 돈 결제(packs, gems)는 여기서 하지 않음 */
   function shopBuy(state, id, now) {
     const it = SHOP.daily.find(x => x.id === id); if (!it) throw new RangeError('살 수 없는 상품이에요');
     if (shopCount(state, id, now) >= it.lim) throw new RangeError('오늘은 다 샀어요');
-    if (it.pay === 'gems') { if (state.gems < it.cost) throw new RangeError('보석이 부족해요'); state.gems -= it.cost; }
+    if (it.pay === 'gems') spendGems(state, it.cost);
     state.shop.n[id] = (state.shop.n[id] || 0) + 1;
     giveReward(state, it.rw); return it.rw;
   }
@@ -449,7 +468,7 @@
     let paid;
     if (kind === 'call') { if (state.tix < cnt * CONST.CALL_COST) throw new RangeError('호출권이 부족합니다'); paid = 'tix'; }
     else if (state.ptix >= cnt) paid = 'ptix';
-    else if (state.gems >= cnt * CONST.PREMIUM_COST) paid = 'gems';
+    else if (gemTotal(state) >= cnt * CONST.PREMIUM_COST) paid = 'gems';
     else throw new RangeError('보석이 부족합니다');
     const ids = [];
     let total = state.pulls.total, relay = state.pulls.relay, relayHit = false;
@@ -469,7 +488,7 @@
       ids.push(id);
     }
     const res = applySummon(state, ids), st = res.state;
-    if (paid === 'tix') st.tix -= cnt * CONST.CALL_COST; else if (paid === 'ptix') st.ptix -= cnt; else st.gems -= cnt * CONST.PREMIUM_COST;
+    if (paid === 'tix') st.tix -= cnt * CONST.CALL_COST; else if (paid === 'ptix') st.ptix -= cnt; else spendGems(st, cnt * CONST.PREMIUM_COST);
     st.pulls = { total, relay };
     const lvUps = [];
     for (let L = lv0 + 1; L <= summonLevel(total); L++) { const rw = levelReward(L); st.gems += rw.gems; st.ptix += rw.ptix; lvUps.push(L); }
@@ -836,6 +855,8 @@
       unl: [],
       mail: [],
       bag: {},
+      pgems: 0,           // 유료 보석 (결제로 산 보석)
+      fp: { start: '', got: [] },   // 첫 결제 보너스
       mis: freshMis(),    // 주간, 월간, 반복 임무와 임무 패스
       pass: { paid: false, f: [], p: [] },   // 수사 패스
       owned: [],          // 산 패키지 (한 번만)
@@ -927,6 +948,8 @@
       if (R2.r) { s.mis.r.p = okP(R2.r.p, REPEAT); if (R2.r.got && typeof R2.r.got === 'object') for (let i = 0; i < REPEAT.length; i++) if (isNum(R2.r.got[i])) s.mis.r.got[i] = clampInt(R2.r.got[i], 0, 1e9, 0); }
       s.mis.paid = typeof R2.paid === 'string' ? R2.paid.slice(0, 7) : '';
     }
+    s.pgems = isNum(raw.pgems) && raw.pgems >= 0 ? Math.floor(raw.pgems) : 0;
+    s.fp = { start: raw.fp && typeof raw.fp.start === 'string' ? raw.fp.start.slice(0, 10) : '', got: raw.fp && Array.isArray(raw.fp.got) ? [...new Set(raw.fp.got.filter(i => [0, 1, 2].includes(i)))] : [] };
     s.bag = {}; if (raw.bag && typeof raw.bag === 'object') for (const k of Object.keys(ITEMS)) if (isNum(raw.bag[k])) s.bag[k] = clampInt(raw.bag[k], 0, 1e6, 0);
     s.mail = Array.isArray(raw.mail) ? raw.mail.filter(x => MAILS.some(m => m.id === x)) : [];
     s.unl = Array.isArray(raw.unl) ? raw.unl.filter(x => ROADMAP.some(r => r.id === x)) : [];
@@ -965,7 +988,7 @@
   const Core = {
     HEROES, TYPES, STARTER_IDS, partyIds, partySlots, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
-    WEEKLY, MONTHLY, REPEAT, MPASS, MPASS_PRICE, misReset, misClaim, misReadyCount, repeatReady, mpassClaim, mpassReady, weekKey, monthKey, PASS, PASS_PRICE, passClaim, passReady, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
+    gemTotal, spendGems, FIRST_PAY, firstPayStart, firstPayReady, firstPayClaim, WEEKLY, MONTHLY, REPEAT, MPASS, MPASS_PRICE, misReset, misClaim, misReadyCount, repeatReady, mpassClaim, mpassReady, weekKey, monthKey, PASS, PASS_PRICE, passClaim, passReady, giveReward, SHOP, shopCount, shopBuy, AD_BUFF_MS, adBuffOn, switchPreset, SYNERGY, synergy, ITEMS, useItem, MAILS, mailClaim, codexNext, codexClaim, ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,

@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.33.1';
+window.AIU_VER = '0.33.2';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1855,6 +1855,19 @@ button.cx{width:100%;color:#fff;position:relative}button.cx .dot{position:absolu
 .pln-l{display:flex;justify-content:space-between;padding:4px 10px;border-radius:3px;background:#5b4bbf;color:#fff;font:700 11.5px 'IBM Plex Sans KR'}
 .pln-b{display:flex;gap:6px}.pln-b .btn{flex:1}
 .pln-n{margin:-2px 0 0;text-align:center;font:700 10.5px 'IBM Plex Sans KR';color:#6ff0c8}
+
+/* 배너 다시: 그림 칸 = 그림 비율(900:431) 그대로 */
+.sb2{height:auto!important;min-height:0!important;display:block}
+.sb2-art{position:relative;aspect-ratio:900/431;display:flex;flex-direction:column;overflow:hidden}
+.sb2-art>canvas{position:absolute;inset:0;width:100%;height:100%}
+.sb2-art>*:not(canvas){position:relative;z-index:1}
+.sb2-art .sb2-t{padding:8px 10px 2px}.sb2-art .sb2-t b{font-size:20px}
+.sb2-art .sb2-d p{font-size:11.5px;line-height:1.4}
+.sb2-art .sb2-sk{margin:auto 0 6px 8px}
+.sb2-art .lock{position:absolute;inset:0;z-index:2}
+/* 상점 창: 아래 작은 탭은 늘 창 맨 아래 (내용이 짧아도 가운데 뜨지 않게) */
+#app.shopfull:not(.folded):not(.herofull) #panel{display:flex;flex-direction:column}
+#app.shopfull:not(.folded):not(.herofull) #panel>*{flex-shrink:0}#app.shopfull:not(.folded):not(.herofull) #panel>.psub{margin-top:auto}
 </style>
 </head>
 <body>
@@ -6672,11 +6685,11 @@ function sumPageHtml() {
     return `<button class="sb2-b ${n === 300 ? 'w' : ''}" data-act="sum" data-kind="${kind}" data-n="${n}" ${c.ok && !lock ? '' : 'disabled'}><b>${n}회</b><span>${icon(c.ic)}${C.formatNum(c.v)}</span></button>`; }).join('');
   const end = kind === 'pickup' ? `${C.formatRemain(C.pickupRemainSec(new Date()))} 뒤 종료` : '상시 호출';
   const th = i => { const b = BANS[(i + BANS.length) % BANS.length]; return `<img src="${ART[b[2]] || ''}" alt=""><b>${b[1]}</b>`; };
-  return lvBar + `<div class="sb2 ${lock ? 'locked' : ''}"><canvas id="${cv}"></canvas>
+  return lvBar + `<div class="sb2 ${lock ? 'locked' : ''}"><div class="sb2-art"><canvas id="${cv}"></canvas>
       <div class="sb2-t"><b>${title}</b><button class="rate-b" data-rate="${kind}">확률 정보</button></div>
       <div class="sb2-d">${desc.map((d, i) => `<p${i === 1 ? ' class="hl"' : ''}>${d}</p>`).join('')}</div>
       <button class="sb2-sk ${sumSkip ? 'on' : ''}" data-sskip><i></i>연출 스킵</button>
-      ${lock ? `<div class="lock">소환 레벨 ${K.PICKUP_OPEN_LV}부터 열려요</div>` : ''}
+      ${lock ? `<div class="lock">소환 레벨 ${K.PICKUP_OPEN_LV}부터 열려요</div>` : ''}</div>
       <div class="sb2-f">${mile}<div class="sb2-bs">${btns}</div></div></div>
     <p class="sb2-end">${end}</p>
     <div class="sb2-car"><button class="sb2-pk" data-ban="${(bi + 2) % 3}">${th(bi - 1)}</button><button class="sb2-ar" data-ban="${(bi + 2) % 3}" aria-label="이전">◀</button>
@@ -7352,6 +7365,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.33.2', '11월 28일', ['호출 배너 그림이 세로로 늘어나 얼굴만 크게 잘려 보이던 문제를 고쳐 그림 전체가 보이게 했어요', '상점 창 아래 작은 탭이 늘 창 맨 아래에 붙게 했어요']],
   ['0.33.1', '11월 28일', ['배경 음악을 넣었어요. 순찰 중에는 어두운 비트, 근원체가 나오면 사이버펑크 전투 곡으로 자연스럽게 바뀌어요', '설정에서 배경 음악을 끄고 켤 수 있어요']],
   ['0.33.0', '11월 28일', ['아래 메뉴 이름을 호출에서 상점으로 바꾸고, 상점 창을 화면 위까지 크게 열어요', '호출 화면을 배너 하나씩 넘겨 보는 방식으로 바꿨어요. 소환 레벨 막대, 연출 스킵, 1회 10회 30회 300회 버튼이 있어요', '30회 호출은 카드 30장이 한 화면에 빠르게 깔리고, 결과 화면 아래에서 10회 30회를 바로 다시 하거나 자동 호출을 켤 수 있어요', '상점에 추천 상점, 일일 광고 상점, 보석 상점, 복장 상점을 나눠 넣었어요', '일일 상점에 누적 구매일 보상(1일차부터 7일차까지)과 상품 9개를 넣었어요', '재화에 월간 한정 골드 충전을 넣었어요', '정기권에 주간 호출권 혜택, 광고 제거 월정액, 골드 버프 월정액을 넣었어요. 다시 사면 기간이 더해져요']],
   ['0.32.4', '11월 28일', ['호출 연출의 건너뛰기 버튼을 화면 위쪽에서 아래 모두 열기 옆으로 옮겼어요', '호출에 30회와 최대(가진 만큼, 최대 1000회) 버튼을 넣고, 30회부터는 결과를 요원별로 묶어 한 창에 보여 줘요', '호출 화면의 긴 확률표를 빼고, 배너마다 확률 정보 버튼을 눌러 팝업으로 보게 했어요', '카메라에 화면 크기(축소, 기본, 확대)를 넣었어요', '작전 보상 아이콘이 숫자를 가리던 문제와 균열 심층 칸 정렬을 고쳤어요', '기록 창이 구급상자와 버튼을 가리지 않게 위로 올리고, 메뉴를 열면 숨겨요', '누를 수 없는 버튼의 글씨가 배경에 묻혀 안 보이던 문제를 고쳤어요']],

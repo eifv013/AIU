@@ -2096,7 +2096,7 @@ function sortHeroes(list, pids) {
     return hsort === 1 ? byLv(a, b) : byGrade(a, b);
   });
 }
-const APP_VERSION = '0.16.1';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.16.2';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 /** 기술 설명 (상세 창) */
 function skillText(h) {
@@ -2776,8 +2776,8 @@ const OP_SCENES = [
   { img: 'op_key', org: '50% 25%', kb: [1.6, 1.45], dim: 1, s: 'boss', cap: '그리고 그 중심에는, <b>근원체</b>가 있다.', t: 4800 },
   { img: 'op_key', org: '50% 60%', kb: [1.4, 1.3], dim: 1, s: 'file', cap: '경찰도 군대도 손댈 수 없는 사건.', t: 4200 },
   { img: 'op_nf',  org: '62% 0%', ty: 11, kb: [1.24, 1.06], who: '나이트폴', role: 'AIU 팀장', col: '#b98cff', say: '…늦었군. 균열이 열렸다.', t: 3900 },
-  { img: 'op_blaze', org: '56% 0%', ty: 10, kb: [1.26, 1.08], who: '블레이즈', role: '신입 수사관', col: '#ff8a3e', say: '제가 갈게요. 혼자서라도.', t: 3900 },
-  { img: 'op_nf',  org: '66% 0%', ty: 12, kb: [1.75, 1.5], col: '#b98cff', name: '나이트폴', say: '좋아. 오늘부터 넌 AIU다.', t: 3900 },
+  { img: 'op_blaze', org: '56% 0%', ty: 10, kb: [1.26, 1.08], who: '블레이즈', role: '신입 수사관', col: '#ff8a3e', say: '기다리는 건 질색이라서요. 먼저 갑니다.', t: 3900 },
+  { img: 'op_nf',  org: '66% 0%', ty: 12, kb: [1.75, 1.5], col: '#b98cff', name: '나이트폴', say: '…성질 급한 신입이군. 뒤는 맡겨라.', t: 3900 },
   { img: 'op_key', org: '50% 92%', kb: [1.3, 1.0], s: 'ttl', t: 4200 },
 ];
 const OP = { on: false, i: -1, timer: 0, typing: 0, done: null, drops: [], flash: 0 };

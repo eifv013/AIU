@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.36.0';
+window.AIU_VER = '0.36.1';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -2032,6 +2032,11 @@ html,body{overflow-x:hidden}
 .news h3{display:flex;align-items:baseline;gap:8px;margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid #2e3852;font:400 15px "Black Han Sans";color:#f1ede2}
 .news h3 small{font:600 11px 'IBM Plex Sans KR';color:var(--dim)}
 .news ul{margin:0;padding-left:16px}.news li{margin:3px 0;font:600 12.5px/1.5 'IBM Plex Sans KR';color:#c9cfdc;text-align:left}
+
+/* 요원 화면 왼쪽 위: 역할은 유형 아이콘을 반복하지 않고 등급색 글자 배지로 */
+.hp-tags .rli{display:grid;place-items:center;font:400 15px "Black Han Sans";font-style:normal;color:var(--gc)!important;background:#141a28}
+/* 출전 중 버튼: 금색(눌러야 할 버튼)이 아니라 어두운 칸에 금색 글씨 */
+.hp-b.sm.on{border-image:var(--ui-btn-navy) 40 60 fill / 7px 9px stretch!important;color:#e8c46a!important;filter:none!important}
 </style>
 </head>
 <body>
@@ -4242,6 +4247,15 @@ let hpageId = null;
 const GRADE_COL = { 희귀: '#4f8fe0', 영웅: '#b35ee0', 전설: '#f0a531', 각성: '#ff3d55' };
 /** 별 표시: ★1~5, 각성이면 붉은 별 5개 + 각성 */
 const starHtml = (n, sp = 's') => n >= 6 ? `<b class="awk-st">★★★★★</b>` : '★'.repeat(n) + `<${sp}>${'★'.repeat(C.CONST.MAX_STARS - n)}</${sp}>`;
+// 큰 그림(정사각형)을 세로 화면에 꽉 채우면 가운데만 보여서, 얼굴이 한쪽에 있는 그림은 잘리거나 치우쳐 보임.
+// 그림마다 얼굴이 있는 가로 위치(0 왼쪽 ~ 1 오른쪽)를 적어 두고, 그 얼굴이 화면 가운데 오도록 보이는 위치를 계산함
+const ART_FACE_X = { aegis: 0.45, archer: 0.30, eclipse: 0.45, exorcist: 0.50, judge: 0.60, knight: 0.30, oracle: 0.38, phantom: 0.62, priest: 0.30, reaper: 0.75, titan: 0.25, vault: 0.42, mage: 0.45, dark: 0.43 };
+function artFocus(id) {
+  const f = ART_FACE_X[id]; if (f == null || (S.cosEq && S.cosEq[id])) return '50% 12%';
+  const el = $('hpage'), v = Math.min(1, (el.clientWidth || 400) / (el.clientHeight || 750));   // 보이는 가로 비율
+  const x = v >= 1 ? 0.5 : Math.max(0, Math.min(1, (f - v / 2) / (1 - v)));
+  return `${(x * 100).toFixed(1)}% 12%`;
+}
 const bigArt = id => (S.cosEq && S.cosEq[id] && ART['cos_' + S.cosEq[id]]) || ART['big_' + id] || ({ mage: ART.op_blaze, dark: ART.op_nf })[id] || portrait(id);
 function openHeroDetail(id) {
   if (!$('app').classList.contains('herofull')) openHeroWin();
@@ -4262,8 +4276,8 @@ function renderHeroPage() {
   if (awkPrev) col = GRADE_COL['각성'];
   $('hpage').classList.toggle('sdview', hpSd); $('hpage').classList.toggle('unown', !d.owned); $('hpage').classList.toggle('awkview', awkPrev);
   $('hpage').style.setProperty('--gc', col);
-  $('hpage').innerHTML = `<img class="hp-bg" src="${bigArt(id)}" alt="">
-    <div class="hp-tags"><span><i class="tic t-${h.type}"><svg><use href="#i-t-${h.type}"/></svg></i>${h.type}형</span><span><i class="tic" style="color:${col}"><svg><use href="#i-t-${h.type}"/></svg></i>${h.role}</span><span class="sq"><i class="tic sqi">${C.squadOf(id).name.slice(0, 1)}</i>${C.squadOf(id).name}</span>
+  $('hpage').innerHTML = `<img class="hp-bg" src="${bigArt(id)}" alt="" style="object-position:${artFocus(id)}">
+    <div class="hp-tags"><span><i class="tic t-${h.type}"><svg><use href="#i-t-${h.type}"/></svg></i>${h.type}형</span><span class="rl"><i class="tic rli" style="--gc:${col}">${h.role.slice(0, 1)}</i>${h.role}</span><span class="sq"><i class="tic sqi">${C.squadOf(id).name.slice(0, 1)}</i>${C.squadOf(id).name}</span>
       ${h.grade === '전설' ? `<button class="hp-awk ${hpAwk ? 'on' : ''}" data-act="hpawk">${hpAwk ? '현재 정보 보기' : '각성 정보 보기'}</button>` : ''}</div>
     <div class="hp-side">
       <button data-act="hpstats" aria-label="능력치"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg><small>능력치</small></button>
@@ -6173,6 +6187,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.36.1', '11월 28일', ['요원 화면 큰 그림이 한쪽으로 치우쳐 잘리던 문제를 고쳐, 얼굴이 화면 가운데 오게 했어요', '출전 중 버튼을 눌러야 하는 버튼처럼 보이지 않게 바꿨어요', '역할 표시가 유형 아이콘을 반복하지 않게 바꿨어요']],
   ['0.36.0', '11월 28일', ['가이드와 퀘스트로 나뉘던 이름을 가이드 하나로 합치고 번호를 이어서 세요', '훈련소, 성장 같은 예전 이름을 수사력으로 통일했어요']],
   ['0.35.9', '11월 28일', ['정예 호출과 특별 채용이 1회에 보석 150개(10회 1,500개)로 바뀌었어요', '근원체 처치 보석은 5개, 반복 퀘스트 보석은 10~30개로 줄었어요']],
   ['0.35.8', '11월 28일', ['정예 호출과 특별 채용의 전설 확률을 2%에서 0.5%로 낮췄어요. 특별 채용 200회 확정은 그대로예요', '전설 요원 승급에 필요한 조각을 늘렸어요 (★2부터 2, 4, 8, 15개)']],

@@ -6,7 +6,7 @@
 /* ---------- 앱 자동 업데이트 (부팅) ----------
  * 앱(APK)은 설치할 때의 게임 파일을 들고 있음. 더 새 버전을 받아 둔 게 있으면(aiu-hotv)
  * 이 문서를 멈추고, 받아 둔 새 게임 파일로 같은 주소(저장 데이터 그대로)에서 다시 그림. */
-window.AIU_VER = '0.33.2';
+window.AIU_VER = '0.33.3';
 window.aiuVerGt = function (a, b) { a = String(a).split('.').map(Number); b = String(b).split('.').map(Number); for (var i = 0; i < 3; i++) { if ((a[i] || 0) !== (b[i] || 0)) return (a[i] || 0) > (b[i] || 0); } return false; };
 (function () {
   var app = location.protocol === 'https:' && location.hostname === 'localhost';   // 안드로이드 앱 (Capacitor)
@@ -1858,7 +1858,7 @@ button.cx{width:100%;color:#fff;position:relative}button.cx .dot{position:absolu
 
 /* 배너 다시: 그림 칸 = 그림 비율(900:431) 그대로 */
 .sb2{height:auto!important;min-height:0!important;display:block}
-.sb2-art{position:relative;aspect-ratio:900/431;display:flex;flex-direction:column;overflow:hidden}
+.sb2-art{position:relative;aspect-ratio:6/5;display:flex;flex-direction:column;overflow:hidden}
 .sb2-art>canvas{position:absolute;inset:0;width:100%;height:100%}
 .sb2-art>*:not(canvas){position:relative;z-index:1}
 .sb2-art .sb2-t{padding:8px 10px 2px}.sb2-art .sb2-t b{font-size:20px}
@@ -5152,7 +5152,8 @@ function drawCover(p, im, w, h, ax = 0.5, ay = 0.5) {
 /** 호출 배너: 일러스트를 배경으로 깔고, 왼쪽 글자가 잘 읽히게 왼쪽을 어둡게 */
 function drawSummonBanner() {
   const d = Math.min(3, devicePixelRatio || 1);
-  for (const [id, key, ax, ay] of [['sbc', 'banner_pick', 1, 0.3], ['sbc2', 'banner_call', 0.5, 0.35], ['sbc3', 'banner_elite', 0.8, 0.35]]) {
+  // 원본 고화질 그림(1254, 941 폭)을 그대로 씀. 예전 900px 가로 띠 그림은 늘리면 흐려져서 안 씀
+  for (const [id, key, ax, ay] of [['sbc', 'op_nf', 0.5, 0.2], ['sbc2', 'op_key', 0.5, 0.6], ['sbc3', 'op_blaze', 0.5, 0.25]]) {
     const c = $(id); if (!c) continue;
     const w = c.clientWidth || 360, h = c.clientHeight || 150;
     c.width = Math.round(w * d); c.height = Math.round(h * d);
@@ -6652,7 +6653,7 @@ function sumBigHtml(ids, isNew, n, kind, relayHit, lvMsg) {
  *  - 가운데: 배너 하나 (제목, 확률 정보, 설명, 연출 스킵, 누적 막대, 1회/10회/30회/300회)
  *  - 아래: 종료 시간, ◀ 배너 넘기기 ▶, 점
  * ===================================================================== */
-const BANS = [['pickup', '특별 채용', 'banner_pick', 'sbc'], ['elite', '정예 호출', 'banner_elite', 'sbc3'], ['call', '요원 호출', 'banner_call', 'sbc2']];
+const BANS = [['pickup', '특별 채용', 'op_nf', 'sbc', '50% 20%'], ['elite', '정예 호출', 'op_blaze', 'sbc3', '50% 25%'], ['call', '요원 호출', 'op_key', 'sbc2', '50% 58%']];
 const SUM_NS = [1, 10, 30, 300];
 let sumBan = null, sumSkip = false, autoSum = false;
 try { sumSkip = localStorage.getItem('aiu-sskip') === '1'; } catch (e) {}
@@ -6684,7 +6685,7 @@ function sumPageHtml() {
   const btns = SUM_NS.map(n => { const c = sumCost(kind, n);
     return `<button class="sb2-b ${n === 300 ? 'w' : ''}" data-act="sum" data-kind="${kind}" data-n="${n}" ${c.ok && !lock ? '' : 'disabled'}><b>${n}회</b><span>${icon(c.ic)}${C.formatNum(c.v)}</span></button>`; }).join('');
   const end = kind === 'pickup' ? `${C.formatRemain(C.pickupRemainSec(new Date()))} 뒤 종료` : '상시 호출';
-  const th = i => { const b = BANS[(i + BANS.length) % BANS.length]; return `<img src="${ART[b[2]] || ''}" alt=""><b>${b[1]}</b>`; };
+  const th = i => { const b = BANS[(i + BANS.length) % BANS.length]; return `<img src="${ART[b[2]] || ''}" alt="" style="object-position:${b[4]}"><b>${b[1]}</b>`; };
   return lvBar + `<div class="sb2 ${lock ? 'locked' : ''}"><div class="sb2-art"><canvas id="${cv}"></canvas>
       <div class="sb2-t"><b>${title}</b><button class="rate-b" data-rate="${kind}">확률 정보</button></div>
       <div class="sb2-d">${desc.map((d, i) => `<p${i === 1 ? ' class="hl"' : ''}>${d}</p>`).join('')}</div>
@@ -7365,6 +7366,7 @@ try { if (localStorage.getItem('aiu-side') !== '0') $('side').classList.add('fol
 
 /* ---------- 소식 (업데이트 내역) ---------- */
 const NEWS = [
+  ['0.33.3', '11월 28일', ['호출 배너를 흐린 띠 그림 대신 고화질 원본 그림으로 바꾸고, 배너 칸을 세나 키우기처럼 넉넉하게 키웠어요']],
   ['0.33.2', '11월 28일', ['호출 배너 그림이 세로로 늘어나 얼굴만 크게 잘려 보이던 문제를 고쳐 그림 전체가 보이게 했어요', '상점 창 아래 작은 탭이 늘 창 맨 아래에 붙게 했어요']],
   ['0.33.1', '11월 28일', ['배경 음악을 넣었어요. 순찰 중에는 어두운 비트, 근원체가 나오면 사이버펑크 전투 곡으로 자연스럽게 바뀌어요', '설정에서 배경 음악을 끄고 켤 수 있어요']],
   ['0.33.0', '11월 28일', ['아래 메뉴 이름을 호출에서 상점으로 바꾸고, 상점 창을 화면 위까지 크게 열어요', '호출 화면을 배너 하나씩 넘겨 보는 방식으로 바꿨어요. 소환 레벨 막대, 연출 스킵, 1회 10회 30회 300회 버튼이 있어요', '30회 호출은 카드 30장이 한 화면에 빠르게 깔리고, 결과 화면 아래에서 10회 30회를 바로 다시 하거나 자동 호출을 켤 수 있어요', '상점에 추천 상점, 일일 광고 상점, 보석 상점, 복장 상점을 나눠 넣었어요', '일일 상점에 누적 구매일 보상(1일차부터 7일차까지)과 상품 9개를 넣었어요', '재화에 월간 한정 골드 충전을 넣었어요', '정기권에 주간 호출권 혜택, 광고 제거 월정액, 골드 버프 월정액을 넣었어요. 다시 사면 기간이 더해져요']],

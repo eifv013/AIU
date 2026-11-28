@@ -476,12 +476,33 @@
   /** 출동 근원체 체력, 공격력 (일반 근원체와 같은 공식) */
   function chalHp(stageEq) { return bossHp(stageEq); }
   function chalAtk(stageEq) { return bossAtk(stageEq); }
+  /* ---------- 수사 수첩: 구역을 넘을 때마다 열리는 콘텐츠와 달성 보상 (세나 키우기 나침반처럼) ---------- */
+  const ROADMAP = [
+    { id: 'z2',  name: '안개 항구 진입',   stage: 11,  rw: { gems: 100 } },
+    { id: 'p4',  name: '출전 칸 4 열림',   stage: 11,  rw: { tix: 10 } },
+    { id: 'z3',  name: '네온 유흥가 진입', stage: 21,  rw: { gems: 150 } },
+    { id: 'p5',  name: '출전 칸 5 열림',   stage: 21,  rw: { ptix: 1 } },
+    { id: 'z4',  name: '빗속 뒷골목 심층', stage: 31,  rw: { gems: 200 } },
+    { id: 'z5',  name: '안개 항구 심층',   stage: 41,  rw: { tix: 20 } },
+    { id: 'case', name: '사건 도감 열림',  stage: 51,  rw: { ptix: 2 } },
+    { id: 'z8',  name: '네온 유흥가 심층', stage: 81,  rw: { gems: 300 } },
+    { id: 'dress', name: '복장 도감 열림', stage: 121, rw: { ptix: 3 } },
+  ];
+  /** 받을 수 있는 수첩 보상 하나 받기 (모두 받기는 반복 호출) */
+  function roadClaim(state, id) {
+    const r = ROADMAP.find(x => x.id === id);
+    if (!r || state.stage < r.stage || state.unl.includes(id)) return null;
+    state.unl.push(id); giveReward(state, r.rw); return r.rw;
+  }
+  const roadReady = state => ROADMAP.filter(r => state.stage >= r.stage && !state.unl.includes(r.id));
+
   function giveReward(state, r) {
     if (r.gold) state.gold += r.gold;
     if (r.exp) state.exp += r.exp;
     if (r.gems) state.gems += r.gems;
     if (r.tix) state.tix += r.tix;
     if (r.ptix) state.ptix += r.ptix;
+    if (r.shard && state.heroes[r.shard]) state.heroes[r.shard].shards += clampInt(r.n, 0, 1e6, 0);   // 요원 조각
     return r;
   }
   /** 일일 출동 성공 (입장 1회 씀, 처음 깬 단계면 최고 단계 올림). 상태를 직접 바꾸고 보상 반환 */
@@ -561,7 +582,8 @@
     { kind: 'kill',    text: '이상체 처리',       need: 10, rw: { gems: 100 } },
     { kind: 'lvup',    text: '블레이즈 강화',     need: 3,  rw: { exp: 300 } },
     { kind: 'boss',    text: '근원체 봉쇄',       need: 1,  rw: { hero: 'knight' } },
-    { kind: 'party',   text: '요원 2명 출전',     need: 2,  rw: { tix: 10 } },
+    { kind: 'party',   text: '요원 2명 출전',     need: 2,  rw: { shard: 'mage', n: 5 } },   // 블레이즈 조각 5개 → 바로 첫 승급
+    { kind: 'star',    text: '블레이즈 승급',     need: 1,  rw: { tix: 10 } },
     { kind: 'summon',  text: '요원 호출',         need: 10, rw: { gems: 200 } },
     { kind: 'train',   text: '성장 강화',         need: 3,  rw: { gold: 500 } },
     { kind: 'dungeon', text: '일일 작전',         need: 1,  rw: { gems: 200 } },
@@ -619,6 +641,8 @@
       farming: false,     // 근원체에게 진 뒤 반복 사냥 모드
       heroes,
       party: STARTER_IDS.slice(),   // 전투에 나가는 요원 (최대 5명)
+      unl: [],            // 받은 수사 수첩 보상
+      face: '',           // 프로필 얼굴 (비면 첫 출전 요원)
       up: { atk: 0, gold: 0, crit: 0 },
       q: { i: 0, p: 0, g: 1 },  // 퀘스트 번호와 진행 (g: 가이드 퀘스트가 있는 저장)
       pulls: { total: 0, relay: 0 },    // 요원 호출 누적(소환 레벨), 특별 채용 릴레이
@@ -679,6 +703,8 @@
       s.daily.got = Array.isArray(raw.daily.got) ? [...new Set(raw.daily.got.filter(i => Number.isInteger(i) && i >= 0 && i < MISSIONS.length))] : [];
       s.daily.bonus = raw.daily.bonus === true && s.daily.got.length === MISSIONS.length;
     }
+    s.unl = Array.isArray(raw.unl) ? raw.unl.filter(x => ROADMAP.some(r => r.id === x)) : [];
+    s.face = typeof raw.face === 'string' && HEROES.some(h => h.id === raw.face) ? raw.face : '';
     if (raw.att && typeof raw.att === 'object') s.att = { n: clampInt(raw.att.n, 0, 1e6, 0), last: typeof raw.att.last === 'string' ? raw.att.last.slice(0, 10) : '' };
     s.lastSeen = isNum(raw.lastSeen) && raw.lastSeen > 0 ? raw.lastSeen : base.lastSeen;
     if (raw.up && typeof raw.up === 'object') {
@@ -713,7 +739,7 @@
   const Core = {
     HEROES, TYPES, STARTER_IDS, partyIds, partySlots, toggleParty, swapParty, UPGRADES, CONST, CRIT_DMG,
     isNum, clampInt, formatNum, formatDuration, heroById, upgradeById,
-    stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
+    ROADMAP, roadClaim, roadReady, stageLabel, killExp, bossExp, enemyHp, enemyAtk, bossHp, bossAtk, killGold, bossGold,
     atkMult, goldMult, critChance, starMult, heroAtk, heroHp, heroDps,
     heroLvCost, heroLvCostBulk, heroLvAffordable, upgradeCost, starNeed, STAR_NEED,
     partyDps, offlineReward, summon, summonLevel, summonRates, doSummon, addTickets, levelReward, applySummon, pickupRemainSec, formatRemain,

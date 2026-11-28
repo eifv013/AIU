@@ -214,7 +214,7 @@ html,body{word-break:keep-all;margin:0;height:100%;background:#080B13;color:var(
 #phBack{display:grid;place-items:center;width:34px;height:34px;padding:0;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);color:var(--ink)}
 #phBack svg{width:20px;height:20px}
 #app.herofull #phead{display:flex}
-#app.herofull #hud,#app.herofull #battle,#app.herofull #party,#app.herofull #tabs{display:none}
+#app.herofull #hud,#app.herofull #battle,#app.herofull #party{display:none}
 #app.herofull #panel{flex:1}
 #app.herofull .hcount .xchip{display:none}
 #app.folded #battle{flex:1;height:auto;max-height:none}
@@ -627,8 +627,301 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 #app:not(.folded):not(.herofull) #panel{position:absolute;left:0;right:0;bottom:var(--bottomH,110px);z-index:5;height:auto;max-height:min(66%,600px);overflow-y:auto;border-top:1px solid #34405e;border-radius:14px 14px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.55);animation:sheetUp .22s ease-out}
 @keyframes sheetUp{from{transform:translateY(24px);opacity:.4}}
 @media (prefers-reduced-motion:reduce){#panel{animation:none!important}}
-#app.herofull #bottom{display:none}
+#app.herofull #bbar{display:none}
 #app.herofull #battle{display:none}
+
+/* ---------- 요원 창 (세나 키우기 영웅 창처럼) ---------- */
+#phead .phpw{flex:1;margin-left:4px;font:700 13px 'IBM Plex Sans KR';color:#c9d3ee}
+#phead .phpw b{margin-left:4px;font:400 18px "Black Han Sans";color:var(--gold)}
+#hsub{display:none;gap:4px;margin:0 10px 6px;padding:4px;border:1px solid #34405e;border-radius:22px;background:rgba(12,16,26,.95)}
+#app.herofull #hsub{display:flex}
+#hsub button{flex:1;height:34px;border:0;border-radius:18px;background:none;color:#8c97b4;font:700 14px 'IBM Plex Sans KR'}
+#hsub button.on{background:#1d2740;color:#fff;box-shadow:inset 0 0 0 2px #c9b07a}
+#app.herofull #panel{background:radial-gradient(ellipse at 50% 0,#1a2135,#0b0e16 70%)}
+.mrow1{display:flex;align-items:center;gap:8px;margin:0 0 8px;padding:0 2px 10px;border-bottom:1px solid #222b40}
+.ownchk{display:flex;align-items:center;gap:8px;flex:1;font:700 14px 'IBM Plex Sans KR';color:#e8ecf6;background:none;border:0;padding:0}
+.ownchk i{display:grid;place-items:center;width:24px;height:24px;border:2px solid #8c97b4;border-radius:4px}
+.ownchk.on i{border-color:var(--gold)}.ownchk.on i::after{content:'';width:10px;height:6px;border:solid var(--gold);border-width:0 0 3px 3px;transform:rotate(-45deg) translate(1px,-1px)}
+.mbtn{height:34px;padding:0 14px;border:1px solid #4a5677;border-radius:8px;background:linear-gradient(#36415f,#252e45);color:#fff;font:700 13px 'IBM Plex Sans KR'}
+.mbtn:disabled{opacity:.4}
+.mbtn.go:not(:disabled){border-color:#c9b07a;background:linear-gradient(#5b4a9a,#3a2f6a)}
+.mrow2{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.mrow2 .cnt{display:flex;align-items:center;gap:6px;margin-right:auto;font:400 20px "Black Han Sans"}
+.mrow2 .cnt small{font:700 12px 'IBM Plex Sans KR';color:var(--dim)}
+.mrow2 button{height:34px;padding:0 12px;border:1px solid #6a5a3a;border-radius:17px;background:#141b2c;color:#fff;font:700 13px 'IBM Plex Sans KR';display:flex;align-items:center;gap:5px}
+.mrow2 button svg{width:15px;height:15px}
+/* 요원 카드: 등급 색 테두리, 왼쪽 위 분류, 오른쪽 위 레벨, 가운데 '출전' 띠, 아래 이름과 별, 카드 밑 조각 막대 */
+.agrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 8px}
+.ac{position:relative;cursor:pointer}
+.ac .ap{position:relative;aspect-ratio:3/4;border-radius:6px;overflow:hidden;border:2px solid var(--gc);background:#111;box-shadow:0 0 0 1px rgba(0,0,0,.6),inset 0 0 12px rgba(0,0,0,.6)}
+.ac.g-희귀{--gc:#4f8fe0}.ac.g-영웅{--gc:#b35ee0}.ac.g-전설{--gc:#f0a531}
+.ac .ap img{width:100%;height:100%;object-fit:cover;object-position:50% 18%;display:block}
+.ac .ap::after{content:'';position:absolute;inset:0;background:linear-gradient(rgba(0,0,0,.45),transparent 25%,transparent 55%,rgba(0,0,0,.85))}
+.ac .tic{position:absolute;left:3px;top:3px;z-index:2;width:18px;height:18px}.ac .tic svg{width:11px;height:11px}
+.ac .alv{position:absolute;right:4px;top:2px;z-index:2;font:400 13px "Black Han Sans";color:#fff;text-shadow:0 1px 2px #000}
+.ac .arib{position:absolute;left:0;right:0;top:40%;z-index:2;padding:2px 0;text-align:center;background:rgba(28,40,72,.85);border-top:1px solid #6e86c4;border-bottom:1px solid #6e86c4;font:400 14px "Black Han Sans";color:#cfe0ff;letter-spacing:.1em}
+.ac .anm{position:absolute;left:0;right:0;bottom:14px;z-index:2;text-align:center;font:400 13px "Black Han Sans";color:#fff;text-shadow:0 1px 3px #000;white-space:nowrap;letter-spacing:-.02em}
+.ac .ast{position:absolute;left:0;right:0;bottom:1px;z-index:2;text-align:center;font-size:10px;letter-spacing:-1px;color:var(--gold)}
+.ac .ast .e{color:#3a3f4e}
+.ac .ash{position:relative;height:13px;margin-top:4px;border:1px solid #39435c;border-radius:3px;background:#0c1019;overflow:hidden}
+.ac .ash i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#3ec9c0,#6ff0d8)}
+.ac .ash span{position:relative;display:block;text-align:center;font:700 10px/11px 'IBM Plex Sans KR';color:#fff;text-shadow:0 1px 1px #000}
+.ac.canstar .ash i{background:linear-gradient(90deg,#c9a83e,#ffd23f)}
+.ac.canlv .ap::before{content:'';position:absolute;right:-1px;top:-1px;z-index:3;width:9px;height:9px;border-radius:50%;background:#ff4d4d;box-shadow:0 0 0 2px #0b0e16}
+.ac.no .ap img{filter:grayscale(1) brightness(.35)}
+.ac.no .anm{color:#8a90a0}.ac.no .nob{position:absolute;left:0;right:0;top:42%;z-index:2;text-align:center;font:700 11px 'IBM Plex Sans KR';color:#aab}
+.ac.picked .ap{box-shadow:0 0 0 2px var(--gold),0 0 14px rgba(242,201,76,.5)}
+/* 편성: 위쪽 무대에 출전 요원이 서 있고, 아래 목록을 눌러 넣고 뺌 */
+.fstage{position:relative;height:250px;margin:-12px -12px 10px;overflow:hidden;background:#0b0e16}
+.fstage>.fbg{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.45) saturate(.8)}
+.fstage .ring{position:absolute;left:50%;top:56%;width:300px;height:150px;transform:translate(-50%,-50%);border-radius:50%;border:3px solid rgba(201,176,122,.55);box-shadow:0 0 30px rgba(130,90,255,.35),inset 0 0 40px rgba(130,90,255,.25);background:radial-gradient(ellipse,rgba(90,50,160,.35),transparent 70%)}
+.fstage .ring::after{content:'AIU';position:absolute;inset:0;display:grid;place-items:center;font:400 46px "Black Han Sans";color:rgba(201,176,122,.18);letter-spacing:.1em}
+.fspot{position:absolute;width:64px;height:96px;transform:translate(-50%,-100%);display:grid;justify-items:center;align-content:end}
+.fspot::before{content:'';position:absolute;bottom:-6px;width:58px;height:18px;border-radius:50%;background:rgba(160,190,255,.18);border:1px solid rgba(160,190,255,.35)}
+.fspot img{position:relative;max-width:78px;max-height:92px;object-fit:contain;filter:drop-shadow(0 4px 4px rgba(0,0,0,.6))}
+.fspot img.face{width:46px;height:46px;border-radius:50%;border:2px solid var(--gold);object-fit:cover;object-position:50% 15%;margin-bottom:6px}
+.fspot b{position:absolute;bottom:-24px;font:400 12px "Black Han Sans";color:#fff;text-shadow:0 1px 3px #000;white-space:nowrap}
+.fspot.empty::after{content:'+';position:relative;margin-bottom:2px;font:400 22px "Black Han Sans";color:rgba(242,201,76,.7)}
+.fspot.lock::after{content:attr(data-l);position:relative;margin-bottom:0;font:700 10px 'IBM Plex Sans KR';color:#6b7799}
+.fbar{display:flex;align-items:center;gap:8px;margin:-2px 0 8px}
+.fbar .fc{display:flex;align-items:center;gap:4px;height:32px;padding:0 10px;border-radius:16px;background:rgba(0,0,0,.55);font:400 17px "Black Han Sans"}
+.fbar .fc b{color:#ff6b5b}.fbar .fc b.full{color:var(--gold)}
+.fbar .mbtn{flex:1}
+.fhint{margin:0 2px 10px;font-size:12px;color:var(--dim)}
+/* 도감 */
+.cdx{position:relative;display:block;width:100%;height:120px;margin-bottom:12px;padding:0;border:3px double #c9c2b0;border-radius:6px;overflow:hidden;background:#141826;text-align:left}
+.cdx img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 70%;filter:brightness(.75)}
+.cdx b{position:absolute;left:16px;top:14px;z-index:1;font:400 26px "Black Han Sans";color:#fff;text-shadow:0 2px 0 #000,0 0 12px #000}
+.cdx span{position:absolute;left:16px;bottom:12px;z-index:1;font:700 13px 'IBM Plex Sans KR';color:var(--gold);text-shadow:0 1px 3px #000}
+.cdx.lock img{filter:grayscale(1) brightness(.3)}
+.cdx.lock span{color:#aab}
+
+/* ---------- 요원 상세 화면 ---------- */
+#hpage{display:none;position:relative;flex:1;min-height:0;overflow:hidden;background:#07080d}
+#app.hdopen #hpage{display:block}
+#app.hdopen #panel{display:none!important}
+.hp-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 12%}
+#hpage::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(rgba(7,8,13,.6),transparent 18%,transparent 45%,rgba(7,8,13,.85) 70%,#07080d 92%)}
+#hpage>*:not(.hp-bg){z-index:2}
+.hp-tags{position:absolute;left:12px;top:12px;display:grid;gap:8px}
+.hp-tags span{display:flex;align-items:center;gap:8px;font:700 14px 'IBM Plex Sans KR';color:#fff;text-shadow:0 1px 3px #000}
+.hp-tags .tic{width:32px;height:32px;border:2px solid rgba(255,255,255,.35)}.hp-tags .tic svg{width:17px;height:17px}
+.hp-grade{position:absolute;left:50%;top:8px;transform:translateX(-50%);display:grid;justify-items:center;filter:drop-shadow(0 0 10px var(--gc))}
+.hp-grade svg{width:52px;height:52px}
+.hp-grade b{margin-top:-4px;font:400 18px "Black Han Sans";color:var(--gc);text-shadow:0 0 8px #000}
+.hp-grade small{font:700 10px 'IBM Plex Sans KR';color:#ff6b5b}
+.hp-nav{position:absolute;top:40%;width:40px;height:40px;border:2px solid rgba(201,211,238,.6);border-radius:50%;background:rgba(20,26,44,.7);color:#fff;font:400 26px/1 sans-serif;padding:0 0 4px}
+.hp-nav.l{left:10px}.hp-nav.r{right:10px}
+.hp-sd{position:absolute;left:6px;bottom:238px;width:110px;display:grid;justify-items:center}
+.hp-sd::before{content:'';position:absolute;bottom:-8px;width:100px;height:26px;border-radius:50%;background:radial-gradient(ellipse,rgba(120,180,255,.7),rgba(60,120,255,.2) 60%,transparent 70%)}
+.hp-sd img{position:relative;max-height:120px;max-width:100px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.6))}
+.hp-sd img.face{width:64px;height:64px;border-radius:50%;border:2px solid var(--gold);object-fit:cover}
+.hp-mid{position:absolute;left:0;right:0;bottom:150px;display:grid;justify-items:center;gap:4px}
+.hp-skill{display:grid;justify-items:center;gap:0;min-width:120px;padding:6px 12px;border:2px solid var(--gc);border-radius:8px;background:rgba(14,18,30,.85);color:#fff;box-shadow:0 0 12px rgba(0,0,0,.6)}
+.hp-skill span{font:400 15px "Black Han Sans"}.hp-skill small{font:600 10px 'IBM Plex Sans KR';color:var(--dim)}
+.hp-stars{font-size:22px;letter-spacing:-2px;color:var(--gold);text-shadow:0 1px 3px #000}.hp-stars span{color:#2c3040}
+.hp-name{width:min(72%,280px);border:1px solid #4a5677;border-radius:6px;background:rgba(20,26,44,.92);text-align:center;overflow:hidden}
+.hp-name b{display:block;padding:4px 0;font:400 20px "Black Han Sans";border-bottom:1px solid #34405e}
+.hp-name div{display:flex;justify-content:space-between;padding:3px 12px 4px;font:700 13px 'IBM Plex Sans KR';color:#c9d3ee}
+.hp-name i{font:400 18px "Black Han Sans";font-style:normal;color:#fff;margin-left:2px}
+.hp-name .pw{display:flex;align-items:center;gap:4px}.hp-name .pw svg{width:16px;height:16px}
+.hp-desc{position:absolute;left:0;right:0;bottom:112px;padding:7px 14px;background:linear-gradient(90deg,transparent,rgba(40,60,100,.75) 15%,rgba(40,60,100,.75) 85%,transparent);text-align:center;font:600 12.5px/1.45 'IBM Plex Sans KR';color:#e8ecf6}
+.hp-stats{position:absolute;left:10px;right:10px;bottom:66px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.hp-stats span{display:flex;align-items:center;justify-content:space-between;height:38px;padding:0 10px;border:1px solid #3a4560;border-radius:6px;background:rgba(18,22,36,.92)}
+.hp-stats .ic{width:18px;height:18px}.hp-stats b{font:400 17px "Black Han Sans";color:var(--gold)}
+.hp-btns{position:absolute;left:10px;right:10px;bottom:6px;display:grid;grid-template-columns:52px 1fr 1.25fr 52px;gap:6px;height:54px}
+.hp-b{display:grid;justify-items:center;align-content:center;gap:2px;border:1px solid #4a5677;border-radius:8px;background:linear-gradient(#3a4566,#252e45);color:#fff;padding:0}
+.hp-b b{font:400 16px "Black Han Sans"}
+.hp-b .pill2{display:flex;align-items:center;gap:4px;padding:1px 10px;border-radius:10px;background:rgba(0,0,0,.45);font:700 12px 'IBM Plex Sans KR'}
+.hp-b .pill2 .ic{width:15px;height:15px}.hp-b em{font-style:normal;color:#ff6b5b}.hp-b em.ok{color:#6ff0c8}
+.hp-b.sm{font:700 12px 'IBM Plex Sans KR'}.hp-b.sm.on{border-color:var(--gold);color:var(--gold)}
+.hp-b.lv:not(:disabled){background:linear-gradient(#ffe27a,#e0b33a);color:#2a2005;border-color:#fff2b0}
+.hp-b.lv:not(:disabled) .pill2{background:rgba(40,30,0,.75);color:#fff}
+.hp-b.star:not(:disabled){background:linear-gradient(#7d62d6,#4a3592);border-color:#c9b6ff}
+.hp-b:disabled{opacity:.55}
+.hp-no{position:absolute;left:10px;right:10px;bottom:20px;padding:12px;border-radius:8px;background:rgba(18,22,36,.92);text-align:center;font:700 13px 'IBM Plex Sans KR';color:var(--dim)}
+/* 승급 성공 창 */
+.mbox.su-box{background:rgba(10,12,20,.96);border-color:#34405e}
+.starup{display:grid;justify-items:center;gap:6px}
+.su-head{display:grid;justify-items:center;width:calc(100% + 40px);margin:-20px -20px 4px;padding:10px 0 8px;background:linear-gradient(90deg,transparent,rgba(60,90,150,.6),transparent);border-top:1px solid #c9b07a;border-bottom:1px solid #c9b07a}
+.su-head svg{width:54px;height:54px;animation:joinIn .5s cubic-bezier(.3,1.5,.5,1)}
+.su-head b{font:400 22px "Black Han Sans"}
+.su-face{width:84px;height:84px;border:3px solid;border-radius:6px;object-fit:cover;object-position:50% 20%}
+.su-nm{font:400 18px "Black Han Sans"}
+.su-st{display:flex;align-items:center;gap:10px;font-size:20px;color:var(--gold);letter-spacing:-2px}.su-st s{text-decoration:none;color:#2c3040}.su-st i{font-style:normal;color:#aab;letter-spacing:0}
+.su-st .nw{animation:joinIn .6s .2s both}
+.su-r{display:grid;grid-template-columns:22px 1fr auto 26px auto;align-items:center;gap:6px;width:100%;padding:8px 12px;border:1px solid #3a4560;background:#1a1f2e;font:700 14px 'IBM Plex Sans KR'}
+.su-r em{font-style:normal;color:#c9d3ee}.su-r i{font-style:normal;color:#ff6b5b;font-weight:900}.su-r b{min-width:52px;text-align:right;color:#a6f25b}
+.su-r .ic{width:18px;height:18px}
+.su-close{margin-top:8px;border:0;background:none;color:#e8ecf6;font:700 14px 'IBM Plex Sans KR'}
+
+/* ---------- 결과 띠 창 ---------- */
+#res{position:fixed;inset:0;z-index:55;display:none;place-items:center;background:rgba(4,6,12,.72)}
+#res.on{display:grid;animation:resIn .25s ease-out}
+@keyframes resIn{from{opacity:0}}
+.rs{width:100%;display:grid;justify-items:center}
+.rs-band{position:relative;width:100%;display:grid;justify-items:center;padding:36px 0 12px;background:linear-gradient(rgba(50,80,140,.0),rgba(50,80,140,.75) 30%,rgba(40,62,110,.75));border-top:2px solid #e6d3a3;margin-top:40px}
+.rs-band::before{content:'';position:absolute;left:0;right:0;top:-2px;height:2px;background:linear-gradient(90deg,transparent,#fff6d8 50%,transparent);box-shadow:0 0 12px #fff6d8}
+.rs-emb{position:absolute;top:-38px;width:68px;height:68px;filter:drop-shadow(0 0 12px rgba(160,190,255,.8));animation:joinIn .45s cubic-bezier(.3,1.6,.5,1)}
+.rs-band b{font:400 26px "Black Han Sans";letter-spacing:.04em;text-shadow:0 2px 6px #000}
+.rs-body{width:100%;display:grid;justify-items:center;gap:8px;padding:20px 16px 22px;background:rgba(28,36,56,.92);border-bottom:2px solid #e6d3a3}
+.rs-items{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.rs-it{position:relative;width:72px;height:72px;display:grid;place-items:center;border:2px solid #8fb0e8;border-radius:6px;background:radial-gradient(#3b5590,#1e2b4a);box-shadow:0 0 14px rgba(140,180,255,.55);animation:joinIn .5s cubic-bezier(.3,1.5,.5,1) both}
+.rs-it .ic,.rs-it svg{width:40px;height:40px}
+.rs-it img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;border-radius:4px}
+.rs-it span{position:absolute;left:0;right:0;bottom:1px;text-align:center;font:400 15px "Black Han Sans";color:#fff;text-shadow:0 0 3px #000,0 0 3px #000}
+.rs-tap{margin-top:18px;font:700 14px 'IBM Plex Sans KR';color:#e8ecf6;animation:opBlink 1.6s infinite}
+.rs-face{width:96px;height:96px;border:3px solid;border-radius:6px;object-fit:cover;object-position:50% 20%}
+.rs-nm{font:400 20px "Black Han Sans"}.rs-sub{font:600 13px 'IBM Plex Sans KR';color:var(--dim)}
+
+/* ---------- 근원체 출현 컷인 ---------- */
+#bossin{position:fixed;left:0;right:0;top:30%;z-index:9;display:none;pointer-events:none}
+#bossin.on{display:block;animation:bossIn 2.6s ease forwards}
+@keyframes bossIn{0%{opacity:0}8%{opacity:1}85%{opacity:1}100%{opacity:0}}
+#bossin .bt{position:relative;z-index:2;text-align:center;font:400 44px "Black Han Sans";color:#ff4a4a;letter-spacing:.06em;text-shadow:0 0 14px #ff2a2a,0 0 30px rgba(255,40,40,.7),0 3px 0 #400;animation:bossTx .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes bossTx{from{transform:scale(1.8);opacity:0}}
+#bossin .bb{position:relative;margin-top:-6px;height:150px;background:linear-gradient(rgba(40,62,110,.85),rgba(28,36,56,.95));border-top:2px solid #e6d3a3;border-bottom:2px solid #e6d3a3;overflow:visible}
+#bossin .bb img{position:absolute;left:50%;bottom:44px;height:190px;transform:translateX(-50%);filter:drop-shadow(0 0 16px rgba(255,60,60,.6));animation:bossImg .6s cubic-bezier(.2,.9,.3,1.1)}
+@keyframes bossImg{from{transform:translateX(-50%) translateY(30px) scale(.8);opacity:0}}
+#bossin .bn{position:absolute;left:0;right:0;bottom:8px;text-align:center}
+#bossin .bn b{display:block;font:400 24px "Black Han Sans"}#bossin .bn small{font:700 13px 'IBM Plex Sans KR';color:#9fc3ff}
+/* ---------- 전투 중 대사 ---------- */
+#talk{position:absolute;left:50%;top:calc(env(safe-area-inset-top) + 128px);z-index:4;display:none;width:min(84%,330px);transform:translateX(-50%);pointer-events:none}
+#talk.on{display:flex;animation:talkIn .35s cubic-bezier(.2,.9,.3,1.1)}
+@keyframes talkIn{from{opacity:0;transform:translateX(-50%) translateY(-8px)}}
+#talk{gap:10px;align-items:center;padding:8px 14px 8px 8px;border-radius:8px;background:rgba(14,18,30,.82);border:1px solid rgba(201,211,238,.25)}
+#talk img{width:56px;height:56px;border-radius:6px;object-fit:cover;object-position:50% 18%;flex:none}
+#talk b{display:block;font:400 17px "Black Han Sans";color:var(--tc,#fff)}#talk span{font:600 13px/1.45 'IBM Plex Sans KR'}
+/* ---------- 가이드 퀘스트 (세나 키우기처럼 두 줄 카드 + 오른쪽 보상 칸) ---------- */
+#quest{height:52px!important;border-radius:8px!important;padding:0 0 0 10px!important;background:rgba(14,18,30,.86)!important;align-items:stretch!important}
+#quest .q-l{display:flex!important;flex-direction:column;justify-content:center;flex:1;min-width:0;gap:3px}
+#quest .q-h{gap:6px}
+#quest .qn{padding:0;background:none;font:400 13px/1 "Black Han Sans";color:var(--gold)}
+#quest .qn::before{content:'⚡';margin-right:2px;font-size:11px}
+#quest .qt{font:400 14px "Black Han Sans"}
+#quest .q-p{display:flex!important;align-items:center;gap:6px}
+#quest .q-bar{position:relative!important;flex:1;height:4px!important;border-radius:2px;background:rgba(255,255,255,.1)!important}
+#quest .qc{font:700 11px 'IBM Plex Sans KR';color:#ff8a7a}
+#quest.done .qc{color:#6ff0c8}
+#quest .qr{margin:6px 6px 6px 8px;padding:0!important;width:40px;flex:none;justify-content:center;border:2px solid #6e86c4!important;border-radius:4px;background:radial-gradient(#3b5590,#1e2b4a)!important;position:relative}
+#quest .qr #qrw{flex-direction:column;gap:0}
+#quest .qr #qrw .ic{width:20px;height:20px}
+#quest .qr #qrw b{position:absolute;left:0;right:0;bottom:-1px;text-align:center;font:400 10px "Black Han Sans";text-shadow:0 0 2px #000}
+#quest .qr .qhero{width:36px!important;height:36px!important;border:0!important}
+#quest.done .qr{background:var(--gold)!important;border-color:#fff2b0!important}
+#quest.done .qr em{color:#2a2005;font:400 12px "Black Han Sans"}
+/* ---------- 처음 들어갈 때 도움말 ---------- */
+.help{display:grid;gap:10px}
+.help h2{display:flex;align-items:center;gap:8px;margin:0}
+.help h2 i{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#2a3352;border:2px solid #9fb3e8;font:400 17px "Black Han Sans";font-style:normal;color:#fff}
+.help ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:14px;line-height:1.55;color:#d6dbea}
+.help b{color:var(--gold)}
+
+/* ---------- 아이콘 개편: 하단 메뉴 방패 틀, 오른쪽 세로 메뉴 ---------- */
+#tabs .tb{width:46px;height:42px;clip-path:polygon(50% 0,100% 16%,100% 76%,50% 100%,0 76%,0 16%);background:linear-gradient(#7d88a6,#2b3249);position:relative}
+#tabs .tb::before{content:'';position:absolute;inset:2px;clip-path:inherit;background:radial-gradient(circle at 50% 30%,#3a4670,#161c2e 75%)}
+#tabs .tb svg{position:relative;width:30px;height:30px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))}
+#tabs button.on .tb{background:linear-gradient(#fff2b0,#b07c14)}
+#tabs button.on .tb::before{background:radial-gradient(circle at 50% 30%,#5a4a24,#1c1a14 75%)}
+#tabs button.on .tb svg{transform:scale(1.08)}
+#side{display:flex!important;flex-direction:column;align-items:center;gap:0!important;padding:4px 3px;border-radius:10px;background:rgba(10,14,24,.78);border:1px solid rgba(160,180,230,.28);box-shadow:0 2px 8px rgba(0,0,0,.45)}
+#side .sd-list{display:grid;gap:2px;margin-top:4px}
+#side button,#side #btnSet{width:44px!important;padding:3px 0 2px!important;border:0!important;background:none!important;box-shadow:none!important}
+#side svg{width:28px!important;height:28px!important;filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))}
+#side span{display:none}
+#side .sd-list button{height:38px}
+#sideTg svg{width:24px!important;height:24px!important}
+#side.fold .sd-list{display:none}
+#sideTg{position:relative}#sideTg.alert::after{content:'';position:absolute;right:2px;top:0;width:8px;height:8px;border-radius:50%;background:#ff4a3a}
+#side.fold #sideTg svg path:last-child{d:path("M7.5 9h9M7.5 12h9M7.5 15h9")}
+#sideTg .dot{right:2px;top:0}
+/* ---------- 절전 모드 ---------- */
+#sleep{position:fixed;inset:0;z-index:70;display:none;flex-direction:column;align-items:center;background:#000;color:#cfd5e4;touch-action:none;user-select:none}
+#sleep.on{display:flex}
+.sl-clock{margin-top:calc(env(safe-area-inset-top) + 70px);font:400 46px "Black Han Sans";letter-spacing:.04em;color:#e8ecf6}
+.sl-date{font:600 13px 'IBM Plex Sans KR';color:#6b7590}
+.sl-logo svg{width:70px;height:70px;margin:34px 0 10px;opacity:.8}
+.sl-lock{position:relative;width:96px;height:150px;border-radius:48px;border:1px solid #232a3c;background:linear-gradient(#0b0e16,#141a28)}
+.sl-knob{position:absolute;left:8px;bottom:8px;width:78px;height:78px;border-radius:50%;display:grid;place-items:center;background:#1d2334;border:2px solid #3a4462;box-shadow:0 0 18px rgba(140,170,255,.2)}
+.sl-knob svg{width:30px;height:30px}
+.sl-hint{margin-top:10px;font:700 12px 'IBM Plex Sans KR';color:#6b7590;animation:opBlink 2s infinite}
+.sl-st{margin-top:26px;font:400 20px "Black Han Sans";color:#e8ecf6}
+.sl-gain{display:flex;gap:10px;margin-top:12px}
+.sl-gain span{display:flex;align-items:center;gap:5px;min-width:96px;justify-content:center;padding:7px 12px;border-radius:16px;background:#121724;font:700 14px 'IBM Plex Sans KR'}
+.sl-tip{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 34px);display:grid;justify-items:center;gap:8px;font:600 12px 'IBM Plex Sans KR';color:#8a93ab;padding:0 30px;text-align:center}
+.sl-tip b{font:400 16px "Black Han Sans";color:#cfd5e4;display:flex;align-items:center;gap:12px}
+.sl-tip b::before,.sl-tip b::after{content:'';width:80px;height:1px;background:#3a4462}
+/* ---------- 설정 창 ---------- */
+.optg{margin:10px 0 4px;font:400 14px "Black Han Sans";color:var(--gold)}
+.tgl{position:relative;width:46px;height:24px;border:0;border-radius:12px;background:#2a3147;flex:none}
+.tgl::after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#8a93ab;transition:.15s}
+.tgl.on{background:#2a77d6}.tgl.on::after{left:25px;background:#fff}
+#talk{left:10px!important;right:62px;width:auto!important;transform:none!important}
+@keyframes talkIn{from{opacity:0;transform:translateY(-8px)}}
+.news h3{margin:12px 0 4px;font:400 15px "Black Han Sans"}.news h3 small{margin-left:6px;font:600 11px 'IBM Plex Sans KR';color:var(--dim)}
+.news ul{margin:0;padding-left:18px;font-size:13px;line-height:1.6;color:#d6dbea}
+
+/* ---------- 피해량 기록, 획득 기록 (세나 키우기 DPS 창처럼) ---------- */
+#meter{position:absolute;left:58px;bottom:calc(var(--teamH,74px) + 104px);z-index:3;display:none;width:170px;border-radius:8px;background:rgba(10,14,24,.88);border:1px solid rgba(160,180,230,.3);overflow:hidden}
+#meter.on{display:block}
+.mt-h{display:flex;background:rgba(255,255,255,.05)}
+.mt-h button{flex:1;height:26px;border:0;background:none;color:var(--dim);font:700 11px 'IBM Plex Sans KR'}
+.mt-h button.on{color:var(--gold);box-shadow:inset 0 -2px var(--gold)}
+#mtX{flex:none!important;width:26px}
+#mtB{display:grid;gap:4px;padding:6px}
+.mt-r{position:relative;display:flex;align-items:center;gap:5px;height:24px;font:700 11px 'IBM Plex Sans KR'}
+.mt-r img{width:22px;height:22px;border-radius:4px;object-fit:cover;object-position:50% 20%;position:relative}
+.mt-r i{position:absolute;left:27px;top:2px;bottom:2px;border-radius:3px;background:linear-gradient(90deg,rgba(242,201,76,.5),rgba(242,201,76,.15));width:var(--w)}
+.mt-r span{position:relative;flex:1;padding-left:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px #000}
+.mt-r b{position:relative;font-weight:700}
+.mt-r .ic{width:18px;height:18px;margin:0 2px}
+.mt-f{display:flex;justify-content:space-between;padding-top:3px;border-top:1px solid rgba(255,255,255,.08);font:700 10px 'IBM Plex Sans KR';color:var(--dim)}
+.mt-f button{border:0;background:none;color:#9fc3ff;font:700 10px 'IBM Plex Sans KR';padding:0}
+#bMeter[aria-pressed="true"]{color:var(--gold);border-color:var(--gold)}
+
+/* ---------- 수사 수첩 ---------- */
+.road{display:grid;gap:7px;max-height:62vh;overflow:auto;margin:8px 0}
+.rd{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:#1b2236;border:1px solid var(--line)}
+.rd.lock{opacity:.55}.rd.done{opacity:.6}
+.rd-i{width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:6px;background:radial-gradient(#3b5590,#1e2b4a);border:1px solid #6e86c4;font:400 14px "Black Han Sans"}
+.rd-t{flex:1;min-width:0}.rd-t b{display:block;font:400 15px "Black Han Sans"}
+.rd-t small{font:600 11px 'IBM Plex Sans KR';color:var(--dim)}
+.rd-bar{height:4px;margin-top:4px;border-radius:2px;background:rgba(255,255,255,.08)}.rd-bar i{display:block;height:100%;border-radius:2px;background:#4f8de8}
+.rd-r{position:relative;width:46px;height:46px;flex:none;display:grid;place-items:center;border-radius:6px;border:2px solid #8fb0e8;background:radial-gradient(#3b5590,#1e2b4a)}
+.rd-r .ic{width:26px;height:26px}.rd-r span{position:absolute;bottom:0;left:0;right:0;text-align:center;font:400 11px "Black Han Sans";text-shadow:0 0 2px #000}
+.rd.ready .rd-r{border-color:var(--gold);box-shadow:0 0 10px rgba(242,201,76,.6);animation:qpulse 1.2s infinite}
+.rd.done .rd-r::after{content:'✓';position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.55);font:400 22px "Black Han Sans";color:#6ff0c8}
+/* ---------- 프로필 창 ---------- */
+.pfw-h{display:flex;gap:12px;align-items:center}
+.pfw-h img{width:64px;height:64px;border-radius:8px;object-fit:cover;object-position:50% 20%;border:2px solid var(--gold)}
+.pfw-h b{display:block;font:400 20px "Black Han Sans"}.pfw-h small{font:600 12px 'IBM Plex Sans KR';color:var(--dim)}
+.pfw-g{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0}
+.pfw-g button{position:relative;aspect-ratio:1;padding:0;border:2px solid #3a4462;border-radius:6px;overflow:hidden;background:#1b2236}
+.pfw-g button img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.pfw-g button.on{border-color:var(--gold)}.pfw-g button.on::after{content:'✓';position:absolute;right:2px;top:0;font:400 14px "Black Han Sans";color:var(--gold);text-shadow:0 0 3px #000}
+.pfw-s{display:grid;gap:4px;margin-top:6px}
+.pfw-s div{display:flex;justify-content:space-between;padding:6px 10px;border-radius:6px;background:#1b2236;font:600 13px 'IBM Plex Sans KR'}
+.pfw-s b{color:var(--gold)}
+#prof{cursor:pointer}
+/* ---------- 근원체 이야기 ---------- */
+#story{position:fixed;inset:0;z-index:62;display:none;background:#05070c}
+#story.on{display:block;animation:resIn .3s}
+#story img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 15%;animation:stKb 6s ease-out forwards}
+@keyframes stKb{from{transform:scale(1.12)}to{transform:scale(1)}}
+#story::after{content:'';position:absolute;inset:0;background:linear-gradient(transparent 50%,rgba(0,0,0,.85) 78%)}
+.st-box{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + 64px);z-index:2;padding:0 22px}
+.st-box b{display:block;padding-left:10px;border-left:3px solid var(--gold);font:400 20px "Black Han Sans";color:var(--gold)}
+.st-box p{margin:10px 0 0;min-height:48px;font:600 16px/1.55 'IBM Plex Sans KR';color:#fff}
+.st-next{position:absolute;right:22px;bottom:-26px;font-style:normal;color:#fff;animation:opBlink 1.2s infinite}
+#stSkip{position:absolute;right:14px;bottom:calc(env(safe-area-inset-bottom) + 16px);z-index:3;border:0;background:none;color:#fff;font:400 15px "Black Han Sans"}
+
+.book{display:grid;gap:8px;margin:8px 0;max-height:60vh;overflow:auto}
+.bk{position:relative;display:flex;align-items:center;gap:10px;height:64px;padding:0 14px 0 0;border:1px solid #3a4462;border-radius:8px;overflow:hidden;background:#141a28;color:var(--ink);text-align:left}
+.bk img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 40%;opacity:.45}
+.bk.lock img{filter:grayscale(1);opacity:.2}
+.bk span{position:relative;flex:1;padding-left:14px}.bk b{display:block;font:400 17px "Black Han Sans";text-shadow:0 1px 3px #000}
+.bk small{font:600 12px 'IBM Plex Sans KR';color:#c9d3ee;text-shadow:0 1px 3px #000}
+.bk i{position:relative;font-style:normal;color:var(--gold)}
 </style>
 </head>
 <body>
@@ -636,18 +929,30 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
 <svg width="0" height="0" style="position:absolute">
   <defs>
     <radialGradient id="gG" cx="35%" cy="30%"><stop offset="0" stop-color="#fff2b0"/><stop offset=".5" stop-color="#f5c451"/><stop offset="1" stop-color="#b9780f"/></radialGradient>
+    <linearGradient id="cG1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff0a8"/><stop offset=".45" stop-color="#f6c240"/><stop offset="1" stop-color="#b8740c"/></linearGradient>
+    <radialGradient id="cG2" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#ffe27a"/><stop offset="1" stop-color="#d98d12"/></radialGradient>
+    <linearGradient id="cX1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b8ffe6"/><stop offset=".5" stop-color="#2fd39b"/><stop offset="1" stop-color="#0a7a55"/></linearGradient>
+    <linearGradient id="cT1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff1b3"/><stop offset=".5" stop-color="#f3c44f"/><stop offset="1" stop-color="#c78a17"/></linearGradient>
+    <linearGradient id="cP1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eadcff"/><stop offset=".5" stop-color="#a47dff"/><stop offset="1" stop-color="#6237c9"/></linearGradient>
+    <linearGradient id="mGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3bf"/><stop offset=".5" stop-color="#f2c14a"/><stop offset="1" stop-color="#a86a0b"/></linearGradient>
+    <linearGradient id="mSteel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef2fb"/><stop offset=".55" stop-color="#9aa6c2"/><stop offset="1" stop-color="#525d7a"/></linearGradient>
+    <linearGradient id="mBlue" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7f9be6"/><stop offset="1" stop-color="#26346a"/></linearGradient>
+    <linearGradient id="mRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb3a6"/><stop offset=".45" stop-color="#ef4b3a"/><stop offset="1" stop-color="#8e1a12"/></linearGradient>
+    <linearGradient id="mPur" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b79bff"/><stop offset="1" stop-color="#3d2788"/></linearGradient>
+    <linearGradient id="mSkin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe6d2"/><stop offset="1" stop-color="#e2ae8a"/></linearGradient>
+    <linearGradient id="mGrn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b8ffd9"/><stop offset="1" stop-color="#1fa868"/></linearGradient>
     <linearGradient id="gX" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6ff0c8"/><stop offset="1" stop-color="#14a07a"/></linearGradient>
     <linearGradient id="gM" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bff4ff"/><stop offset=".5" stop-color="#46b6ff"/><stop offset="1" stop-color="#2346c9"/></linearGradient>
   </defs>
-  <symbol id="i-gold" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="url(#gG)" stroke="#8a5609" stroke-width="1.4"/><circle cx="12" cy="12" r="6.5" fill="none" stroke="#a96d0c" stroke-width="1.3"/><path d="M12 8.2l1.1 2.4 2.6.3-1.9 1.8.5 2.6-2.3-1.3-2.3 1.3.5-2.6-1.9-1.8 2.6-.3z" fill="#fff4c2"/></symbol>
-  <symbol id="i-gem" viewBox="0 0 24 24"><path d="M6 3h12l4 6-10 12L2 9z" fill="url(#gM)" stroke="#1a2f8f" stroke-width="1.3" stroke-linejoin="round"/><path d="M2 9h20M8 3l-2 6 6 12 6-12-2-6" fill="none" stroke="#e4fbff" stroke-width=".9" opacity=".8"/></symbol>
-  <symbol id="i-exp" viewBox="0 0 24 24"><path d="M12 2l8.5 5v10L12 22l-8.5-5V7z" fill="url(#gX)" stroke="#0d5a4a" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 13.5l4-4 4 4M8 17l4-4 4 4" fill="none" stroke="#eafff8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  <symbol id="i-tix" viewBox="0 0 24 24"><path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4z" fill="#E9C46A" stroke="#7a5a12" stroke-width="1.3" stroke-linejoin="round"/><path d="M15 7v10" stroke="#7a5a12" stroke-width="1.1" stroke-dasharray="1.6 1.6"/><path d="M7.5 10.2h4.5M7.5 13.8h3" stroke="#7a5a12" stroke-width="1.3" stroke-linecap="round"/></symbol>
-  <symbol id="i-ptix" viewBox="0 0 24 24"><path d="M3 7h18v3a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4z" fill="#A98BFF" stroke="#3c2a7a" stroke-width="1.3" stroke-linejoin="round"/><path d="M15 7v10" stroke="#3c2a7a" stroke-width="1.1" stroke-dasharray="1.6 1.6"/><path d="M9.5 9.3l.9 1.9 2.1.3-1.5 1.4.4 2-1.9-1-1.9 1 .4-2-1.5-1.4 2.1-.3z" fill="#fff"/></symbol>
+  <symbol id="i-gold" viewBox="0 0 24 24"><circle cx="12" cy="13.3" r="9.6" fill="#7a4806"/><circle cx="12" cy="12" r="9.6" fill="url(#cG1)" stroke="#5a3504" stroke-width="1.1"/><circle cx="12" cy="12" r="6.9" fill="url(#cG2)" stroke="#a8690b" stroke-width="1.1"/><path d="M12 7.6l1.3 2.7 3 .4-2.2 2.1.5 3-2.6-1.4-2.6 1.4.5-3-2.2-2.1 3-.4z" fill="#fff6cf" stroke="#b37510" stroke-width=".7" stroke-linejoin="round"/><path d="M5.3 9.2A7.6 7.6 0 0 1 10.6 4.6" fill="none" stroke="#fffbe8" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="i-gem" viewBox="0 0 24 24"><path d="M7 3.5h10L21.6 9 12 21.6 2.4 9z" fill="#0c1a4a" transform="translate(0 .9)"/><path d="M7 3.5L9 9H2.4z" fill="#58c0ff"/><path d="M7 3.5h10L15 9H9z" fill="#c9f6ff"/><path d="M17 3.5L21.6 9H15z" fill="#2f82ea"/><path d="M2.4 9H9l3 12.6z" fill="#2a6fe0"/><path d="M9 9h6l-3 12.6z" fill="#6fb8ff"/><path d="M15 9h6.6L12 21.6z" fill="#1844b5"/><path d="M7 3.5h10L21.6 9 12 21.6 2.4 9z" fill="none" stroke="#0c1a4a" stroke-width="1.2" stroke-linejoin="round"/><path d="M5.6 4.2l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6z" fill="#fff"/></symbol>
+  <symbol id="i-exp" viewBox="0 0 24 24"><path d="M12 3l8 4.6v9.2L12 21.4l-8-4.6V7.6z" fill="#06402c" transform="translate(0 1)"/><path d="M12 2l8 4.6v9.2L12 20.4l-8-4.6V6.6z" fill="url(#cX1)" stroke="#06402c" stroke-width="1.2" stroke-linejoin="round"/><path d="M12 2v9.2l8-4.6M12 11.2L4 6.6" fill="none" stroke="#dcfff3" stroke-width=".7" opacity=".55"/><path d="M8 12.6l4-3.6 4 3.6M8 16.2l4-3.6 4 3.6" fill="none" stroke="#06402c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 12.6l4-3.6 4 3.6M8 16.2l4-3.6 4 3.6" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-tix" viewBox="0 0 24 24"><path d="M2.5 6.5h19v3.2a2.3 2.3 0 0 0 0 4.6v3.2h-19v-3.2a2.3 2.3 0 0 0 0-4.6z" fill="#6b4a0c" transform="translate(0 1.2)"/><path d="M2.5 6.5h19v3.2a2.3 2.3 0 0 0 0 4.6v3.2h-19v-3.2a2.3 2.3 0 0 0 0-4.6z" fill="url(#cT1)" stroke="#6b4a0c" stroke-width="1.2" stroke-linejoin="round"/><path d="M15.5 7v10" stroke="#8a6212" stroke-width="1.1" stroke-dasharray="1.5 1.4"/><circle cx="9" cy="12" r="3.3" fill="#fff4c9" stroke="#a6730f" stroke-width=".9"/><path d="M9 10.2l.6 1.2 1.3.2-1 .9.3 1.3L9 13.2l-1.2.6.3-1.3-1-.9 1.3-.2z" fill="#c4860f"/><path d="M4 8h9" stroke="#fffbe6" stroke-width="1" stroke-linecap="round" opacity=".9"/></symbol>
+  <symbol id="i-ptix" viewBox="0 0 24 24"><path d="M2.5 6.5h19v3.2a2.3 2.3 0 0 0 0 4.6v3.2h-19v-3.2a2.3 2.3 0 0 0 0-4.6z" fill="#2a1666" transform="translate(0 1.2)"/><path d="M2.5 6.5h19v3.2a2.3 2.3 0 0 0 0 4.6v3.2h-19v-3.2a2.3 2.3 0 0 0 0-4.6z" fill="url(#cP1)" stroke="#2a1666" stroke-width="1.2" stroke-linejoin="round"/><path d="M15.5 7v10" stroke="#3c2290" stroke-width="1.1" stroke-dasharray="1.5 1.4"/><circle cx="9" cy="12" r="3.4" fill="#2a1666"/><path d="M9 9.4l.8 1.7 1.9.3-1.4 1.3.3 1.9L9 13.7l-1.7.9.3-1.9-1.4-1.3 1.9-.3z" fill="#ffe27a"/><path d="M4 8h9" stroke="#f6efff" stroke-width="1" stroke-linecap="round" opacity=".9"/><path d="M19.4 3.3l.5 1.1 1.1.5-1.1.5-.5 1.1-.5-1.1-1.1-.5 1.1-.5z" fill="#fff"/></symbol>
   <symbol id="i-auto" viewBox="0 0 24 24"><path d="M19 8a8 8 0 0 0-14 1M5 16a8 8 0 0 0 14-1" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M19 3v5h-5M5 21v-5h5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-fast" viewBox="0 0 24 24"><path d="M3 5l9 7-9 7zM12 5l9 7-9 7z" fill="currentColor"/></symbol>
   <symbol id="i-gear" viewBox="0 0 24 24"><path d="M10.3 2.5h3.4l.5 2.6 2 .9 2.2-1.5 2.4 2.4-1.5 2.2.9 2 2.6.5v3.4l-2.6.5-.9 2 1.5 2.2-2.4 2.4-2.2-1.5-2 .9-.5 2.6h-3.4l-.5-2.6-2-.9-2.2 1.5-2.4-2.4 1.5-2.2-.9-2-2.6-.5v-3.4l2.6-.5.9-2-1.5-2.2 2.4-2.4 2.2 1.5 2-.9z" fill="#8F9AB0"/><circle cx="12" cy="12" r="3.4" fill="#0F1422"/></symbol>
-  <symbol id="i-sword" viewBox="0 0 24 24"><path d="M19 3l2 2-10 10-2-2z" fill="#dfe6ff" stroke="#6b78b5"/><path d="M6 14l4 4-2 1-1.5-1.5L4 20l-1-1 2.5-2.5L4 15z" fill="#f5c451" stroke="#8a5609"/></symbol>
+  <symbol id="i-sword" viewBox="0 0 24 24"><path d="M20.5 2.5l1 1-1.3 3.4L10.8 16.3l-3.1-3.1L17.1 3.8z" fill="url(#mSteel)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M19.6 4.4L9.4 14.6" stroke="#fff" stroke-width=".8" opacity=".8"/><path d="M5.4 12.4l6.2 6.2-1.6 1.2-1.6-1.6-3.2 3.2-1.6-1.6 3.2-3.2-1.6-1.6z" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/></symbol>
   <!-- 요원 분류 4가지: 공격(화살), 광역(퍼짐), 방어(방패), 지원(십자) -->
   <symbol id="i-t-공격" viewBox="0 0 24 24"><path d="M5 19L18 6M11 6h7v7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-t-광역" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l2.5 2.5M16.5 16.5L19 19M19 5l-2.5 2.5M7.5 16.5L5 19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
@@ -669,13 +974,21 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
       </div>
     </div>
     <!-- 오른쪽: 설정, 일일 임무, 출석 -->
-    <div id="side"><button id="btnSet" aria-label="설정"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.5" fill="#c9d3ee"/><rect x="13" y="4" width="7" height="7" rx="1.5" fill="#c9d3ee"/><rect x="4" y="13" width="7" height="7" rx="1.5" fill="#c9d3ee"/><rect x="13" y="13" width="7" height="7" rx="1.5" fill="#f2c94c"/></svg><span>설정</span></button>
-      <button data-side="mis"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2" fill="#2a3352" stroke="#9fb3e8" stroke-width="1.5"/><rect x="9" y="2.5" width="6" height="3.5" rx="1" fill="#9fb3e8"/><path d="M8 11l1.6 1.6L12.5 9.7M8 16l1.6 1.6 2.9-2.9" fill="none" stroke="#ffd23f" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 11.5h2.5M14 16.5h2.5" stroke="#9fb3e8" stroke-width="1.5" stroke-linecap="round"/></svg><span>임무</span><i class="dot" id="dotMis"></i></button>
-      <button data-side="att"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2" fill="#2a3352" stroke="#9fb3e8" stroke-width="1.5"/><path d="M3.5 9.5h17" stroke="#9fb3e8" stroke-width="1.5"/><path d="M8 3v4M16 3v4" stroke="#9fb3e8" stroke-width="1.8" stroke-linecap="round"/><path d="M12 11.6l1 2.1 2.3.3-1.7 1.6.4 2.3-2-1.1-2 1.1.4-2.3-1.7-1.6 2.3-.3z" fill="#ffd23f"/></svg><span>출석</span><i class="dot" id="dotAtt"></i></button></div>
+    <div id="side"><button id="sideTg" aria-label="메뉴 접기"><svg viewBox="0 0 24 24"><path d="M12 1.5L22.5 12 12 22.5 1.5 12z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+      <div class="sd-list">
+      <button data-side="road"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="url(#mSteel)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><circle cx="12" cy="12" r="7.6" fill="#26304c" stroke="#141a2b" stroke-width=".9"/><path d="M12 5.2l2 6.8-2 6.8-2-6.8z" fill="url(#mGold)" stroke="#5a3504" stroke-width=".6"/><path d="M12 12l2-.0" /><path d="M5.2 12l6.8-2 6.8 2-6.8 2z" fill="#9fb3e8" opacity=".85"/><circle cx="12" cy="12" r="1.4" fill="#fff"/></svg><span>수첩</span><i class="dot" id="dotRoad"></i></button>
+      <button data-side="mis"><svg viewBox="0 0 24 24"><rect x="4.5" y="4" width="15" height="18" rx="2" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><rect x="6.5" y="6.5" width="11" height="13.5" rx="1" fill="#eef2fb"/><rect x="8.5" y="2.5" width="7" height="4" rx="1" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8 11l1.5 1.5 2.6-2.8M8 16l1.5 1.5 2.6-2.8" fill="none" stroke="#1fa868" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.8 11.3h2.2M13.8 16.3h2.2" stroke="#7c87a6" stroke-width="1.5" stroke-linecap="round"/></svg><span>임무</span><i class="dot" id="dotMis"></i></button>
+      <button data-side="att"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" fill="#eef2fb" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v3H3z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M8 3v4M16 3v4" stroke="#141a2b" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="15.3" r="4" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M10.3 15.3l1.2 1.2 2.3-2.4" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>출석</span><i class="dot" id="dotAtt"></i></button>
+      <button data-side="book"><svg viewBox="0 0 24 24"><path d="M3 5.5c3-1.2 6-1.2 9 .6v14c-3-1.8-6-1.8-9-.6z" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M21 5.5c-3-1.2-6-1.2-9 .6v14c3-1.8 6-1.8 9-.6z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M5 8.5c1.8-.6 3.6-.5 5 .3M5 11.5c1.8-.6 3.6-.5 5 .3M14 8.8c1.4-.8 3.2-.9 5-.3" stroke="#eef2fb" stroke-width=".9" stroke-linecap="round" opacity=".8"/><path d="M15.5 12l.9 1.9 2 .3-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.3z" fill="url(#mGold)"/></svg><span>기록</span></button>
+      <button data-side="news"><svg viewBox="0 0 24 24"><path d="M4 9.5h3.5L16 4.5v15L7.5 14.5H4z" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M6 14.5l1.5 5h2.6l-1.2-5" fill="url(#mSteel)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><path d="M18.5 9a4 4 0 0 1 0 6M20.5 7a7 7 0 0 1 0 10" fill="none" stroke="#9fc3ff" stroke-width="1.6" stroke-linecap="round"/></svg><span>소식</span><i class="dot" id="dotNews"></i></button>
+      <button data-side="sleep"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="16" height="11" rx="2" fill="#26304c" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><rect x="19" y="10" width="2.6" height="5" rx="1" fill="url(#mSteel)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><rect x="5" y="9" width="12" height="7" rx="1" fill="url(#mGrn)"/><path d="M12 8.6L8.6 13h2.6l-1.2 3.8 4-4.8h-2.7z" fill="#fff" stroke="#0a5a36" stroke-width=".7" stroke-linejoin="round"/></svg><span>절전</span></button>
+      <button id="btnSet" aria-label="설정"><svg viewBox="0 0 24 24"><path d="M10.3 2.5h3.4l.5 2.6 2 .9 2.2-1.5 2.4 2.4-1.5 2.2.9 2 2.6.5v3.4l-2.6.5-.9 2 1.5 2.2-2.4 2.4-2.2-1.5-2 .9-.5 2.6h-3.4l-.5-2.6-2-.9-2.2 1.5-2.4-2.4 1.5-2.2-.9-2-2.6-.5v-3.4l2.6-.5.9-2-1.5-2.2 2.4-2.4 2.2 1.5 2-.9z" fill="url(#mSteel)" stroke="#141a2b" stroke-width="1.1" stroke-linejoin="round"/><circle cx="12" cy="12" r="3.6" fill="#26304c" stroke="#141a2b" stroke-width="1.1"/><circle cx="12" cy="12" r="1.6" fill="url(#mGold)"/></svg><span>설정</span></button>
+      </div></div>
     <button id="bossBtn">근원체 추적</button>
     <div id="banner"></div>
     <!-- 왼쪽 아래 세로: 자동 기술, 배속 -->
-    <div id="bctl"><button id="bAuto" aria-pressed="true"><svg class="ic"><use href="#i-auto"/></svg><span>자동</span></button><button id="bSpd" aria-pressed="false"><svg class="ic"><use href="#i-fast"/></svg><span id="bSpdT">×1</span></button></div>
+    <div id="meter"><div class="mt-h"><button data-mt="dps" class="on">피해량</button><button data-mt="log">획득</button><button id="mtX" aria-label="닫기">✕</button></div><div id="mtB"></div></div>
+    <div id="bctl"><button id="bAuto" aria-pressed="true"><svg class="ic"><use href="#i-auto"/></svg><span>자동</span></button><button id="bSpd" aria-pressed="false"><svg class="ic"><use href="#i-fast"/></svg><span id="bSpdT">×1</span></button><button id="bMeter" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1" fill="currentColor"/><rect x="10" y="8" width="4" height="13" rx="1" fill="currentColor"/><rect x="17" y="3" width="4" height="18" rx="1" fill="currentColor"/></svg><span>기록</span></button></div>
     <!-- 가운데 아래: 가이드 퀘스트 -->
     <button id="quest" aria-live="polite">
       <span class="q-l"><span class="q-h"><span class="qn" id="qn"></span><span class="qt" id="qt"></span></span>
@@ -688,22 +1001,41 @@ h3{margin:18px 2px 8px;font:400 16px "Black Han Sans";color:var(--dim)}
     <div id="party"></div>
   </div>
   <div id="phead"><button id="phBack" aria-label="뒤로">
-      <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><b id="phTitle">요원</b>
+      <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><span class="phpw">전투력 <b id="phPw">0</b></span>
     <span class="pill"><svg class="ic"><use href="#i-exp"/></svg><span id="phExp">0</span></span><span class="pill"><svg class="ic"><use href="#i-gold"/></svg><span id="phGold">0</span></span></div>
   <div id="panel"></div>
+  <div id="hpage"></div>
+  <!-- 요원 창 아래 작은 탭: 요원 관리 / 편성 / 도감 (세나 키우기 영웅 창과 같은 자리) -->
+  <div id="hsub"><button data-hsub="manage">요원 관리</button><button data-hsub="form">편성</button><button data-hsub="codex">도감</button></div>
   <!-- 아래 띠: 전투력과 재화 / 메뉴 -->
   <div id="bottom">
     <div id="bbar"><span class="pw">전투력 <b id="power">0</b></span>
       <span class="pill"><svg class="ic"><use href="#i-gold"/></svg><span id="gold">0</span></span>
       <span class="pill"><svg class="ic"><use href="#i-gem"/></svg><span id="gems">0</span></span></div>
     <nav id="tabs">
-      <button data-tab="hero"><span class="tb"><svg viewBox="0 0 32 32"><circle cx="16" cy="11" r="5.5" fill="#c9d3ee"/><path d="M6 27c1-6.5 5-10 10-10s9 3.5 10 10z" fill="#c9d3ee"/><path d="M13 19l3 4 3-4" fill="none" stroke="#2a3352" stroke-width="1.6"/><rect x="20" y="19.5" width="6" height="4" rx="1" fill="#f2c94c"/></svg></span><span class="tl">요원</span><i class="dot" id="dotHero"></i></button>
-      <button data-tab="train"><span class="tb"><svg viewBox="0 0 32 32"><rect x="5" y="18" width="5" height="9" rx="1" fill="#8fa2d6"/><rect x="13.5" y="13" width="5" height="14" rx="1" fill="#b6c3ea"/><rect x="22" y="7" width="5" height="20" rx="1" fill="#f2c94c"/><path d="M5 12l7-6 4 3 7-6" fill="none" stroke="#f2c94c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="tl">성장</span><i class="dot" id="dotTrain"></i></button>
-      <button data-tab="run"><span class="tb"><svg viewBox="0 0 32 32"><path d="M10 22a6 6 0 0 1 12 0z" fill="#e0503e"/><rect x="7" y="22" width="18" height="4" rx="1" fill="#c9d3ee"/><path d="M16 6v4M7 9l2.5 2.5M25 9l-2.5 2.5M4 16h3M25 16h3" stroke="#f2c94c" stroke-width="2" stroke-linecap="round"/></svg></span><span class="tl">작전</span><i class="dot" id="dotRun"></i></button>
-      <button data-tab="summon"><span class="tb"><svg viewBox="0 0 32 32"><rect x="5" y="8" width="13" height="18" rx="2" transform="rotate(-10 11 17)" fill="#5b4a9a" stroke="#c9b6ff" stroke-width="1.4"/><rect x="13" y="6" width="13" height="18" rx="2" transform="rotate(8 19 15)" fill="#2a3352" stroke="#f2c94c" stroke-width="1.6"/><path d="M19.5 11.5l1.2 2.6 2.8.3-2.1 1.9.6 2.8-2.5-1.4-2.5 1.4.6-2.8-2.1-1.9 2.8-.3z" fill="#f2c94c"/></svg></span><span class="tl">호출</span></button>
+      <button data-tab="hero"><span class="tb"><svg viewBox="0 0 32 32"><path d="M4.5 30c.8-7.5 5.2-11.5 11.5-11.5S26.7 22.5 27.5 30z" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M11.6 19.3L16 26l4.4-6.7" fill="#eef2fb" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M16 22.4l-1.4 3.2 1.4 3 1.4-3z" fill="#e0503e"/><circle cx="16" cy="12" r="6" fill="url(#mSkin)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M9.8 12.2c-.4-4.6 2.4-7.2 6.2-7.2s6.6 2.6 6.2 7.2c-1-2-3.3-2.9-6.2-2.9s-5.2.9-6.2 2.9z" fill="#2b2333" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M20.5 22.3l3.6.9v2.6c0 1.6-1.6 2.8-3.6 3.4-2-.6-3.6-1.8-3.6-3.4v-2.6z" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/></svg></span><span class="tl">요원</span><i class="dot" id="dotHero"></i></button>
+      <button data-tab="train"><span class="tb"><svg viewBox="0 0 32 32"><rect x="4" y="21" width="7" height="8" rx="1" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><rect x="12.5" y="17" width="7" height="12" rx="1" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><rect x="21" y="13" width="7" height="16" rx="1" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M16 2.5l9 9.5h-5v6h-8v-6H7z" fill="url(#mGold)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M16 5.6l-5.4 5.6" stroke="#fffbe6" stroke-width="1.3" stroke-linecap="round"/><path d="M5 6.5l.7 1.6 1.6.7-1.6.7L5 11.1l-.7-1.6-1.6-.7 1.6-.7zM27 3.5l.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5z" fill="#fff6cf"/></svg></span><span class="tl">성장</span><i class="dot" id="dotTrain"></i></button>
+      <button data-tab="run"><span class="tb"><svg viewBox="0 0 32 32"><path d="M16 3v4M5 7.5l2.8 2.8M27 7.5l-2.8 2.8M2.5 17h3.5M26 17h3.5" stroke="#ffd23f" stroke-width="2.4" stroke-linecap="round"/><path d="M8.5 23v-6.5a7.5 7.5 0 0 1 15 0V23z" fill="url(#mRed)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M12 16.5a4 4 0 0 1 3.4-4" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".9"/><rect x="5.5" y="22.5" width="21" height="6" rx="1.5" fill="url(#mSteel)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><path d="M9 25.5h14" stroke="#525d7a" stroke-width="1.2"/></svg></span><span class="tl">작전</span><i class="dot" id="dotRun"></i></button>
+      <button data-tab="summon"><span class="tb"><svg viewBox="0 0 32 32"><rect x="4" y="7" width="13" height="19" rx="2" transform="rotate(-14 10.5 16.5)" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><rect x="15" y="7" width="13" height="19" rx="2" transform="rotate(14 21.5 16.5)" fill="url(#mBlue)" stroke="#141a2b" stroke-width="1.3" stroke-linejoin="round"/><rect x="9.5" y="5" width="13" height="21" rx="2" fill="url(#mPur)" stroke="#141a2b" stroke-width="1.3"/><rect x="11" y="6.5" width="10" height="18" rx="1.2" fill="none" stroke="url(#mGold)" stroke-width="1.3"/><path d="M16 9.5l1.7 3.5 3.8.5-2.8 2.7.7 3.8L16 18.2 12.6 20l.7-3.8-2.8-2.7 3.8-.5z" fill="url(#mGold)" stroke="#5a3504" stroke-width=".8" stroke-linejoin="round"/><path d="M27.5 3.5l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6z" fill="#fff"/></svg></span><span class="tl">호출</span></button>
     </nav>
   </div>
   <div id="modal"></div>
+  <!-- 결과 띠 창: 보상 획득, 승급 성공, 새 요원 합류 (세나 키우기처럼 가운데 넓은 띠 + 문장 + 터치하여 닫기) -->
+  <div id="res"></div>
+  <!-- 구역 근원체 첫 등장 이야기 (세나 키우기 보스 등장 대화처럼) -->
+  <div id="story"><img id="stImg" alt=""><div class="st-box"><b id="stName"></b><p id="stLine"></p><i class="st-next">▼</i></div><button id="stSkip">SKIP ▸▸</button></div>
+  <!-- 절전 모드: 화면을 검게 끄고 전투는 계속 (세나 키우기처럼 밀어서 해제) -->
+  <div id="sleep"><div class="sl-clock" id="slClock"></div><div class="sl-date" id="slDate"></div>
+    <div class="sl-logo"><svg viewBox="0 0 24 24"><path d="M12 8.6L8.6 13h2.6l-1.2 3.8 4-4.8h-2.7z" fill="#6b7590"/></svg></div>
+    <div class="sl-lock" id="slLock"><div class="sl-knob" id="slKnob"><svg viewBox="0 0 24 24"><rect x="6" y="11" width="12" height="9" rx="2" fill="#9aa6c2"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3" fill="none" stroke="#9aa6c2" stroke-width="2"/></svg></div></div>
+    <div class="sl-hint">위로 밀어서 해제</div>
+    <div class="sl-st" id="slSt"></div>
+    <div class="sl-gain" id="slGain"></div>
+    <div class="sl-tip"><b>TIP</b><span id="slTip"></span></div></div>
+  <!-- 근원체 출현 컷인 -->
+  <div id="bossin"></div>
+  <!-- 전투 중 요원 대사 -->
+  <div id="talk"></div>
   <div id="rift" aria-hidden="true">
     <div class="rf-head"><div><small id="rfZone"></small><b>균열 심층</b></div><div class="rf-depth"><small>심도</small><b id="rfDepth"></b></div><button class="rf-x" data-rf="close" aria-label="닫기">✕</button></div>
     <div class="rf-shaft" id="rfShaft"></div>
@@ -1205,7 +1537,7 @@ try { const v = parseFloat(localStorage.getItem('aiu-dpr')); if (v >= 1 && v <= 
 /* 그래픽 설정 (세븐나이츠 키우기의 그래픽 품질, 프레임 설정과 같은 역할)
  * hi: 높음이면 안개, 등불 반사, 윤곽 빛, 몸 휘기, 비 90줄. 낮음이면 모두 끄고 비 30줄, 해상도 1배
  * fps60: 끄면 초당 30번만 그림 (배터리와 발열도 줄어듦) */
-const GQ = { hi: true, fps60: true, auto: true };
+const GQ = { hi: true, fps60: true, auto: true, dmgNum: true, shake: true, autoSleep: 0 };
 try { Object.assign(GQ, JSON.parse(localStorage.getItem('aiu-gfx') || '{}')); } catch (e) { /* 저장 불가 */ }
 function saveGQ() { try { localStorage.setItem('aiu-gfx', JSON.stringify(GQ)); } catch (e) { /* 저장 불가 */ } }
 const perf = { t: 0, n: 0 };
@@ -1307,7 +1639,8 @@ function spawnBoss() {
   keepIn(p, 120);
   R.boss = mkEnemy('boss', p.x, p.y, true); R.boss.home = { ...p }; R.boss.wt = 0;
   R.enemies.push(R.boss); R.bossT = C.CONST.BOSS_TIME;
-  banner(theme().boss + ' 출현');
+  const ch = Math.floor((S.stage - 1) / 10);
+  if (!storySeen(ch) && ART.op_nf && ART.op_blaze) playStory(ch, bossCutIn); else bossCutIn();
 }
 
 /* ---------- 출동 (일일 출동, 균열 심층) ----------
@@ -1365,10 +1698,10 @@ function chalEnd(win, reason) {
   }, 1600);
 }
 
-function addText(x, y, txt, col, big) { if (R.texts.length < 60) R.texts.push({ x, y, txt, col, big, life: 0.9 }); }
+function addText(x, y, txt, col, big, dmg) { if (dmg && GQ.dmgNum === false) return; if (R.texts.length < 60) R.texts.push({ x, y, txt, col, big, life: 0.9 }); }
 function addFx(o) { if (R.fx.length < 180) R.fx.push(o); }
 /** 화면 흔들림 (세기 누적, 최대 10) */
-function shake(v) { R.shake = Math.min(10, (R.shake || 0) + v); }
+function shake(v) { if (GQ.shake === false) return; R.shake = Math.min(10, (R.shake || 0) + v); }
 /** 히트스톱(초). 겹치면 긴 쪽만 */
 function hitStop(sec) { R.stop = Math.max(R.stop || 0, sec); }
 /** 화면이 순간 확대됐다 돌아옴 (기술) */
@@ -1388,19 +1721,21 @@ function cutIn(h, r) {
 function spark(x, y, col, n, len) { const a0 = Math.random() * 6.28; addFx({ k: 'spark', x, y, col, n, len, a0, life: 0.22 }); }
 
 /** 피해 적용 (치명타 판정 포함). 처치 시 보상 */
+let dmgSrc = null;
+const DPS = { d: {}, t: 0, on: true };
 function damage(e, base) {
   if (!e || e.hp <= 0) return;
   const crit = Math.random() < C.critChance(S.up.crit);
   // 스캐너 표식이 붙은 적은 받는 피해 증가
   const dmg = base * (R.buff > 0 ? 1.5 : 1) * (crit ? C.CRIT_DMG : 1) * (e.mark > 0 ? 1 + (e.markAmp || 0) : 1);
-  e.hp -= dmg; e.hit = 0.14; e.aggro = true;
+  e.hp -= dmg; e.hit = 0.14; if (dmgSrc) { DPS.d[dmgSrc] = (DPS.d[dmgSrc] || 0) + Math.min(dmg, Math.max(0, e.hp + dmg)); } e.aggro = true;
   if (crit || base > 0 && R.skillHit) e.flash = 0.09;   // 흰 번쩍은 센 타격에만
   // 밀려남: 요원 팀 쪽에서 바깥으로. 근원체는 거의 안 밀림
   const kx = e.x - R.A.x, ky = e.y - R.A.y, kl = Math.hypot(kx, ky) || 1, kb = (crit ? 150 : 70) * (e.boss ? 0.15 : 1);
   e.vx = (e.vx || 0) + kx / kl * kb; e.vy = (e.vy || 0) + ky / kl * kb * 0.6;
   if (crit) { hitStop(e.boss ? 0.07 : 0.045); shake(e.boss ? 2 : 1); }
   spark(e.x, e.y - e.size * 0.5, crit ? '#ffd23a' : '#e8ecff', crit ? 9 : 5, e.size * (crit ? 0.6 : 0.4));
-  addText(e.x + (Math.random() - 0.5) * e.size * 0.7, e.y - e.size * (0.75 + Math.random() * 0.35), C.formatNum(dmg), crit ? '#ffd23a' : '#fff', crit);
+  addText(e.x + (Math.random() - 0.5) * e.size * 0.7, e.y - e.size * (0.75 + Math.random() * 0.35), C.formatNum(dmg), crit ? '#ffd23a' : '#fff', crit, true);
   if (e.hp <= 0) kill(e);
 }
 function kill(e) {
@@ -1462,7 +1797,7 @@ function heroAct(h, r, dt) {
   if (r.queued && r.cd <= 0) { r.queued = false; r.cd = h.skill.cd; r.face = tgt.x >= r.x ? 1 : -1; castSkill(h, atk, r, s, tgt); r.swing = 1; return; }
   const range = RANGE[h.range] + (h.range === 'melee' ? tgt.size * 0.25 : 0), dd = dist(r, tgt);
   if (dd > range) { moveTo(r, tgt.x, tgt.y, 90, dt); r.walk = true; return; }
-  r.face = tgt.x >= r.x ? 1 : -1;
+  r.face = tgt.x >= r.x ? 1 : -1; dmgSrc = h.id;
   // 스킬 (쿨타임마다 자동 사용)
   r.cd -= dt;
   if (r.cd <= 0) {
@@ -1488,6 +1823,7 @@ function strongest(r) {
   return best;
 }
 function castSkill(h, atk, r, s, tgt) {
+  dmgSrc = h.id;
   const sk = h.skill;
   R.skillHit = true; setTimeout(() => { R.skillHit = false; }, 0);
   cutIn(h, r); shake(h.id === 'dark' ? 5 : 3); zoomPunch(h.id === 'dark' ? 0.09 : 0.05); hitStop(0.06);
@@ -1563,14 +1899,15 @@ function loop(now) {
   try {
     // 시작 화면이나 팝업이 떠 있는 동안은 전투를 멈춤 (보스 제한 시간 보호)
     // 히트스톱: 치명타, 기술, 처치 순간 화면이 아주 잠깐 멈췄다 풀림 (타격감의 핵심)
-    if (!paused && !modalEl.classList.contains('on')) { if (R.stop > 0) { R.stop -= dt; R.shake = Math.max(0, (R.shake || 0) - dt * 10); } else { update(dt); if (S.speed === 2) update(dt); } }
-    if (g) { draw(); if (!paused) perfTick(dt); }
+    if (!paused && !storyOn && !modalEl.classList.contains('on')) { if (R.stop > 0) { R.stop -= dt; R.shake = Math.max(0, (R.shake || 0) - dt * 10); } else { update(dt); if (S.speed === 2) update(dt); } }
+    if (g && !sleeping) { draw(); if (!paused) perfTick(dt); }
     uiT += dt; if (uiT > 0.15) { uiT = 0; updateUI(); }
     saveT += dt; if (saveT > 5) { saveT = 0; writeSave(); }
   } catch (e) { console.error(e); toast('전투 처리 중 오류: ' + e.message); }
   requestAnimationFrame(loop);
 }
 function update(dt) {
+  if (DPS.on) DPS.t += dt; LOG.t += dt;
   R.t += dt;
   R.buff = Math.max(0, R.buff - dt);
   if (R.mapStage !== S.stage) newMap();   // 스테이지가 바뀌면 새 지도
@@ -1611,8 +1948,8 @@ function update(dt) {
     if (p.tgt.hp <= 0 && !p.aoe) { p.done = true; continue; }
     if (d < p.sp * dt + 4) {
       p.done = true;
-      if (p.aoe) { for (const e of R.enemies) if (e.hp > 0 && dist(e, p.tgt) < 60) damage(e, p.dmg); addFx({ k: 'burst', x: tx, y: ty, r: 50, life: 0.3, col: '#ff9a2e' }); }
-      else damage(p.tgt, p.dmg);
+      if (p.aoe) { dmgSrc = p.k; for (const e of R.enemies) if (e.hp > 0 && dist(e, p.tgt) < 60) damage(e, p.dmg); addFx({ k: 'burst', x: tx, y: ty, r: 50, life: 0.3, col: '#ff9a2e' }); }
+      else { dmgSrc = p.k; damage(p.tgt, p.dmg); }
     } else { p.x += dx / d * p.sp * dt; p.y += dy / d * p.sp * dt; p.a = Math.atan2(dy, dx); }
   }
   R.proj = R.proj.filter(p => !p.done);
@@ -1623,7 +1960,7 @@ function update(dt) {
     // 상태: 표식, 느려짐은 시간만 줄고, 기절과 격리 상자는 아무것도 못 함
     if (e.mark > 0) e.mark -= dt;
     if (e.slow > 0) e.slow -= dt;
-    if (e.cage > 0) { e.cage -= dt; if (e.cage <= 0) { addFx({ k: 'burst', x: e.x, y: e.y - e.size * 0.4, r: e.size * 1.2, life: 0.4, col: CI_COL.blackbox }); shake(3); damage(e, e.cageDmg || 0); } continue; }
+    if (e.cage > 0) { e.cage -= dt; if (e.cage <= 0) { addFx({ k: 'burst', x: e.x, y: e.y - e.size * 0.4, r: e.size * 1.2, life: 0.4, col: CI_COL.blackbox }); shake(3); dmgSrc = 'blackbox'; damage(e, e.cageDmg || 0); } continue; }
     if (e.stun > 0) { e.stun -= dt; continue; }
     const sl = e.slow > 0 ? 0.5 : 1;
     let tg = null, bd = Infinity;
@@ -2049,13 +2386,13 @@ function updateUI() {
   $('area').textContent = theme().name;
   $('gold').textContent = C.formatNum(S.gold);
   // 프로필: 대장(출전 첫 요원) 얼굴, 수사팀 레벨(스테이지), 계급(구역마다), 구역 안 진행 / 전투력
-  const lead = team()[0];
+  const lead = S.face && S.heroes[S.face] && S.heroes[S.face].owned ? C.heroById(S.face) : team()[0];
   if (lead) { const src = ART['id_' + lead.id] || ART['card_' + lead.id] || portrait(lead.id); if ($('pfImg').getAttribute('src') !== src) $('pfImg').src = src; }
   const chap = Math.floor((S.stage - 1) / 10);
   $('pfLv').textContent = S.stage; $('pfRank').textContent = RANKS[Math.min(chap, RANKS.length - 1)];
   $('pfBar').style.width = (((S.stage - 1) % 10) * 10 + 10 * Math.min(1, S.kills / C.CONST.WAVE_KILLS)).toFixed(1) + '%';
   $('power').textContent = C.formatNum(teamPower());
-  if ($('app').classList.contains('herofull')) { $('phExp').textContent = C.formatNum(S.exp); $('phGold').textContent = C.formatNum(S.gold); }
+  if ($('app').classList.contains('herofull')) { $('phPw').textContent = C.formatNum(teamPower()); $('phExp').textContent = C.formatNum(S.exp); $('phGold').textContent = C.formatNum(S.gold); }
   $('gems').textContent = C.formatNum(S.gems);
   const bar = $('prog').firstElementChild, lab = $('prog').lastElementChild;
   if (C.dailyReset(S, new Date()) && tab === 'run') renderPanel();   // 0시가 지나면 입장 횟수와 임무 새로
@@ -2076,7 +2413,7 @@ function updateUI() {
   if (qrKey !== S.q.i) {   // 보상 칸은 퀘스트가 바뀔 때만 다시 그림
     qrKey = S.q.i;
     const [k, v] = Object.entries(q.rw)[0];
-    $('qrw').innerHTML = k === 'hero' ? `<img class="qhero" src="${ART['id_' + v] || portrait(v)}" alt="${C.heroById(v).name}">`
+    $('qrw').innerHTML = k === 'hero' || k === 'shard' ? `<img class="qhero" src="${ART['id_' + v] || portrait(v)}" alt="${C.heroById(v).name}">${k === 'shard' ? `<b>+${q.rw.n}</b>` : ''}`
       : `${icon({ gold: 'gold', exp: 'exp', gems: 'gem', tix: 'tix', ptix: 'ptix' }[k])}<b>${C.formatNum(v)}</b>`;
   }
   $('quest').style.setProperty('--qp', (100 * S.q.p / q.need).toFixed(1) + '%');
@@ -2113,7 +2450,7 @@ function sortHeroes(list, pids) {
     return hsort === 1 ? byLv(a, b) : byGrade(a, b);
   });
 }
-const APP_VERSION = '0.17.0';   // 버전은 로딩 화면이 아니라 설정에만 표시
+const APP_VERSION = '0.18.0';   // 버전은 로딩 화면이 아니라 설정에만 표시
 const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
 /** 보상 글자: '보석 100', '경험치 300' 처럼 */
 function rwText(r) { const L = { gold: '골드', exp: '경험치', gems: '보석', tix: '호출권', ptix: '정예 호출권' }; return Object.entries(r).filter(([k, v]) => L[k] && v).map(([k, v]) => `${L[k]} ${C.formatNum(v)}`).join(', '); }
@@ -2134,24 +2471,59 @@ function skillText(h) {
 }
 const starStr = n => '★'.repeat(n) + `<s>${'★'.repeat(C.CONST.MAX_STARS - n)}</s>`;
 
+let hsub = 'manage', ownOnly = (() => { try { return localStorage.getItem('aiu-own') === '1'; } catch (e) { return false; } })();
+/** 요원 카드 한 장: 등급 테두리, 분류(왼쪽 위), 레벨(오른쪽 위), 출전 띠, 이름과 별, 아래 조각 막대 */
+function agentCard(h, pids, act) {
+  const d = S.heroes[h.id], inP = pids.includes(h.id);
+  const stars = '★'.repeat(d.stars) + `<span class="e">${'★'.repeat(C.CONST.MAX_STARS - d.stars)}</span>`;
+  return `<div class="ac g-${h.grade}${d.owned ? '' : ' no'}${inP ? ' inparty' : ''}" data-act="${act}" data-h="${h.id}">
+    <div class="ap"><img src="${ART['card_' + h.id] || portrait(h.id)}" alt="" loading="lazy"><i class="tic t-${h.type}"><svg><use href="#i-t-${h.type}"/></svg></i>
+      ${d.owned ? `<b class="alv">Lv.<span class="lv">${d.lv}</span></b>` : '<span class="nob">미보유</span>'}${inP ? '<span class="arib">출전</span>' : ''}
+      <span class="anm">${h.name}</span><span class="ast">${stars}</span></div>
+    ${d.owned ? '<div class="ash"><i></i><span></span></div>' : ''}</div>`;
+}
+function manageHtml() {
+  const pids = C.partyIds(S);
+  const list = sortHeroes(C.HEROES.filter(h => (hfil === '전체' || h.type === hfil) && (!ownOnly || S.heroes[h.id].owned)), pids);
+  const nOwn = owned().length;
+  return `<div class="mrow1"><button class="ownchk${ownOnly ? ' on' : ''}" data-act="ownonly"><i></i>보유 요원만 표시</button>
+      <button class="mbtn go" data-act="starall" id="hAll">일괄 승급</button></div>
+    <div class="mrow2"><span class="cnt">${nOwn}<small>/ ${C.HEROES.length}</small></span>
+      <button data-act="hfilc">${hfil === '전체' ? '' : `<i class="tic t-${hfil}"><svg><use href="#i-t-${hfil}"/></svg></i>`}${hfil}</button>
+      <button data-act="hsort"><svg viewBox="0 0 24 24"><path d="M7 4v15M3 15l4 4l4-4M17 20V5M13 9l4-4l4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>${HSORT[hsort]}</button></div>
+    <div class="agrid">${list.map(h => agentCard(h, pids, 'hdet')).join('')}</div>`;
+}
+/** 편성: 위 무대(근접 앞줄, 원거리 뒷줄)에 출전 요원, 아래 보유 요원 목록을 눌러 넣고 빼기 */
+function formHtml() {
+  const pids = C.partyIds(S), slots = C.partySlots(S), t = pids.map(id => C.heroById(id));
+  const front = t.filter(h => h.range === 'melee'), back = t.filter(h => h.range !== 'melee');
+  const pos = [[50, 46], [25, 56], [75, 56], [37, 88], [63, 88]];   // 무대 위 자리 (가로 %, 세로 %)
+  const order = [...front, ...back];
+  const spots = pos.map(([x, y], i) => {
+    const h = order[i];
+    if (h) { const sp = ART['spr_' + h.id]; return `<div class="fspot" style="left:${x}%;top:${y}%"><img ${sp ? '' : 'class="face"'} src="${sp || portrait(h.id)}" alt=""><b>${h.name}</b></div>`; }
+    return i < slots ? `<div class="fspot empty" style="left:${x}%;top:${y}%"></div>`
+      : `<div class="fspot lock" data-l="${Math.floor((C.CONST.PARTY_SLOT_AT[i] - 1) / 10) + 1}구역" style="left:${x}%;top:${y}%"></div>`;
+  }).join('');
+  const bg = ART['floor' + (Math.floor((S.stage - 1) / 10) % 3 + 1)] || ART.floor1;
+  return `<div class="fstage"><div class="fbg" style="background-image:url(${bg || ''})"></div><div class="ring"></div>${spots}</div>
+      <div class="fbar"><span class="fc"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 2l8 3v6c0 5-3.5 9-8 11c-4.5-2-8-6-8-11V5z" fill="#c9d3ee"/></svg><b class="${pids.length >= slots ? 'full' : ''}">${pids.length}</b>/${slots}</span>
+        <button class="mbtn go" data-act="autoform">자동 편성</button></div>
+    <p class="fhint">요원을 누르면 출전하거나 빠져요. 근접 요원은 앞줄, 원거리 요원은 뒷줄에 서요.</p>
+    <div class="agrid">${sortHeroes(owned(), pids).map(h => agentCard(h, pids, 'fpick')).join('')}</div>`;
+}
+function codexHtml() {
+  const n = owned().length;
+  return `<button class="cdx" data-act="cdxagents"><img src="${ART.op_key || ''}" alt=""><b>요원 도감</b><span>모은 요원 ${n} / ${C.HEROES.length}</span></button>
+    <button class="cdx lock" data-act="cdxlock" data-v="51"><img src="${ART.op_boss || ''}" alt=""><b>사건 도감</b><span>스테이지 51 달성 시 열려요</span></button>
+    <button class="cdx lock" data-act="cdxlock" data-v="121"><img src="${ART.op_nf || ''}" alt=""><b>복장 도감</b><span>스테이지 121 달성 시 열려요</span></button>`;
+}
 function renderPanel() {
   const P = $('panel');
   if (tab === 'hero') {
-    // 위: 분류 거르기(전체, 공격, 광역, 방어, 지원) + 일괄 강화. 세나 키우기 영웅 목록처럼 분류 그림으로
-    const pids = C.partyIds(S), list = sortHeroes(C.HEROES.filter(h => hfil === '전체' || h.type === hfil), pids);
-    P.innerHTML = `<div class="htop"><div class="tfil">${['전체', ...C.TYPES].map(t => `<button data-act="hfil" data-v="${t}" class="${t === '전체' ? '' : 't-' + t}${hfil === t ? ' on' : ''}" aria-label="${t}">${t === '전체' ? '<b>전체</b>' : `<svg><use href="#i-t-${t}"/></svg>`}</button>`).join('')}</div>
-</div>
-      <div class="hcount"><span class="xchip">${icon('exp')}<b id="hExp"></b></span><span>출전 <b>${pids.length}</b> / ${C.partySlots(S)}</span><button class="hsort hall" data-act="starall" id="hAll">일괄 승급</button><button class="hsort" data-act="hsort"><svg viewBox="0 0 24 24"><path d="M7 4v15M3 15l4 4l4-4M17 20V5M13 9l4-4l4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>${HSORT[hsort]}</button></div><div class="hgrid">` +
-      list.map(h => {
-        const d = S.heroes[h.id], inP = pids.includes(h.id);
-        const tic = `<i class="tic t-${h.type}"><svg><use href="#i-t-${h.type}"/></svg></i>`;
-        const ph = `<div class="hph"><img src="${ART['card_' + h.id] || portrait(h.id)}" alt=""><span class="gr g-${h.grade}">${h.grade}</span>${tic}${d.owned ? `<span class="lvb">Lv<b class="lv"></b></span><span class="up">승급</span>${inP ? '<span class="pin">출전</span>' : ''}` : '<span class="no">미보유</span>'}</div>`;
-        const nm = `<div class="hn${h.name.length >= 5 ? ' long' : ''}">${h.name}</div>`;
-        if (!d.owned) return `<div class="hc locked c-${h.grade}" data-act="hdet" data-h="${h.id}">${ph}${nm}</div>`;
-        // 세나 키우기처럼 목록에서는 바로 강화하지 않음: 눌러서 상세 창에서 강화, 승급
-        return `<div class="hc c-${h.grade}${inP ? ' inparty' : ''}" data-h="${h.id}"><div class="hcard" data-act="hdet" data-h="${h.id}">${ph}${nm}
-          <div class="hst">${starStr(d.stars)}</div><div class="sbar mini"><i></i></div></div></div>`;
-      }).join('') + '</div>';
+    // 요원 창 (세나 키우기 영웅 창처럼): 아래 작은 탭으로 요원 관리 / 편성 / 도감
+    for (const x of $('hsub').children) x.classList.toggle('on', x.dataset.hsub === hsub);
+    P.innerHTML = hsub === 'form' ? formHtml() : hsub === 'codex' ? codexHtml() : manageHtml();
   } else if (tab === 'train') {
     const ic = { atk: 'sword', gold: 'gold', crit: 'target' };
     P.innerHTML = C.UPGRADES.map(u => `<div class="urow" data-u="${u.id}"><div class="uic"><svg><use href="#i-${ic[u.id]}"/></svg></div>
@@ -2221,17 +2593,18 @@ function drawSummonBanner() {
 function updatePanel() {
   const P = $('panel');
   if (tab === 'hero') {
-    for (const card of P.querySelectorAll('.hc[data-h]:not(.locked)')) {
+    for (const card of P.querySelectorAll('.ac[data-h]:not(.no)')) {
       const id = card.dataset.h, d = S.heroes[id];
-      card.querySelector('.lv').textContent = d.lv;
+      const lv = card.querySelector('.lv'); if (lv) lv.textContent = d.lv;
       card.classList.toggle('canlv', card.classList.contains('inparty') && C.heroLvCost(d.lv) <= S.exp);   // 빨간 점: 출전 요원 중 경험치로 강화할 수 있을 때만
       const need = C.starNeed(d.stars, C.heroById(id).grade), max = need === Infinity;
-      card.querySelector('.sbar i').style.width = max ? '100%' : Math.min(100, 100 * d.shards / need) + '%';
+      card.querySelector('.ash i').style.width = max ? '100%' : Math.min(100, 100 * d.shards / need) + '%';
+      card.querySelector('.ash span').textContent = max ? '최고' : `${d.shards}/${need}`;
       card.classList.toggle('canstar', !max && d.shards >= need);
     }
     if ($('hExp')) $('hExp').textContent = C.formatNum(S.exp);
     const all = $('hAll'); if (all) all.disabled = !owned().some(h => S.heroes[h.id].shards >= C.starNeed(S.heroes[h.id].stars, h.grade));
-    if (modalEl.classList.contains('on') && $('hdet')) fillHeroDetail();
+    if (hpageId) fillHeroDetail();
   } else if (tab === 'train') {
     for (const row of P.querySelectorAll('.urow[data-u]')) {
       const id = row.dataset.u, lv = S.up[id], cost = C.upgradeCost(id, lv);
@@ -2286,6 +2659,7 @@ function renderRun(P) {
     <button class="dtile wide" data-act="topen"><img src="${ART[BOSS_ART.tower] || ''}" alt="">
       <span class="dtn">균열 심층</span><span class="dtk">${z.no}구역 ${z.name}</span>
       <span class="dtr">다음 ${f}층 ${rwHtml(C.towerReward(f))}</span><span class="dtb">돌파 ${S.tower}층</span></button>
+    <button class="btn wide" data-act="dsweepall" style="width:100%;margin-top:8px" ${runAlert() ? '' : 'disabled'}>일괄 소탕</button>
     <p class="hint" style="margin:10px 2px">일일 작전은 하루 ${C.CONST.DAILY_KEYS}번, 매일 0시에 다시 채워져요. 실패하면 횟수가 줄지 않아요. 한 번 깬 단계는 소탕으로 싸우지 않고 바로 보상을 받아요. 제한 시간은 ${C.CONST.CHAL_TIME}초예요.</p>`;
 }
 /* 일일 임무, 출석: 전투 화면 왼쪽 아이콘을 누르면 창으로 (세나 키우기 미션, 출석 아이콘과 같은 자리) */
@@ -2340,7 +2714,8 @@ function updateRun(P) {
     const i = +r.dataset.m, m = C.MISSIONS[i], p = S.daily.p[m.kind] || 0, got = S.daily.got.includes(i);
     r.querySelector('.bar i').style.width = (100 * p / m.need) + '%';
     r.querySelector('.mp').textContent = `${C.formatNum(p)} / ${C.formatNum(m.need)}`;
-    const b = r.querySelector('button'); b.disabled = got || p < m.need; b.textContent = got ? '완료' : '받기';
+    const b = r.querySelector('button'), go = !got && p < m.need && MIS_GO[m.kind];
+    b.disabled = got || (p < m.need && !go); b.textContent = got ? '완료' : go ? '이동' : '받기'; b.classList.toggle('ghost', !!go); b.dataset.act = go ? 'mgo' : 'mget';
     r.classList.toggle('done', got);
   }
   const bn = P.querySelector('.mrow.bonus');
@@ -2519,42 +2894,72 @@ $('rift').addEventListener('click', e => {
 
 /* ---------- 요원 상세 (카드를 누르면): 능력치, 기술, 조각, 강화와 승급 ---------- */
 let detId = null;
+/* ---------- 요원 상세 화면 (세나 키우기 캐릭터 화면처럼) ----------
+ * 큰 일러스트가 배경, 왼쪽 위 분류와 세부 역할, 가운데 위 등급 문장, 좌우 화살표로 다른 요원,
+ * 왼쪽 아래 전신 그림, 별과 이름 칸, 기술 설명 띠, 능력치 3칸, 아래 출전 / 승급 / 레벨업 버튼 */
+let hpageId = null;
+const GRADE_COL = { 희귀: '#4f8fe0', 영웅: '#b35ee0', 전설: '#f0a531' };
+const bigArt = id => ART['big_' + id] || ({ mage: ART.op_blaze, dark: ART.op_nf })[id] || ART['card_' + id] || portrait(id);
 function openHeroDetail(id) {
-  detId = id; const h = C.heroById(id), d = S.heroes[id];
-  openModal(`<div id="hdet" class="hdet c-${h.grade}">
-    <div class="hd-top"><img src="${ART['id_' + id] || portrait(id)}" alt=""><div class="hd-t"><span class="gr g-${h.grade}">${h.grade}</span>
-      <b>${h.name}</b><span class="role">${h.role}</span><span class="tbadge t-${h.type}"><i class="tic"><svg><use href="#i-t-${h.type}"/></svg></i>${h.type}</span><div class="hst" id="hdStars"></div></div></div>
-    ${d.owned ? `<div class="hd-stat"><span>레벨<b id="hdLv"></b></span><span>공격력<b id="hdAtk"></b></span><span>체력<b id="hdHp"></b></span></div>
-    <div class="hd-sk"><small>기술</small><b>${h.skill.name}</b><em>재사용 ${h.skill.cd}초</em><p>${skillText(h)}</p></div>
-    <div class="sbar"><i id="hdBar"></i><span class="st" id="hdSh"></span></div>
-    <div id="hdParty"></div>
-    <div class="seg hd-seg">${[[1, '1회'], [10, '10회'], [0, '최대']].map(([v, l]) => `<button data-act="bulk" data-v="${v}" class="${bulk === v ? 'on' : ''}">${l}</button>`).join('')}</div>
-    <div class="hd-btns"><button class="btn sm rift" data-act="star" data-h="${id}" id="hdStar">승급</button>
-      <button class="btn" data-act="lv" data-h="${id}" id="hdUp"><span class="bl"></span><span class="cost">${icon('gold')}<i></i></span></button></div>`
-    : `<div class="hd-sk"><small>기술</small><b>${h.skill.name}</b><em>재사용 ${h.skill.cd}초</em><p>${skillText(h)}</p></div>
-      <p>${h.limited ? '특별 채용(한정)에서만 만날 수 있어요.' : h.grade === '희귀' ? '요원 호출에서 만날 수 있어요.' : '요원 호출이나 정예 호출에서 만날 수 있어요.'}</p>`}
-    <div class="mbtns"><button class="btn ghost" data-close>닫기</button></div></div>`, () => { detId = null; });
+  if (!$('app').classList.contains('herofull')) openHeroWin();
+  hpageId = id; detId = id;
+  $('app').classList.add('hdopen');
+  renderHeroPage();
+}
+function closeHeroPage() { if (!hpageId) return; hpageId = null; detId = null; $('app').classList.remove('hdopen'); renderPanel(); }
+function renderHeroPage() {
+  const id = hpageId; if (!id) return;
+  const h = C.heroById(id), d = S.heroes[id], col = GRADE_COL[h.grade];
+  const list = hsub === 'manage' && !ownOnly ? sortHeroes(C.HEROES.filter(x => hfil === '전체' || x.type === hfil), C.partyIds(S)) : sortHeroes(owned(), C.partyIds(S));
+  const i = list.findIndex(x => x.id === id);
+  const sp = ART['spr_' + id];
+  $('hpage').innerHTML = `<img class="hp-bg" src="${bigArt(id)}" alt="">
+    <div class="hp-tags"><span><i class="tic t-${h.type}"><svg><use href="#i-t-${h.type}"/></svg></i>${h.type}형</span><span><i class="tic" style="color:${col}"><svg><use href="#i-t-${h.type}"/></svg></i>${h.role}</span></div>
+    <div class="hp-grade" style="--gc:${col}"><svg viewBox="0 0 60 60"><path d="M30 3l9 14 16 3-11 12 3 17-17-8-17 8 3-17L5 20l16-3z" fill="none" stroke="var(--gc)" stroke-width="2.5"/><path d="M30 14l11 6v13l-11 6-11-6V20z" fill="var(--gc)" opacity=".85"/></svg><b>${h.grade}</b>${h.limited ? '<small>한정</small>' : ''}</div>
+    ${list.length > 1 ? `<button class="hp-nav l" data-act="hpnav" data-h="${list[(i - 1 + list.length) % list.length].id}" aria-label="이전 요원">‹</button><button class="hp-nav r" data-act="hpnav" data-h="${list[(i + 1) % list.length].id}" aria-label="다음 요원">›</button>` : ''}
+    <div class="hp-sd">${sp ? `<img src="${sp}" alt="">` : `<img class="face" src="${portrait(id)}" alt="">`}</div>
+    <div class="hp-mid">
+      <button class="hp-skill" data-act="hpskill" style="--gc:${col}"><span>${h.skill.name}</span><small>재사용 ${h.skill.cd}초</small></button>
+      <div class="hp-stars">${'★'.repeat(d.stars)}<span>${'★'.repeat(C.CONST.MAX_STARS - d.stars)}</span></div>
+      <div class="hp-name"><b>${h.name}</b><div><span>Lv.<i id="hpLv"></i></span><span class="pw"><svg viewBox="0 0 24 24"><path d="M5 19L18 6M8 6l10 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><i id="hpPw"></i></span></div></div>
+    </div>
+    <div class="hp-desc">${skillText(h)}</div>
+    ${d.owned ? `<div class="hp-stats"><span>${icon('sword')}<b id="hpAtk"></b></span><span><svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.7-8 11-8 11z" fill="#e8ecf6"/></svg><b id="hpHp"></b></span><span><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" fill="none" stroke="#e8ecf6" stroke-width="2.2"/><path d="M12 9v4l3 2M9 2h6" stroke="#e8ecf6" stroke-width="2.2" stroke-linecap="round"/></svg><b>${h.skill.cd}초</b></span></div>
+    <div class="hp-btns">
+      <button class="hp-b sm" data-act="${C.partyIds(S).includes(id) ? 'party' : 'hpjoin'}" data-h="${id}" id="hpParty"></button>
+      <button class="hp-b star" data-act="star" data-h="${id}" id="hpStar"><b>승급</b><span class="pill2"><svg class="ic" viewBox="0 0 24 24"><rect x="5" y="3" width="12" height="17" rx="2" fill="#3a4566" stroke="#c9d3ee" stroke-width="1.4"/><path d="M11 8l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.4 1.3.5-2.6-1.9-1.8 2.6-.4z" fill="#f2c94c"/></svg><i id="hpSh"></i></span></button>
+      <button class="hp-b lv" data-act="lv" data-h="${id}" id="hpUp"><b id="hpUpT">레벨업</b><span class="pill2">${icon('exp')}<i id="hpCost"></i></span></button>
+      <button class="hp-b sm bulk" data-act="hpbulk" id="hpBulk"></button></div>`
+    : `<div class="hp-no">${h.limited ? '특별 채용(한정)에서만 만날 수 있어요' : h.grade === '희귀' ? '요원 호출에서 만날 수 있어요' : '요원 호출이나 정예 호출에서 만날 수 있어요'}</div>`}`;
   fillHeroDetail();
 }
 function fillHeroDetail() {
-  const id = detId; if (!id || !$('hdet')) return;
+  const id = hpageId; if (!id || !$('hpage').firstChild) return;
   const h = C.heroById(id), d = S.heroes[id];
-  $('hdStars').innerHTML = starStr(d.stars);
   if (!d.owned) return;
-  // 파티: 넣기 / 빼기. 가득 차 있으면 바꿀 요원을 눌러서 자리 교체
-  const pids = C.partyIds(S), inP = pids.includes(id), full = pids.length >= C.partySlots(S);
-  $('hdParty').innerHTML = inP
-    ? `<button class="btn ghost" style="width:100%;margin-bottom:8px" data-act="party" data-h="${id}" ${pids.length <= 1 ? 'disabled' : ''}>출전에서 빼기</button>`
-    : full ? `<div class="pswap-t">출전 자리가 가득 찼어요. 바꿀 요원을 눌러요</div><div class="pswap">${pids.map(p => { const ph = C.heroById(p); return `<button data-act="pswap" data-o="${p}" data-h="${id}"><img src="${ART['card_' + p] || portrait(p)}" alt=""><span>${ph.name}</span></button>`; }).join('')}</div>`
-    : `<button class="btn" style="width:100%;margin-bottom:8px" data-act="party" data-h="${id}">출전시키기</button>`;
-  $('hdLv').textContent = d.lv; $('hdAtk').textContent = C.formatNum(C.heroAtk(id, d.lv, d.stars, S.up.atk)); $('hdHp').textContent = C.formatNum(C.heroHp(id, d.lv, d.stars));
+  $('hpLv').textContent = d.lv;
+  const atk = C.heroAtk(id, d.lv, d.stars, S.up.atk), hp = C.heroHp(id, d.lv, d.stars);
+  $('hpPw').textContent = C.formatNum(Math.round(atk * 10 + hp));
+  $('hpAtk').textContent = C.formatNum(atk); $('hpHp').textContent = C.formatNum(hp);
+  const pids = C.partyIds(S), inP = pids.includes(id), pb = $('hpParty');
+  pb.dataset.act = inP ? 'party' : 'hpjoin'; pb.textContent = inP ? '출전 중' : '출전'; pb.classList.toggle('on', inP);
   const need = C.starNeed(d.stars, h.grade), max = need === Infinity;
-  $('hdBar').style.width = max ? '100%' : Math.min(100, 100 * d.shards / need) + '%';
-  $('hdSh').textContent = max ? '최고 등급' : `조각 ${d.shards} / ${need}`;
-  $('hdStar').disabled = max || d.shards < need;
-  const { n, cost } = lvPlan(d.lv), up = $('hdUp');
-  up.querySelector('.bl').textContent = bulk === 1 ? '강화' : `강화 +${Math.max(n, bulk === 0 ? 1 : bulk)}`;
-  up.querySelector('.cost i').textContent = C.formatNum(cost); up.disabled = !(n > 0 && cost <= S.exp);
+  $('hpSh').innerHTML = max ? '최고' : `<em class="${d.shards >= need ? 'ok' : ''}">${d.shards}</em>/${need}`;
+  $('hpStar').disabled = max || d.shards < need;
+  const { n, cost } = lvPlan(d.lv), up = $('hpUp');
+  $('hpUpT').textContent = bulk === 1 ? '레벨업' : `레벨업 +${Math.max(n, bulk === 0 ? 1 : bulk)}`;
+  $('hpCost').textContent = `${C.formatNum(S.exp)} / ${C.formatNum(cost)}`; up.disabled = !(n > 0 && cost <= S.exp);
+  $('hpBulk').textContent = bulk === 0 ? '최대' : '×' + bulk;
+}
+/** 승급 성공 창 (세나 키우기처럼): 얼굴, 별 전후, 능력치 전후 */
+function showStarUp(id, before) {
+  const h = C.heroById(id), d = S.heroes[id];
+  const row = (ic, name, a, b) => `<div class="su-r">${ic}<span>${name}</span><em>${C.formatNum(a)}</em><i>»</i><b>${C.formatNum(b)}</b></div>`;
+  const st = n => '★'.repeat(n) + `<s>${'★'.repeat(C.CONST.MAX_STARS - n)}</s>`;
+  showResult('star', '승급 성공', `<img class="rs-face" src="${ART['card_' + id] || portrait(id)}" alt="" style="border-color:${GRADE_COL[h.grade]}"><div class="rs-nm">${h.name}</div>
+    <div class="su-st"><span>${st(before)}</span><i>»</i><span class="nw">${st(d.stars)}</span></div>
+    ${row('<svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-8-5.3-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.7-8 11-8 11z" fill="#e8ecf6"/></svg>', '체력', C.heroHp(id, d.lv, before), C.heroHp(id, d.lv, d.stars))}
+    ${row(icon('sword'), '공격력', C.heroAtk(id, d.lv, before, S.up.atk), C.heroAtk(id, d.lv, d.stars, S.up.atk))}`);
 }
 
 /** 일괄 강화 계획: 1회/10회는 정해진 단계, 최대는 살 수 있는 만큼 */
@@ -2573,10 +2978,37 @@ function onAct(e) {
       // 일괄 승급: 조각이 다 찬 요원을 한 번에 (세나 키우기 영웅관리의 일괄 승급과 같음)
       let n = 0;
       for (const h of owned()) { const d = S.heroes[h.id]; let need; while ((need = C.starNeed(d.stars, h.grade)) !== Infinity && d.shards >= need) { d.shards -= need; d.stars++; n++; } }
+      if (n) C.progress(S, 'star', n);
       if (!n) return;
       syncHeroes(false); banner(`일괄 승급 ${n}회`); writeSave(); renderPanel();
     }
     else if (act === 'hfil') { hfil = b.dataset.v; renderPanel(); }
+    else if (act === 'hfilc') { const L = ['전체', ...C.TYPES]; hfil = L[(L.indexOf(hfil) + 1) % L.length]; renderPanel(); }   // 분류 버튼: 누를 때마다 다음 분류
+    else if (act === 'hpnav') { hpageId = detId = b.dataset.h; renderHeroPage(); }
+    else if (act === 'hpskill') toast(skillText(C.heroById(hpageId)));
+    else if (act === 'hpbulk') { bulk = bulk === 1 ? 10 : bulk === 10 ? 0 : 1; fillHeroDetail(); }
+    else if (act === 'hpjoin') {
+      const id = b.dataset.h, r = C.toggleParty(S, id);
+      if (r === 'full') { hsub = 'form'; closeHeroPage(); return toast('출전 칸이 가득 찼어요. 편성에서 뺄 요원을 먼저 눌러요'); }
+      if (r === 'in') toast(`${C.heroById(id).name} 출전`); partyChanged(); writeSave(); fillHeroDetail();
+    }
+    else if (act === 'ownonly') { ownOnly = !ownOnly; try { localStorage.setItem('aiu-own', ownOnly ? '1' : ''); } catch (e) {} renderPanel(); }
+    else if (act === 'fpick') {
+      // 편성: 출전 중이면 빼고, 아니면 넣기 (가득 차면 알림)
+      const id = b.dataset.h, nm = C.heroById(id).name, r = C.toggleParty(S, id);
+      if (r === 'full') return toast('출전 칸이 가득 찼어요. 뺄 요원을 먼저 눌러요');
+      if (r === 'last') return toast('한 명은 꼭 출전해야 해요');
+      if (r === 'in') toast(`${nm} 출전`); else if (r === 'out') toast(`${nm} 출전에서 뺐어요`);
+      partyChanged(); renderPanel(); writeSave();
+    }
+    else if (act === 'autoform') {
+      // 자동 편성: 전투력이 높은 순으로 열린 칸만큼
+      const pw = h => { const d = S.heroes[h.id]; return C.heroAtk(h.id, d.lv, d.stars, S.up.atk) * 10 + C.heroHp(h.id, d.lv, d.stars); };
+      S.party = owned().sort((a, b) => pw(b) - pw(a)).slice(0, C.partySlots(S)).map(h => h.id);
+      partyChanged(); renderPanel(); writeSave(); toast('전투력이 높은 요원으로 편성했어요');
+    }
+    else if (act === 'cdxagents') { ownOnly = false; hfil = '전체'; hsub = 'manage'; renderPanel(); $('panel').scrollTop = 0; }
+    else if (act === 'cdxlock') toast(`스테이지 ${b.dataset.v} 달성 시 열려요`);
     else if (act === 'hsort') { hsort = (hsort + 1) % HSORT.length; try { localStorage.setItem('aiu-hsort', hsort); } catch (e) {} renderPanel(); toast(`${HSORT[hsort]} 정렬`); }
     else if (act === 'party' || act === 'pswap') {
       const id = b.dataset.h, nm = C.heroById(id).name;
@@ -2594,6 +3026,18 @@ function onAct(e) {
       toast(`${d.name} ${S.dbest[d.id]}단계 소탕 완료`); banner('소탕 완료');
       for (const [ic, v] of [['gold', r.gold], ['tix', r.tix], ['exp', r.exp]]) if (v) addText(R.A.x, R.A.y - 70, ({ gold: '+', tix: '호출권 +', exp: '경험치 +' })[ic] + C.formatNum(v), ic === 'exp' ? '#6ff0c8' : '#ffd23a', true);
       writeSave(); renderPanel();
+    } else if (act === 'dsweepall') {
+      // 일괄 소탕: 깬 단계가 있는 작전을 남은 횟수만큼 모두 소탕
+      const got = {};
+      for (const d of C.DUNGEONS) while (S.keys[d.id] > 0 && S.dbest[d.id] > 0) { const r = C.sweepDungeon(S, d.id); for (const k of ['gold', 'tix', 'exp']) if (r[k]) got[k] = (got[k] || 0) + r[k]; }
+      writeSave(); renderPanel();
+      if (Object.keys(got).length) showResult('gift', '일괄 소탕 완료', rwTiles(got));
+    } else if (act === 'mgo') {
+      // 임무 바로가기: 해당 메뉴로 이동
+      const k = C.MISSIONS[+b.dataset.m].kind; modalEl.classList.remove('on');
+      if (k === 'lvup') return openHeroWin();
+      const t = MIS_GO[k]; if (t === 'boss') return $('bossBtn').click();
+      const tb = $('tabs').querySelector(`[data-tab="${t}"]`); if (tb && tab !== t) tb.click();
     } else if (act === 'mget') { const g = C.missionClaim(S, +b.dataset.m); if (g) { toast(`보석 ${g}개를 받았어요`); writeSave(); } }
     else if (act === 'mbonus') { const n = C.missionBonus(S); if (n) { toast(`정예 호출권 ${n}장을 받았어요`); writeSave(); } }
     else if (act === 'attend') {
@@ -2607,7 +3051,7 @@ function onAct(e) {
     } else if (act === 'star') {
       const d = S.heroes[b.dataset.h], need = C.starNeed(d.stars, C.heroById(b.dataset.h).grade);
       if (d.shards < need) return;
-      d.shards -= need; d.stars++; syncHeroes(false); banner(`${C.heroById(b.dataset.h).name} ★${d.stars} 승급`); renderPanel();
+      const before = d.stars; d.shards -= need; d.stars++; C.progress(S, 'star', 1); syncHeroes(false); showStarUp(b.dataset.h, before); renderPanel(); if (hpageId) renderHeroPage();
     } else if (act === 'up') {
       const id = b.dataset.u, cost = C.upgradeCost(id, S.up[id]);
       if (cost > S.gold) return toast('골드가 부족해요');
@@ -2639,6 +3083,7 @@ function backStep() {
     return 'ok';
   }
   if ($('rift').classList.contains('on')) { closeRift(); return 'ok'; }
+  if (hpageId) { closeHeroPage(); return 'ok'; }
   if ($('app').classList.contains('herofull')) { closeHeroWin(); return 'ok'; }
   if (!$('app').classList.contains('folded')) { $('app').classList.add('folded'); for (const x of $('tabs').children) x.classList.remove('on'); return 'ok'; }   // 메뉴가 열려 있으면 접기
   askExit(); return 'ok';
@@ -2653,22 +3098,25 @@ function askExit() {
 }
 window.aiuBack = () => { const r = backStep(); if (r === 'ok') return window.aiuExit ? 'exit' : 'ok'; return r; };
 if (!inApp) { keepHist(); window.addEventListener('popstate', () => { backStep(); keepHist(); }); }
-$('modal').addEventListener('click', onAct);   // 요원 상세, 일일 출동 창 안의 버튼
+$('modal').addEventListener('click', onAct);
+$('hpage').addEventListener('click', onAct);   // 요원 상세, 일일 출동 창 안의 버튼
 /* 요원 창 열기, 닫기. 닫으면 열기 전 화면(접힌 전투 화면이나 다른 메뉴)으로 돌아감 */
 let heroBack = null;
 function openHeroWin() {
   const app = $('app');
-  heroBack = app.classList.contains('folded') ? null : tab;
+  heroBack = null;   // 요원 창을 닫으면 전투 화면으로
   app.classList.remove('folded'); app.classList.add('herofull');
-  tab = 'hero'; renderPanel(); $('panel').scrollTop = 0; updateUI();
+  helpOnce('hero');
+  tab = 'hero'; hsub = 'manage'; for (const x of $('tabs').children) x.classList.toggle('on', x.dataset.tab === 'hero'); renderPanel(); $('panel').scrollTop = 0; updateUI();
 }
 function closeHeroWin() {
-  const app = $('app'); app.classList.remove('herofull');
+  const app = $('app'); app.classList.remove('herofull', 'hdopen'); hpageId = null; detId = null;
   if (heroBack && heroBack !== 'hero') { tab = heroBack; for (const x of $('tabs').children) x.classList.toggle('on', x.dataset.tab === tab); renderPanel(); }
   else { app.classList.add('folded'); for (const x of $('tabs').children) x.classList.remove('on'); }
   partyKey = ''; updateUI();
 }
-$('phBack').addEventListener('click', closeHeroWin);
+$('phBack').addEventListener('click', () => { if (hpageId) closeHeroPage(); else closeHeroWin(); });
+$('hsub').addEventListener('click', e => { const b = e.target.closest('[data-hsub]'); if (!b) return; if (hpageId) closeHeroPage(); hsub = b.dataset.hsub; renderPanel(); $('panel').scrollTop = 0; });
 // 팀 정보 닫기/열기: 출전 요원 줄을 숨기면 전투 화면이 더 넓게 보임 (세나 키우기와 같음)
 $('teamTg').addEventListener('click', () => {
   const off = $('app').classList.toggle('noteam');
@@ -2682,6 +3130,7 @@ new ResizeObserver(() => $('battle').style.setProperty('--teamH', ($('app').clas
 new ResizeObserver(() => $('app').style.setProperty('--bottomH', $('bottom').offsetHeight + 'px')).observe($('bottom'));
 $('tabs').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
+  if ($('app').classList.contains('herofull')) { closeHeroPage(); closeHeroWin(); if (b.dataset.tab === 'hero') return; $('app').classList.add('folded'); }
   if (b.dataset.tab === 'hero') return openHeroWin();
   // 세나 키우기처럼: 열린 메뉴를 한 번 더 누르면 메뉴 칸이 접히고 전투 화면이 커짐. 접힌 상태에서 아무 메뉴나 누르면 다시 펼침
   const app = $('app');
@@ -2689,24 +3138,30 @@ $('tabs').addEventListener('click', e => {
   app.classList.remove('folded');
   tab = b.dataset.tab;
   for (const x of $('tabs').children) x.classList.toggle('on', x === b);
-  renderPanel(); $('panel').scrollTop = 0;
+  renderPanel(); $('panel').scrollTop = 0; helpOnce(tab);
 });
 $('quest').addEventListener('click', () => {
   const r = C.questClaim(S);
   if (!r) { const q = C.questAt(S.q.i); return toast(`${q.text} ${C.formatNum(q.need - S.q.p)}번 더 하면 받을 수 있어요`); }
   if (r.hero) {
-    // 새 요원 합류: 카드 그림과 함께 알림, 출전 칸에 바로 들어감
+    // 새 요원 합류: 결과 띠 창에 카드 그림, 출전 칸에 바로 들어감
     const h = C.heroById(r.hero);
     partyChanged();
-    openModal(`<div class="join"><img src="${ART['card_' + h.id] || portrait(h.id)}" alt=""><small>새 요원 합류</small><b>${h.name}</b><span>${h.role}</span></div>
-      <p class="hint" style="text-align:center">${r.isNew ? '빈 출전 칸에 바로 들어갔어요.' : '이미 있는 요원이라 조각 1개를 받았어요.'}</p><div class="mbtns"><button class="btn" data-close>확인</button></div>`);
-  } else banner(`${rwText(r)} 획득`);
+    showResult('agent', '새 요원 합류', `<img class="rs-face" src="${ART['card_' + h.id] || portrait(h.id)}" alt="" style="border-color:${GRADE_COL[h.grade]}"><div class="rs-nm">${h.name}</div><div class="rs-sub">${r.isNew ? `${h.role} 요원이 빈 출전 칸에 들어갔어요` : '이미 있는 요원이라 조각 1개를 받았어요'}</div>`);
+  } else showResult('gift', '보상 획득', rwTiles(r));
   writeSave(); updateUI();
 });
 $('bAuto').addEventListener('click', () => { S.autoSkill = !S.autoSkill; toast(S.autoSkill ? '기술을 자동으로 써요' : '준비된 요원 얼굴을 누르면 기술을 써요'); writeSave(); updateUI(); });
 $('bSpd').addEventListener('click', () => { S.speed = S.speed === 2 ? 1 : 2; writeSave(); updateUI(); });
 // 파티 칸: 기술이 준비된 요원을 누르면 바로 사용 (자동이 켜져 있어도 먼저 쓸 수 있음)
-$('side').addEventListener('click', e => { const b = e.target.closest('[data-side]'); if (b) openSide(b.dataset.side); });
+$('side').addEventListener('click', e => {
+  const b = e.target.closest('[data-side]'); if (!b) return;
+  if (b.dataset.side === 'sleep') return sleepOn();
+  if (b.dataset.side === 'road') return openModal(roadHtml());
+  if (b.dataset.side === 'book') return openModal(bookHtml());
+  if (b.dataset.side === 'news') { try { localStorage.setItem('aiu-news', NEWS[0][0]); } catch (e) {} $('dotNews').classList.remove('on'); return openModal(newsHtml()); }
+  openSide(b.dataset.side);
+});
 $('party').addEventListener('click', e => {
   if (e.target.closest('[data-open]')) return openHeroWin();
   const sl = e.target.closest('.slot[id]'); if (!sl) return;
@@ -2723,8 +3178,14 @@ $('bossAuto').addEventListener('click', () => {
 });
 function gfxRows() {
   const seg = (key, opts) => `<div class="seg two">${opts.map(([v, l]) => `<button data-gfx="${key}" data-v="${v}" class="${GQ[key] === v ? 'on' : ''}">${l}</button>`).join('')}</div>`;
-  return `<div class="setrow"><div><div class="ut">그래픽</div><div class="uv">낮음은 빛과 안개를 줄여 가볍게</div></div>${seg('hi', [[true, '높음'], [false, '낮음']])}</div>
-    <div class="setrow"><div><div class="ut">프레임</div><div class="uv">30은 배터리와 발열이 줄어요</div></div>${seg('fps60', [[true, '60'], [false, '30']])}</div>`;
+  const tg = (key) => `<button class="tgl ${GQ[key] ? 'on' : ''}" data-tg="${key}" aria-pressed="${!!GQ[key]}"></button>`;
+  const sl = [[0, '끔'], [3, '3분'], [10, '10분']].map(([v, l]) => `<button data-gfx="autoSleep" data-v="${v}" class="${(GQ.autoSleep || 0) === v ? 'on' : ''}">${l}</button>`).join('');
+  return `<div class="optg">화면</div><div class="setrow"><div><div class="ut">그래픽</div><div class="uv">낮음은 빛과 안개를 줄여 가볍게</div></div>${seg('hi', [[true, '높음'], [false, '낮음']])}</div>
+    <div class="setrow"><div><div class="ut">프레임</div><div class="uv">30은 배터리와 발열이 줄어요</div></div>${seg('fps60', [[true, '60'], [false, '30']])}</div>
+    <div class="setrow"><div><div class="ut">피해 숫자</div><div class="uv">적에게 준 피해를 숫자로 보여 줘요</div></div>${tg('dmgNum')}</div>
+    <div class="setrow"><div><div class="ut">화면 흔들림</div><div class="uv">치명타와 기술 때 화면이 흔들려요</div></div>${tg('shake')}</div>
+    <div class="optg">절전</div>
+    <div class="setrow"><div><div class="ut">자동 절전</div><div class="uv">손대지 않으면 절전 모드로 바뀌어요</div></div><div class="seg">${sl}</div></div>`;
 }
 $('btnSet').addEventListener('click', () => {
   openModal(`<h2>설정</h2>
@@ -2738,9 +3199,12 @@ $('btnSet').addEventListener('click', () => {
 modalEl.addEventListener('click', e => {
   const gb = e.target.closest('[data-gfx]');
   if (gb) {   // 직접 고르면 자동 낮춤은 끔
+    if (gb.dataset.gfx === 'autoSleep') { GQ.autoSleep = +gb.dataset.v; saveGQ(); $('gfxRows').innerHTML = gfxRows(); return; }
     GQ[gb.dataset.gfx] = gb.dataset.v === 'true'; GQ.auto = false; saveGQ();
     resize(); R.pat = null; vgKey = ''; $('gfxRows').innerHTML = gfxRows(); return;
   }
+  const tb = e.target.closest('[data-tg]');
+  if (tb) { GQ[tb.dataset.tg] = !GQ[tb.dataset.tg]; saveGQ(); $('gfxRows').innerHTML = gfxRows(); return; }
   const b = e.target.closest('[data-set]'); if (!b) return;
   if (b.dataset.set === 'off') { modalEl.classList.remove('on'); showOffline(C.offlineReward(S, 3600)); }
   else if (b.dataset.set === 'reset') { modalEl.classList.remove('on'); confirmReset(); }
@@ -2897,6 +3361,244 @@ $('op').addEventListener('click', e => {
   if (OP.typed && !OP.typed()) OP.full(); else opNext();
 });
 window.addEventListener('resize', () => { if (OP.on) opResize(); });
+
+
+/* ---------- 결과 띠 창 (보상 획득, 승급 성공, 새 요원 합류) ---------- */
+const EMB = {
+  gift: '<svg class="rs-emb" viewBox="0 0 60 60"><path d="M30 3l24 13v28L30 57 6 44V16z" fill="#1d2740" stroke="#c9d3ee" stroke-width="2.5"/><rect x="17" y="27" width="26" height="17" fill="#e8ecf6"/><rect x="15" y="21" width="30" height="7" fill="#fff"/><path d="M30 21v23" stroke="#1d2740" stroke-width="3"/><path d="M30 21c-4-7-11-6-9-1s9 1 9 1c4-7 11-6 9-1s-9 1-9 1" fill="none" stroke="#fff" stroke-width="2.4"/></svg>',
+  star: '<svg class="rs-emb" viewBox="0 0 60 60"><path d="M30 3l24 13v28L30 57 6 44V16z" fill="#1d2740" stroke="#c9d3ee" stroke-width="2.5"/><path d="M30 16l4 8.2 9 1.3-6.5 6.4 1.5 9-8-4.3-8 4.3 1.5-9-6.5-6.4 9-1.3z" fill="#fff6d8"/></svg>',
+  agent: '<svg class="rs-emb" viewBox="0 0 60 60"><path d="M30 3l24 13v28L30 57 6 44V16z" fill="#1d2740" stroke="#f2c94c" stroke-width="2.5"/><circle cx="30" cy="25" r="7" fill="#fff6d8"/><path d="M17 44c1-8 6-12 13-12s12 4 13 12z" fill="#fff6d8"/></svg>',
+};
+let resDone = null;
+function showResult(kind, title, body) {
+  const el = $('res');
+  el.innerHTML = `<div class="rs"><div class="rs-band">${EMB[kind] || EMB.gift}<b>${title}</b></div><div class="rs-body">${body}</div><div class="rs-tap">터치하여 닫기</div></div>`;
+  el.classList.add('on');
+}
+$('res').addEventListener('click', () => { $('res').classList.remove('on'); const d = resDone; resDone = null; d && d(); });
+/** 보상 칸 여러 개 (아이콘 + 수량) */
+function rwTiles(r) {
+  const I = { gold: 'gold', exp: 'exp', gems: 'gem', tix: 'tix', ptix: 'ptix' };
+  const t = Object.entries(r).filter(([k, v]) => I[k] && v).map(([k, v], i) => `<div class="rs-it" style="animation-delay:${i * 0.08}s">${icon(I[k])}<span>${C.formatNum(v)}</span></div>`);
+  if (r.shard) t.push(`<div class="rs-it"><img src="${ART['card_' + r.shard] || portrait(r.shard)}" alt=""><span>조각 ${r.n}</span></div>`);
+  return `<div class="rs-items">${t.join('')}</div>`;
+}
+
+/* ---------- 임무 바로가기 ---------- */
+const MIS_GO = { kill: null, boss: 'boss', lvup: 'hero', summon: 'summon', dungeon: 'run', tower: 'run' };
+
+/* ---------- 사건 기록: 지난 이야기 다시 보기 (세나 키우기 서재처럼) ---------- */
+function bookHtml() {
+  const seenCh = (() => { try { return +(localStorage.getItem('aiu-bst') || -1); } catch (e) { return -1; } })();
+  const rows = [['프롤로그', '비가 그치지 않는 도시', 0, 'opening', 'op_key']].concat(THEMES.map((t, i) => [`${i + 1}장 ${t.name}`, t.boss, i * 10 + 1, 'st' + i, ['op_key', 'op_boss', 'op_key'][i]]));
+  return `<h2>사건 기록</h2><p class="hint">지나온 이야기를 다시 볼 수 있어요.</p><div class="book">${rows.map(([n, sub, st, key, img], i) => {
+    const open = i === 0 || seenCh >= i - 1;
+    return `<button class="bk ${open ? '' : 'lock'}" ${open ? `data-bk="${key}"` : ''}><img src="${ART[img] || ''}" alt=""><span><b>${n}</b><small>${open ? sub : `스테이지 ${st} 달성 시`}</small></span>${open ? '<i>▶</i>' : '<i class="lk">🔒</i>'}</button>`;
+  }).join('')}</div><div class="mbtns"><button class="btn" data-close>닫기</button></div>`;
+}
+modalEl.addEventListener('click', e => {
+  const b = e.target.closest('[data-bk]'); if (!b) return;
+  modalEl.classList.remove('on');
+  if (b.dataset.bk === 'opening') return playOpening();
+  const ch = +b.dataset.bk.slice(2); stQ = STORY[ch].slice(); stDone = null; storyOn = true; $('story').classList.add('on'); stNext();
+});
+
+/* ---------- 수사 수첩 (구역 돌파 보상, 열리는 콘텐츠) ---------- */
+function rdTile(rw) {
+  const [k, v] = Object.entries(rw)[0];
+  return `${icon({ gems: 'gem', tix: 'tix', ptix: 'ptix', gold: 'gold' }[k])}<span>${C.formatNum(v)}</span>`;
+}
+function roadHtml() {
+  const ready = C.roadReady(S).length;
+  return `<h2>수사 수첩</h2><p class="hint">스테이지를 넘을 때마다 새 구역과 기능이 열리고 보상을 받아요.</p><div class="road">${C.ROADMAP.map(r => {
+    const done = S.unl.includes(r.id), ok = S.stage >= r.stage, cls = done ? 'done' : ok ? 'ready' : 'lock';
+    return `<div class="rd ${cls}" ${ok && !done ? `data-rd="${r.id}"` : ''}><div class="rd-i">${r.stage}</div><div class="rd-t"><b>${r.name}</b><small>스테이지 ${r.stage} 달성 시</small>
+      <div class="rd-bar"><i style="width:${Math.min(100, S.stage / r.stage * 100)}%"></i></div></div><div class="rd-r">${rdTile(r.rw)}</div></div>`;
+  }).join('')}</div><div class="mbtns"><button class="btn ghost" data-close>닫기</button><button class="btn" data-rdall ${ready ? '' : 'disabled'}>모두 받기</button></div>`;
+}
+modalEl.addEventListener('click', e => {
+  const one = e.target.closest('[data-rd]'), all = e.target.closest('[data-rdall]');
+  if (!one && !all) return;
+  const got = {};
+  for (const r of (one ? C.ROADMAP.filter(x => x.id === one.dataset.rd) : C.roadReady(S))) { const w = C.roadClaim(S, r.id); if (w) for (const [k, v] of Object.entries(w)) got[k] = (got[k] || 0) + v; }
+  writeSave(); modalEl.classList.remove('on');
+  if (Object.keys(got).length) showResult('gift', '보상 획득', rwTiles(got));
+});
+
+/* ---------- 프로필 창: 대표 얼굴 바꾸기, 수사팀 능력치 ---------- */
+function openProfile() {
+  const own = C.HEROES.filter(h => S.heroes[h.id].owned), cur = S.face || (team()[0] || {}).id;
+  const chap = Math.floor((S.stage - 1) / 10);
+  openModal(`<h2>프로필</h2><div class="pfw-h"><img src="${ART['id_' + cur] || portrait(cur)}" alt=""><div><b>AIU 수사팀</b><small>Lv.${S.stage} ${RANKS[Math.min(chap, RANKS.length - 1)]}</small></div></div>
+    <div class="optg">대표 얼굴</div><div class="pfw-g">${own.map(h => `<button data-face="${h.id}" class="${h.id === cur ? 'on' : ''}" aria-label="${h.name}"><img src="${ART['id_' + h.id] || portrait(h.id)}" alt=""></button>`).join('')}</div>
+    <div class="optg">수사팀 능력치</div><div class="pfw-s">
+      <div><span>전투력</span><b>${C.formatNum(teamPower())}</b></div>
+      <div><span>보유 요원</span><b>${own.length} / ${C.HEROES.length}</b></div>
+      <div><span>사격 훈련</span><b>Lv.${S.up.atk}</b></div><div><span>현상금 협상</span><b>Lv.${S.up.gold}</b></div><div><span>급소 노리기</span><b>Lv.${S.up.crit}</b></div>
+      <div><span>균열 심층</span><b>${S.tower}층</b></div></div>
+    <div class="mbtns"><button class="btn" data-close>닫기</button></div>`);
+}
+$('prof').addEventListener('click', openProfile);
+modalEl.addEventListener('click', e => {
+  const f = e.target.closest('[data-face]'); if (!f) return;
+  S.face = f.dataset.face; writeSave(); updateUI(); openProfile();
+});
+
+/* ---------- 구역 근원체 첫 등장 이야기 ---------- */
+const STORY = [
+  [['op_nf', '나이트폴', '빗속에 우산을 쓴 남자가 서 있다. 저게 이 골목 균열의 근원이다.'], ['op_blaze', '블레이즈', '비 오는 날 우산이라… 태우기 딱 좋네요.']],
+  [['op_nf', '나이트폴', '항구에 안개가 걷히지 않는다. 등대지기가 불을 끄지 않는 한.'], ['op_blaze', '블레이즈', '불 끄는 건 몰라도, 붙이는 건 자신 있어요.']],
+  [['op_nf', '나이트폴', '네온 아래 마네킹들이 움직인다는 신고가 들어왔다.'], ['op_blaze', '블레이즈', '쇼윈도 정리는 저한테 맡기세요.']],
+];
+let storyOn = false, stQ = [], stDone = null, stT = 0;
+function storySeen(ch) { try { return +(localStorage.getItem('aiu-bst') || -1) >= ch; } catch (e) { return true; } }
+function playStory(ch, done) {
+  try { localStorage.setItem('aiu-bst', ch); } catch (e) {}
+  stQ = STORY[ch % STORY.length].slice(); stDone = done; storyOn = true; $('story').classList.add('on'); stNext();
+}
+function stNext() {
+  clearTimeout(stT);
+  const L = stQ.shift(); if (!L) return stEnd();
+  const img = ART[L[0]]; if ($('stImg').getAttribute('src') !== img) { $('stImg').src = img; $('stImg').style.animation = 'none'; void $('stImg').offsetWidth; $('stImg').style.animation = ''; }
+  $('stName').textContent = L[1]; $('stLine').textContent = L[2];
+  stT = setTimeout(stNext, 3800);   // 자동 넘김
+}
+function stEnd() { clearTimeout(stT); storyOn = false; $('story').classList.remove('on'); const d = stDone; stDone = null; d && d(); }
+$('story').addEventListener('click', e => { if (e.target.id === 'stSkip') stEnd(); else stNext(); });
+
+
+/* ---------- 근원체 출현 컷인 ---------- */
+function bossCutIn() {
+  const el = $('bossin'), t = theme(), img = ART['spr_boss' + (Math.floor((S.stage - 1) / 10) % 3 + 1)] || ART.spr_boss1;
+  el.innerHTML = `<div class="bt">근원체 출현</div><div class="bb">${img ? `<img src="${img}" alt="">` : ''}<div class="bn"><b>${t.boss}</b><small>${t.name}</small></div></div>`;
+  el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+  setTimeout(() => talk('boss'), 2500);
+}
+
+/* ---------- 전투 중 요원 대사 (근원체가 나오면 출전 요원 한 명이 한마디) ---------- */
+const LINES = {
+  mage: ['기다리는 건 질색이라서요. 바로 태웁니다!', '불 붙일 데가 또 생겼네요.'],
+  knight: ['내 뒤로 물러서. 막는 건 내 일이다.', '방패 들어. 정면으로 간다.'],
+  archer: ['조준 끝. 한 발이면 충분해.', '움직이지 마라… 쏜다.'],
+  priest: ['다친 사람 있으면 바로 말해요.', '버텨요. 제가 붙어 있을게요.'],
+  dark: ['…늦었군. 정리한다.', '균열은 내가 닫는다.'],
+  scanner: ['반응 크다! 저게 근원체예요!', '드론 띄웁니다. 약점 찾았어요.'],
+  breaker: ['문이든 괴물이든 부수면 그만이지.', '길 연다! 따라와!'],
+  echo: ['소리가 이상해… 다들 귀 막아.', '이 주파수면 움직임이 느려질 거야.'],
+  requiem: ['기도는 끝났다. 이제 보내 주지.', '은 탄환은 넉넉하다.'],
+  ironside: ['전원 내 방패 뒤로!', '이 정도로는 안 뚫려.'],
+  blackbox: ['좋은 표본이군. 격리하지.', '상자 안이 조용해질 거야.'],
+  ghost: ['…이미 뒤에 있어.', '보이지 않는 게 제일 무섭지.'],
+};
+let talkT = 0;
+function talk() {
+  const t = team().filter(h => LINES[h.id]); if (!t.length) return;
+  const h = t[Math.floor(Math.random() * t.length)], L = LINES[h.id], el = $('talk');
+  el.style.setProperty('--tc', ({ 희귀: '#9fc3ff', 영웅: '#d9a6ff', 전설: '#ffd27a' })[h.grade]);
+  el.innerHTML = `<img src="${ART['id_' + h.id] || portrait(h.id)}" alt=""><div><b>${h.name}</b><span>${L[Math.floor(Math.random() * L.length)]}</span></div>`;
+  el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+  clearTimeout(talkT); talkT = setTimeout(() => el.classList.remove('on'), 3200);
+}
+
+/* ---------- 처음 들어가는 메뉴마다 도움말 (한 번만, 오른쪽 위 ? 로 다시 보기) ---------- */
+const HELP = {
+  hero: ['요원', ['<b>요원 관리</b>: 요원을 누르면 상세 화면에서 레벨업과 승급을 해요. 레벨업은 경험치, 승급은 조각을 써요.', '<b>편성</b>: 요원을 눌러 출전시키거나 빼요. 출전 칸은 구역이 오를수록 늘어나요.', '<b>도감</b>: 모은 요원을 한눈에 봐요.', '카드 아래 막대가 가득 차면 <b>승급</b>할 수 있어요. 일괄 승급으로 한 번에 해요.']],
+  train: ['성장', ['골드로 수사팀 전체를 강화해요. 출전한 요원 모두에게 적용돼요.', '<b>사격 훈련</b>은 공격력, <b>현상금 협상</b>은 골드 획득, <b>급소 노리기</b>는 치명타 확률을 올려요.', '×1, ×10, 최대로 여러 번 한꺼번에 올릴 수 있어요.']],
+  run: ['작전', ['하루 3번씩 들어갈 수 있는 <b>일일 작전</b>이에요. 매일 0시에 다시 채워져요.', '<b>현상수배</b>는 골드, <b>단서 추적</b>은 호출권, <b>모의 훈련</b>은 경험치를 크게 줘요.', '한 번 깬 단계는 <b>소탕</b>으로 싸우지 않고 바로 보상을 받아요.', '<b>균열 심층</b>은 한 층씩 내려가며 보석을 모으는 도전이에요.']],
+  summon: ['호출', ['<b>요원 호출</b>은 호출권으로 뽑아요. 많이 뽑을수록 호출 레벨이 올라 좋은 요원이 잘 나와요.', '<b>정예 호출</b>은 영웅 이상만 나와요.', '<b>특별 채용</b>에서는 한정 요원을 만날 수 있어요.']],
+};
+function helpOnce(key) {
+  let seen = {}; try { seen = JSON.parse(localStorage.getItem('aiu-help') || '{}'); } catch (e) {}
+  if (seen[key] || !HELP[key]) return;
+  seen[key] = 1; try { localStorage.setItem('aiu-help', JSON.stringify(seen)); } catch (e) {}
+  showHelp(key);
+}
+function showHelp(key) {
+  const [t, L] = HELP[key];
+  openModal(`<div class="help"><h2><i>?</i>${t}</h2><ul>${L.map(x => `<li>${x}</li>`).join('')}</ul><div class="mbtns"><button class="btn" data-close>확인</button></div></div>`);
+}
+
+
+
+/* ---------- 피해량 기록, 획득 기록 ---------- */
+const LOG = { t: 0, base: null };
+let mtTab = 'dps';
+function logReset() { LOG.t = 0; LOG.base = { gold: S.gold, exp: S.exp, gems: S.gems, tix: S.tix, kills: S.killsTotal || 0, stage: S.stage }; }
+function meterOpen(on) {
+  $('meter').classList.toggle('on', on); $('bMeter').setAttribute('aria-pressed', on);
+  try { localStorage.setItem('aiu-meter', on ? '1' : '0'); } catch (e) {}
+  if (on) meterDraw();
+}
+function fmtT(t) { const z = n => String(n).padStart(2, '0'); t = Math.floor(t); return `${z(Math.floor(t / 3600))}:${z(Math.floor(t / 60) % 60)}:${z(t % 60)}`; }
+function meterDraw() {
+  if (!$('meter').classList.contains('on')) return;
+  for (const b of $('meter').querySelectorAll('[data-mt]')) b.classList.toggle('on', b.dataset.mt === mtTab);
+  if (mtTab === 'dps') {
+    const rows = team().map(h => [h, DPS.d[h.id] || 0]).sort((a, b) => b[1] - a[1]);
+    const top = Math.max(1, ...rows.map(r => r[1])), sum = rows.reduce((a, r) => a + r[1], 0);
+    $('mtB').innerHTML = rows.map(([h, v]) => `<div class="mt-r"><img src="${ART['id_' + h.id] || portrait(h.id)}" alt=""><i style="--w:${Math.round(v / top * 112)}px"></i><span>${h.name}</span><b>${C.formatNum(v)}</b></div>`).join('')
+      + `<div class="mt-f"><span>초당 ${C.formatNum(sum / Math.max(1, DPS.t))}</span><button data-mtr="dps">초기화</button></div>`;
+  } else {
+    if (!LOG.base) logReset();
+    const B = LOG.base, row = (ic, v) => `<div class="mt-r">${icon(ic)}<span>획득</span><b>+${C.formatNum(Math.max(0, v))}</b></div>`;
+    $('mtB').innerHTML = row('gold', S.gold - B.gold) + row('exp', S.exp - B.exp) + row('gem', S.gems - B.gems) + row('tix', S.tix - B.tix)
+      + `<div class="mt-f"><span>${fmtT(LOG.t)}</span><button data-mtr="log">초기화</button></div>`;
+  }
+}
+$('bMeter').addEventListener('click', () => meterOpen(!$('meter').classList.contains('on')));
+$('mtX').addEventListener('click', () => meterOpen(false));
+$('meter').addEventListener('click', e => {
+  const t = e.target.closest('[data-mt]'); if (t) { mtTab = t.dataset.mt; meterDraw(); }
+  const r = e.target.closest('[data-mtr]'); if (r) { if (r.dataset.mtr === 'dps') { DPS.d = {}; DPS.t = 0; } else logReset(); meterDraw(); }
+});
+setInterval(meterDraw, 500);
+try { if (localStorage.getItem('aiu-meter') === '1') setTimeout(() => meterOpen(true), 500); } catch (e) {}
+
+/* ---------- 오른쪽 세로 메뉴 접기 ---------- */
+$('sideTg').addEventListener('click', () => { const f = $('side').classList.toggle('fold'); try { localStorage.setItem('aiu-side', f ? '1' : '0'); } catch (e) {} });
+try { if (localStorage.getItem('aiu-side') === '1') $('side').classList.add('fold'); } catch (e) {}
+
+/* ---------- 소식 (업데이트 내역) ---------- */
+const NEWS = [
+  ['0.18.0', '11월 28일', ['수사 수첩, 프로필, 피해량 기록, 일괄 소탕이 생겼어요', '구역 근원체가 처음 나올 때 이야기가 나와요', '요원 창을 요원 관리, 편성, 도감으로 나눴어요', '요원 상세 화면과 승급 성공 연출이 생겼어요', '가이드 보상으로 블레이즈 첫 승급을 할 수 있어요', '근원체 출현 컷인, 요원 대사, 보상 획득 창이 생겼어요', '재화와 메뉴 아이콘을 새로 그렸어요', '절전 모드와 새 설정이 생겼어요']],
+  ['0.17.0', '11월 27일', ['가이드 퀘스트가 생겼어요', '뒤로 가기 버튼을 누르면 종료를 묻도록 바꿨어요', '오프닝 연출을 새로 만들었어요']],
+];
+function newsHtml() {
+  return `<div class="news"><h2>소식</h2>${NEWS.map(([v, d, L]) => `<h3>AIU ${v}<small>${d}</small></h3><ul>${L.map(x => `<li>${x}</li>`).join('')}</ul>`).join('')}<div class="mbtns"><button class="btn" data-close>닫기</button></div></div>`;
+}
+const newsSeen = () => { try { return localStorage.getItem('aiu-news') === NEWS[0][0]; } catch (e) { return true; } };
+$('dotNews').classList.toggle('on', !newsSeen());
+setInterval(() => { $('dotRoad').classList.toggle('on', C.roadReady(S).length > 0); $('sideTg').classList.toggle('alert', $('side').classList.contains('fold') && !!$('side').querySelector('.dot.on')); }, 1000);
+
+/* ---------- 절전 모드: 화면은 검게, 전투와 보상은 계속 ---------- */
+let sleeping = false, slBase = null, idleT = 0;
+const TIPS = ['절전 중에도 전투는 계속되고 보상도 쌓여요.', '출전 칸은 구역이 오를수록 늘어나요.', '일일 작전은 매일 0시에 다시 채워져요.', '같은 요원을 또 뽑으면 조각이 쌓여 승급할 수 있어요.'];
+function sleepOn() {
+  if (sleeping) return; sleeping = true; slBase = { gold: S.gold, exp: S.exp, gems: S.gems };
+  $('slTip').textContent = TIPS[Math.floor(Math.random() * TIPS.length)];
+  $('sleep').classList.add('on'); slTick();
+}
+function sleepOff() { sleeping = false; idleT = 0; $('sleep').classList.remove('on'); $('slKnob').style.transform = ''; }
+function slTick() {
+  if (!sleeping) return;
+  const d = new Date(), z = n => String(n).padStart(2, '0');
+  $('slClock').textContent = `${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`;
+  $('slDate').textContent = `${d.getMonth() + 1}월 ${d.getDate()}일 ${'일월화수목금토'[d.getDay()]}요일`;
+  $('slSt').textContent = `${C.stageLabel ? C.stageLabel(S.stage) : S.stage + ' 단계'}  ${theme().name}`;
+  $('slGain').innerHTML = `<span>${icon('gold')}+${C.formatNum(Math.max(0, S.gold - slBase.gold))}</span><span>${icon('exp')}+${C.formatNum(Math.max(0, S.exp - slBase.exp))}</span><span>${icon('gem')}+${C.formatNum(Math.max(0, S.gems - slBase.gems))}</span>`;
+  setTimeout(slTick, 1000);
+}
+// 자물쇠를 위로 밀면 해제
+(() => {
+  let y0 = null; const k = $('slKnob');
+  $('sleep').addEventListener('pointerdown', e => { y0 = e.clientY; });
+  $('sleep').addEventListener('pointermove', e => { if (y0 === null) return; const dy = Math.max(-62, Math.min(0, e.clientY - y0)); k.style.transform = `translateY(${dy}px)`; });
+  const end = e => { if (y0 === null) return; const dy = e.clientY - y0; y0 = null; if (dy < -50) sleepOff(); else k.style.transform = ''; };
+  $('sleep').addEventListener('pointerup', end); $('sleep').addEventListener('pointercancel', end);
+})();
+// 자동 절전: 설정한 시간 동안 손대지 않으면 켜짐
+['pointerdown', 'keydown'].forEach(t => window.addEventListener(t, () => { idleT = 0; }, true));
+setInterval(() => { if (sleeping || !GQ.autoSleep || paused) return; idleT += 5; if (idleT >= GQ.autoSleep * 60) sleepOn(); }, 5000);
 
 /* ---------- 시작 ---------- */
 const pending = firstRun ? null : C.offlineReward(S, (Date.now() - S.lastSeen) / 1000);

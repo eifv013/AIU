@@ -321,3 +321,15 @@ test('경험치: 처치, 오프라인, 모의 훈련으로 쌓이고 저장 검�
   assert.equal(C.sanitize({ exp: -5 }, 0).exp, C.CONST.START_EXP);
   assert.equal(C.sanitize({ exp: 1234 }, 0).exp, 1234);
 });
+
+test('수사 수첩: 단계 도달 전에는 못 받고, 한 번만 받음', () => {
+  const s = C.newState(0);
+  assert.equal(C.roadClaim(s, 'z2'), null);
+  s.stage = 11; const g = s.gems;
+  assert.deepEqual(C.roadClaim(s, 'z2'), { gems: 100 });
+  assert.equal(s.gems, g + 100);
+  assert.equal(C.roadClaim(s, 'z2'), null);
+  assert.equal(C.roadReady(s).map(r => r.id).join(), 'p4');
+  const t = C.sanitize(JSON.parse(JSON.stringify({ ...s, face: 'mage', unl: ['z2', 'x'] })), 0);
+  assert.deepEqual(t.unl, ['z2']); assert.equal(t.face, 'mage');
+});
